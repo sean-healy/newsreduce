@@ -3,6 +3,9 @@ if [ $USER != root ]; then
     sudo $0 $@
     exit
 fi
+if [ ! -d /opt/newsreduce ]; then
+    git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
+fi
 useradd newsreduce
 mkdir -p /var/newsreduce
 usermod -d /var/newsreduce newsreduce
@@ -26,6 +29,7 @@ fi
 apt-get install ${debs[*]}
 
 chown -R newsreduce:newsreduce /var/newsreduce
+chown -R newsreduce:newsreduce /opt/newsreduce
 
 (cat << END
 *filter
@@ -52,6 +56,10 @@ chown -R newsreduce:newsreduce /var/newsreduce
 -A INPUT  -p tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 -A INPUT  -p tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 6379 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 6379 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 3306 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 3306 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 END
 for host in $(cat /var/newsreduce/network); do
     echo "# $host"
