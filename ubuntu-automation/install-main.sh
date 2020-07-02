@@ -1,7 +1,7 @@
 #!/usr/bin/bash
-function mysql() {
-    cat
-}
+#function mysql() {
+#    cat
+#}
 #function iptables-restore() {
 #    cat
 #}
