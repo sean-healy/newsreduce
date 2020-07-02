@@ -1,0 +1,4 @@
+#!/bin/bash
+dir="$(nr-project-wd)"
+vim "$dir/sql/$((cd "$dir/sql" && ls) | stripe | fzf --ansi)"
+nr-gen-sql-code

@@ -1,0 +1,10 @@
+#!/bin/bash
+dir="$(nr-project-wd)"
+printf "script name: "
+read name
+if [ "$name" ]; then
+    name="$(echo "$name" | tr '[:lower:]' '[:upper:]' | tr ' ' '_')"
+    loc="$dir/sql/$name.sql"
+    (cd "$(dirname "$loc")" && vim "$loc")
+    nr-gen-sql-code
+fi

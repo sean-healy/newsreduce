@@ -1,0 +1,2 @@
+#!/bin/sh
+nr-ls-scripts | stripe | fzf --ansi
