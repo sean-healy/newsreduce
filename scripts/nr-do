@@ -1,1 +1,35 @@
-/home/sean/my-data/Scripts/do-template
+#!/bin/bash
+prefix=$(basename "$0" | grep -o '^[^-]\+')
+if [ "$(isterm)" = 1 ]; then
+    edit="$(arg edit $@)"
+    loop="$(arg loop $@)"
+    if [ "$loop" = 1 ]; then
+        while [ true ]; do
+            "$0"
+            echo "Press [Enter] to continue."
+            read any
+        done
+    else
+        scriptsDir="$(dirname $0)"
+        dir="$scriptsDir/.do"
+        if [ ! -d "$dir" ]; then mkdir "$dir"; fi
+        preview="preview-description $dir/{}"
+        ln -sf $(which do-new-template) "$scriptsDir/$prefix-new-description"
+        echo "$prefix-new-description" > "$dir/Add to this menu"
+        description="$((ls $dir | sed 's/$/…/g') | fzf --ansi --preview "$preview" | sed 's/…//g')"
+        descriptionLoc="$dir/$description"
+        if [ -f "$descriptionLoc" ]; then
+            actionName="$(cat "$descriptionLoc")"
+            actionLoc="$scriptsDir/$actionName"
+            if [ -f "$actionLoc" ]; then
+                if [ "$edit" = 1 ]; then
+                    vim "$actionLoc"
+                else
+                    "$actionLoc"
+                fi
+            fi
+        fi
+    fi
+elif [ "$(isterm)" = 0 ]; then
+    x-terminal-emulator -e "$0 $@"
+fi

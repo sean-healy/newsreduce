@@ -1,1 +1,6 @@
-/home/sean/my-data/Scripts/do-new-template
+#!/bin/sh
+scriptsDir="$(dirname "$0")"
+script="$(cd "$(dirname "$0")" && ls | stripe | fzf --ansi)"
+printf "Description: "
+read description
+echo "$script" > "$scriptsDir/.do/$description"
