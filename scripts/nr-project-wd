@@ -1,0 +1,8 @@
+#!/bin/sh
+if [ "$(printf "$0" | grep -o "^/")" ]; then
+	projectPath="$0"
+else
+	projectPath="$PWD/$0"
+fi
+echo $projectPath | sed 's|/\./|/|g' | sed 's|^\(.*/newsreduce\)/\(.*\)$|\1|g'
+projectPath=

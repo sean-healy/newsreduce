@@ -1,0 +1,3 @@
+#!/bin/sh
+script=$(nr-find-script)
+vim "$(dirname $0)/$script"
