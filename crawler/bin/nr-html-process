@@ -100,29 +100,29 @@ module.exports = require("stream");
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.AuthSwitchRequestPacket = __webpack_require__(67);
-exports.AuthSwitchResponsePacket = __webpack_require__(68);
-exports.ClientAuthenticationPacket = __webpack_require__(69);
-exports.ComChangeUserPacket = __webpack_require__(70);
-exports.ComPingPacket = __webpack_require__(71);
-exports.ComQueryPacket = __webpack_require__(72);
-exports.ComQuitPacket = __webpack_require__(73);
-exports.ComStatisticsPacket = __webpack_require__(74);
-exports.EmptyPacket = __webpack_require__(75);
-exports.EofPacket = __webpack_require__(76);
-exports.ErrorPacket = __webpack_require__(77);
+exports.AuthSwitchRequestPacket = __webpack_require__(65);
+exports.AuthSwitchResponsePacket = __webpack_require__(66);
+exports.ClientAuthenticationPacket = __webpack_require__(67);
+exports.ComChangeUserPacket = __webpack_require__(68);
+exports.ComPingPacket = __webpack_require__(69);
+exports.ComQueryPacket = __webpack_require__(70);
+exports.ComQuitPacket = __webpack_require__(71);
+exports.ComStatisticsPacket = __webpack_require__(72);
+exports.EmptyPacket = __webpack_require__(73);
+exports.EofPacket = __webpack_require__(74);
+exports.ErrorPacket = __webpack_require__(75);
 exports.Field = __webpack_require__(34);
-exports.FieldPacket = __webpack_require__(78);
-exports.HandshakeInitializationPacket = __webpack_require__(79);
-exports.LocalDataFilePacket = __webpack_require__(80);
-exports.LocalInfileRequestPacket = __webpack_require__(81);
-exports.OkPacket = __webpack_require__(82);
-exports.OldPasswordPacket = __webpack_require__(83);
-exports.ResultSetHeaderPacket = __webpack_require__(84);
-exports.RowDataPacket = __webpack_require__(85);
-exports.SSLRequestPacket = __webpack_require__(86);
-exports.StatisticsPacket = __webpack_require__(87);
-exports.UseOldPasswordPacket = __webpack_require__(88);
+exports.FieldPacket = __webpack_require__(76);
+exports.HandshakeInitializationPacket = __webpack_require__(77);
+exports.LocalDataFilePacket = __webpack_require__(78);
+exports.LocalInfileRequestPacket = __webpack_require__(79);
+exports.OkPacket = __webpack_require__(80);
+exports.OldPasswordPacket = __webpack_require__(81);
+exports.ResultSetHeaderPacket = __webpack_require__(82);
+exports.RowDataPacket = __webpack_require__(83);
+exports.SSLRequestPacket = __webpack_require__(84);
+exports.StatisticsPacket = __webpack_require__(85);
+exports.UseOldPasswordPacket = __webpack_require__(86);
 
 
 /***/ }),
@@ -144,8 +144,8 @@ module.exports = require("events");
 var Util           = __webpack_require__(0);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Packets        = __webpack_require__(2);
-var ErrorConstants = __webpack_require__(89);
-var Timer          = __webpack_require__(90);
+var ErrorConstants = __webpack_require__(87);
+var Timer          = __webpack_require__(88);
 
 // istanbul ignore next: Node.js < 0.10 not covered
 var listenerCount = EventEmitter.listenerCount
@@ -635,7 +635,7 @@ try {
   module.exports = util.inherits;
 } catch (e) {
   /* istanbul ignore next */
-  module.exports = __webpack_require__(98);
+  module.exports = __webpack_require__(96);
 }
 
 
@@ -652,13 +652,13 @@ var util = __webpack_require__(0);
 var utils = __webpack_require__(13);
 var Command = __webpack_require__(14);
 var Queue = __webpack_require__(47);
-var errorClasses = __webpack_require__(111);
+var errorClasses = __webpack_require__(109);
 var EventEmitter = __webpack_require__(4);
-var Parser = __webpack_require__(114);
+var Parser = __webpack_require__(112);
 var RedisErrors = __webpack_require__(25);
 var commands = __webpack_require__(48);
 var debug = __webpack_require__(26);
-var unifyOptions = __webpack_require__(118);
+var unifyOptions = __webpack_require__(116);
 var SUBSCRIBE_COMMANDS = {
     subscribe: true,
     unsubscribe: true,
@@ -1677,11 +1677,11 @@ exports.ReplyError = RedisErrors.ReplyError;
 exports.AggregateError = errorClasses.AggregateError;
 
 // Add all redis commands / node_redis api to the client
-__webpack_require__(119);
-__webpack_require__(120);
+__webpack_require__(117);
+__webpack_require__(118);
 
 //enables adding new commands (for modules and new commands)
-exports.addCommand = exports.add_command = __webpack_require__(121);
+exports.addCommand = exports.add_command = __webpack_require__(119);
 
 
 /***/ }),
@@ -1857,7 +1857,7 @@ var Events           = __webpack_require__(4);
 var Net              = __webpack_require__(31);
 var tls              = __webpack_require__(32);
 var ConnectionConfig = __webpack_require__(21);
-var Protocol         = __webpack_require__(60);
+var Protocol         = __webpack_require__(58);
 var SqlString        = __webpack_require__(43);
 var Query            = __webpack_require__(36);
 var Util             = __webpack_require__(0);
@@ -2665,7 +2665,7 @@ ConnectionConfig.getDefaultFlags = function getDefaultFlags(options) {
 
 ConnectionConfig.getSSLProfile = function getSSLProfile(name) {
   if (!SSLProfiles) {
-    SSLProfiles = __webpack_require__(59);
+    SSLProfiles = __webpack_require__(57);
   }
 
   var ssl = SSLProfiles[name];
@@ -2902,8 +2902,8 @@ module.exports = require("assert");
 
 
 const Errors = process.version.charCodeAt(1) < 55 && process.version.charCodeAt(2) === 46
-  ? __webpack_require__(112) // Node.js < 7
-  : __webpack_require__(113)
+  ? __webpack_require__(110) // Node.js < 7
+  : __webpack_require__(111)
 
 module.exports = Errors
 
@@ -3445,7 +3445,7 @@ function loadClass(className) {
       Class = __webpack_require__(44);
       break;
     case 'PoolCluster':
-      Class = __webpack_require__(109);
+      Class = __webpack_require__(107);
       break;
     case 'PoolConfig':
       Class = __webpack_require__(45);
@@ -3960,10 +3960,10 @@ Auth.int32Read = function(buffer, offset){
 var ClientConstants = __webpack_require__(8);
 var fs              = __webpack_require__(19);
 var Packets         = __webpack_require__(2);
-var ResultSet       = __webpack_require__(94);
+var ResultSet       = __webpack_require__(92);
 var Sequence        = __webpack_require__(5);
-var ServerStatus    = __webpack_require__(95);
-var Readable        = __webpack_require__(96);
+var ServerStatus    = __webpack_require__(93);
+var Readable        = __webpack_require__(94);
 var Util            = __webpack_require__(0);
 
 module.exports = Query;
@@ -4223,7 +4223,7 @@ var pna = __webpack_require__(17);
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = __webpack_require__(97);
+var isArray = __webpack_require__(95);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -4272,7 +4272,7 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(99);
+var BufferList = __webpack_require__(97);
 var destroyImpl = __webpack_require__(39);
 var StringDecoder;
 
@@ -5376,7 +5376,7 @@ util.inherits = __webpack_require__(11);
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(100)
+  deprecate: __webpack_require__(98)
 };
 /*</replacement>*/
 
@@ -6022,7 +6022,7 @@ Writable.prototype._destroy = function (err, cb) {
 
 /*<replacement>*/
 
-var Buffer = __webpack_require__(101).Buffer;
+var Buffer = __webpack_require__(99).Buffer;
 /*</replacement>*/
 
 var isEncoding = Buffer.isEncoding || function (encoding) {
@@ -6518,7 +6518,7 @@ function done(stream, er, data) {
 /* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(106);
+module.exports = __webpack_require__(104);
 
 
 /***/ }),
@@ -6529,7 +6529,7 @@ var mysql          = __webpack_require__(30);
 var Connection     = __webpack_require__(15);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Util           = __webpack_require__(0);
-var PoolConnection = __webpack_require__(108);
+var PoolConnection = __webpack_require__(106);
 
 module.exports = Pool;
 
@@ -7347,7 +7347,7 @@ module.exports = Denque;
 "use strict";
 
 
-var commands = __webpack_require__(117)
+var commands = __webpack_require__(115)
 
 /**
  * Redis command list
@@ -7517,6 +7517,12 @@ function getExternalKeyNameLength (key) {
 
 /***/ }),
 /* 49 */
+/***/ (function(module, exports) {
+
+module.exports = require("https");
+
+/***/ }),
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7524,7 +7530,7 @@ function getExternalKeyNameLength (key) {
 exports.__esModule = true;
 exports.getHostID = exports.getWordID = exports.getUrlID = void 0;
 var url_1 = __webpack_require__(18);
-var hashing_1 = __webpack_require__(58);
+var hashing_1 = __webpack_require__(55);
 function getUrlID(url) {
     var resource = url_1.parseURL(url);
     if (!resource)
@@ -7550,44 +7556,117 @@ exports.getHostID = getHostID;
 
 
 /***/ }),
-/* 50 */
-/***/ (function(module, exports) {
-
-module.exports = require("https");
-
-/***/ }),
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
+/* WEBPACK VAR INJECTION */(function(__dirname) {
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 exports.__esModule = true;
-exports.fileNameToFormat = exports.formatToFileName = exports.FileFormat = void 0;
-var FileFormat;
-(function (FileFormat) {
-    FileFormat[FileFormat["RAW_HTML"] = 0] = "RAW_HTML";
-    FileFormat[FileFormat["RAW_TXT"] = 1] = "RAW_TXT";
-    FileFormat[FileFormat["HITS"] = 2] = "HITS";
-})(FileFormat = exports.FileFormat || (exports.FileFormat = {}));
-function formatToFileName(format) {
-    switch (format) {
-        case FileFormat.RAW_HTML: return "raw.html";
-        case FileFormat.RAW_TXT: return "raw.txt";
-        case FileFormat.HITS: return "hit.bin";
-        default: throw "format not handled: " + format;
-    }
+exports.blobDirPromise = exports.varDirPromise = exports.projectDir = void 0;
+var fs_1 = __importDefault(__webpack_require__(19));
+var PROJECT_DIR_NAME = "newsreduce";
+var dirArray = __dirname.split('/');
+var firstI = dirArray.indexOf(PROJECT_DIR_NAME);
+var lastI = dirArray.lastIndexOf(PROJECT_DIR_NAME);
+if (firstI !== lastI) {
+    throw "path name error: only the root project folder may have the name '" + PROJECT_DIR_NAME + "'";
 }
-exports.formatToFileName = formatToFileName;
-function fileNameToFormat(fileName) {
-    switch (fileName) {
-        case "raw.html": return FileFormat.RAW_HTML;
-        case "raw.txt": return FileFormat.RAW_TXT;
-        case "hit.bin": return FileFormat.HITS;
-        default: throw "file name not handled: " + fileName;
+var PROJECT_DIR = undefined;
+function projectDir() {
+    if (PROJECT_DIR === undefined) {
+        PROJECT_DIR = dirArray.filter(function (_, i) { return i <= firstI; }).join("/");
     }
+    return PROJECT_DIR;
 }
-exports.fileNameToFormat = fileNameToFormat;
+exports.projectDir = projectDir;
+function varDirPromise() {
+    return __awaiter(this, void 0, void 0, function () {
+        var varDir;
+        return __generator(this, function (_a) {
+            varDir = "/var/newsreduce";
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    fs_1["default"].exists(varDir, function (exists) {
+                        if (exists) {
+                            resolve(varDir);
+                        }
+                        else {
+                            fs_1["default"].mkdir(varDir, function (err) {
+                                if (err)
+                                    reject(err);
+                                else
+                                    resolve(varDir);
+                            });
+                        }
+                    });
+                })];
+        });
+    });
+}
+exports.varDirPromise = varDirPromise;
+function blobDirPromise() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    var blobDir = "/var/newsreduce/blobs";
+                    fs_1["default"].exists(blobDir, function (exists) {
+                        if (exists) {
+                            resolve(blobDir);
+                        }
+                        else {
+                            fs_1["default"].mkdir(blobDir, { recursive: true, mode: 448 }, function (err) {
+                                if (err)
+                                    reject(err);
+                                else
+                                    resolve(blobDir);
+                            });
+                        }
+                    });
+                })];
+        });
+    });
+}
+exports.blobDirPromise = blobDirPromise;
 
+/* WEBPACK VAR INJECTION */}.call(this, "/"))
 
 /***/ }),
 /* 52 */
@@ -7596,21 +7675,15 @@ exports.fileNameToFormat = fileNameToFormat;
 "use strict";
 
 exports.__esModule = true;
-exports.entityName = exports.Entity = void 0;
-var Entity;
-(function (Entity) {
-    Entity[Entity["RESOURCE"] = 0] = "RESOURCE";
-    Entity[Entity["HOST"] = 1] = "HOST";
-    Entity[Entity["WORD"] = 2] = "WORD";
-})(Entity = exports.Entity || (exports.Entity = {}));
-function entityName(entity) {
-    switch (entity) {
-        case Entity.RESOURCE: return "resource";
-        case Entity.HOST: return "host";
-        case Entity.WORD: return "word";
-    }
-}
-exports.entityName = entityName;
+exports.FETCH_COMPLETE = exports.WIKI_PROCESS_COMPLETE = exports.HTML_PROCESS_COMPLETE = exports.COLD_START_COMPLETE = exports.SCHEDULE_COMPLETE = exports.FETCHER_DEATH_LOG = exports.FETCHER_BIRTH_LOG = exports.EVENT_LOG = void 0;
+exports.EVENT_LOG = "event-log";
+exports.FETCHER_BIRTH_LOG = "fetcher-birth-log";
+exports.FETCHER_DEATH_LOG = "fetcher-death-log";
+exports.SCHEDULE_COMPLETE = "schedule-complete";
+exports.COLD_START_COMPLETE = "cold-start-complete";
+exports.HTML_PROCESS_COMPLETE = "html-process-complete";
+exports.WIKI_PROCESS_COMPLETE = "wiki-process-complete";
+exports.FETCH_COMPLETE = "fetch-complete";
 
 
 /***/ }),
@@ -7626,7 +7699,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var stream__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
 /* harmony import */ var url__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(7);
-/* harmony import */ var https__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(50);
+/* harmony import */ var https__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(49);
 /* harmony import */ var zlib__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
 
 
@@ -9309,7 +9382,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 exports.log = void 0;
 var fs_1 = __importDefault(__webpack_require__(19));
-var config_1 = __webpack_require__(55);
+var config_1 = __webpack_require__(51);
 function log() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -9339,134 +9412,46 @@ exports.log = log;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(__dirname) {
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
+
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.blobDirPromise = exports.varDirPromise = exports.projectDir = void 0;
-var fs_1 = __importDefault(__webpack_require__(19));
-var PROJECT_DIR_NAME = "newsreduce";
-var dirArray = __dirname.split('/');
-var firstI = dirArray.indexOf(PROJECT_DIR_NAME);
-var lastI = dirArray.lastIndexOf(PROJECT_DIR_NAME);
-if (firstI !== lastI) {
-    throw "path name error: only the root project folder may have the name '" + PROJECT_DIR_NAME + "'";
+exports.integerToBytesReversed = exports.safeHashResourceForTime = exports.safeHashResource = exports.defaultHash = void 0;
+var crypto_1 = __importDefault(__webpack_require__(20));
+function defaultHash(str, length) {
+    if (length === void 0) { length = 30; }
+    return crypto_1["default"].createHash("sha3-256").update(str).digest().slice(0, length);
 }
-var PROJECT_DIR = undefined;
-function projectDir() {
-    if (PROJECT_DIR === undefined) {
-        PROJECT_DIR = dirArray.filter(function (_, i) { return i <= firstI; }).join("/");
+exports.defaultHash = defaultHash;
+function safeHashResource(url) {
+    return defaultHash(url);
+}
+exports.safeHashResource = safeHashResource;
+function safeHashResourceForTime(url, time) {
+    var buf = safeHashResource(url);
+    var bufLength = buf.length;
+    var timeBytes = integerToBytesReversed(time);
+    var timeBytesLength = timeBytes.length;
+    for (var i = 0; i < timeBytesLength; ++i)
+        buf[bufLength - i - 1] = timeBytes[i];
+    return buf;
+}
+exports.safeHashResourceForTime = safeHashResourceForTime;
+function integerToBytesReversed(n) {
+    var l = new Array(Math.ceil(Math.log(n) / Math.log(256)));
+    var i = 0;
+    while (n) {
+        l[i++] = n % 256;
+        n = Math.floor(n / 256);
     }
-    return PROJECT_DIR;
+    return l;
 }
-exports.projectDir = projectDir;
-function varDirPromise() {
-    return __awaiter(this, void 0, void 0, function () {
-        var varDir;
-        return __generator(this, function (_a) {
-            varDir = "/var/newsreduce";
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    fs_1["default"].exists(varDir, function (exists) {
-                        if (exists) {
-                            resolve(varDir);
-                        }
-                        else {
-                            fs_1["default"].mkdir(varDir, function (err) {
-                                if (err)
-                                    reject(err);
-                                else
-                                    resolve(varDir);
-                            });
-                        }
-                    });
-                })];
-        });
-    });
-}
-exports.varDirPromise = varDirPromise;
-function blobDirPromise() {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    var blobDir = "/var/newsreduce/blobs";
-                    fs_1["default"].exists(blobDir, function (exists) {
-                        if (exists) {
-                            resolve(blobDir);
-                        }
-                        else {
-                            fs_1["default"].mkdir(blobDir, { recursive: true, mode: 448 }, function (err) {
-                                if (err)
-                                    reject(err);
-                                else
-                                    resolve(blobDir);
-                            });
-                        }
-                    });
-                })];
-        });
-    });
-}
-exports.blobDirPromise = blobDirPromise;
+exports.integerToBytesReversed = integerToBytesReversed;
 
-/* WEBPACK VAR INJECTION */}.call(this, "/"))
 
 /***/ }),
 /* 56 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-exports.FETCH_COMPLETE = exports.WIKI_PROCESS_COMPLETE = exports.HTML_PROCESS_COMPLETE = exports.COLD_START_COMPLETE = exports.SCHEDULE_COMPLETE = exports.FETCHER_DEATH_LOG = exports.FETCHER_BIRTH_LOG = exports.EVENT_LOG = void 0;
-exports.EVENT_LOG = "event-log";
-exports.FETCHER_BIRTH_LOG = "fetcher-birth-log";
-exports.FETCHER_DEATH_LOG = "fetcher-death-log";
-exports.SCHEDULE_COMPLETE = "schedule-complete";
-exports.COLD_START_COMPLETE = "cold-start-complete";
-exports.HTML_PROCESS_COMPLETE = "html-process-complete";
-exports.WIKI_PROCESS_COMPLETE = "wiki-process-complete";
-exports.FETCH_COMPLETE = "fetch-complete";
-
-
-/***/ }),
-/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9541,12 +9526,12 @@ exports.__esModule = true;
 exports.popURL = exports.throttle = exports.crawlAllowed = exports.getRedisKeys = exports.selectThrottles = exports.processResourceLinks = exports.selectHTMLToProcess = exports.processWikiProcessed = exports.selectWikisToProcess = exports.schedule = exports.truncateTables = exports.truncateAllTables = exports.truncateTable = exports.selectTables = exports.deleteSchedule = exports.selectPreSchedule = exports.selectResource = exports.selectPostSchedule = exports.processFetchedResource = exports.deleteLegacyHeaders = exports.selectHeadersForResource = exports.processWikiPages = exports.deleteLegacyWikiCategories = exports.processWikiCategories = exports.processHTTPHeaderValues = exports.processHTTPHeaderValue = exports.httpHeaderValueID = exports.processHTTPHeaderName = exports.processHTTPHeaderNames = exports.processHTTPHeaders = exports.processHTTPHeader = exports.processResourceHeaders = exports.processResourceHeader = exports.processClientHeader = exports.processClient = exports.processURLs = exports.processURL = exports.queryID = exports.pathID = exports.processHosts = exports.processHost = void 0;
 var url_1 = __webpack_require__(18);
 var logging_1 = __webpack_require__(54);
-var sql_1 = __importDefault(__webpack_require__(123));
-var hashing_1 = __webpack_require__(58);
-var time_1 = __webpack_require__(124);
+var sql_1 = __importDefault(__webpack_require__(122));
+var hashing_1 = __webpack_require__(55);
+var time_1 = __webpack_require__(123);
 var connections_1 = __webpack_require__(29);
-var ids_1 = __webpack_require__(49);
-var functional_1 = __webpack_require__(125);
+var ids_1 = __webpack_require__(50);
+var functional_1 = __webpack_require__(124);
 var PREFIX = Buffer.from([0]);
 function genericSQLPromise(query, params, mapper) {
     var _this = this;
@@ -10121,50 +10106,7 @@ exports.popURL = popURL;
 
 
 /***/ }),
-/* 58 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-exports.__esModule = true;
-exports.integerToBytesReversed = exports.safeHashResourceForTime = exports.safeHashResource = exports.defaultHash = void 0;
-var crypto_1 = __importDefault(__webpack_require__(20));
-function defaultHash(str, length) {
-    if (length === void 0) { length = 30; }
-    return crypto_1["default"].createHash("sha3-256").update(str).digest().slice(0, length);
-}
-exports.defaultHash = defaultHash;
-function safeHashResource(url) {
-    return defaultHash(url);
-}
-exports.safeHashResource = safeHashResource;
-function safeHashResourceForTime(url, time) {
-    var buf = safeHashResource(url);
-    var bufLength = buf.length;
-    var timeBytes = integerToBytesReversed(time);
-    var timeBytesLength = timeBytes.length;
-    for (var i = 0; i < timeBytesLength; ++i)
-        buf[bufLength - i - 1] = timeBytes[i];
-    return buf;
-}
-exports.safeHashResourceForTime = safeHashResourceForTime;
-function integerToBytesReversed(n) {
-    var l = new Array(Math.ceil(Math.log(n) / Math.log(256)));
-    var i = 0;
-    while (n) {
-        l[i++] = n % 256;
-        n = Math.floor(n / 256);
-    }
-    return l;
-}
-exports.integerToBytesReversed = integerToBytesReversed;
-
-
-/***/ }),
-/* 59 */
+/* 57 */
 /***/ (function(module, exports) {
 
 // Certificates for Amazon RDS
@@ -11650,15 +11592,15 @@ exports['Amazon RDS'] = {
 
 
 /***/ }),
-/* 60 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Parser       = __webpack_require__(61);
-var Sequences    = __webpack_require__(65);
+var Parser       = __webpack_require__(59);
+var Sequences    = __webpack_require__(63);
 var Packets      = __webpack_require__(2);
 var Stream       = __webpack_require__(1).Stream;
 var Util         = __webpack_require__(0);
-var PacketWriter = __webpack_require__(105);
+var PacketWriter = __webpack_require__(103);
 
 module.exports = Protocol;
 Util.inherits(Protocol, Stream);
@@ -12119,13 +12061,13 @@ Protocol.prototype._debugPacket = function(incoming, packet) {
 
 
 /***/ }),
-/* 61 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var PacketHeader = __webpack_require__(62);
-var BigNumber    = __webpack_require__(63);
+var PacketHeader = __webpack_require__(60);
+var BigNumber    = __webpack_require__(61);
 var Buffer       = __webpack_require__(9).Buffer;
-var BufferList   = __webpack_require__(64);
+var BufferList   = __webpack_require__(62);
 
 var MAX_PACKET_LENGTH    = Math.pow(2, 24) - 1;
 var MUL_32BIT            = Math.pow(2, 32);
@@ -12616,7 +12558,7 @@ Parser.prototype._advanceToNextPacket = function() {
 
 
 /***/ }),
-/* 62 */
+/* 60 */
 /***/ (function(module, exports) {
 
 module.exports = PacketHeader;
@@ -12627,7 +12569,7 @@ function PacketHeader(length, number) {
 
 
 /***/ }),
-/* 63 */
+/* 61 */
 /***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -15524,7 +15466,7 @@ var BigNumber = clone();
 
 
 /***/ }),
-/* 64 */
+/* 62 */
 /***/ (function(module, exports) {
 
 
@@ -15555,20 +15497,20 @@ BufferList.prototype.push = function push(buf) {
 
 
 /***/ }),
-/* 65 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.ChangeUser = __webpack_require__(66);
-exports.Handshake = __webpack_require__(92);
-exports.Ping = __webpack_require__(93);
+exports.ChangeUser = __webpack_require__(64);
+exports.Handshake = __webpack_require__(90);
+exports.Ping = __webpack_require__(91);
 exports.Query = __webpack_require__(36);
-exports.Quit = __webpack_require__(103);
+exports.Quit = __webpack_require__(101);
 exports.Sequence = __webpack_require__(5);
-exports.Statistics = __webpack_require__(104);
+exports.Statistics = __webpack_require__(102);
 
 
 /***/ }),
-/* 66 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(5);
@@ -15641,7 +15583,7 @@ ChangeUser.prototype['ErrorPacket'] = function(packet) {
 
 
 /***/ }),
-/* 67 */
+/* 65 */
 /***/ (function(module, exports) {
 
 module.exports = AuthSwitchRequestPacket;
@@ -15667,7 +15609,7 @@ AuthSwitchRequestPacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 68 */
+/* 66 */
 /***/ (function(module, exports) {
 
 module.exports = AuthSwitchResponsePacket;
@@ -15687,7 +15629,7 @@ AuthSwitchResponsePacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 69 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(9).Buffer;
@@ -15747,7 +15689,7 @@ ClientAuthenticationPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 70 */
+/* 68 */
 /***/ (function(module, exports) {
 
 module.exports = ComChangeUserPacket;
@@ -15779,7 +15721,7 @@ ComChangeUserPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 71 */
+/* 69 */
 /***/ (function(module, exports) {
 
 module.exports = ComPingPacket;
@@ -15797,7 +15739,7 @@ ComPingPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 72 */
+/* 70 */
 /***/ (function(module, exports) {
 
 module.exports = ComQueryPacket;
@@ -15818,7 +15760,7 @@ ComQueryPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 73 */
+/* 71 */
 /***/ (function(module, exports) {
 
 module.exports = ComQuitPacket;
@@ -15836,7 +15778,7 @@ ComQuitPacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 74 */
+/* 72 */
 /***/ (function(module, exports) {
 
 module.exports = ComStatisticsPacket;
@@ -15854,7 +15796,7 @@ ComStatisticsPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 75 */
+/* 73 */
 /***/ (function(module, exports) {
 
 module.exports = EmptyPacket;
@@ -15869,7 +15811,7 @@ EmptyPacket.prototype.write = function write() {
 
 
 /***/ }),
-/* 76 */
+/* 74 */
 /***/ (function(module, exports) {
 
 module.exports = EofPacket;
@@ -15900,7 +15842,7 @@ EofPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 77 */
+/* 75 */
 /***/ (function(module, exports) {
 
 module.exports = ErrorPacket;
@@ -15941,7 +15883,7 @@ ErrorPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 78 */
+/* 76 */
 /***/ (function(module, exports) {
 
 module.exports = FieldPacket;
@@ -16040,7 +15982,7 @@ FieldPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 79 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(9).Buffer;
@@ -16149,7 +16091,7 @@ HandshakeInitializationPacket.prototype.scrambleBuff = function() {
 
 
 /***/ }),
-/* 80 */
+/* 78 */
 /***/ (function(module, exports) {
 
 module.exports = LocalDataFilePacket;
@@ -16170,7 +16112,7 @@ LocalDataFilePacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 81 */
+/* 79 */
 /***/ (function(module, exports) {
 
 module.exports = LocalInfileRequestPacket;
@@ -16197,7 +16139,7 @@ LocalInfileRequestPacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 82 */
+/* 80 */
 /***/ (function(module, exports) {
 
 
@@ -16247,7 +16189,7 @@ OkPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 83 */
+/* 81 */
 /***/ (function(module, exports) {
 
 module.exports = OldPasswordPacket;
@@ -16267,7 +16209,7 @@ OldPasswordPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 84 */
+/* 82 */
 /***/ (function(module, exports) {
 
 module.exports = ResultSetHeaderPacket;
@@ -16287,7 +16229,7 @@ ResultSetHeaderPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 85 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Types                        = __webpack_require__(22);
@@ -16423,7 +16365,7 @@ function typeMatch(type, list) {
 
 
 /***/ }),
-/* 86 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // http://dev.mysql.com/doc/internals/en/ssl.html
@@ -16456,7 +16398,7 @@ SSLRequestPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 87 */
+/* 85 */
 /***/ (function(module, exports) {
 
 module.exports = StatisticsPacket;
@@ -16482,7 +16424,7 @@ StatisticsPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 88 */
+/* 86 */
 /***/ (function(module, exports) {
 
 module.exports = UseOldPasswordPacket;
@@ -16502,7 +16444,7 @@ UseOldPasswordPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 89 */
+/* 87 */
 /***/ (function(module, exports) {
 
 /**
@@ -18984,10 +18926,10 @@ exports[3230] = 'ER_CANT_START_SERVER_NAMED_PIPE';
 
 
 /***/ }),
-/* 90 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Timers = __webpack_require__(91);
+var Timers = __webpack_require__(89);
 
 module.exports = Timer;
 function Timer(object) {
@@ -19023,13 +18965,13 @@ Timer.prototype._onTimeout = function _onTimeout() {
 
 
 /***/ }),
-/* 91 */
+/* 89 */
 /***/ (function(module, exports) {
 
 module.exports = require("timers");
 
 /***/ }),
-/* 92 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence        = __webpack_require__(5);
@@ -19161,7 +19103,7 @@ Handshake.prototype['ErrorPacket'] = function(packet) {
 
 
 /***/ }),
-/* 93 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(5);
@@ -19186,7 +19128,7 @@ Ping.prototype.start = function() {
 
 
 /***/ }),
-/* 94 */
+/* 92 */
 /***/ (function(module, exports) {
 
 module.exports = ResultSet;
@@ -19199,7 +19141,7 @@ function ResultSet(resultSetHeaderPacket) {
 
 
 /***/ }),
-/* 95 */
+/* 93 */
 /***/ (function(module, exports) {
 
 // Manually extracted from mysql-5.5.23/include/mysql_com.h
@@ -19244,7 +19186,7 @@ exports.SERVER_PS_OUT_PARAMS = 4096;
 
 
 /***/ }),
-/* 96 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Stream = __webpack_require__(1);
@@ -19264,12 +19206,12 @@ if (process.env.READABLE_STREAM === 'disable' && Stream) {
   exports.Writable = __webpack_require__(40);
   exports.Duplex = __webpack_require__(6);
   exports.Transform = __webpack_require__(42);
-  exports.PassThrough = __webpack_require__(102);
+  exports.PassThrough = __webpack_require__(100);
 }
 
 
 /***/ }),
-/* 97 */
+/* 95 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -19280,7 +19222,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 98 */
+/* 96 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -19313,7 +19255,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 99 */
+/* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19398,7 +19340,7 @@ if (util && util.inspect && util.inspect.custom) {
 }
 
 /***/ }),
-/* 100 */
+/* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -19410,7 +19352,7 @@ module.exports = __webpack_require__(0).deprecate;
 
 
 /***/ }),
-/* 101 */
+/* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
@@ -19478,7 +19420,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 
 /***/ }),
-/* 102 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19531,7 +19473,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 103 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(5);
@@ -19577,7 +19519,7 @@ Quit.prototype.start = function() {
 
 
 /***/ }),
-/* 104 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(5);
@@ -19613,7 +19555,7 @@ Statistics.prototype.determinePacket = function determinePacket(firstByte) {
 
 
 /***/ }),
-/* 105 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BIT_16            = Math.pow(2, 16);
@@ -19830,14 +19772,14 @@ PacketWriter.prototype._allocate = function _allocate(bytes) {
 
 
 /***/ }),
-/* 106 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(107);
+module.exports = __webpack_require__(105);
 
 
 /***/ }),
-/* 107 */
+/* 105 */
 /***/ (function(module, exports) {
 
 var SqlString  = exports;
@@ -20080,7 +20022,7 @@ function convertTimezone(tz) {
 
 
 /***/ }),
-/* 108 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits   = __webpack_require__(0).inherits;
@@ -20151,12 +20093,12 @@ PoolConnection.prototype._removeFromPool = function _removeFromPool() {
 
 
 /***/ }),
-/* 109 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Pool          = __webpack_require__(44);
 var PoolConfig    = __webpack_require__(45);
-var PoolNamespace = __webpack_require__(110);
+var PoolNamespace = __webpack_require__(108);
 var PoolSelector  = __webpack_require__(46);
 var Util          = __webpack_require__(0);
 var EventEmitter  = __webpack_require__(4).EventEmitter;
@@ -20445,7 +20387,7 @@ function _noop() {}
 
 
 /***/ }),
-/* 110 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Connection   = __webpack_require__(15);
@@ -20587,7 +20529,7 @@ PoolNamespace.prototype._getClusterNode = function _getClusterNode() {
 
 
 /***/ }),
-/* 111 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20652,7 +20594,7 @@ module.exports = {
 
 
 /***/ }),
-/* 112 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20778,7 +20720,7 @@ module.exports = {
 
 
 /***/ }),
-/* 113 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20844,24 +20786,24 @@ module.exports = {
 
 
 /***/ }),
-/* 114 */
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(115)
+module.exports = __webpack_require__(113)
 
 
 /***/ }),
-/* 115 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 const Buffer = __webpack_require__(16).Buffer
-const StringDecoder = __webpack_require__(116).StringDecoder
+const StringDecoder = __webpack_require__(114).StringDecoder
 const decoder = new StringDecoder()
 const errors = __webpack_require__(25)
 const ReplyError = errors.ReplyError
@@ -21413,19 +21355,19 @@ module.exports = JavascriptRedisParser
 
 
 /***/ }),
-/* 116 */
+/* 114 */
 /***/ (function(module, exports) {
 
 module.exports = require("string_decoder");
 
 /***/ }),
-/* 117 */
+/* 115 */
 /***/ (function(module) {
 
 module.exports = JSON.parse("{\"append\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"asking\":{\"arity\":1,\"flags\":[\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"auth\":{\"arity\":2,\"flags\":[\"noscript\",\"loading\",\"stale\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"bgrewriteaof\":{\"arity\":1,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"bgsave\":{\"arity\":-1,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"bitcount\":{\"arity\":-2,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"bitfield\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"bitop\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":2,\"keyStop\":-1,\"step\":1},\"bitpos\":{\"arity\":-3,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"blpop\":{\"arity\":-3,\"flags\":[\"write\",\"noscript\"],\"keyStart\":1,\"keyStop\":-2,\"step\":1},\"brpop\":{\"arity\":-3,\"flags\":[\"write\",\"noscript\"],\"keyStart\":1,\"keyStop\":-2,\"step\":1},\"brpoplpush\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"noscript\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"bzpopmax\":{\"arity\":-2,\"flags\":[\"write\",\"noscript\",\"fast\"],\"keyStart\":1,\"keyStop\":-2,\"step\":1},\"bzpopmin\":{\"arity\":-2,\"flags\":[\"write\",\"noscript\",\"fast\"],\"keyStart\":1,\"keyStop\":-2,\"step\":1},\"client\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"cluster\":{\"arity\":-2,\"flags\":[\"admin\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"command\":{\"arity\":1,\"flags\":[\"random\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"config\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"dbsize\":{\"arity\":1,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"debug\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"decr\":{\"arity\":2,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"decrby\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"del\":{\"arity\":-2,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"discard\":{\"arity\":1,\"flags\":[\"noscript\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"dump\":{\"arity\":2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"echo\":{\"arity\":2,\"flags\":[\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"eval\":{\"arity\":-3,\"flags\":[\"noscript\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"evalsha\":{\"arity\":-3,\"flags\":[\"noscript\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"exec\":{\"arity\":1,\"flags\":[\"noscript\",\"skip_monitor\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"exists\":{\"arity\":-2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"expire\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"expireat\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"flushall\":{\"arity\":-1,\"flags\":[\"write\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"flushdb\":{\"arity\":-1,\"flags\":[\"write\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"geoadd\":{\"arity\":-5,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"geodist\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"geohash\":{\"arity\":-2,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"geopos\":{\"arity\":-2,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"georadius\":{\"arity\":-6,\"flags\":[\"write\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"georadius_ro\":{\"arity\":-6,\"flags\":[\"readonly\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"georadiusbymember\":{\"arity\":-5,\"flags\":[\"write\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"georadiusbymember_ro\":{\"arity\":-5,\"flags\":[\"readonly\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"get\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"getbit\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"getrange\":{\"arity\":4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"getset\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hdel\":{\"arity\":-3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hexists\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hget\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hgetall\":{\"arity\":2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hincrby\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hincrbyfloat\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hkeys\":{\"arity\":2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hlen\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hmget\":{\"arity\":-3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hmset\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"host:\":{\"arity\":-1,\"flags\":[\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"hscan\":{\"arity\":-3,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hset\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hsetnx\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hstrlen\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hvals\":{\"arity\":2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"incr\":{\"arity\":2,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"incrby\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"incrbyfloat\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"info\":{\"arity\":-1,\"flags\":[\"random\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"keys\":{\"arity\":2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"lastsave\":{\"arity\":1,\"flags\":[\"random\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"latency\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"lindex\":{\"arity\":3,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"linsert\":{\"arity\":5,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"llen\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lolwut\":{\"arity\":-1,\"flags\":[\"readonly\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"lpop\":{\"arity\":2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lpush\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lpushx\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lrange\":{\"arity\":4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lrem\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lset\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"ltrim\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"memory\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"mget\":{\"arity\":-2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"migrate\":{\"arity\":-6,\"flags\":[\"write\",\"random\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"module\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"monitor\":{\"arity\":1,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"move\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"mset\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":2},\"msetnx\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":2},\"multi\":{\"arity\":1,\"flags\":[\"noscript\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"object\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":2,\"keyStop\":2,\"step\":1},\"persist\":{\"arity\":2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"pexpire\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"pexpireat\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"pfadd\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"pfcount\":{\"arity\":-2,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"pfdebug\":{\"arity\":-3,\"flags\":[\"write\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"pfmerge\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"pfselftest\":{\"arity\":1,\"flags\":[\"admin\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"ping\":{\"arity\":-1,\"flags\":[\"stale\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"post\":{\"arity\":-1,\"flags\":[\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"psetex\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"psubscribe\":{\"arity\":-2,\"flags\":[\"pubsub\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"psync\":{\"arity\":3,\"flags\":[\"readonly\",\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"pttl\":{\"arity\":2,\"flags\":[\"readonly\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"publish\":{\"arity\":3,\"flags\":[\"pubsub\",\"loading\",\"stale\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"pubsub\":{\"arity\":-2,\"flags\":[\"pubsub\",\"random\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"punsubscribe\":{\"arity\":-1,\"flags\":[\"pubsub\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"quit\":{\"arity\":1,\"flags\":[\"loading\",\"stale\",\"readonly\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"randomkey\":{\"arity\":1,\"flags\":[\"readonly\",\"random\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"readonly\":{\"arity\":1,\"flags\":[\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"readwrite\":{\"arity\":1,\"flags\":[\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"rename\":{\"arity\":3,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"renamenx\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"replconf\":{\"arity\":-1,\"flags\":[\"admin\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"replicaof\":{\"arity\":3,\"flags\":[\"admin\",\"noscript\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"restore\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"restore-asking\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"asking\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"role\":{\"arity\":1,\"flags\":[\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"rpop\":{\"arity\":2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"rpoplpush\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"rpush\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"rpushx\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"sadd\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"save\":{\"arity\":1,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"scan\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"scard\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"script\":{\"arity\":-2,\"flags\":[\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"sdiff\":{\"arity\":-2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"sdiffstore\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"select\":{\"arity\":2,\"flags\":[\"loading\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"set\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"setbit\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"setex\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"setnx\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"setrange\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"shutdown\":{\"arity\":-1,\"flags\":[\"admin\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"sinter\":{\"arity\":-2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"sinterstore\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"sismember\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"slaveof\":{\"arity\":3,\"flags\":[\"admin\",\"noscript\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"slowlog\":{\"arity\":-2,\"flags\":[\"admin\",\"random\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"smembers\":{\"arity\":2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"smove\":{\"arity\":4,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"sort\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"spop\":{\"arity\":-2,\"flags\":[\"write\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"srandmember\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"srem\":{\"arity\":-3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"sscan\":{\"arity\":-3,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"strlen\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"subscribe\":{\"arity\":-2,\"flags\":[\"pubsub\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"substr\":{\"arity\":4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"sunion\":{\"arity\":-2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"sunionstore\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"swapdb\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"sync\":{\"arity\":1,\"flags\":[\"readonly\",\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"time\":{\"arity\":1,\"flags\":[\"random\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"touch\":{\"arity\":-2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"ttl\":{\"arity\":2,\"flags\":[\"readonly\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"type\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"unlink\":{\"arity\":-2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"unsubscribe\":{\"arity\":-1,\"flags\":[\"pubsub\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"unwatch\":{\"arity\":1,\"flags\":[\"noscript\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"wait\":{\"arity\":3,\"flags\":[\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"watch\":{\"arity\":-2,\"flags\":[\"noscript\",\"fast\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"xack\":{\"arity\":-4,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xadd\":{\"arity\":-5,\"flags\":[\"write\",\"denyoom\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xclaim\":{\"arity\":-6,\"flags\":[\"write\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xdel\":{\"arity\":-3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xgroup\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":2,\"keyStop\":2,\"step\":1},\"xinfo\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":2,\"keyStop\":2,\"step\":1},\"xlen\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xpending\":{\"arity\":-3,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xrange\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xread\":{\"arity\":-4,\"flags\":[\"readonly\",\"noscript\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xreadgroup\":{\"arity\":-7,\"flags\":[\"write\",\"noscript\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xrevrange\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xsetid\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xtrim\":{\"arity\":-2,\"flags\":[\"write\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zadd\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zcard\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zcount\":{\"arity\":4,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zincrby\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zinterstore\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"zlexcount\":{\"arity\":4,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zpopmax\":{\"arity\":-2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zpopmin\":{\"arity\":-2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrange\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrangebylex\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrangebyscore\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrank\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrem\":{\"arity\":-3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zremrangebylex\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zremrangebyrank\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zremrangebyscore\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrevrange\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrevrangebylex\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrevrangebyscore\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrevrank\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zscan\":{\"arity\":-3,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zscore\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zunionstore\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0}}");
 
 /***/ }),
-/* 118 */
+/* 116 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21516,7 +21458,7 @@ module.exports = function createClient (port_arg, host_arg, options) {
 
 
 /***/ }),
-/* 119 */
+/* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22140,7 +22082,7 @@ Multi.prototype.punsubscribe = Multi.prototype.PUNSUBSCRIBE = function punsubscr
 
 
 /***/ }),
-/* 120 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22260,7 +22202,7 @@ RedisClient.prototype.duplicate = function (options, callback) {
 
 
 /***/ }),
-/* 121 */
+/* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22372,7 +22314,179 @@ module.exports = addCommand;
 
 
 /***/ }),
+/* 120 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+exports.fileNameToFormat = exports.formatToFileName = exports.FileFormat = void 0;
+var FileFormat;
+(function (FileFormat) {
+    FileFormat[FileFormat["RAW_HTML"] = 0] = "RAW_HTML";
+    FileFormat[FileFormat["RAW_TXT"] = 1] = "RAW_TXT";
+    FileFormat[FileFormat["HITS"] = 2] = "HITS";
+})(FileFormat = exports.FileFormat || (exports.FileFormat = {}));
+function formatToFileName(format) {
+    switch (format) {
+        case FileFormat.RAW_HTML: return "raw.html";
+        case FileFormat.RAW_TXT: return "raw.txt";
+        case FileFormat.HITS: return "hit.bin";
+        default: throw "format not handled: " + format;
+    }
+}
+exports.formatToFileName = formatToFileName;
+function fileNameToFormat(fileName) {
+    switch (fileName) {
+        case "raw.html": return FileFormat.RAW_HTML;
+        case "raw.txt": return FileFormat.RAW_TXT;
+        case "hit.bin": return FileFormat.HITS;
+        default: throw "file name not handled: " + fileName;
+    }
+}
+exports.fileNameToFormat = fileNameToFormat;
+
+
+/***/ }),
+/* 121 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+exports.entityName = exports.Entity = void 0;
+var Entity;
+(function (Entity) {
+    Entity[Entity["RESOURCE"] = 0] = "RESOURCE";
+    Entity[Entity["HOST"] = 1] = "HOST";
+    Entity[Entity["WORD"] = 2] = "WORD";
+})(Entity = exports.Entity || (exports.Entity = {}));
+function entityName(entity) {
+    switch (entity) {
+        case Entity.RESOURCE: return "resource";
+        case Entity.HOST: return "host";
+        case Entity.WORD: return "word";
+    }
+}
+exports.entityName = entityName;
+
+
+/***/ }),
 /* 122 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+exports["default"] = {
+    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
+    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
+    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
+    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
+    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
+    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
+    // /home/sean/newsreduce/sql/INSERT_CLIENT_HEADER_IF_ABSENT.sql
+    INSERT_CLIENT_HEADER_IF_ABSENT: "insert ignore into ClientHeader(client, header) values ?",
+    // /home/sean/newsreduce/sql/INSERT_CLIENT_IF_ABSENT.sql
+    INSERT_CLIENT_IF_ABSENT: "insert ignore into Client(id, name, httpVersion) values ?",
+    // /home/sean/newsreduce/sql/INSERT_CLIENT.sql
+    INSERT_CLIENT: "insert into Client(id, httpVersion, userAgent, accept, acceptLanguage, acceptEncoding, connection, marketShare, upgradeInsecureRequests, utcHourOffset) values ($id, $httpVersion, $userAgent, $accept, $acceptLanguage, $acceptEncoding, $connection, $marketShare, $upgradeInsecureRequests, $utcHourOffset)",
+    // /home/sean/newsreduce/sql/INSERT_FILE_ROW.sql
+    INSERT_FILE_ROW: "insert ignore into File(id, path) values ($id, $path)",
+    // /home/sean/newsreduce/sql/INSERT_FILE.sql
+    INSERT_FILE: "insert ignore into File(id, created) values ($id, $now);",
+    // /home/sean/newsreduce/sql/INSERT_HOSTS_IF_ABSENT.sql
+    INSERT_HOSTS_IF_ABSENT: "insert ignore into Host(id, name, throttle) values ?",
+    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_IF_ABSENT.sql
+    INSERT_HTTP_HEADER_IF_ABSENT: "insert ignore into HTTPHeader(id, name, value) values ?",
+    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_NAMES_IF_ABSENT.sql
+    INSERT_HTTP_HEADER_NAMES_IF_ABSENT: "insert ignore into HTTPHeaderName(id, value) values ?",
+    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_VALUES_IF_ABSENT.sql
+    INSERT_HTTP_HEADER_VALUES_IF_ABSENT: "insert ignore into HTTPHeaderValue(id, value) values ?",
+    // /home/sean/newsreduce/sql/INSERT_HTTP_HOST.sql
+    INSERT_HTTP_HOST: "insert into HTTPHost(id, name, throttle) values ($id, $name, $throttle)",
+    // /home/sean/newsreduce/sql/INSERT_IP_HOST.sql
+    INSERT_IP_HOST: "insert into IPHost(id, ip, isIPV6) values ($id, $ip, $isIPV6);",
+    // /home/sean/newsreduce/sql/INSERT_OR_UPDATE_FETCHED_RESOURCE.sql
+    INSERT_OR_UPDATE_FETCHED_RESOURCE: "insert into FetchedResource(id, `count`, mean, status, `length`, `type`) values (?, 1, ?, ?, ?, ?) on duplicate key update mean = (mean * `count` + ?) / (`count` + 1), `count` = `count` + 1, status = ?, `length` = ?, `type` = ?",
+    // /home/sean/newsreduce/sql/INSERT_PROCESSED_HTMLS_IF_ABSENT.sql
+    INSERT_PROCESSED_HTMLS_IF_ABSENT: "insert ignore into ProcessedHTML(resource) values ?",
+    // /home/sean/newsreduce/sql/INSERT_PROCESSED_WIKIS_IF_ABSENT.sql
+    INSERT_PROCESSED_WIKIS_IF_ABSENT: "insert ignore into ProcessedWiki(resource) values ?",
+    // /home/sean/newsreduce/sql/INSERT_PROCESSED_WIKI.sql
+    INSERT_PROCESSED_WIKI: "insert into ProcessedWiki(resource) values ($resource)",
+    // /home/sean/newsreduce/sql/INSERT_RESOURCE_HEADER_IF_ABSENT.sql
+    INSERT_RESOURCE_HEADER_IF_ABSENT: "insert ignore into ResourceHeader(resource, header) values ?",
+    // /home/sean/newsreduce/sql/INSERT_RESOURCE_INSTANCES_IF_ABSENT.sql
+    INSERT_RESOURCE_INSTANCES_IF_ABSENT: "insert into ResourceInstance(id, file, fetchedByClient, time) values ?",
+    // /home/sean/newsreduce/sql/INSERT_RESOURCE_INSTANCE.sql
+    INSERT_RESOURCE_INSTANCE: "insert ignore into ResourceInstance(resource, file, fetchedByClient) values ($resource, $file, $fetchedByClient)",
+    // /home/sean/newsreduce/sql/INSERT_RESOURCE_LINK_IF_ABSENT.sql
+    INSERT_RESOURCE_LINK_IF_ABSENT: "insert ignore into ResourceLink(parent, position, child) values ?",
+    // /home/sean/newsreduce/sql/INSERT_RESOURCE_LINK.sql
+    INSERT_RESOURCE_LINK: "insert ignore into ResourceLink(parent, child, hash) values ($parent, $child, $hash)",
+    // /home/sean/newsreduce/sql/INSERT_RESOURCE.sql
+    INSERT_RESOURCE: "insert into Resource(id, created, `ssl`, host, port, path, query, referer, seenByClient) values ?",
+    // /home/sean/newsreduce/sql/INSERT_RESOURCE_URLS_IF_ABSENT.sql
+    INSERT_RESOURCE_URLS_IF_ABSENT: "insert ignore into ResourceURL(id, `ssl`, host, port, path, query) values ?",
+    // /home/sean/newsreduce/sql/INSERT_WIKI_CATEGORIES_IF_ABSENT.sql
+    INSERT_WIKI_CATEGORIES_IF_ABSENT: "insert ignore into WikiCategory(parent, child) values ?",
+    // /home/sean/newsreduce/sql/INSERT_WIKI_PAGES_IF_ABSENT.sql
+    INSERT_WIKI_PAGES_IF_ABSENT: "insert ignore into WikiPage(resource) values ?",
+    // /home/sean/newsreduce/sql/SELECT_FILES_NOT_PROCESSED_AND_PATH_LIKE_FOR_HOST.sql
+    SELECT_FILES_NOT_PROCESSED_AND_PATH_LIKE_FOR_HOST: "select f.path as filePath, res.ssl, res.host, h.name as hostname, res.port, res.path as resPath, res.query from Resource res inner join Host h on h.id = res.host inner join ResourceInstance inst on inst.resource = res.id inner join File f on f.id = inst.file where not f.processed and res.path like $path and res.host = $host",
+    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
+    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
+    // /home/sean/newsreduce/sql/SELECT_HTML_RESOURCE_AND_FILE_TO_PROCESS.sql
+    SELECT_HTML_RESOURCE_AND_FILE_TO_PROCESS: "select r.*, h.name as hostname, f.file, i.fetchedByClient from ResourceURL r inner join Host h on h.id = r.host inner join FetchedResource f on f.id = r.id inner join ResourceInstance i on i.file = f.file inner join HTTPHeaderValue v on v.id = f.type left outer join ProcessedHTML p on p.resource = r.id where p.resource is null and lower(v.value) like 'text/html%'",
+    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
+    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY.sql
+    SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY: "select t.ssl, t.host, t.port, p.value as path, q.value as query from ( select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.id = r.id left outer join ResourceInstance i on i.id = r.id where (f.id is null or i.time < ? - 86400000) and lower(h.name) = 'en.wikipedia.org' and r.ssl and r.port = 443 and r.query = '' and lower(r.path) like '/wiki/Category:%' union select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory c on c.child = r.id inner join WikiPage p on p.resource = r.id left outer join FetchedResource f on f.id = r.id left outer join ResourceInstance i on i.id = r.id where (f.id is null or i.time < ? - 86400000) limit 500) t inner join ResourceURLPath p on p.id = t.path inner join ResourceURLQuery q on q.id = t.query",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCE.sql
+    SELECT_RESOURCE: "select r.*, h.throttle, h.name as hostname from ResourceURL r inner join Host h on h.id = r.host where r.id = ?",
+    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
+    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
+    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
+    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
+    // /home/sean/newsreduce/sql/SELECT_WIKI_CAT_RES_IN_OTHER_CAT_RES_WITHOUT_SCHEDULE_OR_FILE.sql
+    SELECT_WIKI_CAT_RES_IN_OTHER_CAT_RES_WITHOUT_SCHEDULE_OR_FILE: "select r.* from Resource r inner join Host h on h.id = r.host left join ResourceInstance inst on inst.resource = r.id left join Schedule s on s.resource = r.id and s.time > $now inner join ResourceLinksTable l on l.child = r.id inner join Resource lr on lr.id = l.parent where h.name = 'en.wikipedia.org' and r.path like '/wiki/Category:%' and lr.path like '/wiki/Category:%' and s.resource is null and inst.resource is null",
+    // /home/sean/newsreduce/sql/SELECT_WIKI_HTML_FILES_TO_PROCESS.sql
+    SELECT_WIKI_HTML_FILES_TO_PROCESS: "select h.name as hostname, f.file, i.fetchedByClient, r.* from ResourceURL r inner join FetchedResource f on f.id = r.id inner join ResourceInstance i on i.file = f.file inner join Host h on h.id = r.host inner join ResourceURL refer on refer.id = r.referer inner join ResourceLink l on l.parent = r.id inner join ResourceURL child on child.id = l.child left outer join ProcessedWiki w on w.resource = r.id left outer join WikiPage p on p.resource = r.id where w.resource is null and p.resource is null and r.ssl and h.name = 'en.wikipedia.org' and r.port = 443 and r.path like '/wiki/Category:%' and r.query = '' and refer.ssl = r.ssl and refer.host = r.host and refer.port = r.port and refer.path like '/wiki/Category:%' and refer.query = r.query and child.ssl = r.ssl and child.host = r.host and child.port = r.port and child.path like '/wiki/Category:%' and child.query = r.query group by r.id"
+};
+
+
+/***/ }),
+/* 123 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+exports.milliTimestamp = void 0;
+function milliTimestamp() {
+    return Date.now();
+}
+exports.milliTimestamp = milliTimestamp;
+
+
+/***/ }),
+/* 124 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+exports.thenDebug = exports.thenLog = void 0;
+exports.thenLog = function (msg) { return function () { return console.log(msg); }; };
+exports.thenDebug = function (err) {
+    if (err)
+        console.debug(err);
+};
+
+
+/***/ }),
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22450,11 +22564,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 exports.parseHitFile = exports.readLatestVersion = exports.read = exports.formats = exports.versions = exports.allVersions = exports.write = exports.entityIDs = void 0;
 var fs_1 = __importDefault(__webpack_require__(19));
-var config_1 = __webpack_require__(55);
+var config_1 = __webpack_require__(51);
 var logging_1 = __webpack_require__(54);
 var child_process_1 = __webpack_require__(126);
-var FileFormat_1 = __webpack_require__(51);
-var Entity_1 = __webpack_require__(52);
+var FileFormat_1 = __webpack_require__(120);
+var Entity_1 = __webpack_require__(121);
 var FINISH = "finish";
 var ERROR = "error";
 var TAR = "tar";
@@ -22841,120 +22955,6 @@ exports.parseHitFile = parseHitFile;
 
 
 /***/ }),
-/* 123 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-exports["default"] = {
-    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
-    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
-    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
-    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
-    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
-    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
-    // /home/sean/newsreduce/sql/INSERT_CLIENT_HEADER_IF_ABSENT.sql
-    INSERT_CLIENT_HEADER_IF_ABSENT: "insert ignore into ClientHeader(client, header) values ?",
-    // /home/sean/newsreduce/sql/INSERT_CLIENT_IF_ABSENT.sql
-    INSERT_CLIENT_IF_ABSENT: "insert ignore into Client(id, name, httpVersion) values ?",
-    // /home/sean/newsreduce/sql/INSERT_CLIENT.sql
-    INSERT_CLIENT: "insert into Client(id, httpVersion, userAgent, accept, acceptLanguage, acceptEncoding, connection, marketShare, upgradeInsecureRequests, utcHourOffset) values ($id, $httpVersion, $userAgent, $accept, $acceptLanguage, $acceptEncoding, $connection, $marketShare, $upgradeInsecureRequests, $utcHourOffset)",
-    // /home/sean/newsreduce/sql/INSERT_FILE_ROW.sql
-    INSERT_FILE_ROW: "insert ignore into File(id, path) values ($id, $path)",
-    // /home/sean/newsreduce/sql/INSERT_FILE.sql
-    INSERT_FILE: "insert ignore into File(id, created) values ($id, $now);",
-    // /home/sean/newsreduce/sql/INSERT_HOSTS_IF_ABSENT.sql
-    INSERT_HOSTS_IF_ABSENT: "insert ignore into Host(id, name, throttle) values ?",
-    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_IF_ABSENT.sql
-    INSERT_HTTP_HEADER_IF_ABSENT: "insert ignore into HTTPHeader(id, name, value) values ?",
-    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_NAMES_IF_ABSENT.sql
-    INSERT_HTTP_HEADER_NAMES_IF_ABSENT: "insert ignore into HTTPHeaderName(id, value) values ?",
-    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_VALUES_IF_ABSENT.sql
-    INSERT_HTTP_HEADER_VALUES_IF_ABSENT: "insert ignore into HTTPHeaderValue(id, value) values ?",
-    // /home/sean/newsreduce/sql/INSERT_HTTP_HOST.sql
-    INSERT_HTTP_HOST: "insert into HTTPHost(id, name, throttle) values ($id, $name, $throttle)",
-    // /home/sean/newsreduce/sql/INSERT_IP_HOST.sql
-    INSERT_IP_HOST: "insert into IPHost(id, ip, isIPV6) values ($id, $ip, $isIPV6);",
-    // /home/sean/newsreduce/sql/INSERT_OR_UPDATE_FETCHED_RESOURCE.sql
-    INSERT_OR_UPDATE_FETCHED_RESOURCE: "insert into FetchedResource(id, `count`, mean, status, `length`, `type`) values (?, 1, ?, ?, ?, ?) on duplicate key update mean = (mean * `count` + ?) / (`count` + 1), `count` = `count` + 1, status = ?, `length` = ?, `type` = ?",
-    // /home/sean/newsreduce/sql/INSERT_PROCESSED_HTMLS_IF_ABSENT.sql
-    INSERT_PROCESSED_HTMLS_IF_ABSENT: "insert ignore into ProcessedHTML(resource) values ?",
-    // /home/sean/newsreduce/sql/INSERT_PROCESSED_WIKIS_IF_ABSENT.sql
-    INSERT_PROCESSED_WIKIS_IF_ABSENT: "insert ignore into ProcessedWiki(resource) values ?",
-    // /home/sean/newsreduce/sql/INSERT_PROCESSED_WIKI.sql
-    INSERT_PROCESSED_WIKI: "insert into ProcessedWiki(resource) values ($resource)",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_HEADER_IF_ABSENT.sql
-    INSERT_RESOURCE_HEADER_IF_ABSENT: "insert ignore into ResourceHeader(resource, header) values ?",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_INSTANCES_IF_ABSENT.sql
-    INSERT_RESOURCE_INSTANCES_IF_ABSENT: "insert into ResourceInstance(id, file, fetchedByClient, time) values ?",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_INSTANCE.sql
-    INSERT_RESOURCE_INSTANCE: "insert ignore into ResourceInstance(resource, file, fetchedByClient) values ($resource, $file, $fetchedByClient)",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_LINK_IF_ABSENT.sql
-    INSERT_RESOURCE_LINK_IF_ABSENT: "insert ignore into ResourceLink(parent, position, child) values ?",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_LINK.sql
-    INSERT_RESOURCE_LINK: "insert ignore into ResourceLink(parent, child, hash) values ($parent, $child, $hash)",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE.sql
-    INSERT_RESOURCE: "insert into Resource(id, created, `ssl`, host, port, path, query, referer, seenByClient) values ?",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_URLS_IF_ABSENT.sql
-    INSERT_RESOURCE_URLS_IF_ABSENT: "insert ignore into ResourceURL(id, `ssl`, host, port, path, query) values ?",
-    // /home/sean/newsreduce/sql/INSERT_WIKI_CATEGORIES_IF_ABSENT.sql
-    INSERT_WIKI_CATEGORIES_IF_ABSENT: "insert ignore into WikiCategory(parent, child) values ?",
-    // /home/sean/newsreduce/sql/INSERT_WIKI_PAGES_IF_ABSENT.sql
-    INSERT_WIKI_PAGES_IF_ABSENT: "insert ignore into WikiPage(resource) values ?",
-    // /home/sean/newsreduce/sql/SELECT_FILES_NOT_PROCESSED_AND_PATH_LIKE_FOR_HOST.sql
-    SELECT_FILES_NOT_PROCESSED_AND_PATH_LIKE_FOR_HOST: "select f.path as filePath, res.ssl, res.host, h.name as hostname, res.port, res.path as resPath, res.query from Resource res inner join Host h on h.id = res.host inner join ResourceInstance inst on inst.resource = res.id inner join File f on f.id = inst.file where not f.processed and res.path like $path and res.host = $host",
-    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
-    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
-    // /home/sean/newsreduce/sql/SELECT_HTML_RESOURCE_AND_FILE_TO_PROCESS.sql
-    SELECT_HTML_RESOURCE_AND_FILE_TO_PROCESS: "select r.*, h.name as hostname, f.file, i.fetchedByClient from ResourceURL r inner join Host h on h.id = r.host inner join FetchedResource f on f.id = r.id inner join ResourceInstance i on i.file = f.file inner join HTTPHeaderValue v on v.id = f.type left outer join ProcessedHTML p on p.resource = r.id where p.resource is null and lower(v.value) like 'text/html%'",
-    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
-    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY.sql
-    SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY: "select t.ssl, t.host, t.port, p.value as path, q.value as query from ( select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.id = r.id left outer join ResourceInstance i on i.id = r.id where (f.id is null or i.time < ? - 86400000) and lower(h.name) = 'en.wikipedia.org' and r.ssl and r.port = 443 and r.query = '' and lower(r.path) like '/wiki/Category:%' union select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory c on c.child = r.id inner join WikiPage p on p.resource = r.id left outer join FetchedResource f on f.id = r.id left outer join ResourceInstance i on i.id = r.id where (f.id is null or i.time < ? - 86400000) limit 100) t inner join ResourceURLPath p on p.id = t.path inner join ResourceURLQuery q on q.id = t.query",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCE.sql
-    SELECT_RESOURCE: "select r.*, h.throttle, h.name as hostname from ResourceURL r inner join Host h on h.id = r.host where r.id = ?",
-    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
-    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
-    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
-    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
-    // /home/sean/newsreduce/sql/SELECT_WIKI_CAT_RES_IN_OTHER_CAT_RES_WITHOUT_SCHEDULE_OR_FILE.sql
-    SELECT_WIKI_CAT_RES_IN_OTHER_CAT_RES_WITHOUT_SCHEDULE_OR_FILE: "select r.* from Resource r inner join Host h on h.id = r.host left join ResourceInstance inst on inst.resource = r.id left join Schedule s on s.resource = r.id and s.time > $now inner join ResourceLinksTable l on l.child = r.id inner join Resource lr on lr.id = l.parent where h.name = 'en.wikipedia.org' and r.path like '/wiki/Category:%' and lr.path like '/wiki/Category:%' and s.resource is null and inst.resource is null",
-    // /home/sean/newsreduce/sql/SELECT_WIKI_HTML_FILES_TO_PROCESS.sql
-    SELECT_WIKI_HTML_FILES_TO_PROCESS: "select h.name as hostname, f.file, i.fetchedByClient, r.* from ResourceURL r inner join FetchedResource f on f.id = r.id inner join ResourceInstance i on i.file = f.file inner join Host h on h.id = r.host inner join ResourceURL refer on refer.id = r.referer inner join ResourceLink l on l.parent = r.id inner join ResourceURL child on child.id = l.child left outer join ProcessedWiki w on w.resource = r.id left outer join WikiPage p on p.resource = r.id where w.resource is null and p.resource is null and r.ssl and h.name = 'en.wikipedia.org' and r.port = 443 and r.path like '/wiki/Category:%' and r.query = '' and refer.ssl = r.ssl and refer.host = r.host and refer.port = r.port and refer.path like '/wiki/Category:%' and refer.query = r.query and child.ssl = r.ssl and child.host = r.host and child.port = r.port and child.path like '/wiki/Category:%' and child.query = r.query group by r.id"
-};
-
-
-/***/ }),
-/* 124 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-exports.milliTimestamp = void 0;
-function milliTimestamp() {
-    return Date.now();
-}
-exports.milliTimestamp = milliTimestamp;
-
-
-/***/ }),
-/* 125 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-exports.thenDebug = exports.thenLog = void 0;
-exports.thenLog = function (msg) { return function () { return console.log(msg); }; };
-exports.thenDebug = function (err) {
-    if (err)
-        console.debug(err);
-};
-
-
-/***/ }),
 /* 126 */
 /***/ (function(module, exports) {
 
@@ -23017,13 +23017,13 @@ exports.setImmediateInterval = setImmediateInterval;
 
 
 /***/ }),
-/* 128 */
+/* 128 */,
+/* 129 */
 /***/ (function(module, exports) {
 
 module.exports = jsdom;
 
 /***/ }),
-/* 129 */,
 /* 130 */,
 /* 131 */,
 /* 132 */,
@@ -23083,13 +23083,13 @@ var __values = (this && this.__values) || function(o) {
 };
 exports.__esModule = true;
 var url_1 = __webpack_require__(18);
-var jsdom_1 = __webpack_require__(128);
-var data_1 = __webpack_require__(57);
-var file_1 = __webpack_require__(122);
+var jsdom_1 = __webpack_require__(129);
+var data_1 = __webpack_require__(56);
+var file_1 = __webpack_require__(125);
 var connections_1 = __webpack_require__(29);
-var events_1 = __webpack_require__(56);
-var FileFormat_1 = __webpack_require__(51);
-var Entity_1 = __webpack_require__(52);
+var events_1 = __webpack_require__(52);
+var FileFormat_1 = __webpack_require__(120);
+var Entity_1 = __webpack_require__(121);
 var extract_ahrefs_1 = __webpack_require__(136);
 var extract_hits_1 = __webpack_require__(137);
 var extract_raw_text_1 = __webpack_require__(138);
@@ -23189,8 +23189,8 @@ setInterval(process, 2000);
 
 exports.__esModule = true;
 exports.process = void 0;
-var data_1 = __webpack_require__(57);
-var ids_1 = __webpack_require__(49);
+var data_1 = __webpack_require__(56);
+var ids_1 = __webpack_require__(50);
 var HASH = "#";
 var AHREF = "a";
 exports.process = function (doc) {
@@ -23257,11 +23257,11 @@ var __spread = (this && this.__spread) || function () {
 };
 exports.__esModule = true;
 exports.process = void 0;
-var file_1 = __webpack_require__(122);
-var FileFormat_1 = __webpack_require__(51);
+var file_1 = __webpack_require__(125);
+var FileFormat_1 = __webpack_require__(120);
 var url_1 = __webpack_require__(18);
-var ids_1 = __webpack_require__(49);
-var Entity_1 = __webpack_require__(52);
+var ids_1 = __webpack_require__(50);
+var Entity_1 = __webpack_require__(121);
 var util_1 = __webpack_require__(127);
 var EXCLUDE = [
     "NOSCRIPT",
@@ -23523,12 +23523,12 @@ var __values = (this && this.__values) || function(o) {
 };
 exports.__esModule = true;
 exports.process = void 0;
-var file_1 = __webpack_require__(122);
-var FileFormat_1 = __webpack_require__(51);
-var jsdom_1 = __webpack_require__(128);
+var file_1 = __webpack_require__(125);
+var FileFormat_1 = __webpack_require__(120);
+var jsdom_1 = __webpack_require__(129);
 var url_1 = __webpack_require__(18);
-var ids_1 = __webpack_require__(49);
-var Entity_1 = __webpack_require__(52);
+var ids_1 = __webpack_require__(50);
+var Entity_1 = __webpack_require__(121);
 var EXCLUDE = [
     "NOSCRIPT",
     "SCRIPT",
@@ -23577,9 +23577,9 @@ file_1.read(Entity_1.Entity.RESOURCE, BigInt("10000004655985946181"), 1593227390
 
 exports.__esModule = true;
 exports.process = void 0;
-var data_1 = __webpack_require__(57);
+var data_1 = __webpack_require__(56);
 var url_1 = __webpack_require__(18);
-var ids_1 = __webpack_require__(49);
+var ids_1 = __webpack_require__(50);
 var HASH = "#";
 var SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
 var CATEGORY_PAGE_SELECT = "#mw-pages .mw-category .mw-category-group li>a";

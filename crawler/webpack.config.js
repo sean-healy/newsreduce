@@ -7,6 +7,7 @@ module.exports = {
       'fetch-worker':    './dist/services/fetcher/worker.js',
       'fetch-zookeeper': './dist/services/fetcher/zookeeper.js',
       'html-process':    './dist/html-processor/process.js',
+      'schedule':        './dist/services/scheduler.js',
   },
   externals: [
       "jsdom",

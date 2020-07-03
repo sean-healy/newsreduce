@@ -32,6 +32,6 @@ select t.ssl, t.host, t.port, p.value as path, q.value as query from (
     left outer join FetchedResource f on f.id = r.id
     left outer join ResourceInstance i on i.id = r.id
     where (f.id is null or i.time < ? - 86400000)
-    limit 100) t
+    limit 500) t
 inner join ResourceURLPath p on p.id = t.path
 inner join ResourceURLQuery q on q.id = t.query
