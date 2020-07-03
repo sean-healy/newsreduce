@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"noImplicitAny": false,
+		"preserveConstEnums": true,
+		"downlevelIteration": true,
+		"sourceMap": false,
+        "outDir": "dist",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "declaration": true,
+        "lib": [
+            "dom",
+            "es2015"
+        ]
+	},
+    "include": [
+        "src/**.ts",
+        "src/**/**.ts"
+    ]
+}
+

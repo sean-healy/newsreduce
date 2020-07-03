@@ -1,0 +1,32 @@
+{
+  "name": "newsreduce-crawler",
+  "version": "1.0.0",
+  "description": "Crawl a small subset of the web for news data.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "compile": "tsc",
+    "watch": "tsc -w"
+  },
+  "author": "Seán Healy",
+  "license": "ISC",
+  "dependencies": {
+    "@types/jsdom": "^16.2.3",
+    "@types/mysql": "^2.15.14",
+    "@types/node-fetch": "^2.5.7",
+    "@types/redis": "^2.8.22",
+    "immutable": "^4.0.0-rc.12",
+    "jsdom": "^16.2.2",
+    "mysql": "^2.18.1",
+    "node": "^12.18.1",
+    "node-fetch": "^2.6.0",
+    "redis": "^3.0.2",
+    "redis-commands": "^1.5.0",
+    "typescript": "^3.9.5"
+  },
+  "devDependencies": {
+    "jest": "^26.1.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
+  }
+}
