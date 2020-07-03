@@ -20,7 +20,7 @@ function genericSQLPromise<From, To>(query: string, params: any[], mapper?: (v: 
                 else res(response);
             }
         });
-        //console.log(log.sql);
+        console.log(log.sql);
     });
 }
 
