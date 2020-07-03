@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "compile": "tsc",
-    "build-bin": "webpack --config webpack.config.js",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "compile": "webpack --config webpack.config.js"
   },
   "author": "Seán Healy",
   "license": "ISC",
