@@ -19,6 +19,7 @@ if [ ! -f /var/newsreduce/network ] || [ ! "$(cat /var/newsreduce/network)" ]; t
         > /var/newsreduce/network
 fi
 vi /var/newsreduce/network
+echo 1 > /var/newsreduce/is_main
 sql_password="$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64 | tr '/' '_' | tr '+' ',')"
 echo "$sql_password" > /var/newsreduce/sql_password
     echo Safely creating user...
