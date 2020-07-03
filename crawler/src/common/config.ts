@@ -1,4 +1,3 @@
-import os from "os";
 import fs from "fs";
 const PROJECT_DIR_NAME = "newsreduce";
 const dirArray = __dirname.split('/');
@@ -20,7 +19,7 @@ export function projectDir() {
 }
 
 export async function varDirPromise() {
-    const varDir = `${os.homedir()}/.${PROJECT_DIR_NAME}`;
+    const varDir = "/var/newsreduce";
     return new Promise<string>((resolve, reject) => {
         fs.exists(varDir, exists => {
             if (exists) {
@@ -36,18 +35,16 @@ export async function varDirPromise() {
 }
 export async function blobDirPromise() {
     return new Promise<string>((resolve, reject) => {
-        varDirPromise().then(varDir => {
-            const blobDir = `${varDir}/blobs`;
-            fs.exists(blobDir, exists => {
-                if (exists) {
-                    resolve(blobDir);
-                } else {
-                    fs.mkdir(blobDir, err => {
-                        if (err) reject(err);
-                        else resolve(blobDir)
-                    })
-                }
-            })
+        const blobDir = "/var/newsreduce/blobs"
+        fs.exists(blobDir, exists => {
+            if (exists) {
+                resolve(blobDir);
+            } else {
+                fs.mkdir(blobDir, { recursive: true, mode: 0o700 }, err => {
+                    if (err) reject(err);
+                    else resolve(blobDir)
+                })
+            }
         });
     });
 }
