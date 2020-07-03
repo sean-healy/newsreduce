@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 132);
+/******/ 	return __webpack_require__(__webpack_require__.s = 133);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -100,29 +100,29 @@ module.exports = require("stream");
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.AuthSwitchRequestPacket = __webpack_require__(65);
-exports.AuthSwitchResponsePacket = __webpack_require__(66);
-exports.ClientAuthenticationPacket = __webpack_require__(67);
-exports.ComChangeUserPacket = __webpack_require__(68);
-exports.ComPingPacket = __webpack_require__(69);
-exports.ComQueryPacket = __webpack_require__(70);
-exports.ComQuitPacket = __webpack_require__(71);
-exports.ComStatisticsPacket = __webpack_require__(72);
-exports.EmptyPacket = __webpack_require__(73);
-exports.EofPacket = __webpack_require__(74);
-exports.ErrorPacket = __webpack_require__(75);
+exports.AuthSwitchRequestPacket = __webpack_require__(67);
+exports.AuthSwitchResponsePacket = __webpack_require__(68);
+exports.ClientAuthenticationPacket = __webpack_require__(69);
+exports.ComChangeUserPacket = __webpack_require__(70);
+exports.ComPingPacket = __webpack_require__(71);
+exports.ComQueryPacket = __webpack_require__(72);
+exports.ComQuitPacket = __webpack_require__(73);
+exports.ComStatisticsPacket = __webpack_require__(74);
+exports.EmptyPacket = __webpack_require__(75);
+exports.EofPacket = __webpack_require__(76);
+exports.ErrorPacket = __webpack_require__(77);
 exports.Field = __webpack_require__(34);
-exports.FieldPacket = __webpack_require__(76);
-exports.HandshakeInitializationPacket = __webpack_require__(77);
-exports.LocalDataFilePacket = __webpack_require__(78);
-exports.LocalInfileRequestPacket = __webpack_require__(79);
-exports.OkPacket = __webpack_require__(80);
-exports.OldPasswordPacket = __webpack_require__(81);
-exports.ResultSetHeaderPacket = __webpack_require__(82);
-exports.RowDataPacket = __webpack_require__(83);
-exports.SSLRequestPacket = __webpack_require__(84);
-exports.StatisticsPacket = __webpack_require__(85);
-exports.UseOldPasswordPacket = __webpack_require__(86);
+exports.FieldPacket = __webpack_require__(78);
+exports.HandshakeInitializationPacket = __webpack_require__(79);
+exports.LocalDataFilePacket = __webpack_require__(80);
+exports.LocalInfileRequestPacket = __webpack_require__(81);
+exports.OkPacket = __webpack_require__(82);
+exports.OldPasswordPacket = __webpack_require__(83);
+exports.ResultSetHeaderPacket = __webpack_require__(84);
+exports.RowDataPacket = __webpack_require__(85);
+exports.SSLRequestPacket = __webpack_require__(86);
+exports.StatisticsPacket = __webpack_require__(87);
+exports.UseOldPasswordPacket = __webpack_require__(88);
 
 
 /***/ }),
@@ -144,8 +144,8 @@ module.exports = require("events");
 var Util           = __webpack_require__(0);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Packets        = __webpack_require__(2);
-var ErrorConstants = __webpack_require__(87);
-var Timer          = __webpack_require__(88);
+var ErrorConstants = __webpack_require__(89);
+var Timer          = __webpack_require__(90);
 
 // istanbul ignore next: Node.js < 0.10 not covered
 var listenerCount = EventEmitter.listenerCount
@@ -635,7 +635,7 @@ try {
   module.exports = util.inherits;
 } catch (e) {
   /* istanbul ignore next */
-  module.exports = __webpack_require__(96);
+  module.exports = __webpack_require__(98);
 }
 
 
@@ -652,13 +652,13 @@ var util = __webpack_require__(0);
 var utils = __webpack_require__(13);
 var Command = __webpack_require__(14);
 var Queue = __webpack_require__(47);
-var errorClasses = __webpack_require__(109);
+var errorClasses = __webpack_require__(111);
 var EventEmitter = __webpack_require__(4);
-var Parser = __webpack_require__(112);
-var RedisErrors = __webpack_require__(24);
+var Parser = __webpack_require__(114);
+var RedisErrors = __webpack_require__(25);
 var commands = __webpack_require__(48);
-var debug = __webpack_require__(25);
-var unifyOptions = __webpack_require__(116);
+var debug = __webpack_require__(26);
+var unifyOptions = __webpack_require__(118);
 var SUBSCRIBE_COMMANDS = {
     subscribe: true,
     unsubscribe: true,
@@ -1669,7 +1669,7 @@ exports.createClient = function () {
 };
 exports.RedisClient = RedisClient;
 exports.print = utils.print;
-exports.Multi = __webpack_require__(26);
+exports.Multi = __webpack_require__(27);
 exports.AbortError = errorClasses.AbortError;
 exports.RedisError = RedisErrors.RedisError;
 exports.ParserError = RedisErrors.ParserError;
@@ -1677,11 +1677,11 @@ exports.ReplyError = RedisErrors.ReplyError;
 exports.AggregateError = errorClasses.AggregateError;
 
 // Add all redis commands / node_redis api to the client
-__webpack_require__(117);
-__webpack_require__(118);
+__webpack_require__(119);
+__webpack_require__(120);
 
 //enables adding new commands (for modules and new commands)
-exports.addCommand = exports.add_command = __webpack_require__(119);
+exports.addCommand = exports.add_command = __webpack_require__(121);
 
 
 /***/ }),
@@ -1852,12 +1852,12 @@ module.exports = Command;
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Crypto           = __webpack_require__(19);
+var Crypto           = __webpack_require__(20);
 var Events           = __webpack_require__(4);
 var Net              = __webpack_require__(31);
 var tls              = __webpack_require__(32);
-var ConnectionConfig = __webpack_require__(20);
-var Protocol         = __webpack_require__(58);
+var ConnectionConfig = __webpack_require__(21);
+var Protocol         = __webpack_require__(60);
 var SqlString        = __webpack_require__(43);
 var Query            = __webpack_require__(36);
 var Util             = __webpack_require__(0);
@@ -2519,10 +2519,16 @@ exports.parseURL = parseURL;
 /* 19 */
 /***/ (function(module, exports) {
 
-module.exports = require("crypto");
+module.exports = require("fs");
 
 /***/ }),
 /* 20 */
+/***/ (function(module, exports) {
+
+module.exports = require("crypto");
+
+/***/ }),
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var urlParse        = __webpack_require__(7).parse;
@@ -2659,7 +2665,7 @@ ConnectionConfig.getDefaultFlags = function getDefaultFlags(options) {
 
 ConnectionConfig.getSSLProfile = function getSSLProfile(name) {
   if (!SSLProfiles) {
-    SSLProfiles = __webpack_require__(57);
+    SSLProfiles = __webpack_require__(59);
   }
 
   var ssl = SSLProfiles[name];
@@ -2737,7 +2743,7 @@ ConnectionConfig.parseUrl = function(url) {
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports) {
 
 /**
@@ -2815,7 +2821,7 @@ exports[255] = 'GEOMETRY';
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
@@ -2883,27 +2889,27 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports) {
 
 module.exports = require("assert");
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 const Errors = process.version.charCodeAt(1) < 55 && process.version.charCodeAt(2) === 46
-  ? __webpack_require__(110) // Node.js < 7
-  : __webpack_require__(111)
+  ? __webpack_require__(112) // Node.js < 7
+  : __webpack_require__(113)
 
 module.exports = Errors
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2923,7 +2929,7 @@ module.exports = debug;
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3117,13 +3123,13 @@ module.exports = Multi;
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 module.exports = require("http");
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3295,12 +3301,6 @@ exports.newRedis = newRedis;
 
 
 /***/ }),
-/* 29 */
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3439,13 +3439,13 @@ function loadClass(className) {
       Class = __webpack_require__(15);
       break;
     case 'ConnectionConfig':
-      Class = __webpack_require__(20);
+      Class = __webpack_require__(21);
       break;
     case 'Pool':
       Class = __webpack_require__(44);
       break;
     case 'PoolCluster':
-      Class = __webpack_require__(107);
+      Class = __webpack_require__(109);
       break;
     case 'PoolConfig':
       Class = __webpack_require__(45);
@@ -3454,7 +3454,7 @@ function loadClass(className) {
       Class = __webpack_require__(43);
       break;
     case 'Types':
-      Class = __webpack_require__(21);
+      Class = __webpack_require__(22);
       break;
     default:
       throw new Error('Cannot find class \'' + className + '\'');
@@ -3751,7 +3751,7 @@ exports.UTF32    = exports.UTF32_GENERAL_CI;
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Types = __webpack_require__(21);
+var Types = __webpack_require__(22);
 
 module.exports = Field;
 function Field(options) {
@@ -3784,7 +3784,7 @@ Field.prototype.geometry = function () {
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(9).Buffer;
-var Crypto = __webpack_require__(19);
+var Crypto = __webpack_require__(20);
 var Auth   = exports;
 
 function auth(name, data, options) {
@@ -3958,12 +3958,12 @@ Auth.int32Read = function(buffer, offset){
 /***/ (function(module, exports, __webpack_require__) {
 
 var ClientConstants = __webpack_require__(8);
-var fs              = __webpack_require__(29);
+var fs              = __webpack_require__(19);
 var Packets         = __webpack_require__(2);
-var ResultSet       = __webpack_require__(92);
+var ResultSet       = __webpack_require__(94);
 var Sequence        = __webpack_require__(5);
-var ServerStatus    = __webpack_require__(93);
-var Readable        = __webpack_require__(94);
+var ServerStatus    = __webpack_require__(95);
+var Readable        = __webpack_require__(96);
 var Util            = __webpack_require__(0);
 
 module.exports = Query;
@@ -4223,7 +4223,7 @@ var pna = __webpack_require__(17);
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = __webpack_require__(95);
+var isArray = __webpack_require__(97);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -4246,7 +4246,7 @@ var Stream = __webpack_require__(38);
 
 /*<replacement>*/
 
-var Buffer = __webpack_require__(22).Buffer;
+var Buffer = __webpack_require__(23).Buffer;
 var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
@@ -4272,7 +4272,7 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(97);
+var BufferList = __webpack_require__(99);
 var destroyImpl = __webpack_require__(39);
 var StringDecoder;
 
@@ -5376,7 +5376,7 @@ util.inherits = __webpack_require__(11);
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(98)
+  deprecate: __webpack_require__(100)
 };
 /*</replacement>*/
 
@@ -5386,7 +5386,7 @@ var Stream = __webpack_require__(38);
 
 /*<replacement>*/
 
-var Buffer = __webpack_require__(22).Buffer;
+var Buffer = __webpack_require__(23).Buffer;
 var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
@@ -6022,7 +6022,7 @@ Writable.prototype._destroy = function (err, cb) {
 
 /*<replacement>*/
 
-var Buffer = __webpack_require__(99).Buffer;
+var Buffer = __webpack_require__(101).Buffer;
 /*</replacement>*/
 
 var isEncoding = Buffer.isEncoding || function (encoding) {
@@ -6518,7 +6518,7 @@ function done(stream, er, data) {
 /* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(104);
+module.exports = __webpack_require__(106);
 
 
 /***/ }),
@@ -6529,7 +6529,7 @@ var mysql          = __webpack_require__(30);
 var Connection     = __webpack_require__(15);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Util           = __webpack_require__(0);
-var PoolConnection = __webpack_require__(106);
+var PoolConnection = __webpack_require__(108);
 
 module.exports = Pool;
 
@@ -6826,7 +6826,7 @@ function spliceConnection(array, connection) {
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var ConnectionConfig = __webpack_require__(20);
+var ConnectionConfig = __webpack_require__(21);
 
 module.exports = PoolConfig;
 function PoolConfig(options) {
@@ -7347,7 +7347,7 @@ module.exports = Denque;
 "use strict";
 
 
-var commands = __webpack_require__(115)
+var commands = __webpack_require__(117)
 
 /**
  * Redis command list
@@ -7535,7 +7535,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Response", function() { return Response; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FetchError", function() { return FetchError; });
 /* harmony import */ var stream__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(27);
+/* harmony import */ var http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
 /* harmony import */ var url__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(7);
 /* harmony import */ var https__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(50);
 /* harmony import */ var zlib__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
@@ -9173,7 +9173,9 @@ fetch.Promise = global.Promise;
 
 
 /***/ }),
-/* 54 */
+/* 54 */,
+/* 55 */,
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9191,9 +9193,9 @@ exports.FETCH_COMPLETE = "fetch-complete";
 
 
 /***/ }),
-/* 55 */,
-/* 56 */,
-/* 57 */
+/* 57 */,
+/* 58 */,
+/* 59 */
 /***/ (function(module, exports) {
 
 // Certificates for Amazon RDS
@@ -10679,15 +10681,15 @@ exports['Amazon RDS'] = {
 
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Parser       = __webpack_require__(59);
-var Sequences    = __webpack_require__(63);
+var Parser       = __webpack_require__(61);
+var Sequences    = __webpack_require__(65);
 var Packets      = __webpack_require__(2);
 var Stream       = __webpack_require__(1).Stream;
 var Util         = __webpack_require__(0);
-var PacketWriter = __webpack_require__(103);
+var PacketWriter = __webpack_require__(105);
 
 module.exports = Protocol;
 Util.inherits(Protocol, Stream);
@@ -11148,13 +11150,13 @@ Protocol.prototype._debugPacket = function(incoming, packet) {
 
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var PacketHeader = __webpack_require__(60);
-var BigNumber    = __webpack_require__(61);
+var PacketHeader = __webpack_require__(62);
+var BigNumber    = __webpack_require__(63);
 var Buffer       = __webpack_require__(9).Buffer;
-var BufferList   = __webpack_require__(62);
+var BufferList   = __webpack_require__(64);
 
 var MAX_PACKET_LENGTH    = Math.pow(2, 24) - 1;
 var MUL_32BIT            = Math.pow(2, 32);
@@ -11645,7 +11647,7 @@ Parser.prototype._advanceToNextPacket = function() {
 
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ (function(module, exports) {
 
 module.exports = PacketHeader;
@@ -11656,7 +11658,7 @@ function PacketHeader(length, number) {
 
 
 /***/ }),
-/* 61 */
+/* 63 */
 /***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -14553,7 +14555,7 @@ var BigNumber = clone();
 
 
 /***/ }),
-/* 62 */
+/* 64 */
 /***/ (function(module, exports) {
 
 
@@ -14584,20 +14586,20 @@ BufferList.prototype.push = function push(buf) {
 
 
 /***/ }),
-/* 63 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.ChangeUser = __webpack_require__(64);
-exports.Handshake = __webpack_require__(90);
-exports.Ping = __webpack_require__(91);
+exports.ChangeUser = __webpack_require__(66);
+exports.Handshake = __webpack_require__(92);
+exports.Ping = __webpack_require__(93);
 exports.Query = __webpack_require__(36);
-exports.Quit = __webpack_require__(101);
+exports.Quit = __webpack_require__(103);
 exports.Sequence = __webpack_require__(5);
-exports.Statistics = __webpack_require__(102);
+exports.Statistics = __webpack_require__(104);
 
 
 /***/ }),
-/* 64 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(5);
@@ -14670,7 +14672,7 @@ ChangeUser.prototype['ErrorPacket'] = function(packet) {
 
 
 /***/ }),
-/* 65 */
+/* 67 */
 /***/ (function(module, exports) {
 
 module.exports = AuthSwitchRequestPacket;
@@ -14696,7 +14698,7 @@ AuthSwitchRequestPacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 66 */
+/* 68 */
 /***/ (function(module, exports) {
 
 module.exports = AuthSwitchResponsePacket;
@@ -14716,7 +14718,7 @@ AuthSwitchResponsePacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 67 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(9).Buffer;
@@ -14776,7 +14778,7 @@ ClientAuthenticationPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 68 */
+/* 70 */
 /***/ (function(module, exports) {
 
 module.exports = ComChangeUserPacket;
@@ -14808,7 +14810,7 @@ ComChangeUserPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 69 */
+/* 71 */
 /***/ (function(module, exports) {
 
 module.exports = ComPingPacket;
@@ -14826,7 +14828,7 @@ ComPingPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 70 */
+/* 72 */
 /***/ (function(module, exports) {
 
 module.exports = ComQueryPacket;
@@ -14847,7 +14849,7 @@ ComQueryPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 71 */
+/* 73 */
 /***/ (function(module, exports) {
 
 module.exports = ComQuitPacket;
@@ -14865,7 +14867,7 @@ ComQuitPacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 72 */
+/* 74 */
 /***/ (function(module, exports) {
 
 module.exports = ComStatisticsPacket;
@@ -14883,7 +14885,7 @@ ComStatisticsPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 73 */
+/* 75 */
 /***/ (function(module, exports) {
 
 module.exports = EmptyPacket;
@@ -14898,7 +14900,7 @@ EmptyPacket.prototype.write = function write() {
 
 
 /***/ }),
-/* 74 */
+/* 76 */
 /***/ (function(module, exports) {
 
 module.exports = EofPacket;
@@ -14929,7 +14931,7 @@ EofPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 75 */
+/* 77 */
 /***/ (function(module, exports) {
 
 module.exports = ErrorPacket;
@@ -14970,7 +14972,7 @@ ErrorPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 76 */
+/* 78 */
 /***/ (function(module, exports) {
 
 module.exports = FieldPacket;
@@ -15069,7 +15071,7 @@ FieldPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 77 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(9).Buffer;
@@ -15178,7 +15180,7 @@ HandshakeInitializationPacket.prototype.scrambleBuff = function() {
 
 
 /***/ }),
-/* 78 */
+/* 80 */
 /***/ (function(module, exports) {
 
 module.exports = LocalDataFilePacket;
@@ -15199,7 +15201,7 @@ LocalDataFilePacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 79 */
+/* 81 */
 /***/ (function(module, exports) {
 
 module.exports = LocalInfileRequestPacket;
@@ -15226,7 +15228,7 @@ LocalInfileRequestPacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 80 */
+/* 82 */
 /***/ (function(module, exports) {
 
 
@@ -15276,7 +15278,7 @@ OkPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 81 */
+/* 83 */
 /***/ (function(module, exports) {
 
 module.exports = OldPasswordPacket;
@@ -15296,7 +15298,7 @@ OldPasswordPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 82 */
+/* 84 */
 /***/ (function(module, exports) {
 
 module.exports = ResultSetHeaderPacket;
@@ -15316,10 +15318,10 @@ ResultSetHeaderPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 83 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Types                        = __webpack_require__(21);
+var Types                        = __webpack_require__(22);
 var Charsets                     = __webpack_require__(33);
 var Field                        = __webpack_require__(34);
 var IEEE_754_BINARY_64_PRECISION = Math.pow(2, 53);
@@ -15452,7 +15454,7 @@ function typeMatch(type, list) {
 
 
 /***/ }),
-/* 84 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // http://dev.mysql.com/doc/internals/en/ssl.html
@@ -15485,7 +15487,7 @@ SSLRequestPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 85 */
+/* 87 */
 /***/ (function(module, exports) {
 
 module.exports = StatisticsPacket;
@@ -15511,7 +15513,7 @@ StatisticsPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 86 */
+/* 88 */
 /***/ (function(module, exports) {
 
 module.exports = UseOldPasswordPacket;
@@ -15531,7 +15533,7 @@ UseOldPasswordPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 87 */
+/* 89 */
 /***/ (function(module, exports) {
 
 /**
@@ -18013,10 +18015,10 @@ exports[3230] = 'ER_CANT_START_SERVER_NAMED_PIPE';
 
 
 /***/ }),
-/* 88 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Timers = __webpack_require__(89);
+var Timers = __webpack_require__(91);
 
 module.exports = Timer;
 function Timer(object) {
@@ -18052,13 +18054,13 @@ Timer.prototype._onTimeout = function _onTimeout() {
 
 
 /***/ }),
-/* 89 */
+/* 91 */
 /***/ (function(module, exports) {
 
 module.exports = require("timers");
 
 /***/ }),
-/* 90 */
+/* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence        = __webpack_require__(5);
@@ -18190,7 +18192,7 @@ Handshake.prototype['ErrorPacket'] = function(packet) {
 
 
 /***/ }),
-/* 91 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(5);
@@ -18215,7 +18217,7 @@ Ping.prototype.start = function() {
 
 
 /***/ }),
-/* 92 */
+/* 94 */
 /***/ (function(module, exports) {
 
 module.exports = ResultSet;
@@ -18228,7 +18230,7 @@ function ResultSet(resultSetHeaderPacket) {
 
 
 /***/ }),
-/* 93 */
+/* 95 */
 /***/ (function(module, exports) {
 
 // Manually extracted from mysql-5.5.23/include/mysql_com.h
@@ -18273,7 +18275,7 @@ exports.SERVER_PS_OUT_PARAMS = 4096;
 
 
 /***/ }),
-/* 94 */
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Stream = __webpack_require__(1);
@@ -18293,12 +18295,12 @@ if (process.env.READABLE_STREAM === 'disable' && Stream) {
   exports.Writable = __webpack_require__(40);
   exports.Duplex = __webpack_require__(6);
   exports.Transform = __webpack_require__(42);
-  exports.PassThrough = __webpack_require__(100);
+  exports.PassThrough = __webpack_require__(102);
 }
 
 
 /***/ }),
-/* 95 */
+/* 97 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -18309,7 +18311,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 96 */
+/* 98 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -18342,7 +18344,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 97 */
+/* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18350,7 +18352,7 @@ if (typeof Object.create === 'function') {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Buffer = __webpack_require__(22).Buffer;
+var Buffer = __webpack_require__(23).Buffer;
 var util = __webpack_require__(0);
 
 function copyBuffer(src, target, offset) {
@@ -18427,7 +18429,7 @@ if (util && util.inspect && util.inspect.custom) {
 }
 
 /***/ }),
-/* 98 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -18439,7 +18441,7 @@ module.exports = __webpack_require__(0).deprecate;
 
 
 /***/ }),
-/* 99 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
@@ -18507,7 +18509,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 
 /***/ }),
-/* 100 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18560,7 +18562,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 101 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(5);
@@ -18606,7 +18608,7 @@ Quit.prototype.start = function() {
 
 
 /***/ }),
-/* 102 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(5);
@@ -18642,7 +18644,7 @@ Statistics.prototype.determinePacket = function determinePacket(firstByte) {
 
 
 /***/ }),
-/* 103 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BIT_16            = Math.pow(2, 16);
@@ -18859,14 +18861,14 @@ PacketWriter.prototype._allocate = function _allocate(bytes) {
 
 
 /***/ }),
-/* 104 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(105);
+module.exports = __webpack_require__(107);
 
 
 /***/ }),
-/* 105 */
+/* 107 */
 /***/ (function(module, exports) {
 
 var SqlString  = exports;
@@ -19109,7 +19111,7 @@ function convertTimezone(tz) {
 
 
 /***/ }),
-/* 106 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits   = __webpack_require__(0).inherits;
@@ -19180,12 +19182,12 @@ PoolConnection.prototype._removeFromPool = function _removeFromPool() {
 
 
 /***/ }),
-/* 107 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Pool          = __webpack_require__(44);
 var PoolConfig    = __webpack_require__(45);
-var PoolNamespace = __webpack_require__(108);
+var PoolNamespace = __webpack_require__(110);
 var PoolSelector  = __webpack_require__(46);
 var Util          = __webpack_require__(0);
 var EventEmitter  = __webpack_require__(4).EventEmitter;
@@ -19474,7 +19476,7 @@ function _noop() {}
 
 
 /***/ }),
-/* 108 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Connection   = __webpack_require__(15);
@@ -19616,15 +19618,15 @@ PoolNamespace.prototype._getClusterNode = function _getClusterNode() {
 
 
 /***/ }),
-/* 109 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var util = __webpack_require__(0);
-var assert = __webpack_require__(23);
-var RedisError = __webpack_require__(24).RedisError;
+var assert = __webpack_require__(24);
+var RedisError = __webpack_require__(25).RedisError;
 var ADD_STACKTRACE = false;
 
 function AbortError (obj, stack) {
@@ -19681,13 +19683,13 @@ module.exports = {
 
 
 /***/ }),
-/* 110 */
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-const assert = __webpack_require__(23)
+const assert = __webpack_require__(24)
 const util = __webpack_require__(0)
 
 // RedisError
@@ -19807,13 +19809,13 @@ module.exports = {
 
 
 /***/ }),
-/* 111 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-const assert = __webpack_require__(23)
+const assert = __webpack_require__(24)
 
 class RedisError extends Error {
   get name () {
@@ -19873,26 +19875,26 @@ module.exports = {
 
 
 /***/ }),
-/* 112 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(113)
+module.exports = __webpack_require__(115)
 
 
 /***/ }),
-/* 113 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 const Buffer = __webpack_require__(16).Buffer
-const StringDecoder = __webpack_require__(114).StringDecoder
+const StringDecoder = __webpack_require__(116).StringDecoder
 const decoder = new StringDecoder()
-const errors = __webpack_require__(24)
+const errors = __webpack_require__(25)
 const ReplyError = errors.ReplyError
 const ParserError = errors.ParserError
 var bufferPool = Buffer.allocUnsafe(32 * 1024)
@@ -20442,19 +20444,19 @@ module.exports = JavascriptRedisParser
 
 
 /***/ }),
-/* 114 */
+/* 116 */
 /***/ (function(module, exports) {
 
 module.exports = require("string_decoder");
 
 /***/ }),
-/* 115 */
+/* 117 */
 /***/ (function(module) {
 
 module.exports = JSON.parse("{\"append\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"asking\":{\"arity\":1,\"flags\":[\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"auth\":{\"arity\":2,\"flags\":[\"noscript\",\"loading\",\"stale\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"bgrewriteaof\":{\"arity\":1,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"bgsave\":{\"arity\":-1,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"bitcount\":{\"arity\":-2,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"bitfield\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"bitop\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":2,\"keyStop\":-1,\"step\":1},\"bitpos\":{\"arity\":-3,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"blpop\":{\"arity\":-3,\"flags\":[\"write\",\"noscript\"],\"keyStart\":1,\"keyStop\":-2,\"step\":1},\"brpop\":{\"arity\":-3,\"flags\":[\"write\",\"noscript\"],\"keyStart\":1,\"keyStop\":-2,\"step\":1},\"brpoplpush\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"noscript\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"bzpopmax\":{\"arity\":-2,\"flags\":[\"write\",\"noscript\",\"fast\"],\"keyStart\":1,\"keyStop\":-2,\"step\":1},\"bzpopmin\":{\"arity\":-2,\"flags\":[\"write\",\"noscript\",\"fast\"],\"keyStart\":1,\"keyStop\":-2,\"step\":1},\"client\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"cluster\":{\"arity\":-2,\"flags\":[\"admin\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"command\":{\"arity\":1,\"flags\":[\"random\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"config\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"dbsize\":{\"arity\":1,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"debug\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"decr\":{\"arity\":2,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"decrby\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"del\":{\"arity\":-2,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"discard\":{\"arity\":1,\"flags\":[\"noscript\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"dump\":{\"arity\":2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"echo\":{\"arity\":2,\"flags\":[\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"eval\":{\"arity\":-3,\"flags\":[\"noscript\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"evalsha\":{\"arity\":-3,\"flags\":[\"noscript\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"exec\":{\"arity\":1,\"flags\":[\"noscript\",\"skip_monitor\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"exists\":{\"arity\":-2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"expire\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"expireat\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"flushall\":{\"arity\":-1,\"flags\":[\"write\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"flushdb\":{\"arity\":-1,\"flags\":[\"write\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"geoadd\":{\"arity\":-5,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"geodist\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"geohash\":{\"arity\":-2,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"geopos\":{\"arity\":-2,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"georadius\":{\"arity\":-6,\"flags\":[\"write\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"georadius_ro\":{\"arity\":-6,\"flags\":[\"readonly\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"georadiusbymember\":{\"arity\":-5,\"flags\":[\"write\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"georadiusbymember_ro\":{\"arity\":-5,\"flags\":[\"readonly\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"get\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"getbit\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"getrange\":{\"arity\":4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"getset\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hdel\":{\"arity\":-3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hexists\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hget\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hgetall\":{\"arity\":2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hincrby\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hincrbyfloat\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hkeys\":{\"arity\":2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hlen\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hmget\":{\"arity\":-3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hmset\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"host:\":{\"arity\":-1,\"flags\":[\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"hscan\":{\"arity\":-3,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hset\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hsetnx\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hstrlen\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"hvals\":{\"arity\":2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"incr\":{\"arity\":2,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"incrby\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"incrbyfloat\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"info\":{\"arity\":-1,\"flags\":[\"random\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"keys\":{\"arity\":2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"lastsave\":{\"arity\":1,\"flags\":[\"random\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"latency\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"lindex\":{\"arity\":3,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"linsert\":{\"arity\":5,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"llen\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lolwut\":{\"arity\":-1,\"flags\":[\"readonly\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"lpop\":{\"arity\":2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lpush\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lpushx\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lrange\":{\"arity\":4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lrem\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"lset\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"ltrim\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"memory\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"mget\":{\"arity\":-2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"migrate\":{\"arity\":-6,\"flags\":[\"write\",\"random\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"module\":{\"arity\":-2,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"monitor\":{\"arity\":1,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"move\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"mset\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":2},\"msetnx\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":2},\"multi\":{\"arity\":1,\"flags\":[\"noscript\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"object\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":2,\"keyStop\":2,\"step\":1},\"persist\":{\"arity\":2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"pexpire\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"pexpireat\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"pfadd\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"pfcount\":{\"arity\":-2,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"pfdebug\":{\"arity\":-3,\"flags\":[\"write\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"pfmerge\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"pfselftest\":{\"arity\":1,\"flags\":[\"admin\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"ping\":{\"arity\":-1,\"flags\":[\"stale\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"post\":{\"arity\":-1,\"flags\":[\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"psetex\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"psubscribe\":{\"arity\":-2,\"flags\":[\"pubsub\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"psync\":{\"arity\":3,\"flags\":[\"readonly\",\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"pttl\":{\"arity\":2,\"flags\":[\"readonly\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"publish\":{\"arity\":3,\"flags\":[\"pubsub\",\"loading\",\"stale\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"pubsub\":{\"arity\":-2,\"flags\":[\"pubsub\",\"random\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"punsubscribe\":{\"arity\":-1,\"flags\":[\"pubsub\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"quit\":{\"arity\":1,\"flags\":[\"loading\",\"stale\",\"readonly\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"randomkey\":{\"arity\":1,\"flags\":[\"readonly\",\"random\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"readonly\":{\"arity\":1,\"flags\":[\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"readwrite\":{\"arity\":1,\"flags\":[\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"rename\":{\"arity\":3,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"renamenx\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"replconf\":{\"arity\":-1,\"flags\":[\"admin\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"replicaof\":{\"arity\":3,\"flags\":[\"admin\",\"noscript\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"restore\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"restore-asking\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"asking\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"role\":{\"arity\":1,\"flags\":[\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"rpop\":{\"arity\":2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"rpoplpush\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"rpush\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"rpushx\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"sadd\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"save\":{\"arity\":1,\"flags\":[\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"scan\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"scard\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"script\":{\"arity\":-2,\"flags\":[\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"sdiff\":{\"arity\":-2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"sdiffstore\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"select\":{\"arity\":2,\"flags\":[\"loading\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"set\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"setbit\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"setex\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"setnx\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"setrange\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"shutdown\":{\"arity\":-1,\"flags\":[\"admin\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"sinter\":{\"arity\":-2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"sinterstore\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"sismember\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"slaveof\":{\"arity\":3,\"flags\":[\"admin\",\"noscript\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"slowlog\":{\"arity\":-2,\"flags\":[\"admin\",\"random\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"smembers\":{\"arity\":2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"smove\":{\"arity\":4,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":2,\"step\":1},\"sort\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"spop\":{\"arity\":-2,\"flags\":[\"write\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"srandmember\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"srem\":{\"arity\":-3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"sscan\":{\"arity\":-3,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"strlen\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"subscribe\":{\"arity\":-2,\"flags\":[\"pubsub\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"substr\":{\"arity\":4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"sunion\":{\"arity\":-2,\"flags\":[\"readonly\",\"sort_for_script\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"sunionstore\":{\"arity\":-3,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"swapdb\":{\"arity\":3,\"flags\":[\"write\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"sync\":{\"arity\":1,\"flags\":[\"readonly\",\"admin\",\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"time\":{\"arity\":1,\"flags\":[\"random\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"touch\":{\"arity\":-2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"ttl\":{\"arity\":2,\"flags\":[\"readonly\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"type\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"unlink\":{\"arity\":-2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"unsubscribe\":{\"arity\":-1,\"flags\":[\"pubsub\",\"noscript\",\"loading\",\"stale\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"unwatch\":{\"arity\":1,\"flags\":[\"noscript\",\"fast\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"wait\":{\"arity\":3,\"flags\":[\"noscript\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"watch\":{\"arity\":-2,\"flags\":[\"noscript\",\"fast\"],\"keyStart\":1,\"keyStop\":-1,\"step\":1},\"xack\":{\"arity\":-4,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xadd\":{\"arity\":-5,\"flags\":[\"write\",\"denyoom\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xclaim\":{\"arity\":-6,\"flags\":[\"write\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xdel\":{\"arity\":-3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xgroup\":{\"arity\":-2,\"flags\":[\"write\",\"denyoom\"],\"keyStart\":2,\"keyStop\":2,\"step\":1},\"xinfo\":{\"arity\":-2,\"flags\":[\"readonly\",\"random\"],\"keyStart\":2,\"keyStop\":2,\"step\":1},\"xlen\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xpending\":{\"arity\":-3,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xrange\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xread\":{\"arity\":-4,\"flags\":[\"readonly\",\"noscript\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xreadgroup\":{\"arity\":-7,\"flags\":[\"write\",\"noscript\",\"movablekeys\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xrevrange\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xsetid\":{\"arity\":3,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"xtrim\":{\"arity\":-2,\"flags\":[\"write\",\"random\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zadd\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zcard\":{\"arity\":2,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zcount\":{\"arity\":4,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zincrby\":{\"arity\":4,\"flags\":[\"write\",\"denyoom\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zinterstore\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0},\"zlexcount\":{\"arity\":4,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zpopmax\":{\"arity\":-2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zpopmin\":{\"arity\":-2,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrange\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrangebylex\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrangebyscore\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrank\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrem\":{\"arity\":-3,\"flags\":[\"write\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zremrangebylex\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zremrangebyrank\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zremrangebyscore\":{\"arity\":4,\"flags\":[\"write\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrevrange\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrevrangebylex\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrevrangebyscore\":{\"arity\":-4,\"flags\":[\"readonly\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zrevrank\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zscan\":{\"arity\":-3,\"flags\":[\"readonly\",\"random\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zscore\":{\"arity\":3,\"flags\":[\"readonly\",\"fast\"],\"keyStart\":1,\"keyStop\":1,\"step\":1},\"zunionstore\":{\"arity\":-4,\"flags\":[\"write\",\"denyoom\",\"movablekeys\"],\"keyStart\":0,\"keyStop\":0,\"step\":0}}");
 
 /***/ }),
-/* 116 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20545,15 +20547,15 @@ module.exports = function createClient (port_arg, host_arg, options) {
 
 
 /***/ }),
-/* 117 */
+/* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(13);
-var debug = __webpack_require__(25);
-var Multi = __webpack_require__(26);
+var debug = __webpack_require__(26);
+var Multi = __webpack_require__(27);
 var Command = __webpack_require__(14);
 var no_password_is_set = /no password is set/;
 var loading = /LOADING/;
@@ -21169,14 +21171,14 @@ Multi.prototype.punsubscribe = Multi.prototype.PUNSUBSCRIBE = function punsubscr
 
 
 /***/ }),
-/* 118 */
+/* 120 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(13);
-var debug = __webpack_require__(25);
+var debug = __webpack_require__(26);
 var RedisClient = __webpack_require__(12).RedisClient;
 var Command = __webpack_require__(14);
 var noop = function () {};
@@ -21289,14 +21291,14 @@ RedisClient.prototype.duplicate = function (options, callback) {
 
 
 /***/ }),
-/* 119 */
+/* 121 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var commands = __webpack_require__(48);
-var Multi = __webpack_require__(26);
+var Multi = __webpack_require__(27);
 var RedisClient = __webpack_require__(12).RedisClient;
 var Command = __webpack_require__(14);
 
@@ -21401,8 +21403,6 @@ module.exports = addCommand;
 
 
 /***/ }),
-/* 120 */,
-/* 121 */,
 /* 122 */,
 /* 123 */,
 /* 124 */,
@@ -21413,19 +21413,20 @@ module.exports = addCommand;
 /* 129 */,
 /* 130 */,
 /* 131 */,
-/* 132 */
+/* 132 */,
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-var zookeeper_1 = __webpack_require__(133);
-var events_1 = __webpack_require__(54);
+var zookeeper_1 = __webpack_require__(134);
+var events_1 = __webpack_require__(56);
 zookeeper_1.start(events_1.FETCHER_BIRTH_LOG, events_1.FETCHER_DEATH_LOG, 8);
 
 
 /***/ }),
-/* 133 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21459,7 +21460,7 @@ var __read = (this && this.__read) || function (o, n) {
 };
 exports.__esModule = true;
 exports.start = void 0;
-var connections_1 = __webpack_require__(28);
+var connections_1 = __webpack_require__(29);
 var ZERO = BigInt(0);
 var ONE = BigInt(1);
 function start(birthLog, deathLog, idBytes) {
