@@ -83,5 +83,8 @@ for host in $(cat /var/newsreduce/network); do
     # Hit processor
     echo "-A INPUT  -p tcp -m tcp --dport 1113 --src $ip -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT"
     echo "-A OUTPUT -p tcp -m tcp --sport 1113 --dst $ip -m conntrack --ctstate ESTABLISHED -j ACCEPT"
+    # Net agent
+    echo "-A INPUT  -p tcp -m tcp --dport 9999 --src $ip -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT"
+    echo "-A OUTPUT -p tcp -m tcp --sport 9999 --dst $ip -m conntrack --ctstate ESTABLISHED -j ACCEPT"
 done
 echo COMMIT) | iptables-restore
