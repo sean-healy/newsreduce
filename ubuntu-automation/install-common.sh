@@ -63,6 +63,8 @@ chown -R newsreduce:newsreduce /opt/newsreduce
 -A INPUT  -p tcp --sport 6379 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp --dport 3306 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 -A INPUT  -p tcp --sport 3306 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 9999 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 9999 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 END
 for host in $(cat /var/newsreduce/network); do
     echo "# $host"
