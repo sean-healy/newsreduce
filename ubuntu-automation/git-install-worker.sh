@@ -25,3 +25,4 @@ debs=(
 )
 apt-get update
 apt-get -y install ${debs[*]}
+apt -y autoremove
