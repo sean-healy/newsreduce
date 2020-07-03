@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest",
     "compile": "tsc",
+    "build-bin": "webpack --config webpack.config.js",
     "watch": "tsc -w"
   },
   "author": "Seán Healy",

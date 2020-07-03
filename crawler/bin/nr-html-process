@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 135);
+/******/ 	return __webpack_require__(__webpack_require__.s = 134);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -22263,7 +22263,7 @@ exports.__esModule = true;
 exports.parseHitFile = exports.readLatestVersion = exports.read = exports.formats = exports.versions = exports.allVersions = exports.write = exports.entityIDs = void 0;
 var fs_1 = __importDefault(__webpack_require__(29));
 var config_1 = __webpack_require__(121);
-var child_process_1 = __webpack_require__(126);
+var child_process_1 = __webpack_require__(125);
 var FileFormat_1 = __webpack_require__(51);
 var Entity_1 = __webpack_require__(52);
 var FINISH = "finish";
@@ -22698,7 +22698,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 exports.blobDirPromise = exports.varDirPromise = exports.projectDir = void 0;
-var os_1 = __importDefault(__webpack_require__(125));
 var fs_1 = __importDefault(__webpack_require__(29));
 var PROJECT_DIR_NAME = "newsreduce";
 var dirArray = __dirname.split('/');
@@ -22719,7 +22718,7 @@ function varDirPromise() {
     return __awaiter(this, void 0, void 0, function () {
         var varDir;
         return __generator(this, function (_a) {
-            varDir = os_1["default"].homedir() + "/." + PROJECT_DIR_NAME;
+            varDir = "/var/newsreduce";
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     fs_1["default"].exists(varDir, function (exists) {
                         if (exists) {
@@ -22743,21 +22742,19 @@ function blobDirPromise() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, new Promise(function (resolve, reject) {
-                    varDirPromise().then(function (varDir) {
-                        var blobDir = varDir + "/blobs";
-                        fs_1["default"].exists(blobDir, function (exists) {
-                            if (exists) {
-                                resolve(blobDir);
-                            }
-                            else {
-                                fs_1["default"].mkdir(blobDir, function (err) {
-                                    if (err)
-                                        reject(err);
-                                    else
-                                        resolve(blobDir);
-                                });
-                            }
-                        });
+                    var blobDir = "/var/newsreduce/blobs";
+                    fs_1["default"].exists(blobDir, function (exists) {
+                        if (exists) {
+                            resolve(blobDir);
+                        }
+                        else {
+                            fs_1["default"].mkdir(blobDir, { recursive: true, mode: 448 }, function (err) {
+                                if (err)
+                                    reject(err);
+                                else
+                                    resolve(blobDir);
+                            });
+                        }
                     });
                 })];
         });
@@ -22885,16 +22882,10 @@ exports.thenDebug = function (err) {
 /* 125 */
 /***/ (function(module, exports) {
 
-module.exports = require("os");
-
-/***/ }),
-/* 126 */
-/***/ (function(module, exports) {
-
 module.exports = require("child_process");
 
 /***/ }),
-/* 127 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22950,19 +22941,19 @@ exports.setImmediateInterval = setImmediateInterval;
 
 
 /***/ }),
-/* 128 */
+/* 127 */
 /***/ (function(module, exports) {
 
 module.exports = jsdom;
 
 /***/ }),
+/* 128 */,
 /* 129 */,
 /* 130 */,
 /* 131 */,
 /* 132 */,
 /* 133 */,
-/* 134 */,
-/* 135 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23016,17 +23007,17 @@ var __values = (this && this.__values) || function(o) {
 };
 exports.__esModule = true;
 var url_1 = __webpack_require__(18);
-var jsdom_1 = __webpack_require__(128);
+var jsdom_1 = __webpack_require__(127);
 var data_1 = __webpack_require__(55);
 var file_1 = __webpack_require__(120);
 var connections_1 = __webpack_require__(28);
 var events_1 = __webpack_require__(54);
 var FileFormat_1 = __webpack_require__(51);
 var Entity_1 = __webpack_require__(52);
-var extract_ahrefs_1 = __webpack_require__(136);
-var extract_hits_1 = __webpack_require__(137);
-var extract_raw_text_1 = __webpack_require__(138);
-var extract_wiki_tree_1 = __webpack_require__(139);
+var extract_ahrefs_1 = __webpack_require__(135);
+var extract_hits_1 = __webpack_require__(136);
+var extract_raw_text_1 = __webpack_require__(137);
+var extract_wiki_tree_1 = __webpack_require__(138);
 var PROCESSORS = [extract_ahrefs_1.process, extract_hits_1.process, extract_raw_text_1.process, extract_wiki_tree_1.process];
 var lock = false;
 function process() {
@@ -23115,7 +23106,7 @@ setInterval(process, 2000);
 
 
 /***/ }),
-/* 136 */
+/* 135 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23152,7 +23143,7 @@ exports.process = function (doc) {
 
 
 /***/ }),
-/* 137 */
+/* 136 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23195,7 +23186,7 @@ var FileFormat_1 = __webpack_require__(51);
 var url_1 = __webpack_require__(18);
 var ids_1 = __webpack_require__(49);
 var Entity_1 = __webpack_require__(52);
-var util_1 = __webpack_require__(127);
+var util_1 = __webpack_require__(126);
 var EXCLUDE = [
     "NOSCRIPT",
     "SCRIPT",
@@ -23438,7 +23429,7 @@ exports.process = function (window, resource, version, resourceID) {
 
 
 /***/ }),
-/* 138 */
+/* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23458,7 +23449,7 @@ exports.__esModule = true;
 exports.process = void 0;
 var file_1 = __webpack_require__(120);
 var FileFormat_1 = __webpack_require__(51);
-var jsdom_1 = __webpack_require__(128);
+var jsdom_1 = __webpack_require__(127);
 var url_1 = __webpack_require__(18);
 var ids_1 = __webpack_require__(49);
 var Entity_1 = __webpack_require__(52);
@@ -23503,7 +23494,7 @@ file_1.read(Entity_1.Entity.RESOURCE, BigInt("10000004655985946181"), 1593227390
 
 
 /***/ }),
-/* 139 */
+/* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
