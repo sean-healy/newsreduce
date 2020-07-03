@@ -18,6 +18,7 @@ debs=(
     tmux
     nodejs
     nmap
+    mysql-client-8.0
 )
 mkdir -p /var/newsreduce/blobs/host
 mkdir -p /var/newsreduce/blobs/word

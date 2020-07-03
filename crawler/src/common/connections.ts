@@ -68,8 +68,12 @@ export async function getParams() {
 
 let dbClient: Connection = null;
 export async function db() {
-    if (dbClient === null)
-        dbClient = createConnection({ ...SQL_PARAMS, password: (await getParams()).sql });
+    if (dbClient === null) {
+        console.log("Fetching SQL config.");
+        const password = (await getParams()).sql
+        console.log("Fetched SQL config.");
+        dbClient = createConnection({ ...SQL_PARAMS, password });
+    }
 
     return dbClient;
 }
