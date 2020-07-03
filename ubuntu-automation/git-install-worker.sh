@@ -3,6 +3,7 @@ if [ $USER != root ]; then
     sudo $0 $@
     exit
 fi
+mkdir -p /var/newsreduce
 curl http://newsreduce.org:9999/net > /var/newsreduce/network
 echo 0 > /var/newsreduce/is_main
 bash "$(dirname $0)/install-common.sh"
