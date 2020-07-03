@@ -2,8 +2,6 @@
 scriptsDir="$(dirname $0)"
 projectDir="$("$scriptsDir/nr-project-wd")"
 tmpFileTS="$projectDir/.gen-sql-code.ts"
-echo $scriptsDir
-echo $projectDir
 (echo "export default {"
 for statementFileName in $(ls "$projectDir/sql/"); do
     statementConstantName="$(printf "$statementFileName" | sed 's/\.[sS][qQ][lL]$//g')"
@@ -17,9 +15,7 @@ for statementFileName in $(ls "$projectDir/sql/"); do
         | sed 's/$/",/g'
 done
 echo "};") > "$tmpFileTS"
-for nodeService in $("$scriptsDir/nr-ls-node-services"); do
-	srcDir="$projectDir/$nodeService/src"
-	if [ ! -d "$srcDir" ]; then mkdir "$srcDir"; fi
-	cp "$tmpFileTS" "$srcDir/sql.ts"
-done
+srcDir="$projectDir/crawler/src"
+if [ ! -d "$srcDir" ]; then mkdir -p "$srcDir"; fi
+cp "$tmpFileTS" "$srcDir/sql.ts"
 rm "$tmpFileTS"
