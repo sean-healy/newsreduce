@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 129);
+/******/ 	return __webpack_require__(__webpack_require__.s = 128);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -22263,7 +22263,7 @@ exports.__esModule = true;
 exports.parseHitFile = exports.readLatestVersion = exports.read = exports.formats = exports.versions = exports.allVersions = exports.write = exports.entityIDs = void 0;
 var fs_1 = __importDefault(__webpack_require__(29));
 var config_1 = __webpack_require__(121);
-var child_process_1 = __webpack_require__(126);
+var child_process_1 = __webpack_require__(125);
 var FileFormat_1 = __webpack_require__(51);
 var Entity_1 = __webpack_require__(52);
 var FINISH = "finish";
@@ -22698,7 +22698,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 exports.blobDirPromise = exports.varDirPromise = exports.projectDir = void 0;
-var os_1 = __importDefault(__webpack_require__(125));
 var fs_1 = __importDefault(__webpack_require__(29));
 var PROJECT_DIR_NAME = "newsreduce";
 var dirArray = __dirname.split('/');
@@ -22719,7 +22718,7 @@ function varDirPromise() {
     return __awaiter(this, void 0, void 0, function () {
         var varDir;
         return __generator(this, function (_a) {
-            varDir = os_1["default"].homedir() + "/." + PROJECT_DIR_NAME;
+            varDir = "/var/newsreduce";
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     fs_1["default"].exists(varDir, function (exists) {
                         if (exists) {
@@ -22743,21 +22742,19 @@ function blobDirPromise() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, new Promise(function (resolve, reject) {
-                    varDirPromise().then(function (varDir) {
-                        var blobDir = varDir + "/blobs";
-                        fs_1["default"].exists(blobDir, function (exists) {
-                            if (exists) {
-                                resolve(blobDir);
-                            }
-                            else {
-                                fs_1["default"].mkdir(blobDir, function (err) {
-                                    if (err)
-                                        reject(err);
-                                    else
-                                        resolve(blobDir);
-                                });
-                            }
-                        });
+                    var blobDir = "/var/newsreduce/blobs";
+                    fs_1["default"].exists(blobDir, function (exists) {
+                        if (exists) {
+                            resolve(blobDir);
+                        }
+                        else {
+                            fs_1["default"].mkdir(blobDir, { recursive: true, mode: 448 }, function (err) {
+                                if (err)
+                                    reject(err);
+                                else
+                                    resolve(blobDir);
+                            });
+                        }
                     });
                 })];
         });
@@ -22885,16 +22882,10 @@ exports.thenDebug = function (err) {
 /* 125 */
 /***/ (function(module, exports) {
 
-module.exports = require("os");
-
-/***/ }),
-/* 126 */
-/***/ (function(module, exports) {
-
 module.exports = require("child_process");
 
 /***/ }),
-/* 127 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22950,8 +22941,8 @@ exports.setImmediateInterval = setImmediateInterval;
 
 
 /***/ }),
-/* 128 */,
-/* 129 */
+/* 127 */,
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23028,11 +23019,11 @@ var data_1 = __webpack_require__(55);
 var file_1 = __webpack_require__(120);
 var connections_1 = __webpack_require__(28);
 var events_1 = __webpack_require__(54);
-var transaction_1 = __webpack_require__(130);
+var transaction_1 = __webpack_require__(129);
 var FileFormat_1 = __webpack_require__(51);
 var Entity_1 = __webpack_require__(52);
 var ids_1 = __webpack_require__(49);
-var worker_1 = __webpack_require__(131);
+var worker_1 = __webpack_require__(130);
 function buildOnFetch(url, start) {
     var _this = this;
     return function (response) { return __awaiter(_this, void 0, void 0, function () {
@@ -23162,7 +23153,7 @@ worker_1.start(pollAndFetch, events_1.FETCHER_BIRTH_LOG, events_1.FETCHER_DEATH_
 
 
 /***/ }),
-/* 130 */
+/* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23248,7 +23239,7 @@ exports.thenCommit = thenCommit;
 
 
 /***/ }),
-/* 131 */
+/* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23307,9 +23298,9 @@ var __read = (this && this.__read) || function (o, n) {
 };
 exports.__esModule = true;
 exports.start = void 0;
-var util_1 = __webpack_require__(127);
+var util_1 = __webpack_require__(126);
 var connections_1 = __webpack_require__(28);
-var processor_1 = __webpack_require__(132);
+var processor_1 = __webpack_require__(131);
 var crypto_1 = __webpack_require__(19);
 function start(f, birthLog, deathLog, preconditions, postcondition) {
     var _this = this;
@@ -23331,7 +23322,7 @@ exports.start = start;
 
 
 /***/ }),
-/* 132 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
