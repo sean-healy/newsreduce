@@ -97,4 +97,3 @@ for host in $(cat /var/newsreduce/network); do
     echo "-A OUTPUT -p tcp -m tcp --sport 9999 --dst $ip -m conntrack --ctstate ESTABLISHED -j ACCEPT"
 done
 echo COMMIT) | iptables-restore
-apt autoremove
