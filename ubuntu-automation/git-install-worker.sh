@@ -20,8 +20,6 @@ debs=(
     checkinstall
     libssl-dev
     redis
-    npm
 )
 apt-get update
 apt-get -y install ${debs[*]}
-npm i -g npm

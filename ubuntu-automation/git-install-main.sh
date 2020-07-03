@@ -13,7 +13,7 @@ bash "$(dirname $0)/install-common.sh"
 debs=(
     mysql-server
 )
-apt-get install ${debs[*]}
+apt-get -y install ${debs[*]}
 if [ ! -f /var/newsreduce/network ] || [ ! "$(cat /var/newsreduce/network)" ]; then
     echo 'Replace file contents with a list of hosts in the newsreduce network.'\
         > /var/newsreduce/network
