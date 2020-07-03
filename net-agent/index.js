@@ -30,7 +30,7 @@ fs.readFile("/var/newsreduce/network", async (err, content) => {
             sql: fs.readFileSync("/var/newsreduce/sql_password").toString().replace(/\n$/g, ""),
         })
     });
-    app.get("net", (req, res) => {
+    app.get("/net", (req, res) => {
         res.send(content);
     });
 
