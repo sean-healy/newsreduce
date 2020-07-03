@@ -16,16 +16,18 @@ debs=(
     libssl-dev
     redis
     tmux
+    nodejs
 )
 mkdir -p /var/newsreduce/blobs/host
 mkdir -p /var/newsreduce/blobs/word
 mkdir -p /var/newsreduce/blobs/resource
 mkdir -p /var/newsreduce/null
 mkdir -p /var/newsreduce/.ssh
+curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 if [ ! -f /var/newsreduce/.ssh/id_rsa ]; then
     sudo -u newsreduce ssh-keygen -q -t rsa -N '' -f /var/newsreduce/.ssh/id_rsa <<<y 2>&1 >/dev/null
 fi
-apt-get install ${debs[*]}
+apt-get install -y ${debs[*]}
 
 chown -R newsreduce:newsreduce /var/newsreduce
 chown -R newsreduce:newsreduce /opt/newsreduce
