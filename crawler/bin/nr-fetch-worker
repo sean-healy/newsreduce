@@ -23097,9 +23097,11 @@ function pollAndFetch(lo, hi) {
                 case 0: return [4 /*yield*/, data_1.getRedisKeys("fetchSchedule")];
                 case 1:
                     hosts = _b.sent();
+                    console.log("Got hosts from redis:", JSON.stringify(hosts));
                     return [4 /*yield*/, data_1.selectThrottles(hosts)];
                 case 2:
                     throttles = (_b.sent());
+                    console.log("Throttles for hosts", JSON.stringify(throttles));
                     _b.label = 3;
                 case 3:
                     _b.trys.push([3, 11, 12, 13]);
@@ -23110,6 +23112,7 @@ function pollAndFetch(lo, hi) {
                     host = hosts_1_1.value;
                     id = ids_1.getHostID(host).id;
                     if (!(id >= lo() && id < hi())) return [3 /*break*/, 8];
+                    console.log("Host within range (" + lo() + " --> " + hi() + ": " + host);
                     return [4 /*yield*/, data_1.crawlAllowed(host)];
                 case 5:
                     if (!_b.sent()) return [3 /*break*/, 8];

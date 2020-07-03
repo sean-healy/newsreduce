@@ -66,10 +66,13 @@ async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
     let hosts: string[];
     do {
         hosts = await getRedisKeys("fetchSchedule");
+        console.log("Got hosts from redis:", JSON.stringify(hosts));
         const throttles = (await selectThrottles(hosts));
+        console.log("Throttles for hosts", JSON.stringify(throttles));
         for (const host of hosts) {
             const id = getHostID(host).id;
             if (id >= lo() && id < hi()) {
+                console.log(`Host within range (${lo()} --> ${hi()}: ${host}`);
                 if (await crawlAllowed(host)) {
                     const url = await popURL(host);
                     if (url) {
