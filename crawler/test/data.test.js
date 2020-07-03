@@ -11,5 +11,5 @@ test("selecting throttle should work", async () => {
 
 test("selecting items to schedule should work", async () => {
     const preSchedule = await selectPreSchedule();
-    expect(preSchedule.length <= 100);
+    expect(preSchedule.length <= 500);
 });
