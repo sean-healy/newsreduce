@@ -1,5 +1,6 @@
 import fs from "fs";
 import { blobDirPromise, varDirPromise } from "./common/config";
+import { log } from "./common/logging";
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { FileFormat, formatToFileName, fileNameToFormat } from "./types/FileFormat";
 import { Entity, entityName } from "./types/Entity";
@@ -39,7 +40,7 @@ function spawnSequence(sequence: [string, string, string[]][], res: () => void, 
     if (sequence.length === 0) res();
     else {
         const [head, ...tail] = sequence;
-        //console.log(JSON.stringify(head));
+        log(JSON.stringify(head));
         const [command, cwd, args] = head;
         let process: ChildProcessWithoutNullStreams;
         if (cwd) process = spawn(command, args, { cwd });

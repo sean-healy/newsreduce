@@ -1,4 +1,5 @@
 import { parseURL, generateURL } from "./common/url";
+import { log } from "./common/logging";
 import sql from "./sql";
 import { defaultHash } from "./common/hashing";
 import { milliTimestamp } from "./common/time";
@@ -11,7 +12,7 @@ const PREFIX = Buffer.from([0]);
 
 function genericSQLPromise<From, To>(query: string, params: any[], mapper?: (v: From) => To) {
     return new Promise<To>(async (res, rej) => {
-        const log = (await db()).query(query, params, (err, response) => {
+        const filledQuery = (await db()).query(query, params, (err, response) => {
             if (err) {
                 console.debug(err);
                 rej(err);
@@ -20,7 +21,7 @@ function genericSQLPromise<From, To>(query: string, params: any[], mapper?: (v: 
                 else res(response);
             }
         });
-        console.log(log.sql);
+        log(filledQuery.sql);
     });
 }
 

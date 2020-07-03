@@ -3,6 +3,7 @@ if [ $USER != root ]; then
     sudo $0 $@
     exit
 fi
+iptables -P OUTPUT -A
 if [ ! -d /opt/newsreduce ]; then
     git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
 fi
@@ -19,6 +20,8 @@ debs=(
     nodejs
     nmap
     mysql-client-8.0
+    tar
+    zstd
 )
 mkdir -p /var/newsreduce/blobs/host
 mkdir -p /var/newsreduce/blobs/word
