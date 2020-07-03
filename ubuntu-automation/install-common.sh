@@ -17,6 +17,7 @@ debs=(
     redis
     tmux
     nodejs
+    nmap
 )
 mkdir -p /var/newsreduce/blobs/host
 mkdir -p /var/newsreduce/blobs/word
