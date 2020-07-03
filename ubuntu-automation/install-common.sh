@@ -10,7 +10,6 @@ useradd newsreduce
 mkdir -p /var/newsreduce
 usermod -d /var/newsreduce newsreduce
 debs=(
-    mysql-server
     bind9-dnsutils
     build-essential
     checkinstall
