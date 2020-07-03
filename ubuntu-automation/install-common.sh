@@ -28,6 +28,7 @@ mkdir -p /var/newsreduce/blobs/word
 mkdir -p /var/newsreduce/blobs/resource
 mkdir -p /var/newsreduce/null
 mkdir -p /var/newsreduce/.ssh
+touch /var/newsreduce/safety
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 if [ ! -f /var/newsreduce/.ssh/id_rsa ]; then
     sudo -u newsreduce ssh-keygen -q -t rsa -N '' -f /var/newsreduce/.ssh/id_rsa <<<y 2>&1 >/dev/null
@@ -96,3 +97,4 @@ for host in $(cat /var/newsreduce/network); do
     echo "-A OUTPUT -p tcp -m tcp --sport 9999 --dst $ip -m conntrack --ctstate ESTABLISHED -j ACCEPT"
 done
 echo COMMIT) | iptables-restore
+apt autoremove
