@@ -1,4 +1,4 @@
-const { getParams } = require("../dist/common/connections.js");
+import { getParams } from "../src/common/connections";
 
 test("net agent communication possible", async () => {
     const params = await getParams();

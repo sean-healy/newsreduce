@@ -1,5 +1,5 @@
-const { popURL } = require("../dist/data");
-const { schedule } = require("../dist/data");
+import { popURL } from "../src/data";
+import { schedule } from "../src/data";
 
 test("scheduler should work", async () => {
     await schedule(["https://example.org"]);
