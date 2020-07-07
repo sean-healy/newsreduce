@@ -1,8 +1,8 @@
-import { Resource } from "../types/Resource";
+import { ResourceURL } from "../types/Resource";
 
 const URL_ENCODING = "utf8";
 const PORT_BASE = 10;
-export function generateURL(resource: Resource) {
+export function generateURL(resource: ResourceURL) {
     const ssl = resource.ssl;
     const protocol = ssl ? "https://" : "http://";
     let length = protocol.length;

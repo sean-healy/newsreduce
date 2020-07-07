@@ -1,6 +1,6 @@
-import { Resource } from "./Resource";
+import { ResourceURL } from "./Resource";
 
-export interface ResourceExtra extends Resource {
+export interface ResourceExtra extends ResourceURL {
     id: bigint;
     hostname: string;
     throttle: number;

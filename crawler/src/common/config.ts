@@ -48,3 +48,7 @@ export async function blobDirPromise() {
         });
     });
 }
+// TODO: fixme
+export async function myIP() {
+    return '127.0.0.1';
+}

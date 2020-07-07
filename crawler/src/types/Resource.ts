@@ -1,4 +1,4 @@
-export interface Resource {
+export interface ResourceURL {
     ssl: boolean;
     host: string;
     port: number;

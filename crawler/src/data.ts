@@ -4,7 +4,6 @@ import sql from "./sql";
 import { defaultHash } from "./common/hashing";
 import { milliTimestamp } from "./common/time";
 import { ResourceExtra } from "./types/ResourceExtra";
-import { FetchedResource } from "./types/FetchedResource";
 import { db, renewRedis, REDIS_PARAMS } from "./common/connections";
 import { getUrlID, getHostID } from "./common/ids";
 import { thenDebug } from "./common/functional";
@@ -28,8 +27,7 @@ function genericSQLPromise<From, To>(query: string, params: any[], mapper?: (v: 
 const HEAD = <H>([head,]: [H, any?, any?]) => head;
 
 export function processHost(name: string, throttle: number) {
-    const idBytes = defaultHash(name, 8);
-    const id = idBytes.readBigUInt64BE();
+    const { id, idBytes } = getHostID(name);
     const query = sql.INSERT_HOSTS_IF_ABSENT;
     const params = [id, name, throttle];
     const promise = genericSQLPromise(query, [[params]]);
@@ -37,23 +35,13 @@ export function processHost(name: string, throttle: number) {
     return { promise, id, idBytes };
 }
 export function processHosts(names: string[], throttle: number) {
-    const idBytes = names.map(name => defaultHash(name, 8));
+    const idBytes = names.map(name => defaultHash("host", name));
     const ids = idBytes.map(bytes => bytes.readBigUInt64BE());
     const query = sql.INSERT_HOSTS_IF_ABSENT;
     const params = names.map((name, i) => [ids[i], name, throttle]);
     const promise = genericSQLPromise(query, [params]);
 
     return { promise, ids, idBytes };
-}
-export function pathID(path: string) {
-    const idBytes = defaultHash(path, 8);
-    const id = idBytes.readBigUInt64BE();
-    return { id, idBytes };
-}
-export function queryID(path: string) {
-    const idBytes = defaultHash(path, 8);
-    const id = idBytes.readBigUInt64BE();
-    return { id, idBytes };
 }
 export function processURL(url: string, clientID: number, refererID: bigint) {
     const resource = parseURL(url);
@@ -85,7 +73,7 @@ export function processURLs(urls: string[]) {
 }
 
 export function processClient(name: string, httpVersion: string) {
-    const idBytes = defaultHash(name, 2);
+    const idBytes = defaultHash("client", name);
     const id = idBytes.readUInt16BE();
     const query = sql.INSERT_CLIENT_IF_ABSENT
     const params = [id, name, httpVersion];
@@ -148,7 +136,7 @@ export function processHTTPHeaders(nameAndValus: [string, string][]) {
 }
 
 export function processHTTPHeaderNames(names: string[]) {
-    const idBytes = names.map(name => defaultHash(name, 3));
+    const idBytes = names.map(name => defaultHash("http-header-name", name));
     const ids = idBytes.map(bytes => Buffer.concat([PREFIX, bytes]).readUInt32BE());
     const query = sql.INSERT_HTTP_HEADER_NAMES_IF_ABSENT;
     const params = ids.map((id, i) => [id, names[i]]);
@@ -157,7 +145,7 @@ export function processHTTPHeaderNames(names: string[]) {
     return { promise, ids, idBytes };
 }
 export function processHTTPHeaderName(name: string) {
-    const idBytes = defaultHash(name, 3);
+    const idBytes = defaultHash("http-header-name", name);
     const id = Buffer.concat([PREFIX, idBytes]).readUInt32BE();
     const query = sql.INSERT_HTTP_HEADER_NAMES_IF_ABSENT;
     const params = [id, name];
@@ -167,7 +155,7 @@ export function processHTTPHeaderName(name: string) {
 }
 
 export function httpHeaderValueID(value: string) {
-    const idBytes = defaultHash(value, 8);
+    const idBytes = defaultHash("http-header-value", value);
     const id = idBytes.readBigUInt64BE();
 
     return { id, idBytes };
@@ -181,7 +169,7 @@ export function processHTTPHeaderValue(value: string) {
     return { promise, id, idBytes };
 }
 export function processHTTPHeaderValues(values: string[]) {
-    const idBytes = values.map(value => defaultHash(value, 8));
+    const idBytes = values.map(value => httpHeaderValueID(value).idBytes);
     const ids = idBytes.map(bytes => bytes.readBigUInt64BE());
     const query = sql.INSERT_HTTP_HEADER_VALUES_IF_ABSENT;
     const params = ids.map((id, i) => [id, values[i]]);
@@ -223,19 +211,6 @@ export function deleteLegacyHeaders(resourceID: bigint, currentHeaders: bigint[]
     return genericSQLPromise(query, params);
 }
 
-export function processFetchedResource(resource: FetchedResource) {
-    const { id, duration, status, length, type } = resource;
-    const params = [
-        id, duration, status, length, type,
-        duration, status, length, type,
-    ];
-    return new Promise<null>(async (resolve, reject) => {
-        (await db()).query(sql.INSERT_OR_UPDATE_FETCHED_RESOURCE, params, err => {
-            if (err) reject(err);
-            else resolve(null);
-        })
-    })
-}
 export function selectPostSchedule() {
     return new Promise<ResourceExtra[]>(async (resolve, reject) => {
         const query = sql.SELECT_PRIORITY_RESOURCE_PER_HOST;
@@ -351,6 +326,7 @@ export function selectThrottles(hosts: (bigint | string)[]) {
 function selectThrottleByHostIDs(hosts: bigint[]) {
     return genericSQLPromise(sql.SELECT_THROTTLE_FOR_HOST, [[hosts]], (rows: any) => {
         const throttles = new Map<bigint, number>();
+        console.log(rows);
         rows.forEach((row: any) => throttles.set(BigInt(row.id), row.throttle));
 
         return throttles;
@@ -388,10 +364,9 @@ export async function popURL(host: string) {
         if (err) {
             console.debug(err);
             rej(err);
-        } else if (reply && reply.length !== 0) {
+        } else if (reply && reply.length !== 0)
             res(reply[0]);
-        } else {
+        else
             res(null);
-        }
     }));
 }

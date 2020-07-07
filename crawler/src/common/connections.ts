@@ -1,46 +1,57 @@
 import { createConnection, Connection } from "mysql";
 import redis, { RedisClient } from "redis";
 import fetch from "node-fetch";
-import { Resource } from "../types/Resource";
+import { ResourceURL } from "../types/Resource";
 import { generateURL } from "./url";
 
 const MAIN_HOST = "newsreduce.org";
-const REDIS_PORT = 6379;
+const DEFAULT_REDIS_PORT = 6379;
+const DEFAULT_REDIS_DB = 0;
 
 export const REDIS_PARAMS = {
     local: {
         host: "127.0.0.1",
-        port: REDIS_PORT,
-        db: 0,
+        port: DEFAULT_REDIS_PORT,
+        db: DEFAULT_REDIS_DB,
     },
     events: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 1,
+        port: DEFAULT_REDIS_PORT,
+        db: DEFAULT_REDIS_DB,
     },
     fetchSchedule: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 2,
+        port: DEFAULT_REDIS_PORT,
+        db: 1,
     },
     htmlProcessor: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 3,
+        port: DEFAULT_REDIS_PORT,
+        db: 2,
     },
     hitProcessor: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 4,
+        port: DEFAULT_REDIS_PORT,
+        db: 3,
     },
     throttle: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
+        port: DEFAULT_REDIS_PORT,
+        db: 4,
+    },
+    inserts: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
         db: 5,
+    },
+    legacyRetains: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 6,
     },
 };
 
-const NET_AGENT_PARAMS: Resource = {
+const NET_AGENT_PARAMS: ResourceURL = {
     host: MAIN_HOST,
     port: 9999,
     ssl: false,
@@ -82,21 +93,28 @@ export interface NewRedisTypes {
     zpopmax(args: [string, number], cb: (err: any, response: string[]) => void): any;
 }
 
-const staticConnections: { [name: string]: RedisClient & NewRedisTypes } = {};
-export function renewRedis(name: keyof typeof REDIS_PARAMS) {
+const staticConnections: { [nameOrHost: string]: RedisClient & NewRedisTypes } = {};
+export function renewRedis(nameOrHost: string) {
     let client: RedisClient & NewRedisTypes;
-    if (name in staticConnections) client = staticConnections[name];
+    if (nameOrHost in staticConnections) client = staticConnections[nameOrHost];
     else {
-        client = newRedis(name);
-        staticConnections[name] = client;
+        client = newRedis(nameOrHost);
+        staticConnections[nameOrHost] = client;
     }
 
     return client;
 }
 
-export function newRedis(name: keyof typeof REDIS_PARAMS) {
-    const params = REDIS_PARAMS[name];
-    if (!params) return null;
+export function newRedis(nameOrHost: string) {
+    let params = REDIS_PARAMS[nameOrHost];
+    if (!params) {
+        params = {
+            host: nameOrHost,
+            port: DEFAULT_REDIS_PORT,
+            db: DEFAULT_REDIS_DB,
+        };
+        REDIS_PARAMS[nameOrHost] = params;
+    }
     return redis.createClient({
         host: params.host,
         port: params.port,
