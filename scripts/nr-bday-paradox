@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 import math
 
-d = 1 << (8 * 8)
+d = 1 << (8 * 12)
 print("Slots:", d)
 for power in range(0, 1000):
     n = 2 ** power
     prob = 1 - math.e ** (- (n * n) / (2 * d))
     if n <= 999999:
+        print("{:,}".format(n), "{:.20f}".format(prob), sep="\t\t\t")
+    elif n <= 999999999999:
         print("{:,}".format(n), "{:.20f}".format(prob), sep="\t\t")
     else:
         print("{:,}".format(n), "{:.20f}".format(prob), sep="\t")

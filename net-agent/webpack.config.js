@@ -4,10 +4,11 @@ module.exports = {
   target: 'node',
   mode: 'production',
   entry: {
-      'fetcher-worker': './index.js',
+      'main-net-agent':   './src/main.js',
+      'worker-net-agent': './src/worker.js',
   },
   output: {
-    path: path.resolve(__dirname),
-    filename: 'net-agent.js',
+    path: path.resolve(__dirname, 'bin'),
+    filename: 'nr-[name]',
   },
 };

@@ -3191,37 +3191,38 @@ var redis_1 = __importDefault(__webpack_require__(12));
 var node_fetch_1 = __importDefault(__webpack_require__(53));
 var url_1 = __webpack_require__(18);
 var MAIN_HOST = "newsreduce.org";
-var REDIS_PORT = 6379;
+var DEFAULT_REDIS_PORT = 6379;
+var DEFAULT_REDIS_DB = 0;
 exports.REDIS_PARAMS = {
     local: {
         host: "127.0.0.1",
-        port: REDIS_PORT,
-        db: 0
+        port: DEFAULT_REDIS_PORT,
+        db: DEFAULT_REDIS_DB
     },
     events: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 1
+        port: DEFAULT_REDIS_PORT,
+        db: DEFAULT_REDIS_DB
     },
     fetchSchedule: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 2
+        port: DEFAULT_REDIS_PORT,
+        db: 1
     },
     htmlProcessor: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 3
+        port: DEFAULT_REDIS_PORT,
+        db: 2
     },
     hitProcessor: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 4
+        port: DEFAULT_REDIS_PORT,
+        db: 3
     },
     throttle: {
         host: MAIN_HOST,
-        port: REDIS_PORT,
-        db: 5
+        port: DEFAULT_REDIS_PORT,
+        db: 4
     }
 };
 var NET_AGENT_PARAMS = {
@@ -3276,10 +3277,10 @@ function db() {
 }
 exports.db = db;
 var staticConnections = {};
-function renewRedis(name) {
+function renewRedis(nameOrHost) {
     var client;
-    if (name in staticConnections)
-        client = staticConnections[name];
+    if (nameOrHost in staticConnections)
+        client = staticConnections[nameOrHost];
     else {
         client = newRedis(name);
         staticConnections[name] = client;
@@ -3287,10 +3288,16 @@ function renewRedis(name) {
     return client;
 }
 exports.renewRedis = renewRedis;
-function newRedis(name) {
-    var params = exports.REDIS_PARAMS[name];
-    if (!params)
-        return null;
+function newRedis(nameOrHost) {
+    var params = exports.REDIS_PARAMS[nameOrHost];
+    if (!params) {
+        params = {
+            host: nameOrHost,
+            port: DEFAULT_REDIS_PORT,
+            db: DEFAULT_REDIS_DB
+        };
+        exports.REDIS_PARAMS[nameOrHost] = params;
+    }
     return redis_1["default"].createClient({
         host: params.host,
         port: params.port,
@@ -7601,7 +7608,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.blobDirPromise = exports.varDirPromise = exports.projectDir = void 0;
+exports.myIP = exports.blobDirPromise = exports.varDirPromise = exports.projectDir = void 0;
 var fs_1 = __importDefault(__webpack_require__(19));
 var PROJECT_DIR_NAME = "newsreduce";
 var dirArray = __dirname.split('/');
@@ -7665,6 +7672,15 @@ function blobDirPromise() {
     });
 }
 exports.blobDirPromise = blobDirPromise;
+// TODO: fixme
+function myIP() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, '127.0.0.1'];
+        });
+    });
+}
+exports.myIP = myIP;
 
 /* WEBPACK VAR INJECTION */}.call(this, "/"))
 
@@ -7675,10 +7691,11 @@ exports.blobDirPromise = blobDirPromise;
 "use strict";
 
 exports.__esModule = true;
-exports.FETCH_COMPLETE = exports.WIKI_PROCESS_COMPLETE = exports.HTML_PROCESS_COMPLETE = exports.COLD_START_COMPLETE = exports.SCHEDULE_COMPLETE = exports.FETCHER_DEATH_LOG = exports.FETCHER_BIRTH_LOG = exports.EVENT_LOG = void 0;
+exports.FETCH_COMPLETE = exports.WIKI_PROCESS_COMPLETE = exports.HTML_PROCESS_COMPLETE = exports.COLD_START_COMPLETE = exports.SCHEDULE_COMPLETE = exports.NET_AGENT_DELETE_LOG = exports.FETCHER_DEATH_LOG = exports.FETCHER_BIRTH_LOG = exports.EVENT_LOG = void 0;
 exports.EVENT_LOG = "event-log";
 exports.FETCHER_BIRTH_LOG = "fetcher-birth-log";
 exports.FETCHER_DEATH_LOG = "fetcher-death-log";
+exports.NET_AGENT_DELETE_LOG = "net-agent-delete-log";
 exports.SCHEDULE_COMPLETE = "schedule-complete";
 exports.COLD_START_COMPLETE = "cold-start-complete";
 exports.HTML_PROCESS_COMPLETE = "html-process-complete";
