@@ -11,10 +11,13 @@
   "author": "Seán Healy",
   "license": "ISC",
   "dependencies": {
+    "@types/express": "^4.17.6",
+    "@types/jest": "^26.0.4",
     "@types/jsdom": "^16.2.3",
     "@types/mysql": "^2.15.14",
     "@types/node-fetch": "^2.5.7",
     "@types/redis": "^2.8.22",
+    "express": "^4.17.1",
     "immutable": "^4.0.0-rc.12",
     "jsdom": "^16.2.2",
     "mysql": "^2.18.1",
@@ -22,6 +25,7 @@
     "node-fetch": "^2.6.0",
     "redis": "^3.0.2",
     "redis-commands": "^1.5.0",
+    "ts-jest": "^26.1.1",
     "typescript": "^3.9.5"
   },
   "devDependencies": {
