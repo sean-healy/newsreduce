@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+if [ "$1" == "--noerr" ]; then
+    mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -pw7itCOMZ9RFGmPZmsNCv -A --column-names=false 2>/dev/null
+else
+    mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -pw7itCOMZ9RFGmPZmsNCv -A --column-names=false
+fi
