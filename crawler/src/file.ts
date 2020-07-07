@@ -4,11 +4,13 @@ import { log } from "./common/logging";
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { FileFormat, formatToFileName, fileNameToFormat } from "./types/FileFormat";
 import { Entity, entityName } from "./types/Entity";
+import { renewRedis } from "./common/connections";
 
 const FINISH = "finish";
 const ERROR = "error";
 const TAR = "tar";
 const ZSTD = "zstd";
+const FIND = "find";
 const MV = "mv";
 const TAR_LS_PARAMS = "-atf";
 const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
@@ -62,18 +64,20 @@ function spawnSequence(sequence: [string, string, string[]][], res: () => void, 
     }
 }
 
+export function safeMkdir(dir: string) {
+    return new Promise<string>((res, rej) => {
+        fs.mkdir(dir, { recursive: true, mode: 0o700 }, (err, result) => {
+            if (err) rej(err);
+            else res(result);
+        });
+    });
+}
+
 async function beforeFileWrite(entity: Entity, entityID: bigint, version: number) {
     const varDir = await varDirPromise();
     const dir = `${varDir}/tmp/${entityName(entity)}/${entityID}/${version}`;
-    await new Promise((res, rej) => {
-        fs.mkdir(dir, { recursive: true, mode: 0o700 }, err => {
-            if (err) rej(err);
-            else {
-                //console.log("Created working dir", dir);
-                res();
-            }
-        });
-    });
+
+    return safeMkdir(dir);
 }
 
 async function afterFileWrite(entity: Entity, entityID: bigint, version: number, format: FileFormat) {
@@ -100,7 +104,8 @@ async function afterFileWrite(entity: Entity, entityID: bigint, version: number,
             ], res, rej);
         }
     });
-    await new Promise((res, rej) => spawnSequence([[MV, undefined, [tmpBaseDir, `${nullDir}/${process.hrtime.bigint()}-${entityID}`]]], res, rej));
+    await new Promise((res, rej) =>
+        spawnSequence([[MV, undefined, [tmpBaseDir, `${nullDir}/${process.hrtime.bigint()}-${entityID}`]]], res, rej));
 }
 
 /**
@@ -108,7 +113,13 @@ async function afterFileWrite(entity: Entity, entityID: bigint, version: number,
  * @param version    the version of the resource to be saved (milliseconds since 1970-01-01 00:00:00).
  * @param src        the source of data to be saved, either as a string of the raw data or an input stream.
  */
-export function write(entity: Entity, entityID: bigint, version: number, format: FileFormat, src: NodeJS.ReadableStream | string | Buffer) {
+export function write(
+    entity: Entity,
+    entityID: bigint,
+    version: number,
+    format: FileFormat,
+    src: NodeJS.ReadableStream | string | Buffer
+) {
     if (typeof src === "string" || src instanceof Buffer) {
         return writeFileFromString(entity, entityID, version, format, src);
     } else {
@@ -291,3 +302,59 @@ export function parseHitFile(buffer: Buffer) {
 
     return words;
 }
+
+function mvNoReplace(src: string, dst: string) {
+    const exists = fs.existsSync(dst);
+    if (!exists) fs.renameSync(src, dst);
+
+    return !exists;
+}
+
+const find = spawn(FIND, ["/var/newsreduce/incoming", "-type", "f", "-regex", ".*\.tzst"]);
+const allData = [];
+find.stdout.on("data", (data: Buffer) => allData.push(data));
+const errData = [];
+find.stderr.on("data", (data: Buffer) => errData.push(data));
+find.on("close", async code => {
+    switch (code) {
+        case 0:
+            const src = allData.join().split("\n").filter(s => s);
+            const pairs = src.map(src => ({
+                src,
+                dst: src.replace(/\/incoming\/[^\/]+\//, "/blobs/"),
+                tmp: src.replace(/\/incoming\/[^\/]+\/([^\/]+)\/([0-9]+).tzst/, "/tmp/$1/$2"),
+            }));
+            for (const { src, dst, tmp } of pairs.slice(0, 1)) {
+                renewRedis("local").set(`lock-file:${dst}`, "1");
+                const moved = mvNoReplace(src, dst);
+                const varDir = await varDirPromise();
+                const nullDir = `${varDir}/null`;
+                if (!moved) {
+                    await safeMkdir(tmp);
+                    const tmpTAR = `${tmp}/dst.tar`;
+                    const tmpDST = `${tmp}/dst.tzst`;
+                    const tmpSRC = `${tmp}/src`;
+                    await safeMkdir(tmpSRC);
+                    console.log({ src, dst, tmp, tmpTAR, tmpSRC, tmpDST });
+                    await new Promise((res, rej) => {
+                        spawnSequence([
+                            [ZSTD, undefined, ["-df", dst, "-o", tmpTAR]],
+                            [TAR, tmpSRC, ["--zstd", "-xvf", src]],
+                        ], res, rej);
+                    });
+                    new Promise((res, rej) => {
+                        const update: [string, string, string[]][] =
+                            fs.readdirSync(tmpSRC).map(file => [TAR, tmpSRC, ["-uvf", tmpTAR, file]]);
+                        spawnSequence([
+                            ...update,
+                            [ZSTD, undefined, ["-f", tmpTAR, "-o", tmpDST]],
+                            [MV, undefined, [tmpDST, dst]],
+                            [MV, undefined, [src, `${nullDir}/${Date.now()}-src`]],
+                            [MV, undefined, [tmp, `${nullDir}/${Date.now()}-tmp`]],
+                        ], res, rej);
+                    });
+                }
+            }
+        default: console.debug(errData.join().toString());
+    }
+});

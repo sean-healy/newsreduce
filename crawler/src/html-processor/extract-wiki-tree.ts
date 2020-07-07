@@ -1,7 +1,7 @@
 import { processWikiPages, deleteLegacyWikiCategories, processWikiCategories } from "../data";
 import { generateURL } from "../common/url";
 import { HTMLDocumentProcessor } from "./HTMLDocumentProcessor"
-import { Resource } from "../types/Resource";
+import { ResourceURL } from "../types/Resource";
 import { getUrlID } from "../common/ids";
 
 const HASH = "#";
@@ -14,7 +14,7 @@ function aHrefToUrlID(a: HTMLAnchorElement) {
     return getUrlID(url).id
 }
 
-function resourceIsWikiCategory(resource: Resource) {
+function resourceIsWikiCategory(resource: ResourceURL) {
     return resource.ssl && resource.host === "en.wikipedia.org" && resource.port === 443 && resource.path.match(/^\/wiki\/Category:/) && resource.query === "";
 }
 
