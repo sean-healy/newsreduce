@@ -1,7 +1,11 @@
-import { DBObject } from "../DBObject";
+import { DBObject } from "types/DBObject";
 
 export class Word extends DBObject<Word> {
-    value: string;
+    readonly value: string;
+
+    constructor(value?: string) {
+        if (value) super({ value });
+    }
 
     hashPrefix(): string {
         return "word";
@@ -9,8 +13,8 @@ export class Word extends DBObject<Word> {
     hashSuffix(): string {
         return this.value;
     }
-    getInsertStatement(): string {
-        return `insert ignore into Word(id, value) values ?`
+    insertCols(): string[] {
+        return ["id", "value"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.value];

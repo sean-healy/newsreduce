@@ -1,7 +1,7 @@
-import { DBObject } from "../DBObject";
+import { DBObject } from "types/DBObject";
 
 export class HTTPHeaderName extends DBObject<HTTPHeaderName> {
-    value: string;
+    readonly value: string;
 
     hashPrefix(): string {
         return "http-header-name";
@@ -9,8 +9,8 @@ export class HTTPHeaderName extends DBObject<HTTPHeaderName> {
     hashSuffix(): string {
         return this.value;
     }
-    getInsertStatement(): string {
-        return `insert ignore into HTTPHeaderName(id, value) values ?`
+    insertCols(): string[] {
+        return ["id", "value"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.value];

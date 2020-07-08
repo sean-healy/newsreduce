@@ -1,9 +1,9 @@
-import { DBObject } from "../DBObject";
-import { HTMLTag } from "./HTMLTag";
+import { DBObject } from "types/DBObject";
+import { HTMLTag } from "types/objects/HTMLTag";
 
 export class HTMLNode extends DBObject<HTMLNode> {
-    tag: HTMLTag;
-    attributes: { [key: string]: string };
+    readonly tag: HTMLTag;
+    readonly attributes: { [key: string]: string };
 
     hashPrefix(): string {
         return "html-node";
@@ -17,8 +17,8 @@ export class HTMLNode extends DBObject<HTMLNode> {
 
         return `${this.tag}\0${attributes}`;
     }
-    getInsertStatement(): string {
-        return `insert ignore into HTMLNode(id, tag) values ? `
+    insertCols(): string[] {
+        return ["id", "tag"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.tag];

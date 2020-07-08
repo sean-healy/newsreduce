@@ -1,13 +1,13 @@
-import { DBObject } from "../DBObject";
-import { HTMLNode } from "./HTMLNode";
-import { HTMLAttribute } from "./HTMLAttribute";
+import { DBObject } from "types/DBObject";
+import { HTMLNode } from "types/objects/HTMLNode";
+import { HTMLAttribute } from "types/objects/HTMLAttribute";
 
 export class HTMLNodeAttribute extends DBObject<HTMLNodeAttribute> {
-    node: HTMLNode;
-    attribute: HTMLAttribute;
+    readonly node: HTMLNode;
+    readonly attribute: HTMLAttribute;
 
-    getInsertStatement(): string {
-        return `insert ignore into HTMLNodeAttribute(id, node, attribute) values ? `
+    insertCols(): string[] {
+        return ["id", "node", "attribute"];
     }
     getInsertParams(): any[] {
         return [this.node.getID(), this.attribute.getID()];

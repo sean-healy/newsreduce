@@ -1,10 +1,10 @@
-import { DBObject } from "../DBObject";
-import { ResourceURL } from "./ResourceURL";
-import { HTTPHeader } from "./HTTPHeader";
+import { DBObject } from "types/DBObject";
+import { ResourceURL } from "types/objects/ResourceURL";
+import { HTTPHeader } from "types/objects/HTTPHeader";
 
 export class ResourceHeader extends DBObject<ResourceHeader> {
-    resource: ResourceURL;
-    header: HTTPHeader;
+    readonly resource: ResourceURL;
+    readonly header: HTTPHeader;
 
     constructor(url?: string, name?: string, value?: string) {
         if (!url) super();
@@ -14,17 +14,11 @@ export class ResourceHeader extends DBObject<ResourceHeader> {
         });
     }
 
-    getInsertStatement(): string {
-        return `insert ignore into ResourceHeader(resource, header) values ? `
+    insertCols(): string[] {
+        return ["resource", "header"];
     }
     getInsertParams(): any[] {
         return [this.resource.getID(), this.header.getID()];
-    }
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
     }
     table(): string {
         return "ResourceHeader";

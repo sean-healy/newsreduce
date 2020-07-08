@@ -1,13 +1,13 @@
-import { DBObject } from "../DBObject";
-import { ResourceURL } from "./ResourceURL";
-import { HTMLNode } from "./HTMLNode";
+import { DBObject } from "types/DBObject";
+import { ResourceURL } from "types/objects/ResourceURL";
+import { HTMLNode } from "types/objects/HTMLNode";
 
 export class ResourceHTMLHead extends DBObject<ResourceHTMLHead> {
-    resource: ResourceURL;
-    node: HTMLNode;
+    readonly resource: ResourceURL;
+    readonly node: HTMLNode;
 
-    getInsertStatement(): string {
-        return `insert ignore into ResourceHTMLHead(resource, node) values ? `
+    insertCols(): string[] {
+        return ["resource", "node"];
     }
     getInsertParams(): any[] {
         return [this.resource.getID(), this.node.getID()];

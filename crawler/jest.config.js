@@ -6,4 +6,5 @@ module.exports = {
   "transform": {
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
+  moduleDirectories: ['node_modules', 'src']
 }

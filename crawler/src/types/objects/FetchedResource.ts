@@ -1,14 +1,14 @@
-import { DBObject } from "../DBObject";
-import { ResourceURL } from "./ResourceURL";
-import { HTTPHeaderValue } from "./HTTPHeaderValue";
+import { DBObject } from "types/DBObject";
+import { ResourceURL } from "types/objects/ResourceURL";
+import { HTTPHeaderValue } from "types/objects/HTTPHeaderValue";
 
 export class FetchedResource extends DBObject<FetchedResource> {
-    resource: ResourceURL;
-    length: number;
-    type: HTTPHeaderValue;
+    readonly resource: ResourceURL;
+    readonly length: number;
+    readonly type: HTTPHeaderValue;
 
-    constructor(url: string, length: number, type: string) {
-        super({
+    constructor(url?: string, length?: number, type?: string) {
+        if (url) super({
             resource: new ResourceURL(url),
             length,
             type: new HTTPHeaderValue({
@@ -17,14 +17,8 @@ export class FetchedResource extends DBObject<FetchedResource> {
         })
     }
 
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
-    }
-    getInsertStatement(): string {
-        return `insert ignore into FetchedResource(resource, length, type) values ?`
+    insertCols(): string[] {
+        return ["resource", "length", "type"]
     }
     getInsertParams(): any[] {
         return [this.resource.getID(), this.length, this.type.getID()];

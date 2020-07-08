@@ -1,8 +1,8 @@
-import { DBObject } from "../DBObject";
+import { DBObject } from "types/DBObject";
 
 export class Host extends DBObject<Host> {
-    name: string;
-    throttle: number;
+    readonly name: string;
+    readonly throttle: number;
 
     hashPrefix(): string {
         return "host";
@@ -10,13 +10,13 @@ export class Host extends DBObject<Host> {
     hashSuffix(): string {
         return this.name;
     }
-    getInsertStatement(): string {
-        return "insert ignore into Host(id, name, throttle) values ?";
+    insertCols(): string[] {
+        return ["id", "name", "throttle"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.name, this.throttle];
     }
     table(): string {
-        return "HTTPHost";
+        return "Host";
     }
 }

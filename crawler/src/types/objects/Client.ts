@@ -1,8 +1,8 @@
-import { DBObject } from "../DBObject";
+import { DBObject } from "types/DBObject";
 
 export class Client extends DBObject<Client> {
-    name: string;
-    httpVersion: string;
+    readonly name: string;
+    readonly httpVersion: string;
 
     hashPrefix(): string {
         return "client";
@@ -10,8 +10,8 @@ export class Client extends DBObject<Client> {
     hashSuffix(): string {
         return this.name;
     }
-    getInsertStatement(): string {
-        return `insert ignore into Client(id, name, httpVersion) values ?`
+    insertCols(): string[] {
+        return ["id", "name", "httpVersion"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.name, this.httpVersion];

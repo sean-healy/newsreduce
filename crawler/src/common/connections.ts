@@ -1,16 +1,16 @@
 import { createConnection, Connection } from "mysql";
 import redis, { RedisClient } from "redis";
 import fetch from "node-fetch";
-import { ResourceURL } from "../types/Resource";
-import { generateURL } from "./url";
+import { log } from "./logging";
 
 const MAIN_HOST = "newsreduce.org";
+const LOCALHOST = "127.0.0.1";
 const DEFAULT_REDIS_PORT = 6379;
 const DEFAULT_REDIS_DB = 0;
 
 export const REDIS_PARAMS = {
     local: {
-        host: "127.0.0.1",
+        host: LOCALHOST,
         port: DEFAULT_REDIS_PORT,
         db: DEFAULT_REDIS_DB,
     },
@@ -24,40 +24,31 @@ export const REDIS_PARAMS = {
         port: DEFAULT_REDIS_PORT,
         db: 1,
     },
-    htmlProcessor: {
+    processQueues: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: 2,
     },
-    hitProcessor: {
+    throttle: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: 3,
     },
-    throttle: {
+    inserts: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: 4,
     },
-    inserts: {
-        host: MAIN_HOST,
+    lockedFiles: {
+        host: LOCALHOST,
         port: DEFAULT_REDIS_PORT,
         db: 5,
     },
-    legacyRetains: {
-        host: MAIN_HOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 6,
-    },
 };
 
-const NET_AGENT_PARAMS: ResourceURL = {
-    host: MAIN_HOST,
-    port: 9999,
-    ssl: false,
-    path: "",
-    query: "",
-};
+export const ENTITIES_TO_COMPRESS = "entities-to-compress";
+
+const NET_AGENT_ENDPOINT = `http://${MAIN_HOST}:9999`;
 
 const SQL_PARAMS = {
     host: MAIN_HOST,
@@ -71,8 +62,10 @@ interface Params {
 }
 let params: Params = null;
 export async function getParams() {
-    if (!params)
-        params = await fetch(generateURL(NET_AGENT_PARAMS)).then(res => res.json());
+    if (!params) {
+        const { ResourceURL } = require("types/objects/ResourceURL");
+        params = await fetch(new ResourceURL(NET_AGENT_ENDPOINT).toURL()).then(res => res.json());
+    }
 
     return params;
 }
@@ -80,9 +73,9 @@ export async function getParams() {
 let dbClient: Connection = null;
 export async function db() {
     if (dbClient === null) {
-        console.log("Fetching SQL config.");
+        log("Fetching SQL config.");
         const password = (await getParams()).sql
-        console.log("Fetched SQL config.");
+        log("Fetched SQL config.");
         dbClient = createConnection({ ...SQL_PARAMS, password });
     }
 

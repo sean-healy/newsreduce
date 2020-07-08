@@ -1,12 +1,12 @@
-import { DBObject } from "../DBObject";
-import { ResourceURL } from "./ResourceURL";
+import { DBObject } from "types/DBObject";
+import { ResourceURL } from "types/objects/ResourceURL";
 
 export class WikiCategory extends DBObject<WikiCategory> {
-    parent: ResourceURL;
-    child: ResourceURL;
+    readonly parent: ResourceURL;
+    readonly child: ResourceURL;
 
-    getInsertStatement(): string {
-        return `insert ignore into WikiCategory(parent, child) values ? `
+    insertCols(): string[] {
+        return ["parent", "child"];
     }
     getInsertParams(): any[] {
         return [this.parent.getID(), this.child.getID()];
