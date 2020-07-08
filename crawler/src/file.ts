@@ -1,17 +1,12 @@
 import fs from "fs";
-import { blobDirPromise, varDirPromise } from "./common/config";
+import { blobDirPromise, tmpDirPromise, TAR } from "./common/config";
 import { log } from "./common/logging";
-import { spawn, ChildProcessWithoutNullStreams } from "child_process";
+import { spawn } from "child_process";
 import { FileFormat, formatToFileName, fileNameToFormat } from "./types/FileFormat";
 import { Entity, entityName } from "./types/Entity";
-import { renewRedis } from "./common/connections";
 
 const FINISH = "finish";
 const ERROR = "error";
-const TAR = "tar";
-const ZSTD = "zstd";
-const FIND = "find";
-const MV = "mv";
 const TAR_LS_PARAMS = "-atf";
 const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
 const TAR_CAT_PARAMS_AFTER_FILE = "-O";
@@ -38,80 +33,31 @@ export function entityIDs(entity: Entity) {
     });
 }
 
-function spawnSequence(sequence: [string, string, string[]][], res: () => void, rej: (err: string) => void) {
-    if (sequence.length === 0) res();
-    else {
-        const [head, ...tail] = sequence;
-        log(JSON.stringify(head));
-        const [command, cwd, args] = head;
-        let process: ChildProcessWithoutNullStreams;
-        if (cwd) process = spawn(command, args, { cwd });
-        else process = spawn(command, args);
-        const err = [];
-        process.stderr.on("data", data => err.push(data));
-        process.on("close", code => {
-            switch (code) {
-                case 0:
-                    spawnSequence(tail, res, rej);
-                    break;
-                default:
-                    console.debug("ERR", code, JSON.stringify(head));
-                    console.debug(head);
-                    console.debug(Buffer.concat(err).toString());
-                    rej(Buffer.concat(err).toString());
-            }
-        });
-    }
-}
-
 export function safeMkdir(dir: string) {
     return new Promise<string>((res, rej) => {
         fs.mkdir(dir, { recursive: true, mode: 0o700 }, (err, result) => {
             if (err) rej(err);
-            else res(result);
+            else {
+                res(result);
+                log("New dir", dir);
+            }
         });
     });
 }
 
 async function beforeFileWrite(entity: Entity, entityID: bigint, version: number) {
-    const varDir = await varDirPromise();
-    const dir = `${varDir}/tmp/${entityName(entity)}/${entityID}/${version}`;
+    const tmpDir = await tmpDirPromise();
+    const dir = `${tmpDir}/${entityName(entity)}/${entityID}/${version}`;
 
     return safeMkdir(dir);
 }
 
-async function afterFileWrite(entity: Entity, entityID: bigint, version: number, format: FileFormat) {
-    const varDir = await varDirPromise();
-    const nullDir = `${varDir}/null`;
-    const entityDirName = entityName(entity);
-    const tmpDir = `${varDir}/tmp/${entityDirName}`;
-    const blobDir = `${varDir}/blobs/${entityDirName}`;
-    const tmpBaseDir = `${tmpDir}/${entityID}`;
-    const filename = formatToFileName(format);
-    const tmpFile = `${version}/${filename}`;
-    const compressedArc = `${blobDir}/${entityID}.tzst`
-    const arc = `${tmpDir}/${entityID}.tar`;
-    const exists = fs.existsSync(compressedArc);
-    await new Promise((res, rej) => {
-        if (!exists) {
-            spawnSequence([[TAR, tmpBaseDir, ["--zstd", "-cvf", compressedArc, tmpFile]]], res, rej);
-        } else {
-            spawnSequence([
-                [ZSTD, undefined, ["-df", compressedArc, "-o", arc]],
-                [TAR, tmpBaseDir, ["-uvf", arc, tmpFile]],
-                [ZSTD, undefined, ["-f", arc, "-o", compressedArc]],
-                [MV, undefined, [arc, `${nullDir}/${process.hrtime.bigint()}`]],
-            ], res, rej);
-        }
-    });
-    await new Promise((res, rej) =>
-        spawnSequence([[MV, undefined, [tmpBaseDir, `${nullDir}/${process.hrtime.bigint()}-${entityID}`]]], res, rej));
-}
-
 /**
- * @param entityID the ID of the resource to be saved (a hash of the URL).
- * @param version    the version of the resource to be saved (milliseconds since 1970-01-01 00:00:00).
- * @param src        the source of data to be saved, either as a string of the raw data or an input stream.
+ * @param entityID the ID of the resource to be saved (a hash of the URL)
+ * @param version    the version of the resource to be saved (milliseconds since 1970-01-01 00:00:00)
+ * @param src        the source of data to be saved, either as a string of the raw data or an input stream
+ * 
+ * @return number of bytes written
  */
 export function write(
     entity: Entity,
@@ -130,9 +76,9 @@ export function write(
 function writeFileFromStream(entity: Entity, entityID: bigint, version: number, format: FileFormat, src: NodeJS.ReadableStream) {
     return new Promise<number>(async (res, rej) => {
         await beforeFileWrite(entity, entityID, version);
-        const varDir = await varDirPromise();
-        const tmpFile = `${varDir}/tmp/${entityName(entity)}/${entityID}/${version}/${formatToFileName(format)}`;
-        //console.log("Writing to", tmpFile);
+        const tmpDir = await tmpDirPromise();
+        const tmpFile = `${tmpDir}/${entityName(entity)}/${entityID}/${version}/${formatToFileName(format)}`;
+        log("Writing to", tmpFile);
         const dst = fs.createWriteStream(tmpFile);
         src.pipe(dst);
         dst.on(ERROR, err => {
@@ -140,8 +86,8 @@ function writeFileFromStream(entity: Entity, entityID: bigint, version: number, 
             rej(err)
         });
         dst.on(FINISH, () => {
-            //console.log("Recompressing", tmpFile);
-            afterFileWrite(entity, entityID, version, format).then(() => res(dst.bytesWritten)).catch(rej)
+            //afterFileWrite(entity, entityID, version, format).then(() => res(dst.bytesWritten)).catch(rej)
+            res(dst.bytesWritten);
         });
     });
 }
@@ -149,13 +95,14 @@ function writeFileFromStream(entity: Entity, entityID: bigint, version: number, 
 function writeFileFromString(entity: Entity, entityID: bigint, version: number, format: FileFormat, str: string | Buffer) {
     return new Promise<number>(async (res, rej) => {
         await beforeFileWrite(entity, entityID, version);
-        const varDir = await varDirPromise();
-        const tmpFile = `${varDir}/tmp/${entityName(entity)}/${entityID}/${version}/${formatToFileName(format)}`;
+        const tmpDir = await tmpDirPromise();
+        const tmpFile = `${tmpDir}/${entityName(entity)}/${entityID}/${version}/${formatToFileName(format)}`;
         const dst = fs.createWriteStream(tmpFile);
         fs.writeFile(tmpFile, str, err => {
             if (err) rej(err);
             else {
-                afterFileWrite(entity, entityID, version, format).then(() => res(dst.bytesWritten)).catch(rej);
+                //afterFileWrite(entity, entityID, version, format).then(() => res(dst.bytesWritten)).catch(rej);
+                res(dst.bytesWritten);
             }
         });
     });
@@ -310,51 +257,55 @@ function mvNoReplace(src: string, dst: string) {
     return !exists;
 }
 
-const find = spawn(FIND, ["/var/newsreduce/incoming", "-type", "f", "-regex", ".*\.tzst"]);
-const allData = [];
-find.stdout.on("data", (data: Buffer) => allData.push(data));
-const errData = [];
-find.stderr.on("data", (data: Buffer) => errData.push(data));
-find.on("close", async code => {
-    switch (code) {
-        case 0:
-            const src = allData.join().split("\n").filter(s => s);
-            const pairs = src.map(src => ({
-                src,
-                dst: src.replace(/\/incoming\/[^\/]+\//, "/blobs/"),
-                tmp: src.replace(/\/incoming\/[^\/]+\/([^\/]+)\/([0-9]+).tzst/, "/tmp/$1/$2"),
-            }));
-            for (const { src, dst, tmp } of pairs.slice(0, 1)) {
-                renewRedis("local").set(`lock-file:${dst}`, "1");
-                const moved = mvNoReplace(src, dst);
-                const varDir = await varDirPromise();
-                const nullDir = `${varDir}/null`;
-                if (!moved) {
-                    await safeMkdir(tmp);
-                    const tmpTAR = `${tmp}/dst.tar`;
-                    const tmpDST = `${tmp}/dst.tzst`;
-                    const tmpSRC = `${tmp}/src`;
-                    await safeMkdir(tmpSRC);
-                    console.log({ src, dst, tmp, tmpTAR, tmpSRC, tmpDST });
-                    await new Promise((res, rej) => {
-                        spawnSequence([
-                            [ZSTD, undefined, ["-df", dst, "-o", tmpTAR]],
-                            [TAR, tmpSRC, ["--zstd", "-xvf", src]],
-                        ], res, rej);
-                    });
-                    new Promise((res, rej) => {
-                        const update: [string, string, string[]][] =
-                            fs.readdirSync(tmpSRC).map(file => [TAR, tmpSRC, ["-uvf", tmpTAR, file]]);
-                        spawnSequence([
-                            ...update,
-                            [ZSTD, undefined, ["-f", tmpTAR, "-o", tmpDST]],
-                            [MV, undefined, [tmpDST, dst]],
-                            [MV, undefined, [src, `${nullDir}/${Date.now()}-src`]],
-                            [MV, undefined, [tmp, `${nullDir}/${Date.now()}-tmp`]],
-                        ], res, rej);
-                    });
+/*
+function main() {
+    const find = spawn(FIND, ["/var/newsreduce/incoming", "-type", "f", "-regex", ".*\.tzst"]);
+    const allData = [];
+    find.stdout.on("data", (data: Buffer) => allData.push(data));
+    const errData = [];
+    find.stderr.on("data", (data: Buffer) => errData.push(data));
+    find.on("close", async code => {
+        switch (code) {
+            case 0:
+                const src = allData.join().split("\n").filter(s => s);
+                const pairs = src.map(src => ({
+                    src,
+                    dst: src.replace(/\/incoming\/[^\/]+\//, "/blobs/"),
+                    tmp: src.replace(/\/incoming\/[^\/]+\/([^\/]+)\/([0-9]+).tzst/, "/tmp/$1/$2"),
+                }));
+                for (const { src, dst, tmp } of pairs.slice(0, 1)) {
+                    renewRedis("local").set(`lock-file:${dst}`, "1");
+                    const moved = mvNoReplace(src, dst);
+                    const varDir = await varDirPromise();
+                    const nullDir = `${varDir}/null`;
+                    if (!moved) {
+                        await safeMkdir(tmp);
+                        const tmpTAR = `${tmp}/dst.tar`;
+                        const tmpDST = `${tmp}/dst.tzst`;
+                        const tmpSRC = `${tmp}/src`;
+                        await safeMkdir(tmpSRC);
+                        console.log({ src, dst, tmp, tmpTAR, tmpSRC, tmpDST });
+                        await new Promise((res, rej) => {
+                            spawnSequence([
+                                [ZSTD, undefined, ["-df", dst, "-o", tmpTAR]],
+                                [TAR, tmpSRC, ["--zstd", "-xvf", src]],
+                            ], res, rej);
+                        });
+                        new Promise((res, rej) => {
+                            const update: [string, string, string[]][] =
+                                fs.readdirSync(tmpSRC).map(file => [TAR, tmpSRC, ["-uvf", tmpTAR, file]]);
+                            spawnSequence([
+                                ...update,
+                                [ZSTD, undefined, ["-f", tmpTAR, "-o", tmpDST]],
+                                [MV, undefined, [tmpDST, dst]],
+                                [MV, undefined, [src, `${nullDir}/${Date.now()}-src`]],
+                                [MV, undefined, [tmp, `${nullDir}/${Date.now()}-tmp`]],
+                            ], res, rej);
+                        });
+                    }
                 }
-            }
-        default: console.debug(errData.join().toString());
-    }
-});
+            default: console.debug(errData.join().toString());
+        }
+    });
+}
+*/

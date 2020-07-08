@@ -1,4 +1,4 @@
-import { ResourceURL } from "../types/Resource";
+import { ResourceURL } from "../types/objects/ResourceURL";
 import { DOMWindow } from "jsdom";
 
 export interface HTMLDocumentProcessor {

@@ -1,11 +1,8 @@
 import { HTMLDocumentProcessor } from "./HTMLDocumentProcessor"
-import { read, write, parseHitFile } from "../file";
-import { FileFormat } from "../types/FileFormat";
-import { JSDOM } from "jsdom";
-import { generateURL, parseURL } from "../common/url";
-import { getUrlID, getWordID } from "../common/ids";
+import { write } from "../file"; import { FileFormat } from "../types/FileFormat";
 import { Entity } from "../types/Entity";
-import { CMP_BIG_INT } from "../common/util";
+import { CMP_BIG_INT, writeBigUInt96BE } from "../common/util";
+import { Word } from "../types/objects/Word";
 
 const EXCLUDE = [
     "NOSCRIPT",
@@ -160,7 +157,7 @@ interface WordDataHit {
     words: string[];
 };
 
-export const process: HTMLDocumentProcessor = (window, resource, version, resourceID) => {
+export const process: HTMLDocumentProcessor = (window, resource, version) => {
     const promises: Promise<unknown>[] = [];
     for (const tag of EXCLUDE) {
         const items = window.document.querySelectorAll(tag);
@@ -193,18 +190,18 @@ export const process: HTMLDocumentProcessor = (window, resource, version, resour
     for (let i = 0; i < wordHitData.length; ++i) {
         const { words, hitType } = wordHitData[i];
         for (let j = 0; j < words.length; ++j) {
-            const word = words[j];
-            const wordID = getWordID(word).id
+            const word = new Word(words[j]);
             const position = Math.floor(wordOnPage++ / wordsOnPage * (1 << 4));
             let wordHits: number[];
-            if (documentWords.has(wordID)) {
-                wordHits = documentWords.get(wordID);
+            if (documentWords.has(word.getID())) {
+                wordHits = documentWords.get(word.getID());
             }
             else {
-                // 8 bytes for a word ID, 2 bytes for the hit list length.
-                bytesUsed += 10;
+                // 12 bytes for a word ID, 2 bytes for the hit list length.
+                bytesUsed += 12;
+                bytesUsed += 2;
                 wordHits = [];
-                documentWords.set(wordID, wordHits);
+                documentWords.set(word.getID(), wordHits);
             }
             wordHits.push((hitType << 4) | position);
             ++bytesUsed;
@@ -214,21 +211,17 @@ export const process: HTMLDocumentProcessor = (window, resource, version, resour
     const fileData = Buffer.alloc(bytesUsed);
     let offset = 0;
     for (const wordID of wordIDs) {
-        fileData.writeBigUInt64BE(wordID, offset);
-        offset += 8;
+        writeBigUInt96BE(wordID, fileData, offset);
+        offset += 12;
         const wordHits = documentWords.get(wordID).sort();
         const length = wordHits.length;
         fileData.writeUInt16BE(length, offset);
         offset += 2;
         fileData.copyWithin
         Buffer.from(wordHits).copy(fileData, offset);
-        //console.log(wordID.toString(16), length, Buffer.from(wordHits).toString("hex"));
         offset += length;
     }
-    if (resourceID === null)
-        resourceID = getUrlID(generateURL(resource)).id;
-    //console.log(fileData.length);
-    promises.push(write(Entity.RESOURCE, resourceID, version, FileFormat.HITS, fileData));
+    promises.push(write(Entity.RESOURCE, resource.getID(), version, FileFormat.HITS, fileData));
 
     return promises;
 }

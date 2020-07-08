@@ -1,5 +1,7 @@
 import fs from "fs";
-const PROJECT_DIR_NAME = "newsreduce";
+
+export const PROJECT_DIR_NAME = "newsreduce";
+export const TAR = "tar";
 const dirArray = __dirname.split('/');
 const firstI = dirArray.indexOf(PROJECT_DIR_NAME);
 const lastI = dirArray.lastIndexOf(PROJECT_DIR_NAME);
@@ -47,6 +49,40 @@ export async function blobDirPromise() {
             }
         });
     });
+}
+export async function tmpDirPromise() {
+    const tmpDir = "/var/newsreduce/tmp";
+    return new Promise<string>((resolve, reject) => {
+        fs.exists(tmpDir, exists => {
+            if (exists) {
+                resolve(tmpDir);
+            } else {
+                fs.mkdir(tmpDir, err => {
+                    if (err) reject(err);
+                    else resolve(tmpDir)
+                })
+            }
+        })
+    });
+}
+export async function nullDirPromise() {
+    const tmpDir = "/var/newsreduce/null";
+    return new Promise<string>((resolve, reject) => {
+        fs.exists(tmpDir, exists => {
+            if (exists) {
+                resolve(tmpDir);
+            } else {
+                fs.mkdir(tmpDir, err => {
+                    if (err) reject(err);
+                    else resolve(tmpDir)
+                })
+            }
+        })
+    });
+}
+export async function nullFilePromise(path: string) {
+    const safePath = path.replace(/[\/.]/g, "_");
+    return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
 }
 // TODO: fixme
 export async function myIP() {

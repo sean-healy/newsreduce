@@ -1,11 +1,11 @@
-import { DBObject } from "../DBObject";
-import { ResourceURL } from "./ResourceURL";
+import { DBObject } from "types/DBObject";
+import { ResourceURL } from "types/objects/ResourceURL";
 
 export class WikiPage extends DBObject<WikiPage> {
-    resource: ResourceURL;
+    readonly resource: ResourceURL;
 
-    getInsertStatement(): string {
-        return `insert ignore into WikiPage(resource) values ? `
+    insertCols(): string[] {
+        return ["resource"];
     }
     getInsertParams(): any[] {
         return [this.resource.getID()];

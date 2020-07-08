@@ -1,10 +1,10 @@
-import { DBObject } from "../DBObject";
-import { HTTPHeaderName } from "./HTTPHeaderName";
-import { HTTPHeaderValue } from "./HTTPHeaderValue";
+import { DBObject } from "types/DBObject";
+import { HTTPHeaderName } from "types/objects/HTTPHeaderName";
+import { HTTPHeaderValue } from "types/objects/HTTPHeaderValue";
 
 export class HTTPHeader extends DBObject<HTTPHeader> {
-    name: HTTPHeaderName;
-    value: HTTPHeaderValue;
+    readonly name: HTTPHeaderName;
+    readonly value: HTTPHeaderValue;
 
     constructor(name?: string, value?: string) {
         if (!name || !value) super();
@@ -14,8 +14,8 @@ export class HTTPHeader extends DBObject<HTTPHeader> {
         });
     }
 
-    getInsertStatement(): string {
-        return `insert ignore into HTTPHeader(id, name, value) values ? `
+    insertCols(): string[] {
+        return ["id", "name", "value"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.name.getID(), this.value.getID()];

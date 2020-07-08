@@ -1,7 +1,7 @@
-import { DBObject } from "../DBObject";
+import { DBObject } from "types/DBObject";
 
 export class HTMLAttributeName extends DBObject<HTMLAttributeName> {
-    value: string;
+    readonly value: string;
 
     hashPrefix(): string {
         return "html-attribute-name";
@@ -9,8 +9,8 @@ export class HTMLAttributeName extends DBObject<HTMLAttributeName> {
     hashSuffix(): string {
         return this.value;
     }
-    getInsertStatement(): string {
-        return `insert ignore into HTMLAttributeName(id, value) values ?`
+    insertCols(): string[] {
+        return ["id", "value"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.value];

@@ -1,42 +1,35 @@
-import { generateURL } from "../common/url";
 import { JSDOM } from "jsdom";
-import { selectHTMLToProcess } from "../data";
 import { readLatestVersion } from "../file";
-import { newRedis } from "../common/connections";
-import { EVENT_LOG, FETCH_COMPLETE } from "../common/events";
+import { renewRedis } from "../common/connections";
+import { FETCH_COMPLETE, HTML_PROCESS_COMPLETE } from "../common/events";
 import { FileFormat } from "../types/FileFormat";
 import { Entity } from "../types/Entity";
 import { process as process0 } from "./extract-ahrefs";
 import { process as process1 } from "./extract-hits";
 import { process as process2 } from "./extract-raw-text";
 import { process as process3 } from "./extract-wiki-tree";
+import { ResourceURL } from "../types/objects/ResourceURL";
+import { startProcessor } from "../common/processor";
 const PROCESSORS = [process0, process1, process2, process3];
 
-let lock = false;
 async function process() {
-    if (lock) return;
-    lock = true;
-    const htmls = await selectHTMLToProcess();
-    for (const resource of htmls) {
-        const { file, ssl, hostname: host, port, path, query } = resource;
-        const url = generateURL({ ssl, host, port, path, query });
+    let url: string;
+    while (true) {
+        url = await new Promise<string>((res, rej) => {
+            renewRedis("processQueues").spop("html", async (err, url) => {
+                if (err) rej(err);
+                else res(url);
+            });
+        });
+        if (!url) break;
+        const resourceURL = new ResourceURL(url);
         const promises: Promise<any>[] = [];
-        const content = await readLatestVersion(Entity.RESOURCE, file, FileFormat.RAW_HTML)
-        for (const process of PROCESSORS) {
-            const dom = new JSDOM(content, { url });
-            for (const promise of process(dom.window, resource, 1)) {
+        const content = await readLatestVersion(Entity.RESOURCE, resourceURL.getID(), FileFormat.RAW_HTML)
+        for (const process of PROCESSORS)
+            for (const promise of process(new JSDOM(content, { url }).window, resourceURL, 1))
                 promises.push(promise);
-            }
-        }
+        await Promise.all(promises);
     }
-    lock = false;
 }
 
-const events = newRedis("local");
-events.subscribe(EVENT_LOG);
-events.on("message", (_, msg) => {
-    switch (msg) {
-        case FETCH_COMPLETE: process();
-    }
-});
-setInterval(process, 2000);
+startProcessor(process, new Set([FETCH_COMPLETE]), HTML_PROCESS_COMPLETE);

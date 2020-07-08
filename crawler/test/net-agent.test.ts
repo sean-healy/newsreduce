@@ -1,4 +1,4 @@
-import { getParams } from "../src/common/connections";
+import { getParams } from "common/connections";
 
 test("net agent communication possible", async () => {
     const params = await getParams();

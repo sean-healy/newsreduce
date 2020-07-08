@@ -1,4 +1,5 @@
-import { crawlAllowed, throttle } from "../dist/data";
+import { crawlAllowed, throttle } from "data";
+import { fetchAndWrite } from "services/fetcher/functions";
 
 test("crawl allowed should work", async () => {
     let allowed = (await crawlAllowed("fakeurl.fake"));
@@ -17,4 +18,9 @@ test("crawl allowed should work", async () => {
         }, 800);
     });
     expect(allowed).toBe(true);
+});
+
+test("fetch and write should work", async () => {
+    const url = "https://en.wikipedia.org/wiki/Main_Page";
+    await fetchAndWrite(url);
 });

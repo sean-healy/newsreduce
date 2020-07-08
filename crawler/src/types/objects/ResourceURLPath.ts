@@ -1,7 +1,7 @@
-import { DBObject } from "../DBObject";
+import { DBObject } from "types/DBObject";
 
 export class ResourceURLPath extends DBObject<ResourceURLPath> {
-    value: string;
+    readonly value: string;
 
     hashPrefix(): string {
         return "resource-url-path";
@@ -9,8 +9,8 @@ export class ResourceURLPath extends DBObject<ResourceURLPath> {
     hashSuffix(): string {
         return this.value;
     }
-    getInsertStatement(): string {
-        return `insert ignore into ResourceURLPath(id, value) values ?`
+    insertCols(): string[] {
+        return ["id", "value"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.value];

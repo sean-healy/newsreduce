@@ -1,6 +1,6 @@
-import { newRedis } from "../src/common/connections";
-import { startProcessor } from "../src/common/processor";
-import { EVENT_LOG } from "../src/common/events";
+import { newRedis } from "common/connections";
+import { startProcessor } from "common/processor";
+import { EVENT_LOG } from "common/events";
 
 function f() {
     return new Promise<void>(res => res());

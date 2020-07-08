@@ -1,4 +1,4 @@
-import { REDIS_PARAMS, newRedis } from "../src/common/connections";
+import { REDIS_PARAMS, newRedis } from "common/connections";
 
 test("redis communication possible", async () => {
     for (const key of Object.keys(REDIS_PARAMS)) {

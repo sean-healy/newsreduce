@@ -1,31 +1,31 @@
-import { processURLs, processResourceLinks } from "../data";
 import { HTMLDocumentProcessor } from "./HTMLDocumentProcessor"
-import { getUrlID } from "../common/ids";
+import { ResourceLink } from "../types/objects/ResourceLink";
+import { ResourceLinkHash } from "../types/objects/ResourceLinkHash";
+import { DBObject } from "../types/DBObject";
+import { DOMWindow } from "jsdom";
 
 const HASH = "#";
 const AHREF = "a";
 
-export const process: HTMLDocumentProcessor = doc => {
+export function getLinks(doc: DOMWindow) {
     const aHrefs = doc.getElementsByTagName(AHREF);
-    const links = [];
-    const urls = [];
-    const promises: Promise<unknown>[] = [];
+    const links: DBObject<ResourceLink | ResourceLinkHash>[] = [];
     for (let position = 0; position < aHrefs.length; ++position) {
         const a: HTMLAnchorElement = aHrefs.item(position);
         if (a.href) {
             const parts = a.href.split(HASH, 2);
             const url: string = parts[0];
             const hash: string = parts.length > 1 ? parts[1] : "";
-            const output = getUrlID(url)
-            if (output) {
-                const child = output.id;
-                urls.push(url);
-                links.push([parent, position, child]);
-            }
+            if (hash) links.push(new ResourceLinkHash(doc.location.toString(), url, hash));
+            else links.push(new ResourceLink(doc.location.toString(), url));
         }
     }
-    promises.push(processURLs(urls).promise);
-    promises.push(processResourceLinks(links));
 
-    return promises;
+    return links;
+}
+
+export const process: HTMLDocumentProcessor = doc => {
+    for (const link of getLinks(doc)) link.enqueueInsert({ recursive: true });
+
+    return [];
 }

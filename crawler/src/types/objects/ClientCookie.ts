@@ -1,14 +1,14 @@
-import { DBObject } from "../DBObject";
-import { Client } from "./Client";
-import { Host } from "./Host";
+import { DBObject } from "types/DBObject";
+import { Client } from "types/objects/Client";
+import { Host } from "types/objects/Host";
 
 export class ClientCookie extends DBObject<ClientCookie> {
-    client: Client;
-    host: Host;
-    value: string;
+    readonly client: Client;
+    readonly host: Host;
+    readonly value: string;
 
-    getInsertStatement(): string {
-        return `insert ignore into ClientCookie(client, host, value) values ?`
+    insertCols(): string[] {
+        return ["client", "host", "value"];
     }
     getInsertParams(): any[] {
         return [this.client.getID(), this.host.getID(), this.value];

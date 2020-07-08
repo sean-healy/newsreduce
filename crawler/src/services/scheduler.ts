@@ -1,6 +1,6 @@
-import { selectPreSchedule, schedule } from "../data";
-import { SCHEDULE_COMPLETE, COLD_START_COMPLETE } from "../common/events";
-import { startProcessor } from "../common/processor";
+import { selectPreSchedule, schedule } from "data";
+import { SCHEDULE_COMPLETE, COLD_START_COMPLETE } from "common/events";
+import { startProcessor } from "common/processor";
 
 async function findAndSchedule() {
     const urls = await selectPreSchedule();

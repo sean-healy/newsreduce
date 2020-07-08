@@ -1,10 +1,10 @@
-import { DBObject } from "../DBObject";
-import { HTMLAttributeName } from "./HTMLAttributeName";
-import { HTMLAttributeValue } from "./HTMLAttributeValue";
+import { DBObject } from "types/DBObject";
+import { HTMLAttributeName } from "types/objects/HTMLAttributeName";
+import { HTMLAttributeValue } from "types/objects/HTMLAttributeValue";
 
 export class HTMLAttribute extends DBObject<HTMLAttribute> {
-    name: HTMLAttributeName;
-    value: HTMLAttributeValue;
+    readonly name: HTMLAttributeName;
+    readonly value: HTMLAttributeValue;
 
     hashPrefix(): string {
         return "html-attribute";
@@ -12,8 +12,8 @@ export class HTMLAttribute extends DBObject<HTMLAttribute> {
     hashSuffix(): string {
         return `${this.name.value}\0${this.value.value}`
     }
-    getInsertStatement(): string {
-        return `insert ignore into HTMLAttribute(id, name, value) values ? `
+    insertCols(): string[] {
+        return ["id", "name", "value"];
     }
     getInsertParams(): any[] {
         return [this.getID(), this.name.getID(), this.value.getID()];
