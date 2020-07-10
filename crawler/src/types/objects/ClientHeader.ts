@@ -6,6 +6,14 @@ export class ClientHeader extends DBObject<ClientHeader> {
     readonly client: Client;
     readonly header: HTTPHeader;
 
+    constructor(client?: string, name?: string, value?: string) {
+        if (client && name && value) super({
+            client: new Client({ name }),
+            header: new HTTPHeader(name, value),
+        });
+
+    }
+
     insertCols(): string[] {
         return ["client", "header"];
     }
@@ -20,5 +28,8 @@ export class ClientHeader extends DBObject<ClientHeader> {
     }
     table(): string {
         return "ClientHeader";
+    }
+    getDeps() {
+        return [this.client, this.header];
     }
 }

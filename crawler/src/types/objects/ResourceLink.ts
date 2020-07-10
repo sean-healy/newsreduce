@@ -4,21 +4,19 @@ import { ResourceURL } from "types/objects/ResourceURL";
 export class ResourceLink extends DBObject<ResourceLink> {
     readonly parent: ResourceURL;
     readonly child: ResourceURL;
-    readonly position: number;
 
-    constructor(parent?: string, child?: string) {
-        if (parent) super({
-            parent: new ResourceURL(parent),
+    constructor(
+        parentOrObj?: string | { [key in keyof ResourceLink]?: ResourceLink[key] },
+        child?: string
+    ) {
+        if (!parentOrObj) super();
+        else if (typeof parentOrObj === "string") super({
+            parent: new ResourceURL(parentOrObj),
             child: new ResourceURL(child),
         });
+        else super(parentOrObj);
     }
 
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
-    }
     insertCols(): string[] {
         return ["parent", "child"];
     }
@@ -30,5 +28,8 @@ export class ResourceLink extends DBObject<ResourceLink> {
     }
     getDeps() {
         return [this.parent, this.child];
+    }
+    toString() {
+        return `${this.parent.toURL()}-->${this.child.toURL()}`;
     }
 }

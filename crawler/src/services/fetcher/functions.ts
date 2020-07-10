@@ -4,14 +4,15 @@ import {
     throttle,
     popURL,
     getRedisKeys,
-} from "../../data";
-import { FileFormat } from "../../types/FileFormat";
-import { log } from "../../common/logging";
-import { FetchedResource } from "../../types/objects/FetchedResource";
-import { ResourceURL } from "../../types/objects/ResourceURL";
-import { milliTimestamp } from "../../common/time";
-import { Host } from "../../types/objects/Host";
-import { ResourceHeader } from "../../types/objects/ResourceHeader";
+} from "data";
+import { FileFormat } from "types/FileFormat";
+import { log } from "common/logging";
+import { FetchedResource } from "types/objects/FetchedResource";
+import { ResourceURL } from "types/objects/ResourceURL";
+import { milliTimestamp } from "common/time";
+import { Host } from "types/objects/Host";
+import { ResourceHeader } from "types/objects/ResourceHeader";
+import { REDIS_PARAMS } from "common/connections";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
@@ -53,28 +54,33 @@ export async function fetchAndWrite(url: string) {
 
 export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
     let hostnames: string[];
+    let fetched = new Set<string>();
     do {
-        hostnames = await getRedisKeys("fetchSchedule");
+        hostnames = await getRedisKeys(REDIS_PARAMS.fetchSchedule);
         log("Got hosts from redis:", JSON.stringify(hostnames));
         const hostIDs = hostnames.map(hostname => new Host({ name: hostname }).getID());
         const throttleList = (await new Host().bulkSelect(hostIDs, ["name", "throttle"]));
-        const throttles = {};
-        for (const row of throttleList) throttles[row.name] = row.throttle;
+        const throttles: { [key: string]: number } = {};
+        for (const row of throttleList) throttles[row.name] = Number(row.throttle);
         log("Throttles for hosts", JSON.stringify(throttles));
         for (const hostname of hostnames) {
             const host = new Host({ name: hostname });
             const id = host.getID();
             if (id >= lo() && id < hi()) {
+                console.log({ hostname, id });
                 log(`Host within range(${lo()} -- > ${hi()}: ${host}`);
                 if (await crawlAllowed(hostname)) {
                     const url = await popURL(hostname);
                     if (url) {
-                        log(url);
+                        console.log(url);
                         throttle(hostname, throttles[hostname]);
-                        await fetch(url).then(buildOnFetch(url));
+                        await fetchAndWrite(url);
+                        fetched.add(url);
                     }
                 }
             };
         }
     } while (hostnames.length !== 0);
+
+    return fetched;
 }

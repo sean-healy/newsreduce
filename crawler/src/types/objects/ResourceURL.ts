@@ -6,7 +6,7 @@ import { write } from "file";
 import { Entity } from "types/Entity";
 import { FileFormat } from "types/FileFormat";
 import { log } from "common/logging";
-import { renewRedis } from "common/connections";
+import { renewRedis, REDIS_PARAMS } from "common/connections";
 import { STR_ONE } from "common/util";
 
 const URL_ENCODING = "utf8";
@@ -19,19 +19,30 @@ export class ResourceURL extends DBObject<ResourceURL> {
     readonly path: ResourceURLPath;
     readonly query: ResourceURLQuery;
 
-    constructor(url: string) {
-        const groups = url.match(/^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/);
-        if (groups) {
-            const ssl = !!groups[1];
-            super({
-                ssl,
-                host: new Host({ name: groups[2] }),
-                port: groups[3] ? parseInt(groups[3].substr(1)) : ssl ? 443 : 80,
-                path: new ResourceURLPath({ value: groups[4] ? groups[4] : "" }),
-                query: new ResourceURLQuery({ value: groups[5] ? groups[5].substr(1) : "" }),
-            });
+    constructor(arg?: string | { [key in keyof ResourceURL]?: string | number | boolean }) {
+        if (!arg) super();
+        else if (typeof arg === "string") {
+            const groups = arg.match(/^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/);
+            if (groups) {
+                const ssl = !!groups[1];
+                super({
+                    ssl,
+                    host: new Host({ name: groups[2] }),
+                    port: groups[3] ? parseInt(groups[3].substr(1)) : ssl ? 443 : 80,
+                    path: new ResourceURLPath({ value: groups[4] ? groups[4] : "" }),
+                    query: new ResourceURLQuery({ value: groups[5] ? groups[5].substr(1) : "" }),
+                });
+            } else {
+                throw new Error(`invalid url: ${arg}`);
+            }
         } else {
-            throw new Error(`invalid url: ${url}`);
+            super({
+                ssl: !!arg.ssl,
+                host: new Host({ name: arg.host as string }),
+                port: arg.port as number,
+                path: new ResourceURLPath({ value: arg.path as string }),
+                query: new ResourceURLQuery({ value: arg.query as string }),
+            });
         }
     }
 
@@ -85,9 +96,17 @@ export class ResourceURL extends DBObject<ResourceURL> {
     writeVersion(version: number, format: FileFormat, input: string | NodeJS.ReadableStream) {
         const id = this.getID();
         // Wait 60 seconds before attempting to compress the outer dir.
-        renewRedis("lockedFiles").setex(id.toString(), 15, STR_ONE);
+        renewRedis(REDIS_PARAMS.fileLock).setex(id.toString(), 15, STR_ONE);
         log("Writing", FileFormat[format]);
 
         return write(Entity.RESOURCE, id, version, format, input);
+    }
+    fetchLocked() {
+        return new Promise<boolean>((res, rej) =>
+            renewRedis(REDIS_PARAMS.fetchLock).get(this.toURL(), (err, response) =>
+                err ? rej(err) : res(response === STR_ONE)));
+    }
+    fetchLock() {
+        renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL(), 60, STR_ONE);
     }
 }

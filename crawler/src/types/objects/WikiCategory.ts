@@ -20,4 +20,7 @@ export class WikiCategory extends DBObject<WikiCategory> {
     table(): string {
         return "WikiCategory";
     }
+    getDeps() {
+        return [this.parent, this.child];
+    }
 }

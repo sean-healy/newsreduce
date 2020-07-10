@@ -1,3 +1,4 @@
+import "./setup.ts";
 class A {
     foo: string;
     bar: string;
@@ -7,7 +8,7 @@ class A {
     }
 }
 
-test("iterating class propeties should return functions", () => {
+test("iterating class propeties should NOT return functions", () => {
     const allKeys = [];
     const c = new A();
     c.foo = "1"
@@ -15,7 +16,7 @@ test("iterating class propeties should return functions", () => {
     for (const k in c) {
         allKeys.push(k);
     }
-    expect(allKeys).toStrictEqual(["foo", "bar", "baz"]);
+    expect(allKeys).toStrictEqual(["foo", "bar"]);
 });
 
 test("iterating class propeties should not return uninitialised elements", () => {
@@ -24,7 +25,7 @@ test("iterating class propeties should not return uninitialised elements", () =>
     for (const k in c) {
         allKeys.push(k);
     }
-    expect(allKeys).toStrictEqual(["baz"]);
+    expect(allKeys).toStrictEqual([]);
 });
 
 test("iterating class propeties should return elements set to undefined", () => {
@@ -34,7 +35,7 @@ test("iterating class propeties should return elements set to undefined", () => 
     for (const k in c) {
         allKeys.push(k);
     }
-    expect(allKeys).toStrictEqual(["foo", "baz"]);
+    expect(allKeys).toStrictEqual(["foo"]);
 });
 
 test("retrieving unitialised fields returns undefined", () => {

@@ -1,9 +1,10 @@
+import "./setup.ts";
 import { REDIS_PARAMS, newRedis } from "common/connections";
 
 test("redis communication possible", async () => {
     for (const key of Object.keys(REDIS_PARAMS)) {
         const redisCLI = newRedis(key);
-        const response = await new Promise((res, rej) => {
+        const response = await new Promise<string>((res, rej) => {
             redisCLI.set("test", "1", (err, response) => {
                 if (err || response !== "OK") {
                     console.debug(err);
@@ -14,10 +15,7 @@ test("redis communication possible", async () => {
                         if (err) rej(err);
                         else redisCLI.del("test", err => {
                             if (err) rej(err);
-                            else {
-                                res(response);
-                                redisCLI.quit();
-                            }
+                            else res(response);
                         });
                     });
                 }

@@ -1,3 +1,4 @@
+import "./setup.ts";
 import { deleteIfChecksumMatches } from "common/fs";
 import { checksum } from "common/hashing";
 import * as fs from "fs";

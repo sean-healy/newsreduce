@@ -1,3 +1,4 @@
+import "./setup.ts";
 import { ResourceLink } from "types/objects/ResourceLink";
 import { Word } from "types/objects/Word";
 
@@ -6,7 +7,7 @@ const link = new ResourceLink(url, url);
 const word = new Word("the");
 test("saving a link should work", async () => {
     const success = await new Promise(res => {
-        link.insertSingular({ recursive: true })
+        link.singularInsert({ recursive: true })
             .then(() => res(true))
             .catch(err => {
                 console.debug(err);
@@ -18,7 +19,7 @@ test("saving a link should work", async () => {
 
 test("saving a word should work", async () => {
     const success = await new Promise(res => {
-        word.insertSingular({ recursive: true })
+        word.singularInsert({ recursive: true })
             .then(() => res(true))
             .catch(err => {
                 console.debug(err);

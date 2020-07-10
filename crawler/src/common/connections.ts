@@ -2,49 +2,62 @@ import { createConnection, Connection } from "mysql";
 import redis, { RedisClient } from "redis";
 import fetch from "node-fetch";
 import { log } from "./logging";
+import { ENV } from "./config";
 
 const MAIN_HOST = "newsreduce.org";
 const LOCALHOST = "127.0.0.1";
 const DEFAULT_REDIS_PORT = 6379;
 const DEFAULT_REDIS_DB = 0;
 
+export interface RedisParamsValueType {
+    host: string;
+    port: number;
+    db: number;
+    name: string;
+}
 export const REDIS_PARAMS = {
     local: {
         host: LOCALHOST,
         port: DEFAULT_REDIS_PORT,
         db: DEFAULT_REDIS_DB,
-    },
+    } as RedisParamsValueType,
     events: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: DEFAULT_REDIS_DB,
-    },
+    } as RedisParamsValueType,
     fetchSchedule: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: 1,
-    },
+    } as RedisParamsValueType,
     processQueues: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: 2,
-    },
+    } as RedisParamsValueType,
     throttle: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: 3,
-    },
+    } as RedisParamsValueType,
     inserts: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: 4,
-    },
-    lockedFiles: {
+    } as RedisParamsValueType,
+    fileLock: {
         host: LOCALHOST,
         port: DEFAULT_REDIS_PORT,
         db: 5,
-    },
+    } as RedisParamsValueType,
+    fetchLock: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 6,
+    } as RedisParamsValueType,
 };
+for (const key in REDIS_PARAMS) REDIS_PARAMS[key].name = key;
 
 export const ENTITIES_TO_COMPRESS = "entities-to-compress";
 
@@ -82,35 +95,37 @@ export async function db() {
     return dbClient;
 }
 
-export interface NewRedisTypes {
+export interface ExtendedRedisClient extends RedisClient {
     zpopmax(args: [string, number], cb: (err: any, response: string[]) => void): any;
 }
 
-const staticConnections: { [nameOrHost: string]: RedisClient & NewRedisTypes } = {};
-export function renewRedis(nameOrHost: string) {
-    let client: RedisClient & NewRedisTypes;
-    if (nameOrHost in staticConnections) client = staticConnections[nameOrHost];
-    else {
-        client = newRedis(nameOrHost);
-        staticConnections[nameOrHost] = client;
+export const STATIC_CONNECTIONS: { [nameOrHost: string]: ExtendedRedisClient } = {};
+export function renewRedis(paramsOrHost: RedisParamsValueType | string) {
+    const name: string = (typeof paramsOrHost === "string") ? paramsOrHost : paramsOrHost.name;
+    let connection = STATIC_CONNECTIONS[name];
+    if (!connection) {
+        connection = newRedis(paramsOrHost);
+        STATIC_CONNECTIONS[name] = connection;
     }
 
-    return client;
+    return connection;
 }
 
-export function newRedis(nameOrHost: string) {
-    let params = REDIS_PARAMS[nameOrHost];
-    if (!params) {
-        params = {
-            host: nameOrHost,
-            port: DEFAULT_REDIS_PORT,
-            db: DEFAULT_REDIS_DB,
-        };
-        REDIS_PARAMS[nameOrHost] = params;
-    }
+export const defaultHostParams = (host: string) => ({
+    host,
+    name: host,
+    port: DEFAULT_REDIS_PORT,
+    db: DEFAULT_REDIS_DB,
+});
+export function newRedis(paramsOrHost: RedisParamsValueType | string) {
+    const name: string = (typeof paramsOrHost === "string") ? paramsOrHost : paramsOrHost.name;
+    if (!(name in REDIS_PARAMS))
+        REDIS_PARAMS[name] = defaultHostParams(paramsOrHost as string);
+    const params = REDIS_PARAMS[name];
+
     return redis.createClient({
-        host: params.host,
-        port: params.port,
+        host: ENV[0] === "prod" ? params.host : LOCALHOST,
+        port: ENV[0] === "prod" ? params.port : 1111,
         db: params.db,
-    }) as RedisClient & NewRedisTypes;
+    }) as RedisClient & ExtendedRedisClient;
 }

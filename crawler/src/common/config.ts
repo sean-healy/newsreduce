@@ -1,84 +1,44 @@
+export let ENV: ["prod" | "test"] = ["prod"];
+
 import fs from "fs";
+import path from "path";
 
-export const PROJECT_DIR_NAME = "newsreduce";
 export const TAR = "tar";
-const dirArray = __dirname.split('/');
-const firstI = dirArray.indexOf(PROJECT_DIR_NAME);
-const lastI = dirArray.lastIndexOf(PROJECT_DIR_NAME);
-
-if (firstI !== lastI) {
-    throw `path name error: only the root project folder may have the name '${PROJECT_DIR_NAME}'`;
-}
-
-let PROJECT_DIR = undefined;
-
-export function projectDir() {
-    if (PROJECT_DIR === undefined) {
-        PROJECT_DIR = dirArray.filter((_, i) => i <= firstI).join("/");
-    }
-
-    return PROJECT_DIR;
-}
 
 export async function varDirPromise() {
-    const varDir = "/var/newsreduce";
-    return new Promise<string>((resolve, reject) => {
-        fs.exists(varDir, exists => {
-            if (exists) {
-                resolve(varDir);
-            } else {
-                fs.mkdir(varDir, err => {
-                    if (err) reject(err);
-                    else resolve(varDir)
-                })
-            }
-        })
+    const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
+    await safeMkdir(varDir);
+
+    return varDir;
+}
+export async function safetyFilePromise() {
+    const safetyFile = path.join(await varDirPromise(), "safety");
+    const exists = fs.existsSync(safetyFile);
+    if (!exists) fs.writeFileSync(safetyFile, "0");
+
+    return safetyFile;
+}
+
+export async function safeMkdir(dir: string) {
+    return fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+}
+
+export function varDirChildPromise(child: string) {
+    return new Promise<string>(async (res, rej) => {
+        const dir = path.join(await varDirPromise(), child);
+        const exists = fs.existsSync(dir);
+        if (exists) res(dir);
+        else fs.mkdir(dir, err => err ? rej(err) : res(dir));
     });
 }
-export async function blobDirPromise() {
-    return new Promise<string>((resolve, reject) => {
-        const blobDir = "/var/newsreduce/blobs"
-        fs.exists(blobDir, exists => {
-            if (exists) {
-                resolve(blobDir);
-            } else {
-                fs.mkdir(blobDir, { recursive: true, mode: 0o700 }, err => {
-                    if (err) reject(err);
-                    else resolve(blobDir)
-                })
-            }
-        });
-    });
+export function tmpDirPromise() {
+    return varDirChildPromise("tmp");
 }
-export async function tmpDirPromise() {
-    const tmpDir = "/var/newsreduce/tmp";
-    return new Promise<string>((resolve, reject) => {
-        fs.exists(tmpDir, exists => {
-            if (exists) {
-                resolve(tmpDir);
-            } else {
-                fs.mkdir(tmpDir, err => {
-                    if (err) reject(err);
-                    else resolve(tmpDir)
-                })
-            }
-        })
-    });
+export function nullDirPromise() {
+    return varDirChildPromise("null");
 }
-export async function nullDirPromise() {
-    const tmpDir = "/var/newsreduce/null";
-    return new Promise<string>((resolve, reject) => {
-        fs.exists(tmpDir, exists => {
-            if (exists) {
-                resolve(tmpDir);
-            } else {
-                fs.mkdir(tmpDir, err => {
-                    if (err) reject(err);
-                    else resolve(tmpDir)
-                })
-            }
-        })
-    });
+export function blobDirPromise() {
+    return varDirChildPromise("blobs");
 }
 export async function nullFilePromise(path: string) {
     const safePath = path.replace(/[\/.]/g, "_");

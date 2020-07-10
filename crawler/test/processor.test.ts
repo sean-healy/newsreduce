@@ -1,3 +1,4 @@
+import "./setup.ts";
 import { newRedis } from "common/connections";
 import { startProcessor } from "common/processor";
 import { EVENT_LOG } from "common/events";
@@ -5,8 +6,8 @@ import { EVENT_LOG } from "common/events";
 function f() {
     return new Promise<void>(res => res());
 }
-const BEFORE_EVENT = "test-before"
-const AFTER_EVENT = "test-after";
+const BEFORE_EVENT = "test-before1"
+const AFTER_EVENT = "test-after1";
 const PRE = new Set<string>();
 PRE.add(BEFORE_EVENT);
 test("standard processor should work as expected", async () => {
@@ -15,12 +16,11 @@ test("standard processor should work as expected", async () => {
         redisCLI.subscribe(EVENT_LOG);
         redisCLI.on("message", (_, msg) => {
             if (msg === AFTER_EVENT) {
-                redisCLI.quit();
                 clearInterval(interval);
                 res(true);
             }
         });
-        const { interval, events } = startProcessor(f, PRE, AFTER_EVENT);
+        const { interval } = startProcessor(f, PRE, AFTER_EVENT);
     });
 
     expect(success).toBe(true);

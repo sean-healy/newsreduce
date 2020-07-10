@@ -23,6 +23,6 @@ export class Word extends DBObject<Word> {
         return "Word";
     }
     idCol(): string {
-        return "resource";
+        return "id";
     }
 }

@@ -1,5 +1,6 @@
 import fs from "fs";
-import { blobDirPromise, tmpDirPromise, TAR } from "./common/config";
+import path from "path";
+import { blobDirPromise, tmpDirPromise, TAR, safeMkdir } from "./common/config";
 import { log } from "./common/logging";
 import { spawn } from "child_process";
 import { FileFormat, formatToFileName, fileNameToFormat } from "./types/FileFormat";
@@ -11,45 +12,14 @@ const TAR_LS_PARAMS = "-atf";
 const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
 const TAR_CAT_PARAMS_AFTER_FILE = "-O";
 
-export function entityIDs(entity: Entity) {
-    return new Promise<bigint[]>((res, rej) => {
-        blobDirPromise().then(blobDir => {
-            const entityDir = `${blobDir}/${entityName(entity)}`;
-            fs.readdir(entityDir, (err, files) => {
-                if (err) rej(err);
-                else {
-                    const ids = [];
-                    for (const file of files) {
-                        const match = file.match(/^([0-9]+)\.tzst$/);
-                        if (match) {
-                            const id = BigInt(match[1]);
-                            ids.push(id);
-                        }
-                    }
-                    res(ids);
-                }
-            });
-        });
-    });
-}
-
-export function safeMkdir(dir: string) {
-    return new Promise<string>((res, rej) => {
-        fs.mkdir(dir, { recursive: true, mode: 0o700 }, (err, result) => {
-            if (err) rej(err);
-            else {
-                res(result);
-                log("New dir", dir);
-            }
-        });
-    });
-}
-
-async function beforeFileWrite(entity: Entity, entityID: bigint, version: number) {
-    const tmpDir = await tmpDirPromise();
-    const dir = `${tmpDir}/${entityName(entity)}/${entityID}/${version}`;
-
-    return safeMkdir(dir);
+export async function entityIDs(entity: Entity) {
+    const entityDir = path.join(await blobDirPromise(), entityName(entity));
+    const files = fs.readdirSync(entityDir);
+    return files
+        .map(file => file.match(/^([0-9]+)\.tzst$/))
+        .filter(match => match)
+        .map(match => match[1])
+        .map(BigInt);
 }
 
 /**
@@ -59,253 +29,97 @@ async function beforeFileWrite(entity: Entity, entityID: bigint, version: number
  * 
  * @return number of bytes written
  */
-export function write(
+export async function write(
     entity: Entity,
     entityID: bigint,
     version: number,
     format: FileFormat,
     src: NodeJS.ReadableStream | string | Buffer
 ) {
+    const versions = await getVersions(entity, entityID);
+    const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
+    if (found) return -1;
+    const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`, `${version}`);
+    await safeMkdir(dir);
+    const tmpFile = `${dir}/${formatToFileName(format)}`;
+    log("Writing to", tmpFile);
+    const dst = fs.createWriteStream(tmpFile);
+    let bytesWritten: number;
     if (typeof src === "string" || src instanceof Buffer) {
-        return writeFileFromString(entity, entityID, version, format, src);
+        log("Writing string to file", src, tmpFile);
+        fs.writeFileSync(tmpFile, src);
+
+        bytesWritten = src.length;
     } else {
-        return writeFileFromStream(entity, entityID, version, format, src);
-    }
-}
-
-function writeFileFromStream(entity: Entity, entityID: bigint, version: number, format: FileFormat, src: NodeJS.ReadableStream) {
-    return new Promise<number>(async (res, rej) => {
-        await beforeFileWrite(entity, entityID, version);
-        const tmpDir = await tmpDirPromise();
-        const tmpFile = `${tmpDir}/${entityName(entity)}/${entityID}/${version}/${formatToFileName(format)}`;
-        log("Writing to", tmpFile);
-        const dst = fs.createWriteStream(tmpFile);
-        src.pipe(dst);
-        dst.on(ERROR, err => {
-            console.debug(err);
-            rej(err)
+        bytesWritten = await new Promise<number>(async (res, rej) => {
+            dst.on(ERROR, err => rej(err));
+            dst.on(FINISH, () => res(dst.bytesWritten));
+            src.pipe(dst);
         });
-        dst.on(FINISH, () => {
-            //afterFileWrite(entity, entityID, version, format).then(() => res(dst.bytesWritten)).catch(rej)
-            res(dst.bytesWritten);
-        });
-    });
-}
-
-function writeFileFromString(entity: Entity, entityID: bigint, version: number, format: FileFormat, str: string | Buffer) {
-    return new Promise<number>(async (res, rej) => {
-        await beforeFileWrite(entity, entityID, version);
-        const tmpDir = await tmpDirPromise();
-        const tmpFile = `${tmpDir}/${entityName(entity)}/${entityID}/${version}/${formatToFileName(format)}`;
-        const dst = fs.createWriteStream(tmpFile);
-        fs.writeFile(tmpFile, str, err => {
-            if (err) rej(err);
-            else {
-                //afterFileWrite(entity, entityID, version, format).then(() => res(dst.bytesWritten)).catch(rej);
-                res(dst.bytesWritten);
-            }
-        });
-    });
-}
-
-export function allVersions(entity: Entity, entityID: bigint) {
-    return new Promise<[number, FileFormat][]>((res, rej) => {
-        blobDirPromise().then(blobDir => {
-            const path = `${blobDir}/${entityName(entity)}/${entityID}.tzst`;
-            const params = [TAR_LS_PARAMS, path];
-            const tarLS = spawn(TAR, params);
-            const versions = [];
-            tarLS.on("error", err => {
-                console.debug("ERR", err);
-                rej(err);
-            });
-            tarLS.stdout.on("data", (data: Buffer) => {
-                for (const version of data
-                    .toString()
-                    .split("\n")
-                    .filter(line => line.match(/^[0-9]+\/./))
-                    .map(line => line.split("/", 2))
-                    .map(arr => [parseInt(arr[0]), fileNameToFormat(arr[1])]))
-                    versions.push(version);
-            });
-            const err = [];
-            tarLS.stderr.on("data", (data: Buffer) => err.push(data));
-            tarLS.on("close", code => {
-                switch (code) {
-                    case 0:
-                        res(versions);
-                        break;
-                    default:
-                        console.debug(params);
-                        console.debug("ERR", code, err);
-                        rej(err.join("\n"));
-                }
-            });
-        });
-    });
-}
-
-export function versions(entity: Entity, fileID: bigint) {
-    return new Promise<number[]>((res, rej) => {
-        blobDirPromise().then(blobDir => {
-            const path = `${blobDir}/${entityName(entity)}/${fileID}.tzst`;
-            const tarLS = spawn(TAR, [TAR_LS_PARAMS, path]);
-            const timeSet = new Set<number>();
-            tarLS.stdout.on("data", (data: Buffer) => {
-                for (const time of data
-                    .toString()
-                    .split("\n")
-                    .filter(line => line.match(/^[0-9]+/))
-                    .map(line => parseInt(line.split("/", 1)[0]))) {
-                    timeSet.add(time);
-                }
-            });
-            const err = [];
-            tarLS.stderr.on("data", (data: Buffer) => err.push(data));
-            tarLS.on("close", code => {
-                switch (code) {
-                    case 0: res([...timeSet]);
-                    default: rej(err.join("\n"));
-                }
-            });
-        });
-    });
-}
-
-export function formats(entity: Entity, fileID: bigint) {
-    return new Promise<number[]>((res, rej) => {
-        blobDirPromise().then(blobDir => {
-            const path = `${blobDir}/${entityName(entity)}/${fileID}.tzst`;
-            const tarLS = spawn(TAR, [TAR_LS_PARAMS, path]);
-            const formatSet = new Set<FileFormat>();
-            tarLS.stdout.on("data", (data: Buffer) => {
-                for (const time of data
-                    .toString()
-                    .split("\n")
-                    .filter(line => line.match(/^[0-9]+\/./))
-                    .map(line => fileNameToFormat(line.split("/", 2)[1]))) {
-                    formatSet.add(time);
-                }
-            });
-            const err = [];
-            tarLS.stderr.on("data", (data: Buffer) => err.push(data));
-            tarLS.on("close", code => {
-                switch (code) {
-                    case 0: res([...formatSet]);
-                    default: rej(err.join("\n"));
-                }
-            });
-        });
-    });
-}
-
-export function read(entity: Entity, fileID: bigint, version: number, format: FileFormat) {
-    return new Promise<Buffer>((res, rej) => {
-        blobDirPromise().then(blobDir => {
-            const path = `${blobDir}/${entityName(entity)}/${fileID}.tzst`;
-            const tarPath = `${version}/${formatToFileName(format)}`;
-            const tarCat = spawn(TAR, [TAR_CAT_PARAMS_BEFORE_FILE, path, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
-            const allData = [];
-            tarCat.stdout.on("data", (data: Buffer) => allData.push(data));
-            const errData = [];
-            tarCat.stderr.on("data", (data: Buffer) => errData.push(data));
-            tarCat.on("close", code => {
-                switch (code) {
-                    case 0: res(Buffer.concat(allData));
-                    default: rej(Buffer.concat(errData));
-                }
-            });
-        });
-    });
-}
-export function readLatestVersion(entity: Entity, fileID: bigint, format: FileFormat) {
-    return new Promise<Buffer>((res, rej) => {
-        allVersions(entity, fileID).then(versions => {
-            const sorted = versions.filter(version => version[1] === format).sort();
-            if (!sorted || !sorted.length) rej("format not found");
-            else {
-                const [time,] = sorted[sorted.length - 1];
-                read(entity, fileID, time, format).then(res).catch(rej);
-            }
-        });
-    });
-}
-export function parseHitFile(buffer: Buffer) {
-    const words = new Map<bigint, number[]>();
-    const bufferLength = buffer.length;
-    let offset = 0;
-    while (offset < bufferLength) {
-        const wordID = buffer.slice(offset, offset + 8).readBigUInt64BE();
-        offset += 8;
-        const hitsLength = buffer.slice(offset, offset + 2).readUInt16BE();
-        offset += 2;
-        const hits = new Array(hitsLength);
-        for (let i = 0; i < hitsLength; ++i) {
-            hits[i] = buffer[offset + i];
-        }
-        offset += hitsLength;
-        words.set(wordID, hits);
     }
 
-    return words;
+    return bytesWritten;
 }
 
-function mvNoReplace(src: string, dst: string) {
-    const exists = fs.existsSync(dst);
-    if (!exists) fs.renameSync(src, dst);
-
-    return !exists;
-}
-
-/*
-function main() {
-    const find = spawn(FIND, ["/var/newsreduce/incoming", "-type", "f", "-regex", ".*\.tzst"]);
-    const allData = [];
-    find.stdout.on("data", (data: Buffer) => allData.push(data));
-    const errData = [];
-    find.stderr.on("data", (data: Buffer) => errData.push(data));
-    find.on("close", async code => {
-        switch (code) {
-            case 0:
-                const src = allData.join().split("\n").filter(s => s);
-                const pairs = src.map(src => ({
-                    src,
-                    dst: src.replace(/\/incoming\/[^\/]+\//, "/blobs/"),
-                    tmp: src.replace(/\/incoming\/[^\/]+\/([^\/]+)\/([0-9]+).tzst/, "/tmp/$1/$2"),
-                }));
-                for (const { src, dst, tmp } of pairs.slice(0, 1)) {
-                    renewRedis("local").set(`lock-file:${dst}`, "1");
-                    const moved = mvNoReplace(src, dst);
-                    const varDir = await varDirPromise();
-                    const nullDir = `${varDir}/null`;
-                    if (!moved) {
-                        await safeMkdir(tmp);
-                        const tmpTAR = `${tmp}/dst.tar`;
-                        const tmpDST = `${tmp}/dst.tzst`;
-                        const tmpSRC = `${tmp}/src`;
-                        await safeMkdir(tmpSRC);
-                        console.log({ src, dst, tmp, tmpTAR, tmpSRC, tmpDST });
-                        await new Promise((res, rej) => {
-                            spawnSequence([
-                                [ZSTD, undefined, ["-df", dst, "-o", tmpTAR]],
-                                [TAR, tmpSRC, ["--zstd", "-xvf", src]],
-                            ], res, rej);
-                        });
-                        new Promise((res, rej) => {
-                            const update: [string, string, string[]][] =
-                                fs.readdirSync(tmpSRC).map(file => [TAR, tmpSRC, ["-uvf", tmpTAR, file]]);
-                            spawnSequence([
-                                ...update,
-                                [ZSTD, undefined, ["-f", tmpTAR, "-o", tmpDST]],
-                                [MV, undefined, [tmpDST, dst]],
-                                [MV, undefined, [src, `${nullDir}/${Date.now()}-src`]],
-                                [MV, undefined, [tmp, `${nullDir}/${Date.now()}-tmp`]],
-                            ], res, rej);
-                        });
-                    }
-                }
-            default: console.debug(errData.join().toString());
-        }
+export const sortVersions = (versions: [number, FileFormat][]) => versions.sort((v1, v2) => {
+    const vID1 = v1[0];
+    const vID2 = v2[0];
+    const cmp = vID1 - vID2;
+    if (cmp !== 0) return cmp;
+    const vFormat1 = v1[1];
+    const vFormat2 = v2[1];
+    return vFormat1 - vFormat2;
+});
+export async function getVersions(entity: Entity, entityID: bigint) {
+    const blobDir = await blobDirPromise();
+    const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
+    if (!fs.existsSync(compressedArc)) return [];
+    const params = [TAR_LS_PARAMS, compressedArc];
+    const versions = [];
+    const err = [];
+    return await new Promise<[number, FileFormat][]>(async (res, rej) => {
+        const tarLS = spawn(TAR, params);
+        tarLS.on("error", err => rej(err));
+        tarLS.stdout.on("data", (data: Buffer) => {
+            for (const version of data
+                .toString()
+                .split("\n")
+                .map(line => line.replace(/^[0-9]+\//, ""))
+                .filter(line => line.match(/^[0-9]+\/./))
+                .map(line => line.split("/", 2))
+                .map(arr => [parseInt(arr[0]), fileNameToFormat(arr[1])]))
+                versions.push(version);
+        });
+        tarLS.stderr.on("data", (data: Buffer) => err.push(data));
+        tarLS.on("close", code => code === 0 ? res(sortVersions(versions)) : rej(err.join("\n")));
     });
 }
-*/
+
+export async function read(entity: Entity, entityID: bigint, version: number, format: FileFormat) {
+    const blobDir = await blobDirPromise();
+    const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
+    const tarPath = path.join(`${entityID}`, `${version}`, formatToFileName(format));
+    return await new Promise<Buffer>((res, rej) => {
+        const tarCat =
+            spawn(TAR, [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
+        const allData = [];
+        tarCat.stdout.on("data", (data: Buffer) => allData.push(data));
+        const errData = [];
+        tarCat.stderr.on("data", (data: Buffer) => errData.push(data));
+        tarCat.on("close", code => code === 0 ? res(Buffer.concat(allData)) : rej(Buffer.concat(errData)));
+    });
+}
+export async function findLatestVersion(entity: Entity, entityID: bigint, format: FileFormat) {
+    const versions = await getVersions(entity, entityID);
+    const sorted = versions.filter(version => version[1] === format).sort();
+    if (!sorted || !sorted.length) return -1;
+    else {
+        const [time,] = sorted[sorted.length - 1];
+        return time;
+    }
+}
+export async function readLatestVersion(entity: Entity, entityID: bigint, format: FileFormat) {
+    const latestVersion = await findLatestVersion(entity, entityID, format);
+    if (latestVersion === -1) return null;
+    return await read(entity, entityID, latestVersion, format);
+}
