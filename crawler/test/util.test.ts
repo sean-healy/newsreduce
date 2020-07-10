@@ -1,4 +1,5 @@
-import { writeBigUInt96BE, bytesToBigInt } from "common/util"
+import "./setup.ts";
+import { writeBigUInt96BE, bytesToBigInt, CMP_BIG_INT } from "common/util"
 
 test("12 bytes big int can be converted to buffer", () => {
     let buff = Buffer.alloc(12);
@@ -15,4 +16,11 @@ test("bytes to bigint works", () => {
     const i = bytesToBigInt(buff)
 
     expect(i.toString(16)).toBe("ffeeddccbbaa998877665544");
+});
+
+
+test("bigint comparison works", () => {
+    expect(CMP_BIG_INT(1n, 2n) < 0).toBe(true);
+    expect(CMP_BIG_INT(2n, 1n) > 0).toBe(true);
+    expect(CMP_BIG_INT(2n, 2n) === 0).toBe(true);
 });

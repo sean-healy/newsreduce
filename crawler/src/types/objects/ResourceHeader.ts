@@ -23,4 +23,7 @@ export class ResourceHeader extends DBObject<ResourceHeader> {
     table(): string {
         return "ResourceHeader";
     }
+    getDeps() {
+        return [this.resource, this.header];
+    }
 }

@@ -7,15 +7,16 @@
         "outDir": "dist",
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "declaration": true,
+        "declaration": false,
         "lib": [
             "dom",
-            "es2015"
+            "es2020"
         ],
         "baseUrl": "src",
         "paths": {
             ".": [""]
-        }
+        },
+        "target": "es2020"
 	},
     "include": [
         "test/**.ts",

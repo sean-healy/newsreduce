@@ -7,7 +7,9 @@ export class ResourceURLQuery extends DBObject<ResourceURLQuery> {
         return ["id", "value"];
     }
     getInsertParams(): any[] {
-        return [this.getID(), this.value];
+        const params = [this.getID(), this.value];
+
+        return params;
     }
     table(): string {
         return "ResourceURLQuery";

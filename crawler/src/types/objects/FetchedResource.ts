@@ -8,13 +8,15 @@ export class FetchedResource extends DBObject<FetchedResource> {
     readonly type: HTTPHeaderValue;
 
     constructor(url?: string, length?: number, type?: string) {
-        if (url) super({
-            resource: new ResourceURL(url),
-            length,
-            type: new HTTPHeaderValue({
-                value: type,
-            }),
-        })
+        if (url)
+            super({
+                resource: new ResourceURL(url),
+                length,
+                type: new HTTPHeaderValue({
+                    value: type,
+                }),
+            });
+        else super();
     }
 
     insertCols(): string[] {

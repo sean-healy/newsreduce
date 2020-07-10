@@ -6,31 +6,34 @@ export class ResourceLinkHash extends DBObject<ResourceLinkHash> {
     readonly link: ResourceLink;
     readonly hash: ResourceHash;
 
-    constructor(parent?: string, child?: string, hash?: string) {
-        if (parent) {
+    constructor(
+        parentOrObj?: string | { [key in keyof ResourceLinkHash]?: ResourceLinkHash[key] },
+        child?: string,
+        hash?: string
+    ) {
+
+        if (!parentOrObj) super();
+        else if (typeof parentOrObj === "string")
             super({
-                link: new ResourceLink(parent, child),
+                link: new ResourceLink(parentOrObj, child),
                 hash: new ResourceHash(hash),
             });
-        }
+        else super(parentOrObj as any);
     }
 
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
-    }
     insertCols(): string[] {
-        return ["parent", "child", "position", "hash"];
+        return ["parent", "child", "hash"];
     }
     getInsertParams(): any[] {
-        return [this.link.parent.getID(), this.link.child.getID(), this.link.position, this.hash.getID()];
+        return [this.link.parent.getID(), this.link.child.getID(), this.link, this.hash.getID()];
     }
     table(): string {
         return "ResourceLinkHash";
     }
     getDeps() {
         return [this.link, this.hash];
+    }
+    toString() {
+        return `${this.link.toString()}#${this.hash.value}`;
     }
 }

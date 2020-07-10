@@ -81,343 +81,180 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 154);
+/******/ 	return __webpack_require__(__webpack_require__.s = 157);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 10:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-exports.__esModule = true;
-exports.log = void 0;
-var fs_1 = __importDefault(__webpack_require__(9));
-var config_1 = __webpack_require__(23);
-function log() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    return __awaiter(this, void 0, void 0, function () {
-        var now, varDir, logFile;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    now = Date.now();
-                    return [4 /*yield*/, config_1.varDirPromise()];
-                case 1:
-                    varDir = _a.sent();
-                    logFile = varDir + "/log";
-                    fs_1["default"].appendFileSync(logFile, now + "\t" + args.join(" ") + "\n");
-                    return [2 /*return*/];
-            }
-        });
-    });
-}
-exports.log = log;
-
-
-/***/ }),
-
 /***/ 154:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-exports.__esModule = true;
-var express_1 = __importDefault(__webpack_require__(155));
-var fs_1 = __importDefault(__webpack_require__(9));
-var dns_1 = __importDefault(__webpack_require__(156));
-var logging_1 = __webpack_require__(10);
-var PORT = 9999;
-var hostsContent = fs_1["default"].readFileSync("/var/newsreduce/network");
-var hosts = hostsContent.toString().split(/\n/g).filter(function (host) { return host; }).concat(["127.0.0.1"]);
-var whitelist = new Set();
-hosts.forEach(function (host) {
-    return dns_1["default"].lookup(host, function (err, address, family) {
-        if (err)
-            console.debug(err);
-        else {
-            if (family === 4)
-                address = "::ffff:" + address;
-            whitelist.add(address);
-        }
-    });
-});
-function serve() {
-    var app = express_1["default"]();
-    app.use(function (req, res, next) {
-        if (whitelist.has(req.ip))
-            next();
-        else {
-            res.sendStatus(401);
-        }
-    });
-    app.get("", function (req, res) {
-        logging_1.log("Request for parameters from " + req.ip + ".");
-        res.send({
-            sql: fs_1["default"].readFileSync("/var/newsreduce/sql_password").toString().replace(/\n$/g, "")
-        });
-    });
-    app.get("/net", function (req, res) {
-        logging_1.log("Request for network info from " + req.ip + ".");
-        res.send(hostsContent);
-    });
-    app.listen(PORT, function () { return console.log("Main net agent running on port " + PORT + " "); });
-}
-serve();
-
-
-/***/ }),
-
-/***/ 155:
 /***/ (function(module, exports) {
 
 module.exports = express;
 
 /***/ }),
 
-/***/ 156:
+/***/ 155:
 /***/ (function(module, exports) {
 
 module.exports = require("dns");
 
 /***/ }),
 
-/***/ 23:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ 157:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(__dirname) {
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-exports.__esModule = true;
-exports.myIP = exports.nullFilePromise = exports.nullDirPromise = exports.tmpDirPromise = exports.blobDirPromise = exports.varDirPromise = exports.projectDir = exports.TAR = exports.PROJECT_DIR_NAME = void 0;
-var fs_1 = __importDefault(__webpack_require__(9));
-exports.PROJECT_DIR_NAME = "newsreduce";
-exports.TAR = "tar";
-var dirArray = __dirname.split('/');
-var firstI = dirArray.indexOf(exports.PROJECT_DIR_NAME);
-var lastI = dirArray.lastIndexOf(exports.PROJECT_DIR_NAME);
-if (firstI !== lastI) {
-    throw "path name error: only the root project folder may have the name '" + exports.PROJECT_DIR_NAME + "'";
-}
-var PROJECT_DIR = undefined;
-function projectDir() {
-    if (PROJECT_DIR === undefined) {
-        PROJECT_DIR = dirArray.filter(function (_, i) { return i <= firstI; }).join("/");
-    }
-    return PROJECT_DIR;
-}
-exports.projectDir = projectDir;
-function varDirPromise() {
-    return __awaiter(this, void 0, void 0, function () {
-        var varDir;
-        return __generator(this, function (_a) {
-            varDir = "/var/newsreduce";
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    fs_1["default"].exists(varDir, function (exists) {
-                        if (exists) {
-                            resolve(varDir);
-                        }
-                        else {
-                            fs_1["default"].mkdir(varDir, function (err) {
-                                if (err)
-                                    reject(err);
-                                else
-                                    resolve(varDir);
-                            });
-                        }
-                    });
-                })];
-        });
-    });
-}
-exports.varDirPromise = varDirPromise;
-function blobDirPromise() {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    var blobDir = "/var/newsreduce/blobs";
-                    fs_1["default"].exists(blobDir, function (exists) {
-                        if (exists) {
-                            resolve(blobDir);
-                        }
-                        else {
-                            fs_1["default"].mkdir(blobDir, { recursive: true, mode: 448 }, function (err) {
-                                if (err)
-                                    reject(err);
-                                else
-                                    resolve(blobDir);
-                            });
-                        }
-                    });
-                })];
-        });
-    });
-}
-exports.blobDirPromise = blobDirPromise;
-function tmpDirPromise() {
-    return __awaiter(this, void 0, void 0, function () {
-        var tmpDir;
-        return __generator(this, function (_a) {
-            tmpDir = "/var/newsreduce/tmp";
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    fs_1["default"].exists(tmpDir, function (exists) {
-                        if (exists) {
-                            resolve(tmpDir);
-                        }
-                        else {
-                            fs_1["default"].mkdir(tmpDir, function (err) {
-                                if (err)
-                                    reject(err);
-                                else
-                                    resolve(tmpDir);
-                            });
-                        }
-                    });
-                })];
-        });
-    });
-}
-exports.tmpDirPromise = tmpDirPromise;
-function nullDirPromise() {
-    return __awaiter(this, void 0, void 0, function () {
-        var tmpDir;
-        return __generator(this, function (_a) {
-            tmpDir = "/var/newsreduce/null";
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    fs_1["default"].exists(tmpDir, function (exists) {
-                        if (exists) {
-                            resolve(tmpDir);
-                        }
-                        else {
-                            fs_1["default"].mkdir(tmpDir, function (err) {
-                                if (err)
-                                    reject(err);
-                                else
-                                    resolve(tmpDir);
-                            });
-                        }
-                    });
-                })];
-        });
-    });
-}
-exports.nullDirPromise = nullDirPromise;
-function nullFilePromise(path) {
-    return __awaiter(this, void 0, void 0, function () {
-        var safePath;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    safePath = path.replace(/[\/.]/g, "_");
-                    return [4 /*yield*/, nullDirPromise()];
-                case 1: return [2 /*return*/, (_a.sent()) + "/" + safePath + "-" + Date.now()];
-            }
-        });
-    });
-}
-exports.nullFilePromise = nullFilePromise;
-// TODO: fixme
-function myIP() {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, '127.0.0.1'];
-        });
-    });
-}
-exports.myIP = myIP;
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(154);
+/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(155);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
 
-/* WEBPACK VAR INJECTION */}.call(this, "/"))
+
+
+
+const PORT = 9999;
+const hostsContent = fs__WEBPACK_IMPORTED_MODULE_1___default.a.readFileSync("/var/newsreduce/network");
+const hosts = hostsContent.toString().split(/\n/g).filter(host => host).concat(["127.0.0.1"]);
+const whitelist = new Set();
+hosts.forEach(host => dns__WEBPACK_IMPORTED_MODULE_2___default.a.lookup(host, (err, address, family) => {
+    if (err)
+        console.debug(err);
+    else {
+        if (family === 4)
+            address = `::ffff:${address}`;
+        whitelist.add(address);
+    }
+}));
+function serve() {
+    const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
+    app.use((req, res, next) => {
+        if (whitelist.has(req.ip))
+            next();
+        else {
+            res.sendStatus(401);
+        }
+    });
+    app.get("", (req, res) => {
+        Object(_common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`Request for parameters from ${req.ip}.`);
+        res.send({
+            sql: fs__WEBPACK_IMPORTED_MODULE_1___default.a.readFileSync("/var/newsreduce/sql_password").toString().replace(/\n$/g, ""),
+        });
+    });
+    app.get("/net", (req, res) => {
+        Object(_common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`Request for network info from ${req.ip}.`);
+        res.send(hostsContent);
+    });
+    app.listen(PORT, () => console.log(`Main net agent running on port ${PORT} `));
+}
+serve();
+
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return log; });
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+
+
+async function log(...args) {
+    const now = Date.now();
+    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "h"])();
+    const logFile = `${varDir}/log`;
+    fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
+}
+
+
+/***/ }),
+
+/***/ 4:
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return TAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return varDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return safetyFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return safeMkdir; });
+/* unused harmony export varDirChildPromise */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tmpDirPromise; });
+/* unused harmony export nullDirPromise */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return blobDirPromise; });
+/* unused harmony export nullFilePromise */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return myIP; });
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+let ENV = ["prod"];
+
+
+const TAR = "tar";
+async function varDirPromise() {
+    const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
+    await safeMkdir(varDir);
+    return varDir;
+}
+async function safetyFilePromise() {
+    const safetyFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), "safety");
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(safetyFile);
+    if (!exists)
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(safetyFile, "0");
+    return safetyFile;
+}
+async function safeMkdir(dir) {
+    return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
+}
+function varDirChildPromise(child) {
+    return new Promise(async (res, rej) => {
+        const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
+        const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
+        if (exists)
+            res(dir);
+        else
+            fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdir(dir, err => err ? rej(err) : res(dir));
+    });
+}
+function tmpDirPromise() {
+    return varDirChildPromise("tmp");
+}
+function nullDirPromise() {
+    return varDirChildPromise("null");
+}
+function blobDirPromise() {
+    return varDirChildPromise("blobs");
+}
+async function nullFilePromise(path) {
+    const safePath = path.replace(/[\/.]/g, "_");
+    return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
+}
+// TODO: fixme
+async function myIP() {
+    return '127.0.0.1';
+}
+
 
 /***/ }),
 
 /***/ 9:
 /***/ (function(module, exports) {
 
-module.exports = require("fs");
+module.exports = require("path");
 
 /***/ })
 

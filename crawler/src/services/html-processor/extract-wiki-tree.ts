@@ -1,6 +1,6 @@
-import { processWikiPages, deleteLegacyWikiCategories, processWikiCategories } from "../data";
-import { HTMLDocumentProcessor } from "./HTMLDocumentProcessor"
-import { ResourceURL } from "../types/objects/ResourceURL";
+import { processWikiPages, deleteLegacyWikiCategories, processWikiCategories } from "data";
+import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProcessor"
+import { ResourceURL } from "types/objects/ResourceURL";
 
 const SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
 const CATEGORY_PAGE_SELECT = "#mw-pages .mw-category .mw-category-group li>a";
@@ -13,8 +13,9 @@ function resourceIsWikiCategory(resource: ResourceURL) {
         && resource.query.value === "";
 }
 
-export const process: HTMLDocumentProcessor = (doc, resource) => {
-    if (!resourceIsWikiCategory(resource)) return;
+export const process: HTMLDocumentProcessor = doc => {
+    const resource = new ResourceURL(doc.location.toString());
+    if (!resourceIsWikiCategory(resource)) return Promise.all([]);
 
     const id = resource.getID();
     const promises: Promise<unknown>[] = [];
@@ -44,5 +45,5 @@ export const process: HTMLDocumentProcessor = (doc, resource) => {
     promises.push(processWikiPages(pages));
     promises.push(processWikiCategories(relations));
 
-    return promises;
+    return Promise.all(promises) as any;
 }

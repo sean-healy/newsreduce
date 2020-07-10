@@ -2,13 +2,13 @@ import fs from "fs";
 import { tmpDirPromise, TAR, nullFilePromise } from "common/config";
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { log } from "common/logging";
-import { renewRedis } from "common/connections";
+import { renewRedis, REDIS_PARAMS } from "common/connections";
 import { STR_ONE } from "common/util";
 
 const ZSTD = "zstd";
 const MV = "mv";
 
-function spawnSequence(sequence: [string, string, string[]][], res: () => void, rej: (err: string) => void) {
+function spawnSeq(sequence: [string, string, string[]][], res: () => void, rej: (err: string) => void) {
     if (sequence.length === 0) res();
     else {
         const [head, ...tail] = sequence;
@@ -19,52 +19,45 @@ function spawnSequence(sequence: [string, string, string[]][], res: () => void, 
         else process = spawn(command, args);
         const err = [];
         process.stderr.on("data", data => err.push(data));
-        process.on("close", code => {
-            switch (code) {
-                case 0:
-                    spawnSequence(tail, res, rej);
-                    break;
-                default:
-                    console.debug("ERR", code, JSON.stringify(head));
-                    console.debug(head);
-                    console.debug(Buffer.concat(err).toString());
-                    rej(Buffer.concat(err).toString());
-            }
-        });
+        process.on("close", c => c === 0 ? spawnSeq(tail, res, rej) : rej(Buffer.concat(err).toString()));
     }
 }
 
-export async function compress(tmpDir?: string) {
-    if (!tmpDir) tmpDir = await tmpDirPromise();
+export function isEntityLocked(entityID: string) {
+    return new Promise<boolean>(res =>
+        renewRedis(REDIS_PARAMS.fileLock).get(entityID, (err, response) =>
+            res(!err && response === STR_ONE)));
+}
+
+export async function compress() {
+    const tmpDir = await tmpDirPromise();
     const entities = fs.readdirSync(tmpDir);
+    const promises: Promise<void>[] = [];
     for (const entity of entities) {
         const entitiesDir = `${tmpDir}/${entity}`;
         const entityIDs = fs.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         for (const entityID of entityIDs) {
-            const locked = await new Promise<boolean>(res => {
-                renewRedis("lockedFiles").get(entityID, (err, response) => {
-                    res(!err && response === STR_ONE);
-                });
-            });
-            if (locked) continue;
+            if (await isEntityLocked(entityID)) continue;
             const entityDir = `${entitiesDir}/${entityID}`;
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`
             const arc = `${entityDir}.tar`
             const compressedArcExists = fs.existsSync(compressedArc);
             if (compressedArcExists) {
-                spawnSequence([
+                promises.push(new Promise<void>(async (res, rej) => spawnSeq([
                     [ZSTD, undefined, ["-df", compressedArc, "-o", arc]],
                     [TAR, entitiesDir, ["-uvf", arc, entityID]],
                     [ZSTD, undefined, ["-f", arc, "-o", compressedArc]],
                     [MV, undefined, [arc, await nullFilePromise(arc)]],
                     [MV, undefined, [entityDir, await nullFilePromise(entityDir)]],
-                ], () => { }, () => { });
+                ], res, rej)));
             } else {
-                spawnSequence([
+                promises.push(new Promise<void>(async (res, rej) => spawnSeq([
                     [TAR, entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
                     [MV, undefined, [entityDir, await nullFilePromise(entityDir)]],
-                ], () => { }, () => { });
+                ], res, rej)));
             }
         }
     }
+
+    await Promise.all(promises);
 }

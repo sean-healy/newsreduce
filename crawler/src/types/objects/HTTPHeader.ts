@@ -7,11 +7,12 @@ export class HTTPHeader extends DBObject<HTTPHeader> {
     readonly value: HTTPHeaderValue;
 
     constructor(name?: string, value?: string) {
-        if (!name || !value) super();
-        else super({
-            name: new HTTPHeaderName({ value: name }),
-            value: new HTTPHeaderValue({ value: value }),
-        });
+        if (name && value)
+            super({
+                name: new HTTPHeaderName({ value: name }),
+                value: new HTTPHeaderValue({ value: value }),
+            });
+        else super();
     }
 
     insertCols(): string[] {
@@ -28,5 +29,8 @@ export class HTTPHeader extends DBObject<HTTPHeader> {
     }
     table(): string {
         return "HTTPHeader";
+    }
+    getDeps() {
+        return [this.name, this.value];
     }
 }

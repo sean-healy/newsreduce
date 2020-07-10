@@ -1,9 +1,9 @@
 import { defaultHash } from "common/hashing";
-import { bytesToBigInt, STR_ONE } from "common/util";
-import { db, renewRedis, newRedis } from "common/connections";
+import { bytesToBigInt } from "common/util";
+import { db, renewRedis, REDIS_PARAMS } from "common/connections";
 import { log } from "common/logging";
+import { Query } from "mysql";
 
-const lock = new Set<bigint>();
 export abstract class DBObject<T extends DBObject<T>> {
     abstract getInsertParams(): any[];
     abstract table(): string;
@@ -17,13 +17,8 @@ export abstract class DBObject<T extends DBObject<T>> {
         }
     }
     getIDBytes() {
-        const suffix = this.hashSuffix();
         const prefix = this.hashPrefix();
-        let idBytes: Buffer;
-        if (!prefix || !suffix) idBytes = null;
-        else idBytes = defaultHash(this.hashPrefix(), this.hashSuffix());
-
-        return idBytes;
+        return prefix ? defaultHash(prefix, this.hashSuffix()) : null;
     }
     getID() {
         return bytesToBigInt(this.getIDBytes());
@@ -32,22 +27,17 @@ export abstract class DBObject<T extends DBObject<T>> {
         const cols = this.insertCols().map(col => "`" + col + "`").join(", ");
         return `insert ignore into ${this.table()}(${cols}) values ?`
     }
-    getBulkInsertParams(items: T[]): any[] {
-        return [items.map(item => item.getInsertParams())];
-    }
     getSingularInsertParams(): any[] {
         return [[this.getInsertParams()]]
     }
     getDeps(): DBObject<any>[] {
         return [];
     }
-    insertSingular(options = {
-        recursive: false,
-    }) {
+    async singularInsert(options = { recursive: false }) {
         const promises: Promise<any>[] = [];
         // No circular dependencies allowed.
         if (options.recursive) {
-            for (const promise of this.getDeps().map(dep => dep.insertSingular(options)))
+            for (const promise of this.getDeps().map(dep => dep.singularInsert(options)))
                 promises.push(promise);
         }
         promises.push(new Promise<void>(async (res, rej) => {
@@ -62,7 +52,15 @@ export abstract class DBObject<T extends DBObject<T>> {
             log(filledQuery.sql);
         }));
 
-        return Promise.all(promises);
+        await Promise.all(promises);
+    }
+    async bulkInsert(params: any[][]) {
+        const query = this.getInsertStatement();
+        const client = await db();
+        log(query);
+        log(JSON.stringify(params));
+        await new Promise<Query>(async (res, rej) =>
+            log(client.query(query, [params], err => err ? rej(err) : res()).sql));
     }
     static stringifyBigIntsInPlace(obj: object) {
         if (typeof obj === "object") {
@@ -77,21 +75,21 @@ export abstract class DBObject<T extends DBObject<T>> {
     enqueueInsert(options = {
         recursive: false,
     }) {
+        const promises = [];
         // No circular dependencies allowed.
-        if (options.recursive) {
-            this.getDeps().forEach(dep => dep.enqueueInsert(options));
-        }
+        if (options.recursive)
+            for (const dep of this.getDeps())
+                promises.push(dep.enqueueInsert(options));
         const insertParams = this.getInsertParams();
         DBObject.stringifyBigIntsInPlace(insertParams);
-        const payload = JSON.stringify({
-            table: this.table(),
-            params: insertParams,
-        });
+        const payload = JSON.stringify(insertParams);
         const id = this.getID();
-        if (id)
-            renewRedis("inserts").hset(this.table(), this.getID().toString(), payload);
-        else
-            renewRedis("inserts").sadd(this.table(), payload);
+        promises.push(new Promise<void>((res, rej) => id ?
+            renewRedis(REDIS_PARAMS.inserts).hset(this.table(), this.getID().toString(), payload, err =>
+                err ? rej(err) : res()) :
+            renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload, err => err ? rej(err) : res())));
+
+        return Promise.all(promises);
     }
     singularSelect(columns?: (keyof T | "*")[]) {
         return new Promise(async (res, rej) => {
@@ -108,8 +106,9 @@ export abstract class DBObject<T extends DBObject<T>> {
             log(filledQuery.sql);
         });
     }
-    bulkSelect(ids: bigint[], columns: (keyof T)[]): Promise<{ [key: string]: string }[]> {
-        return new Promise(async (res, rej) => {
+    async bulkSelect(ids: bigint[], columns: (keyof T)[]): Promise<{ [key: string]: string }[]> {
+        if (!ids || ids.length === 0) return [];
+        return await new Promise(async (res, rej) => {
             const idCol = this.idCol();
             const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
             const filledQuery = (await db()).query(query, [[ids]], (err, response) => {
@@ -130,42 +129,9 @@ export abstract class DBObject<T extends DBObject<T>> {
     hashSuffix(): string {
         return null;
     }
-    unlock() {
-        const id = this.getID();
-        lock.delete(id);
-        renewRedis("fileLock").del(id.toString(), STR_ONE, err => {
-            if (!err)
-                renewRedis("fileLock").publish(id.toString(), STR_ONE);
-        });
-    }
-    checkout() {
-        return new Promise<boolean>((res, rej) => {
-            const id = this.getID();
-            if (lock.has(id)) {
-                res(false);
-            } else {
-                lock.add(id);
-                renewRedis("fileLock").get(id.toString(), (err, response) => {
-                    if (err) rej(err);
-                    else if (response === STR_ONE) {
-                        res(false);
-                    } else {
-                        renewRedis("fileLock").set(id.toString(), STR_ONE);
-                        res(true);
-                    }
-                });
-            }
-        });
-    }
-    whenUnlocked() {
-        const id = this.getID().toString();
-        const client = newRedis("fileLock");
-        client.subscribe(id);
-        return new Promise<void>(res => {
-            client.on("message", (_, msg) => {
-                if (msg === STR_ONE) res();
-                client.quit();
-            });
-        });
+    static forTable(table: string): DBObject<any> {
+        const DBObjectT = require(`types/objects/${table}`)[table];
+
+        return new DBObjectT()
     }
 }

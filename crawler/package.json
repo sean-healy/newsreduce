@@ -4,9 +4,12 @@
   "description": "Crawl a small subset of the web for news data.",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "watch": "tsc -w",
-    "compile": "webpack --config webpack.config.js"
+    "test": "jest --coverage --watchAll --forceExit",
+    "tsc": "tsc",
+    "webpack": "webpack --config webpack.config.js",
+    "watch-test": "jest --coverage --watchAll --forceExit",
+    "watch-tsc": "tsc -w",
+    "watch-webpack": "webpack --config webpack.config.js -w"
   },
   "author": "Seán Healy",
   "license": "ISC",
@@ -21,7 +24,7 @@
     "immutable": "^4.0.0-rc.12",
     "jsdom": "^16.2.2",
     "mysql": "^2.18.1",
-    "node": "^12.18.1",
+    "node": "^14.5.0",
     "node-fetch": "^2.6.0",
     "redis": "^3.0.2",
     "redis-commands": "^1.5.0",

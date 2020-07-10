@@ -14,7 +14,7 @@ export class Host extends DBObject<Host> {
         return ["id", "name", "throttle"];
     }
     getInsertParams(): any[] {
-        return [this.getID(), this.name, this.throttle];
+        return [this.getID(), this.name, this.throttle ? this.throttle : 1050];
     }
     table(): string {
         return "Host";

@@ -17,10 +17,12 @@ module.exports = {
   entry: {
       'fetch-worker':    './dist/src/services/fetcher/worker.js',
       'fetch-zookeeper': './dist/src/services/fetcher/zookeeper.js',
-      'html-process':    './dist/src/html-processor/process.js',
+      'html-process':    './dist/src/services/html-processor/main.js',
       'schedule':        './dist/src/services/scheduler.js',
       'main-net':        './dist/src/services/net-agent/for-main.js',
       'worker-net':      './dist/src/services/net-agent/for-worker.js',
+      'cold-start':      './dist/src/services/cold-start/main.js',
+      'inserter':        './dist/src/services/inserter/main.js',
   },
   externals: [
       "jsdom",

@@ -1,3 +1,4 @@
+import "./setup.ts";
 import { selectPreSchedule } from "data";
 
 test("selecting items to schedule should work", async () => {

@@ -1,10 +1,10 @@
-import { newRedis, renewRedis } from "../common/connections"
+import { newRedis, renewRedis, REDIS_PARAMS } from "../common/connections"
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1)
 
 export function start(birthLog: string, deathLog: string, idBytes: number) {
-    const MAX_ID = (ONE << BigInt(8 * idBytes));
+    const MAX_ID = (ONE << BigInt(12 * idBytes));
     let dob = new Map<string, number>();
 
     function sourceWorker(id: string) {
@@ -30,14 +30,14 @@ export function start(birthLog: string, deathLog: string, idBytes: number) {
         for (const [id,] of dob) {
             let hi = lo + idsPerWorker;
             if (hi + idsPerWorker > MAX_ID) hi = MAX_ID;
-            renewRedis("local").publish(id, `${lo} ${hi}`);
+            renewRedis(REDIS_PARAMS.local).publish(id, `${lo} ${hi}`);
             lo += idsPerWorker;
         }
     }
-    const birthsSub = newRedis("local");
+    const birthsSub = newRedis(REDIS_PARAMS.local);
     birthsSub.subscribe(birthLog);
     birthsSub.on("message", (_, id) => sourceWorker(id));
-    const deathsSub = newRedis("local");
+    const deathsSub = newRedis(REDIS_PARAMS.local);
     deathsSub.subscribe(deathLog);
     deathsSub.on("message", (_, id) => retireWorker(id));
 
