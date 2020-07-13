@@ -8,7 +8,8 @@ curl http://newsreduce.org:9999/net > /var/newsreduce/network
 echo 0 > /var/newsreduce/is_main
 bash "$(dirname $0)/install-common.sh"
 access_key="$(curl http://newsreduce.org:9999/public-key)"
-mkdir -p "/var/newsreduce/.ssh"
+ssh_dir="/var/newsreduce/.ssh"
+mkdir -p "$ssh_dir"
 ssh_authorized_keys="$ssh_dir/authorized_keys"
 if [ -f "$ssh_authorized_keys" ]; then
     (echo "$access_key" && cat "$ssh_authorized_keys")\

@@ -25,10 +25,12 @@ export class ResourceURL extends DBObject<ResourceURL> {
             const groups = arg.match(/^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/);
             if (groups) {
                 const ssl = !!groups[1];
+                const port = groups[3] ? parseInt(groups[3].substr(1)) : ssl ? 443 : 80;
+                if (!port) log("error", "port should be truthy", arg);
                 super({
                     ssl,
                     host: new Host({ name: groups[2] }),
-                    port: groups[3] ? parseInt(groups[3].substr(1)) : ssl ? 443 : 80,
+                    port,
                     path: new ResourceURLPath({ value: groups[4] ? groups[4] : "" }),
                     query: new ResourceURLQuery({ value: groups[5] ? groups[5].substr(1) : "" }),
                 });
@@ -36,6 +38,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
                 throw new Error(`invalid url: ${arg}`);
             }
         } else {
+            if (!arg.port) log("error", "port should be truthy", JSON.stringify(arg));
             super({
                 ssl: !!arg.ssl,
                 host: new Host({ name: arg.host as string }),
@@ -47,6 +50,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
     }
 
     toURL() {
+        if (!this.port) log("error", "port should be truthy in toURL", JSON.stringify(this));
         const protocol = this.ssl ? "https://" : "http://";
         let length = protocol.length;
         let portString: string = "";
