@@ -430,10 +430,13 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             const groups = arg.match(/^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/);
             if (groups) {
                 const ssl = !!groups[1];
+                const port = groups[3] ? parseInt(groups[3].substr(1)) : ssl ? 443 : 80;
+                if (!port)
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy", arg);
                 super({
                     ssl,
                     host: new types_objects_Host__WEBPACK_IMPORTED_MODULE_3__["Host"]({ name: groups[2] }),
-                    port: groups[3] ? parseInt(groups[3].substr(1)) : ssl ? 443 : 80,
+                    port,
                     path: new types_objects_ResourceURLPath__WEBPACK_IMPORTED_MODULE_2__["ResourceURLPath"]({ value: groups[4] ? groups[4] : "" }),
                     query: new types_objects_ResourceURLQuery__WEBPACK_IMPORTED_MODULE_1__["ResourceURLQuery"]({ value: groups[5] ? groups[5].substr(1) : "" }),
                 });
@@ -443,6 +446,8 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             }
         }
         else {
+            if (!arg.port)
+                Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy", JSON.stringify(arg));
             super({
                 ssl: !!arg.ssl,
                 host: new types_objects_Host__WEBPACK_IMPORTED_MODULE_3__["Host"]({ name: arg.host }),
@@ -453,6 +458,8 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         }
     }
     toURL() {
+        if (!this.port)
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy in toURL", JSON.stringify(this));
         const protocol = this.ssl ? "https://" : "http://";
         let length = protocol.length;
         let portString = "";
