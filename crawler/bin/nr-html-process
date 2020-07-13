@@ -90,7 +90,7 @@
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DBObject; });
-/* harmony import */ var common_hashing__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var common_hashing__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
 /* harmony import */ var common_connections__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1);
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
@@ -256,7 +256,7 @@ class DBObject {
 /* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(41);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(29);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
@@ -404,7 +404,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_objects_ResourceURLQuery__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
 /* harmony import */ var types_objects_ResourceURLPath__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 /* harmony import */ var types_objects_Host__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
-/* harmony import */ var file__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
+/* harmony import */ var file__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(24);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(8);
 /* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(9);
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
@@ -769,11 +769,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class HTTPHeaderValue extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor({ value }) {
-        if (value)
-            super({ value });
-        else
-            throw new Error("value can't be falsey");
+    constructor(arg) {
+        if (!arg)
+            super();
+        else if (typeof arg === "string")
+            super({ value: arg });
+        else {
+            const { value } = arg;
+            if (value)
+                super({ value });
+            else
+                throw new Error("value can't be falsey");
+        }
     }
     hashPrefix() {
         return "http-header-value";
@@ -1120,219 +1127,6 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FetchedResource", function() { return FetchedResource; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-/* harmony import */ var types_objects_HTTPHeaderValue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(11);
-
-
-
-class FetchedResource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(url, length, type) {
-        if (url)
-            super({
-                resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
-                length,
-                type: new types_objects_HTTPHeaderValue__WEBPACK_IMPORTED_MODULE_2__["HTTPHeaderValue"]({
-                    value: type,
-                }),
-            });
-        else
-            super();
-    }
-    insertCols() {
-        return ["resource", "length", "type", "modified"];
-    }
-    getInsertParams() {
-        return [this.resource.getID(), this.length, this.type.getID(), this.modified ? this.modified : Date.now()];
-    }
-    table() {
-        return "FetchedResource";
-    }
-    idCol() {
-        return "resource";
-    }
-}
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceHeader", function() { return ResourceHeader; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-/* harmony import */ var types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(10);
-
-
-
-class ResourceHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(url, name, value) {
-        if (!url)
-            super();
-        else
-            super({
-                resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
-                header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](name, value),
-            });
-    }
-    insertCols() {
-        return ["resource", "header"];
-    }
-    getInsertParams() {
-        return [this.resource.getID(), this.header.getID()];
-    }
-    table() {
-        return "ResourceHeader";
-    }
-    getDeps() {
-        return [this.resource, this.header];
-    }
-}
-
-
-/***/ }),
-/* 26 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceLinkHash", function() { return ResourceLinkHash; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var types_objects_ResourceLink__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(19);
-/* harmony import */ var types_objects_ResourceHash__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
-
-
-
-class ResourceLinkHash extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(parentOrObj, child, hash) {
-        if (!parentOrObj)
-            super();
-        else if (typeof parentOrObj === "string")
-            super({
-                link: new types_objects_ResourceLink__WEBPACK_IMPORTED_MODULE_1__["ResourceLink"](parentOrObj, child),
-                hash: new types_objects_ResourceHash__WEBPACK_IMPORTED_MODULE_2__["ResourceHash"](hash),
-            });
-        else
-            super(parentOrObj);
-    }
-    insertCols() {
-        return ["parent", "child", "hash"];
-    }
-    getInsertParams() {
-        return [this.link.parent.getID(), this.link.child.getID(), this.hash.getID()];
-    }
-    table() {
-        return "ResourceLinkHash";
-    }
-    getDeps() {
-        return [this.link, this.hash];
-    }
-    toString() {
-        return `${this.link.toString()}#${this.hash.value}`;
-    }
-}
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WikiPage", function() { return WikiPage; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-
-
-class WikiPage extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(url) {
-        super({
-            resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
-        });
-    }
-    insertCols() {
-        return ["resource"];
-    }
-    getInsertParams() {
-        return [this.resource.getID()];
-    }
-    table() {
-        return "WikiPage";
-    }
-    idCol() {
-        return "resource";
-    }
-}
-
-
-/***/ }),
-/* 28 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Word", function() { return Word; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-
-class Word extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(value) {
-        if (value)
-            super({ value });
-    }
-    hashPrefix() {
-        return "word";
-    }
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
-    table() {
-        return "Word";
-    }
-    idCol() {
-        return "id";
-    }
-}
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports) {
-
-module.exports = require("node-fetch");
-
-/***/ }),
-/* 30 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return checksum; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return defaultHash; });
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_0__);
-
-function checksum(content) {
-    return crypto__WEBPACK_IMPORTED_MODULE_0___default.a.createHash("sha384").update(content).digest().toString("base64");
-}
-function defaultHash(prefix, str) {
-    return crypto__WEBPACK_IMPORTED_MODULE_0___default.a.createHash("sha3-256").update(`${prefix}:${str.toString()}`).digest().slice(0, 12);
-}
-
-
-/***/ }),
-/* 31 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return write; });
 /* unused harmony export sortVersions */
@@ -1481,6 +1275,219 @@ async function readLatestVersion(entity, entityID, format) {
     if (latestVersion === -1)
         return null;
     return await read(entity, entityID, latestVersion, format);
+}
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FetchedResource", function() { return FetchedResource; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+/* harmony import */ var types_objects_HTTPHeaderValue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(11);
+
+
+
+class FetchedResource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(url, length, type) {
+        if (url)
+            super({
+                resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
+                length,
+                type: new types_objects_HTTPHeaderValue__WEBPACK_IMPORTED_MODULE_2__["HTTPHeaderValue"]({
+                    value: type,
+                }),
+            });
+        else
+            super();
+    }
+    insertCols() {
+        return ["resource", "length", "type", "modified"];
+    }
+    getInsertParams() {
+        return [this.resource.getID(), this.length, this.type.getID(), this.modified ? this.modified : Date.now()];
+    }
+    table() {
+        return "FetchedResource";
+    }
+    idCol() {
+        return "resource";
+    }
+}
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceHeader", function() { return ResourceHeader; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+/* harmony import */ var types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(10);
+
+
+
+class ResourceHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(url, name, value) {
+        if (!url)
+            super();
+        else
+            super({
+                resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
+                header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](name, value),
+            });
+    }
+    insertCols() {
+        return ["resource", "header"];
+    }
+    getInsertParams() {
+        return [this.resource.getID(), this.header.getID()];
+    }
+    table() {
+        return "ResourceHeader";
+    }
+    getDeps() {
+        return [this.resource, this.header];
+    }
+}
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceLinkHash", function() { return ResourceLinkHash; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var types_objects_ResourceLink__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(19);
+/* harmony import */ var types_objects_ResourceHash__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+
+
+
+class ResourceLinkHash extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(parentOrObj, child, hash) {
+        if (!parentOrObj)
+            super();
+        else if (typeof parentOrObj === "string")
+            super({
+                link: new types_objects_ResourceLink__WEBPACK_IMPORTED_MODULE_1__["ResourceLink"](parentOrObj, child),
+                hash: new types_objects_ResourceHash__WEBPACK_IMPORTED_MODULE_2__["ResourceHash"](hash),
+            });
+        else
+            super(parentOrObj);
+    }
+    insertCols() {
+        return ["parent", "child", "hash"];
+    }
+    getInsertParams() {
+        return [this.link.parent.getID(), this.link.child.getID(), this.hash.getID()];
+    }
+    table() {
+        return "ResourceLinkHash";
+    }
+    getDeps() {
+        return [this.link, this.hash];
+    }
+    toString() {
+        return `${this.link.toString()}#${this.hash.value}`;
+    }
+}
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WikiPage", function() { return WikiPage; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+
+
+class WikiPage extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(url) {
+        super({
+            resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
+        });
+    }
+    insertCols() {
+        return ["resource"];
+    }
+    getInsertParams() {
+        return [this.resource.getID()];
+    }
+    table() {
+        return "WikiPage";
+    }
+    idCol() {
+        return "resource";
+    }
+}
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Word", function() { return Word; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
+class Word extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(value) {
+        if (value)
+            super({ value });
+    }
+    hashPrefix() {
+        return "word";
+    }
+    hashSuffix() {
+        return this.value;
+    }
+    insertCols() {
+        return ["id", "value"];
+    }
+    getInsertParams() {
+        return [this.getID(), this.value];
+    }
+    table() {
+        return "Word";
+    }
+    idCol() {
+        return "id";
+    }
+}
+
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports) {
+
+module.exports = require("node-fetch");
+
+/***/ }),
+/* 31 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return checksum; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return defaultHash; });
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_0__);
+
+function checksum(content) {
+    return crypto__WEBPACK_IMPORTED_MODULE_0___default.a.createHash("sha384").update(content).digest().toString("base64");
+}
+function defaultHash(prefix, str) {
+    return crypto__WEBPACK_IMPORTED_MODULE_0___default.a.createHash("sha3-256").update(`${prefix}:${str.toString()}`).digest().slice(0, 12);
 }
 
 
@@ -1718,8 +1725,8 @@ var map = {
 	"./ClientCookie.js": 32,
 	"./ClientHeader": 22,
 	"./ClientHeader.js": 22,
-	"./FetchedResource": 24,
-	"./FetchedResource.js": 24,
+	"./FetchedResource": 25,
+	"./FetchedResource.js": 25,
 	"./HTMLAttribute": 33,
 	"./HTMLAttribute.js": 33,
 	"./HTMLAttributeName": 34,
@@ -1744,12 +1751,12 @@ var map = {
 	"./ResourceHTMLHead.js": 39,
 	"./ResourceHash": 18,
 	"./ResourceHash.js": 18,
-	"./ResourceHeader": 25,
-	"./ResourceHeader.js": 25,
+	"./ResourceHeader": 26,
+	"./ResourceHeader.js": 26,
 	"./ResourceLink": 19,
 	"./ResourceLink.js": 19,
-	"./ResourceLinkHash": 26,
-	"./ResourceLinkHash.js": 26,
+	"./ResourceLinkHash": 27,
+	"./ResourceLinkHash.js": 27,
 	"./ResourceURL": 4,
 	"./ResourceURL.js": 4,
 	"./ResourceURLPath": 13,
@@ -1758,10 +1765,10 @@ var map = {
 	"./ResourceURLQuery.js": 14,
 	"./WikiCategory": 23,
 	"./WikiCategory.js": 23,
-	"./WikiPage": 27,
-	"./WikiPage.js": 27,
-	"./Word": 28,
-	"./Word.js": 28
+	"./WikiPage": 28,
+	"./WikiPage.js": 28,
+	"./Word": 29,
+	"./Word.js": 29
 };
 
 
@@ -2059,7 +2066,7 @@ var processor = __webpack_require__(43);
 var external_jsdom_ = __webpack_require__(46);
 
 // EXTERNAL MODULE: ./dist/src/file.js
-var file = __webpack_require__(31);
+var file = __webpack_require__(24);
 
 // EXTERNAL MODULE: ./dist/src/types/FileFormat.js
 var FileFormat = __webpack_require__(9);
@@ -2071,7 +2078,7 @@ var Entity = __webpack_require__(8);
 var ResourceLink = __webpack_require__(19);
 
 // EXTERNAL MODULE: ./dist/src/types/objects/ResourceLinkHash.js
-var ResourceLinkHash = __webpack_require__(26);
+var ResourceLinkHash = __webpack_require__(27);
 
 // EXTERNAL MODULE: ./dist/src/types/objects/ResourceURL.js
 var ResourceURL = __webpack_require__(4);
@@ -2225,7 +2232,7 @@ function nodeToHitType(node) {
 }
 
 // EXTERNAL MODULE: ./dist/src/types/objects/Word.js
-var Word = __webpack_require__(28);
+var Word = __webpack_require__(29);
 
 // CONCATENATED MODULE: ./dist/src/types/Hit.js
 class Hit {
@@ -2434,7 +2441,7 @@ const extract_raw_text_process = (window, version) => {
 var WikiCategory = __webpack_require__(23);
 
 // EXTERNAL MODULE: ./dist/src/types/objects/WikiPage.js
-var WikiPage = __webpack_require__(27);
+var WikiPage = __webpack_require__(28);
 
 // CONCATENATED MODULE: ./dist/src/services/html-processor/extract-wiki-tree.js
 

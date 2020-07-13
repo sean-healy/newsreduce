@@ -27,3 +27,4 @@ debs=(
 apt-get update
 apt-get -y install ${debs[*]}
 apt -y autoremove
+chown -R newsreduce:newsreduce /var/newsreduce
