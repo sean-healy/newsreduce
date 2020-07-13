@@ -7,7 +7,7 @@ mkdir -p /var/newsreduce
 curl http://newsreduce.org:9999/net > /var/newsreduce/network
 echo 0 > /var/newsreduce/is_main
 bash "$(dirname $0)/install-common.sh"
-access_key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDSt1FcTlxRgABMz/qyTbe56PEF8K+voO+t+zLO286XjmNscsydjWCRD4R9CDllZVOuDEiBdQtFK+If9TBFfHi3s2uS/CgpeoluoRd2MGwT96d6GWxOnxL04fWKeEJWrrePBhPqqheB1vmjr6x20bmJCBSyxxjMVYCOmCgytUoiT8zCd6SuIuuZdUUjfg2jspGUw/yFXXr2qyUVtwklaf5Ly+KhfRoHMe83SXFUp88jjM3nxK6i8VMQ9HYn5UGAMnJC2IzL7imIdxBs6u21eJerJmKoK1hTleL+Izt7ptrwc+pmesxBM7JqxXvMgZ6tUWDE9sG23SLbCwZYYY6ip33O6r3qjDIl/xK2tNWeMrBDEPeIFqkkGguaEiQWFUvQYxJ+DzJOk95TViVQNVpWLPfQf1b+taFq9Fgp1B6+u8oodWRwkEyYqW7Irnjmp/pbVaxmborXxTg+cOpQ6d0DXzFPp67uofsWniGF8OxjS3taELCeuklhOKtCS2eANf3prM= sean@allen"
+access_key="$(curl http://newsreduce.org:9999/public-key)"
 mkdir -p "/var/newsreduce/.ssh"
 ssh_authorized_keys="$ssh_dir/authorized_keys"
 if [ -f "$ssh_authorized_keys" ]; then

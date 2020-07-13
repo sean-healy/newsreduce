@@ -23,7 +23,6 @@ async function serve() {
     app.get("/public-key", (req, res) => {
         log(`Request SSH public key info for ${req.ip}.`);
         res.send(fs.readFileSync("/var/newsreduce/.ssh/id_rsa.pub"));
-        res.send(req.ip);
     });
 
     app.listen(PORT, () => console.log(`Main net agent running on port ${PORT} `));
