@@ -22,9 +22,8 @@ export function startProcessor(
     postcondition: string,
     options: {
         interval?: boolean;
-    } = {
-            interval: true,
-        }
+        period?: number;
+    } = { interval: true, period: 2000 }
 ) {
     let safelyExit = false;
     const name = crypto.randomBytes(30).toString("base64");
@@ -32,7 +31,7 @@ export function startProcessor(
     if (options.interval || options.interval === undefined)
         interval = setImmediateInterval(() => {
             if (!safelyExit) synchronised(name, f, postcondition);
-        }, 2000);
+        }, options.period ? options.period : 2000);
     let events: RedisClient & ExtendedRedisClient;
     if (preconditions && preconditions.size > 0) {
         events = newRedis(REDIS_PARAMS.events);

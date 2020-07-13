@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const nodeExternals = require('webpack-node-externals');
 
 const alias = {};
 const files = fs.readdirSync(path.join(__dirname, "dist/src"));
@@ -23,10 +24,12 @@ module.exports = {
       'worker-net':      './dist/src/services/net-agent/for-worker.js',
       'cold-start':      './dist/src/services/cold-start/main.js',
       'inserter':        './dist/src/services/inserter/main.js',
+      'compressor':      './dist/src/services/compressor/main.js',
   },
   externals: [
-      "jsdom",
-      "express",
+      //"jsdom",
+      //"express",
+      nodeExternals(),
   ],
   output: {
     path: path.resolve(__dirname, 'bin'),

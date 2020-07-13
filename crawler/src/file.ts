@@ -47,7 +47,16 @@ export async function write(
     let bytesWritten: number;
     if (typeof src === "string" || src instanceof Buffer) {
         log("Writing string to file", src, tmpFile);
-        fs.writeFileSync(tmpFile, src);
+        await new Promise<void>((res, rej) => {
+            fs.writeFile(tmpFile, src, err => {
+                if (err) {
+                    log("error writing file", tmpFile);
+                    log(err);
+                    rej(err);
+                }
+                else res();
+            });
+        });
 
         bytesWritten = src.length;
     } else {
@@ -111,7 +120,11 @@ export async function read(entity: Entity, entityID: bigint, version: number, fo
 }
 export async function findLatestVersion(entity: Entity, entityID: bigint, format: FileFormat) {
     const versions = await getVersions(entity, entityID);
-    const sorted = versions.filter(version => version[1] === format).sort();
+    const sorted = versions.filter(version => version[1] === format).sort((a, b) => {
+        const cmp = a[0] - b[0];
+        if (cmp === 0) return a[1] - b[1];
+        return cmp;
+    });
     if (!sorted || !sorted.length) return -1;
     else {
         const [time,] = sorted[sorted.length - 1];

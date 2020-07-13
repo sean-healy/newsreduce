@@ -12,12 +12,6 @@ export class ResourceHTMLHead extends DBObject<ResourceHTMLHead> {
     getInsertParams(): any[] {
         return [this.resource.getID(), this.node.getID()];
     }
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
-    }
     table(): string {
         return "ResourceHTMLHead";
     }

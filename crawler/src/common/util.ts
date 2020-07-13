@@ -26,3 +26,10 @@ export function writeBigUInt96BE(n: bigint, buffer: Buffer, offset: number) {
         n >>= EIGHT;
     }
 }
+
+export function iteratorToArray<T>(itr: IterableIterator<T>) {
+    const arr: T[] = [];
+    for (const item of itr) arr.push(item);
+
+    return arr;
+}

@@ -1,11 +1,14 @@
-import { processWikiPages, deleteLegacyWikiCategories, processWikiCategories } from "data";
 import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProcessor"
 import { ResourceURL } from "types/objects/ResourceURL";
+import { DOMWindow } from "jsdom";
+import { WikiCategory } from "types/objects/WikiCategory";
+import { WikiPage } from "types/objects/WikiPage";
+import { DBObject } from "types/DBObject";
 
 const SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
 const CATEGORY_PAGE_SELECT = "#mw-pages .mw-category .mw-category-group li>a";
 
-function resourceIsWikiCategory(resource: ResourceURL) {
+export function resourceIsWikiCategory(resource: ResourceURL) {
     return resource.ssl
         && resource.host.name === "en.wikipedia.org"
         && resource.port === 443
@@ -13,37 +16,43 @@ function resourceIsWikiCategory(resource: ResourceURL) {
         && resource.query.value === "";
 }
 
-export const process: HTMLDocumentProcessor = doc => {
-    const resource = new ResourceURL(doc.location.toString());
-    if (!resourceIsWikiCategory(resource)) return Promise.all([]);
-
-    const id = resource.getID();
-    const promises: Promise<unknown>[] = [];
-    const subcats = doc.querySelectorAll(SUBCATEGORY_SELECTOR);
-    const pages: bigint[] = [];
-    const relations: [bigint, bigint][] = [];
-    const children: bigint[] = [];
-    for (let i = 0; i < subcats.length; ++i) {
-        const a = subcats.item(i) as HTMLAnchorElement;
-        if (a.href) {
-            const child = new ResourceURL(a.href).getID();
-            relations.push([id, child]);
-            children.push(child);
-        }
+export function getHrefs(window: DOMWindow, selector: string) {
+    const node = window.document.querySelectorAll(selector);
+    const urls = new Array<string>(node.length);
+    for (let i = 0; i < node.length; ++i) {
+        const a = node.item(i) as HTMLAnchorElement;
+        if (a.href) urls[i] = a.href;
     }
-    const subpages = doc.querySelectorAll(CATEGORY_PAGE_SELECT);
-    for (let i = 0; i < subpages.length; ++i) {
-        const a = subpages.item(i) as HTMLAnchorElement;
-        if (a.href) {
-            const child = new ResourceURL(a.href).getID();
-            pages.push(child);
-            relations.push([id, child]);
-            children.push(child);
-        }
-    }
-    promises.push(deleteLegacyWikiCategories(id, children));
-    promises.push(processWikiPages(pages));
-    promises.push(processWikiCategories(relations));
 
-    return Promise.all(promises) as any;
+    return urls;
+}
+
+export function getSubWikiPages(wikiDoc: DOMWindow) {
+    return getHrefs(wikiDoc, CATEGORY_PAGE_SELECT);
+}
+
+export function getSubWikiCategories(wikiDoc: DOMWindow) {
+    return getHrefs(wikiDoc, SUBCATEGORY_SELECTOR);
+}
+
+export function getEntities(window: DOMWindow) {
+    const parent = new ResourceURL(window.location.toString());
+    if (!resourceIsWikiCategory(parent)) return [];
+
+    const subWikiCategoryURLs = getSubWikiCategories(window);
+    const subWikiPageURLs = getSubWikiPages(window);
+    const children = subWikiPageURLs.concat(subWikiCategoryURLs);
+    const relations: DBObject<any>[] = children
+        .map(child => new ResourceURL(child))
+        .map(child => new WikiCategory({ parent, child }));
+    const pages: DBObject<any>[] = subWikiPageURLs
+        .map(url => new WikiPage(url));
+
+    return relations.concat(pages);
+}
+
+export const process: HTMLDocumentProcessor = async window => {
+    const entities = getEntities(window);
+    const promises = entities.map(entity => entity.enqueueInsert({ recursive: true }));
+    await Promise.all(promises);
 }

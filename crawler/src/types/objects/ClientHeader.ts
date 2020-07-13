@@ -20,12 +20,6 @@ export class ClientHeader extends DBObject<ClientHeader> {
     getInsertParams(): any[] {
         return [this.client.getID(), this.header.getID()];
     }
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
-    }
     table(): string {
         return "ClientHeader";
     }

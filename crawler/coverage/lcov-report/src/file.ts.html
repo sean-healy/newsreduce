@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.12% </span>
+                <span class="strong">84.76% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>89/101</span>
+                <span class='fraction'>89/105</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.82% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>18/22</span>
+                <span class='fraction'>18/24</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">72.41% </span>
+                <span class="strong">70% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>21/29</span>
+                <span class='fraction'>21/30</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.94% </span>
+                <span class="strong">89.77% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>79/85</span>
+                <span class='fraction'>79/88</span>
             </div>
         
             
@@ -182,7 +182,11 @@
 <a name='L123'></a><a href='#L123'>123</a>
 <a name='L124'></a><a href='#L124'>124</a>
 <a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">8x</span>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
@@ -221,7 +225,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">1413x</span>
+<span class="cline-any cline-yes">1797x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
@@ -246,13 +250,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">6525x</span>
-<span class="cline-any cline-yes">6525x</span>
-<span class="cline-any cline-yes">6525x</span>
-<span class="cline-any cline-yes">6525x</span>
-<span class="cline-any cline-yes">713x</span>
-<span class="cline-any cline-yes">713x</span>
-<span class="cline-any cline-yes">713x</span>
+<span class="cline-any cline-yes">7609x</span>
+<span class="cline-any cline-yes">7609x</span>
+<span class="cline-any cline-yes">7609x</span>
+<span class="cline-any cline-yes">7609x</span>
+<span class="cline-any cline-yes">933x</span>
+<span class="cline-any cline-yes">933x</span>
+<span class="cline-any cline-yes">933x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">11x</span>
@@ -265,14 +269,14 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">227x</span>
+<span class="cline-any cline-yes">885x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2367x</span>
-<span class="cline-any cline-yes">2367x</span>
-<span class="cline-any cline-yes">1420x</span>
-<span class="cline-any cline-yes">1420x</span>
-<span class="cline-any cline-yes">1420x</span>
+<span class="cline-any cline-yes">3603x</span>
+<span class="cline-any cline-yes">3603x</span>
+<span class="cline-any cline-yes">1804x</span>
+<span class="cline-any cline-yes">1804x</span>
+<span class="cline-any cline-yes">1804x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
@@ -296,6 +300,10 @@
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -420,7 +428,11 @@ export async function read(entity: Entity, entityID: bigint, version: number, fo
 }
 export async function findLatestVersion(entity: Entity, entityID: bigint, format: FileFormat) {
     const versions = await getVersions(entity, entityID);
-    const sorted = versions.filter(version =&gt; version[1] === format).sort();
+    const sorted = versions.filter(version =&gt; version[1] === format).sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; {
+        const cmp = <span class="cstat-no" title="statement not covered" >a[0] - b[0];</span>
+<span class="cstat-no" title="statement not covered" >        if (cmp === 0) <span class="cstat-no" title="statement not covered" >return a[1] - b[1];</span></span>
+<span class="cstat-no" title="statement not covered" >        return cmp;</span>
+    });
     <span class="missing-if-branch" title="if path not taken" >I</span>if (!sorted || !sorted.length) <span class="cstat-no" title="statement not covered" >return -1;</span>
     else {
         const [time,] = sorted[sorted.length - 1];
@@ -439,7 +451,7 @@ export async function readLatestVersion(entity: Entity, entityID: bigint, format
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Fri Jul 10 2020 15:36:35 GMT+0200 (Central European Summer Time)
+                at Mon Jul 13 2020 16:41:07 GMT+0200 (Central European Summer Time)
             </div>
         </div>
         <script src="../prettify.js"></script>

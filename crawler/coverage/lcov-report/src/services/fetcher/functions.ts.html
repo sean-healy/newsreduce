@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">98.48% </span>
+                <span class="strong">96.72% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>65/66</span>
+                <span class='fraction'>59/61</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">66.67% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>12/16</span>
+                <span class='fraction'>8/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.61% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>60/60</span>
+                <span class='fraction'>57/59</span>
             </div>
         
             
@@ -139,13 +139,8 @@
 <a name='L80'></a><a href='#L80'>80</a>
 <a name='L81'></a><a href='#L81'>81</a>
 <a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L83'></a><a href='#L83'>83</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -165,8 +160,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -175,17 +168,15 @@
 <span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-yes">42x</span>
-<span class="cline-any cline-yes">40x</span>
-<span class="cline-any cline-yes">42x</span>
-<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -209,6 +200,7 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -233,7 +225,6 @@
 import {
     crawlAllowed,
     throttle,
-    popURL,
     getRedisKeys,
 } from "data";
 import { FileFormat } from "types/FileFormat";
@@ -243,39 +234,35 @@ import { ResourceURL } from "types/objects/ResourceURL";
 import { milliTimestamp } from "common/time";
 import { Host } from "types/objects/Host";
 import { ResourceHeader } from "types/objects/ResourceHeader";
-import { REDIS_PARAMS } from "common/connections";
+import { REDIS_PARAMS, renewRedis } from "common/connections";
 &nbsp;
 export function buildOnFetch(url: string) {
     return async (response: Response) =&gt; {
         const resourceURL = new ResourceURL(url);
         let type: string;
         const now = milliTimestamp();
-        let headers = [];
-        const headersLength = Object.keys(response.headers.raw()).length;
-        let contentLength: number;
-        await new Promise&lt;void&gt;(res =&gt; {
-            let h = 0;
-            response.headers.forEach(async (value, anyCaseKey) =&gt; {
-                headers.push(`${anyCaseKey}: ${value}`);
-                const key = anyCaseKey.toLowerCase();
-                const resourceHeader = new ResourceHeader(url, key, value)
-                resourceHeader.enqueueInsert({ recursive: true });
-                if (key === "content-type") type = value.toLowerCase();
-                else if (key === "content-length") contentLength = Number(value);
-                h++;
-                if (h === headersLength) res();
-            });
-        });
         let promises = [];
-        promises.push(resourceURL.writeVersion(now, FileFormat.RAW_HTML, response.body)
-            .then(actualLength =&gt; {
-                <span class="missing-if-branch" title="if path not taken" >I</span>if (!contentLength) <span class="cstat-no" title="statement not covered" >contentLength = actualLength;</span>
-                const fetchedResource = new FetchedResource(url, contentLength, type);
-                fetchedResource.enqueueInsert({ recursive: true });
-            }));
-        promises.push(resourceURL.writeVersion(now, FileFormat.RAW_HEADERS, headers.join("\n")));
+        const actualLength = await resourceURL.writeVersion(now, FileFormat.RAW_HTML, response.body);
+        let headers = [];
+        response.headers.forEach(async (value, anyCaseKey) =&gt; {
+            headers.push(`${anyCaseKey}: ${value}`);
+            const key = anyCaseKey.toLowerCase();
+            const resourceHeader = new ResourceHeader(url, key, value)
+            promises.push(resourceHeader.enqueueInsert({ recursive: true }));
+            if (key === "content-type") {
+                type = value.toLowerCase();
+                const fetchedResource = new FetchedResource(url, actualLength, type);
+                promises.push(fetchedResource.enqueueInsert({ recursive: true }));
+            }
+        });
+        const headerContent = headers.join("\n");
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (!headerContent) {
+<span class="cstat-no" title="statement not covered" >            log("header issue");</span>
+<span class="cstat-no" title="statement not covered" >            log(JSON.stringify(headers));</span>
+        }
+        promises.push(resourceURL.writeVersion(now, FileFormat.RAW_HEADERS, headerContent));
 &nbsp;
-        return Promise.all(promises);
+        await Promise.all(promises);
     };
 }
 &nbsp;
@@ -298,14 +285,15 @@ export async function pollAndFetch(lo: () =&gt; bigint, hi: () =&gt; bigint) {
             const host = new Host({ name: hostname });
             const id = host.getID();
             <span class="missing-if-branch" title="else path not taken" >E</span>if (id &gt;= lo() &amp;&amp; id &lt; hi()) {
-                console.log({ hostname, id });
                 log(`Host within range(${lo()} -- &gt; ${hi()}: ${host}`);
                 <span class="missing-if-branch" title="else path not taken" >E</span>if (await crawlAllowed(hostname)) {
-                    const url = await popURL(hostname);
-                    <span class="missing-if-branch" title="else path not taken" >E</span>if (url) {
+                    const resourceURL = await ResourceURL.popForFetching(hostname);
+                    <span class="missing-if-branch" title="else path not taken" >E</span>if (resourceURL) {
+                        const url = resourceURL.toURL();
                         console.log(url);
                         throttle(hostname, throttles[hostname]);
                         await fetchAndWrite(url);
+                        renewRedis(REDIS_PARAMS.processQueues).sadd("html", url)
                         fetched.add(url);
                     }
                 }
@@ -322,7 +310,7 @@ export async function pollAndFetch(lo: () =&gt; bigint, hi: () =&gt; bigint) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Fri Jul 10 2020 15:36:35 GMT+0200 (Central European Summer Time)
+                at Mon Jul 13 2020 16:41:07 GMT+0200 (Central European Summer Time)
             </div>
         </div>
         <script src="../../../prettify.js"></script>

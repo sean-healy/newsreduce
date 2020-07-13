@@ -81,93 +81,24 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 157);
+/******/ 	return __webpack_require__(__webpack_require__.s = 50);
 /******/ })
 /************************************************************************/
 /******/ ({
-
-/***/ 154:
-/***/ (function(module, exports) {
-
-module.exports = express;
-
-/***/ }),
-
-/***/ 155:
-/***/ (function(module, exports) {
-
-module.exports = require("dns");
-
-/***/ }),
-
-/***/ 157:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(154);
-/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(155);
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
-
-
-
-
-const PORT = 9999;
-const hostsContent = fs__WEBPACK_IMPORTED_MODULE_1___default.a.readFileSync("/var/newsreduce/network");
-const hosts = hostsContent.toString().split(/\n/g).filter(host => host).concat(["127.0.0.1"]);
-const whitelist = new Set();
-hosts.forEach(host => dns__WEBPACK_IMPORTED_MODULE_2___default.a.lookup(host, (err, address, family) => {
-    if (err)
-        console.debug(err);
-    else {
-        if (family === 4)
-            address = `::ffff:${address}`;
-        whitelist.add(address);
-    }
-}));
-function serve() {
-    const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
-    app.use((req, res, next) => {
-        if (whitelist.has(req.ip))
-            next();
-        else {
-            res.sendStatus(401);
-        }
-    });
-    app.get("", (req, res) => {
-        Object(_common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`Request for parameters from ${req.ip}.`);
-        res.send({
-            sql: fs__WEBPACK_IMPORTED_MODULE_1___default.a.readFileSync("/var/newsreduce/sql_password").toString().replace(/\n$/g, ""),
-        });
-    });
-    app.get("/net", (req, res) => {
-        Object(_common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`Request for network info from ${req.ip}.`);
-        res.send(hostsContent);
-    });
-    app.listen(PORT, () => console.log(`Main net agent running on port ${PORT} `));
-}
-serve();
-
-
-/***/ }),
 
 /***/ 2:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return log; });
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
 
 
 async function log(...args) {
     const now = Date.now();
-    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "h"])();
+    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "i"])();
     const logFile = `${varDir}/log`;
     fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
 }
@@ -175,31 +106,45 @@ async function log(...args) {
 
 /***/ }),
 
-/***/ 4:
+/***/ 3:
 /***/ (function(module, exports) {
 
 module.exports = require("fs");
 
 /***/ }),
 
-/***/ 7:
+/***/ 47:
+/***/ (function(module, exports) {
+
+module.exports = require("express");
+
+/***/ }),
+
+/***/ 48:
+/***/ (function(module, exports) {
+
+module.exports = require("dns");
+
+/***/ }),
+
+/***/ 5:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return TAR; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return varDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return safetyFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return safeMkdir; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return varDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return safetyFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return safeMkdir; });
 /* unused harmony export varDirChildPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tmpDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return tmpDirPromise; });
 /* unused harmony export nullDirPromise */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return blobDirPromise; });
-/* unused harmony export nullFilePromise */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return nullFilePromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return myIP; });
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
 let ENV = ["prod"];
 
@@ -251,7 +196,62 @@ async function myIP() {
 
 /***/ }),
 
-/***/ 9:
+/***/ 50:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
+
+
+
+
+const PORT = 9999;
+const hostsContent = fs__WEBPACK_IMPORTED_MODULE_1___default.a.readFileSync("/var/newsreduce/network");
+const hosts = hostsContent.toString().split(/\n/g).filter(host => host).concat(["127.0.0.1"]);
+const whitelist = new Set();
+hosts.forEach(host => dns__WEBPACK_IMPORTED_MODULE_2___default.a.lookup(host, (err, address, family) => {
+    if (err)
+        console.debug(err);
+    else {
+        if (family === 4)
+            address = `::ffff:${address}`;
+        whitelist.add(address);
+    }
+}));
+function serve() {
+    const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
+    app.use((req, res, next) => {
+        if (whitelist.has(req.ip))
+            next();
+        else {
+            res.sendStatus(401);
+        }
+    });
+    app.get("", (req, res) => {
+        Object(_common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`Request for parameters from ${req.ip}.`);
+        res.send({
+            sql: fs__WEBPACK_IMPORTED_MODULE_1___default.a.readFileSync("/var/newsreduce/sql_password").toString().replace(/\n$/g, ""),
+        });
+    });
+    app.get("/net", (req, res) => {
+        Object(_common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`Request for network info from ${req.ip}.`);
+        res.send(hostsContent);
+    });
+    app.listen(PORT, () => console.log(`Main net agent running on port ${PORT} `));
+}
+serve();
+
+
+/***/ }),
+
+/***/ 7:
 /***/ (function(module, exports) {
 
 module.exports = require("path");

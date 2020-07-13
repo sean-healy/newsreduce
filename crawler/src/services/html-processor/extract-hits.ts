@@ -2,14 +2,11 @@ import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProce
 import { write } from "file";
 import { FileFormat } from "types/FileFormat";
 import { Entity } from "types/Entity";
-import { CMP_BIG_INT, writeBigUInt96BE } from "common/util";
-import { Word } from "types/objects/Word";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { DOMWindow } from "jsdom";
 import { HitType, nodeToHitType } from "types/HitType";
 import { removeExcludedNodes } from "./functions";
 import { Hits } from "types/Hits";
-import { HitList } from "types/HitList";
 
 const INCLUDE_TAGS = [
     "TITLE",
@@ -59,7 +56,7 @@ interface BlockData {
     words: string[];
 };
 
-export function toHitList(window: DOMWindow) {
+export function getHits(window: DOMWindow) {
     removeExcludedNodes(window);
     const queryItems = window.document.querySelectorAll(INCLUDE_TAGS.join(","));
     const blockData: BlockData[] = [];
@@ -87,11 +84,8 @@ export function toHitList(window: DOMWindow) {
     return hits;
 }
 
-export const process: HTMLDocumentProcessor = (window, version) => {
-    const promises: Promise<unknown>[] = [];
+export const process: HTMLDocumentProcessor = async (window, version) => {
     const resource = new ResourceURL(window.location.toString());
-    const fileData = toHitList(window);
-    promises.push(write(Entity.RESOURCE, resource.getID(), version, FileFormat.HITS, fileData));
-
-    return Promise.all(promises) as any;
+    const fileData = getHits(window);
+    await resource.writeVersion(version, FileFormat.HITS, fileData.toBuffer());
 }

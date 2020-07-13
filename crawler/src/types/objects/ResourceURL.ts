@@ -93,7 +93,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
     getDeps() {
         return [this.host, this.path, this.query];
     }
-    writeVersion(version: number, format: FileFormat, input: string | NodeJS.ReadableStream) {
+    writeVersion(version: number, format: FileFormat, input: string | Buffer | NodeJS.ReadableStream) {
         const id = this.getID();
         // Wait 60 seconds before attempting to compress the outer dir.
         renewRedis(REDIS_PARAMS.fileLock).setex(id.toString(), 15, STR_ONE);
@@ -108,5 +108,20 @@ export class ResourceURL extends DBObject<ResourceURL> {
     }
     fetchLock() {
         renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL(), 60, STR_ONE);
+    }
+    static async popForFetching(host: string) {
+        const url: string = await new Promise<any>((res, rej) =>
+            renewRedis(REDIS_PARAMS.fetchSchedule).zpopmax([host, 1], (err, reply) =>
+                err ? rej(err) : res(reply && reply.length !== 0 ? reply[0] : null)));
+        if (url) new ResourceURL(url).fetchLock();
+
+        return new ResourceURL(url);
+    }
+    static async popForProcessing() {
+        const url = await new Promise<string>((res, rej) =>
+            renewRedis(REDIS_PARAMS.processQueues).spop("html", async (err, url) => err ? rej(err) : res(url)));
+        if (!url) return null;
+
+        return new ResourceURL(url);
     }
 }

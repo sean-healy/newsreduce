@@ -38,6 +38,7 @@ export async function compress() {
         const entityIDs = fs.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         for (const entityID of entityIDs) {
             if (await isEntityLocked(entityID)) continue;
+            console.log(entityID);
             const entityDir = `${entitiesDir}/${entityID}`;
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`
             const arc = `${entityDir}.tar`

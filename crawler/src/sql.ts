@@ -49,12 +49,14 @@ export default {
 	INSERT_WIKI_CATEGORIES_IF_ABSENT: "insert ignore into WikiCategory(parent, child) values ?",
 	// /home/sean/newsreduce/sql/INSERT_WIKI_PAGES_IF_ABSENT.sql
 	INSERT_WIKI_PAGES_IF_ABSENT: "insert ignore into WikiPage(resource) values ?",
+	// /home/sean/newsreduce/sql/SELECT_FETCHED_URLS.sql
+	SELECT_FETCHED_URLS: "select concat(if(`ssl`, 'https://', 'http://'), h.name, p.value, if(q.value, concat(char(63), q.value), '')) from ResourceURL u inner join FetchedResource f on f.resource = u.id inner join ResourceURLPath p on p.id = u.path inner join ResourceURLQuery q on q.id = u.query inner join Host h on h.id = u.host where f.modified >= ?",
 	// /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
 	SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
 	// /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
 	SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
 	// /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY.sql
-	SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY: "select t.ssl, t.host, t.port, p.value as path, q.value as query from ( select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) union select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory c on c.child = r.id inner join WikiPage p on p.resource = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) limit 500) t inner join ResourceURLPath p on p.id = t.path inner join ResourceURLQuery q on q.id = t.query",
+	SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY: "select t.ssl, t.host, t.port, p.value as path, q.value as query from ( select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) union select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory c on c.child = r.id inner join WikiPage p on p.resource = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) ) t inner join ResourceURLPath p on p.id = t.path inner join ResourceURLQuery q on q.id = t.query",
 	// /home/sean/newsreduce/sql/SELECT_RESOURCE.sql
 	SELECT_RESOURCE: "select r.*, h.throttle, h.name as hostname from ResourceURL r inner join Host h on h.id = r.host where r.id = ?",
 	// /home/sean/newsreduce/sql/SELECT_TABLES.sql

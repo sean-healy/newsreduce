@@ -25,7 +25,7 @@ export class ResourceLinkHash extends DBObject<ResourceLinkHash> {
         return ["parent", "child", "hash"];
     }
     getInsertParams(): any[] {
-        return [this.link.parent.getID(), this.link.child.getID(), this.link, this.hash.getID()];
+        return [this.link.parent.getID(), this.link.child.getID(), this.hash.getID()];
     }
     table(): string {
         return "ResourceLinkHash";

@@ -13,16 +13,7 @@ export class ClientCookie extends DBObject<ClientCookie> {
     getInsertParams(): any[] {
         return [this.client.getID(), this.host.getID(), this.value];
     }
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
-    }
     table(): string {
         return "ClientCookie"
-    }
-    idCol(): string {
-        throw new Error("Method not implemented.");
     }
 }

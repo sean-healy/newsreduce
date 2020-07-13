@@ -5,6 +5,7 @@ export class ResourceHash extends DBObject<ResourceHash> {
 
     constructor(value?: string) {
         if (value) super({ value });
+        else super();
     }
 
     hashPrefix(): string {
