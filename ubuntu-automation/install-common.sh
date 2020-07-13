@@ -8,6 +8,7 @@ if [ ! -d /opt/newsreduce ]; then
     git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
 fi
 useradd newsreduce
+chsh newsreduce -s /usr/bin/bash
 mkdir -p /var/newsreduce
 usermod -d /var/newsreduce newsreduce
 debs=(
