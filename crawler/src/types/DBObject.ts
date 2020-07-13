@@ -55,6 +55,10 @@ export abstract class DBObject<T extends DBObject<T>> {
         await Promise.all(promises);
     }
     async bulkInsert(params: any[][]) {
+        if (!params) return;
+        const insertCols = this.insertCols().length;
+        params = params.filter(paramRow => paramRow.length === insertCols);
+        if (params.length === 0) return;
         const query = this.getInsertStatement();
         const client = await db();
         log(query);
@@ -72,7 +76,7 @@ export abstract class DBObject<T extends DBObject<T>> {
             }
         }
     }
-    enqueueInsert(options = {
+    async enqueueInsert(options = {
         recursive: false,
     }) {
         const promises = [];
@@ -89,7 +93,7 @@ export abstract class DBObject<T extends DBObject<T>> {
                 err ? rej(err) : res()) :
             renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload, err => err ? rej(err) : res())));
 
-        return Promise.all(promises);
+        await Promise.all(promises);
     }
     singularSelect(columns?: (keyof T | "*")[]) {
         return new Promise(async (res, rej) => {

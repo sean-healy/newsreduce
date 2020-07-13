@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">69.77% </span>
+                <span class="strong">64.52% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>60/86</span>
+                <span class='fraction'>60/93</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">58.82% </span>
+                <span class="strong">52.63% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>20/34</span>
+                <span class='fraction'>20/38</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70% </span>
+                <span class="strong">67.74% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>21/30</span>
+                <span class='fraction'>21/31</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70.89% </span>
+                <span class="strong">67.47% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>56/79</span>
+                <span class='fraction'>56/83</span>
             </div>
         
             
@@ -194,7 +194,11 @@
 <a name='L135'></a><a href='#L135'>135</a>
 <a name='L136'></a><a href='#L136'>136</a>
 <a name='L137'></a><a href='#L137'>137</a>
-<a name='L138'></a><a href='#L138'>138</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">7x</span>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
@@ -205,19 +209,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">488x</span>
-<span class="cline-any cline-yes">486x</span>
-<span class="cline-any cline-yes">486x</span>
-<span class="cline-any cline-yes">884x</span>
+<span class="cline-any cline-yes">18952x</span>
+<span class="cline-any cline-yes">18950x</span>
+<span class="cline-any cline-yes">18950x</span>
+<span class="cline-any cline-yes">37630x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1248x</span>
-<span class="cline-any cline-yes">1248x</span>
+<span class="cline-any cline-yes">1418x</span>
+<span class="cline-any cline-yes">1418x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1248x</span>
+<span class="cline-any cline-yes">1418x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">30x</span>
@@ -257,14 +261,18 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">676x</span>
+<span class="cline-any cline-yes">678x</span>
 <span class="cline-any cline-yes">338x</span>
-<span class="cline-any cline-yes">930x</span>
-<span class="cline-any cline-yes">930x</span>
+<span class="cline-any cline-yes">932x</span>
+<span class="cline-any cline-yes">932x</span>
 <span class="cline-any cline-yes">592x</span>
-<span class="cline-any cline-yes">338x</span>
+<span class="cline-any cline-yes">340x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -388,6 +396,10 @@ export abstract class DBObject&lt;T extends DBObject&lt;T&gt;&gt; {
         await Promise.all(promises);
     }
 <span class="fstat-no" title="function not covered" >    async </span>bulkInsert(params: any[][]) {
+<span class="cstat-no" title="statement not covered" >        if (!params) <span class="cstat-no" title="statement not covered" >return;</span></span>
+        const insertCols = <span class="cstat-no" title="statement not covered" >this.insertCols().length;</span>
+<span class="cstat-no" title="statement not covered" >        params = params.filter(<span class="fstat-no" title="function not covered" >paramRow </span>=&gt; <span class="cstat-no" title="statement not covered" >paramRow.length === insertCols)</span>;</span>
+<span class="cstat-no" title="statement not covered" >        if (params.length === 0) <span class="cstat-no" title="statement not covered" >return;</span></span>
         const query = <span class="cstat-no" title="statement not covered" >this.getInsertStatement();</span>
         const client = <span class="cstat-no" title="statement not covered" >await db();</span>
 <span class="cstat-no" title="statement not covered" >        log(query);</span>
@@ -405,7 +417,7 @@ export abstract class DBObject&lt;T extends DBObject&lt;T&gt;&gt; {
             }
         }
     }
-    enqueueInsert(options = <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
+    async enqueueInsert(options = <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
         recursive: false,
     }) {
         const promises = [];
@@ -422,7 +434,7 @@ export abstract class DBObject&lt;T extends DBObject&lt;T&gt;&gt; {
                 err ? <span class="branch-0 cbranch-no" title="branch not covered" >rej(err) </span>: res()) :
             renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload, err =&gt; err ? <span class="branch-0 cbranch-no" title="branch not covered" >rej(err) </span>: res())));
 &nbsp;
-        return Promise.all(promises);
+        await Promise.all(promises);
     }
 <span class="fstat-no" title="function not covered" >    singularSelect(</span>columns?: (keyof T | "*")[]) {
 <span class="cstat-no" title="statement not covered" >        return new Promise(<span class="fstat-no" title="function not covered" >async </span>(res, rej) =&gt; {</span>
@@ -475,7 +487,7 @@ export abstract class DBObject&lt;T extends DBObject&lt;T&gt;&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Fri Jul 10 2020 15:36:35 GMT+0200 (Central European Summer Time)
+                at Mon Jul 13 2020 16:41:07 GMT+0200 (Central European Summer Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

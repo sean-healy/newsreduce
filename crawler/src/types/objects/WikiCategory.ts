@@ -11,12 +11,6 @@ export class WikiCategory extends DBObject<WikiCategory> {
     getInsertParams(): any[] {
         return [this.parent.getID(), this.child.getID()];
     }
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
-    }
     table(): string {
         return "WikiCategory";
     }

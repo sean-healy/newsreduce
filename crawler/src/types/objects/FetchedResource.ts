@@ -6,6 +6,7 @@ export class FetchedResource extends DBObject<FetchedResource> {
     readonly resource: ResourceURL;
     readonly length: number;
     readonly type: HTTPHeaderValue;
+    readonly modified: number;
 
     constructor(url?: string, length?: number, type?: string) {
         if (url)
@@ -20,10 +21,10 @@ export class FetchedResource extends DBObject<FetchedResource> {
     }
 
     insertCols(): string[] {
-        return ["resource", "length", "type"]
+        return ["resource", "length", "type", "modified"]
     }
     getInsertParams(): any[] {
-        return [this.resource.getID(), this.length, this.type.getID()];
+        return [this.resource.getID(), this.length, this.type.getID(), this.modified ? this.modified : Date.now()];
     }
     table(): string {
         return "FetchedResource";

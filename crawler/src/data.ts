@@ -1,12 +1,12 @@
-import { log } from "./common/logging";
-import sql from "./sql";
-import { milliTimestamp } from "./common/time";
-import { db, renewRedis, REDIS_PARAMS, RedisParamsValueType } from "./common/connections";
-import { thenDebug } from "./common/functional";
+import { log } from "common/logging";
+import sql from "sql";
+import { milliTimestamp } from "common/time";
+import { db, renewRedis, REDIS_PARAMS, RedisParamsValueType } from "common/connections";
+import { thenDebug } from "common/functional";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { STR_ONE } from "common/util";
 
-function genericSQLPromise<From, To>(query: string, params: any[], mapper?: (v: From) => To) {
+function genericSQLPromise<From, To>(query: string, params: any[] = [], mapper?: (v: From) => To) {
     return new Promise<To>(async (res, rej) => {
         const filledQuery = (await db()).query(query, params, (err, response) => {
             if (err) {
@@ -21,24 +21,6 @@ function genericSQLPromise<From, To>(query: string, params: any[], mapper?: (v: 
     });
 }
 
-export function processWikiCategories(relations: [bigint, bigint][]) {
-    if (relations.length === 0) return;
-    const query = sql.INSERT_WIKI_CATEGORIES_IF_ABSENT;
-    const params = [relations];
-    return genericSQLPromise(query, params);
-}
-
-export function deleteLegacyWikiCategories(parent: bigint, newChildren: bigint[]) {
-    const query = sql.DELETE_WIKI_CATEGORIES_FOR_PARENTS;
-    return genericSQLPromise(query, [parent, newChildren]);
-}
-export function processWikiPages(resourceIDs: bigint[]) {
-    if (resourceIDs.length === 0) return;
-    const query = sql.INSERT_WIKI_PAGES_IF_ABSENT;
-    const params = [resourceIDs.map(id => [id])];
-    return genericSQLPromise(query, params);
-}
-
 export function selectPreSchedule() {
     const time = milliTimestamp();
     const query = sql.SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY;
@@ -49,13 +31,18 @@ export function selectPreSchedule() {
 }
 export async function schedule(urls: string[]) {
     const promises = [];
+    let scheduled = 0;
     for (const url of urls) {
         const resourceURL = new ResourceURL(url);
-        if (!await resourceURL.fetchLocked())
+        if (!await resourceURL.fetchLocked()) {
             promises.push(new Promise((res, rej) =>
                 renewRedis(REDIS_PARAMS.fetchSchedule).zincrby(resourceURL.host.name, 1, url, err =>
                     err ? rej(err) : res())));
+            ++scheduled;
+        }
     }
+
+    console.log(`Scheduled ${scheduled} URLs.`);
 
     await Promise.all(promises);
 }
@@ -81,11 +68,6 @@ export function throttle(host: string, ms: number) {
     renewRedis(REDIS_PARAMS.throttle).set(host, STR_ONE, "PX", ms, thenDebug);
 }
 
-export async function popURL(host: string) {
-    const url: string = await new Promise<any>((res, rej) =>
-        renewRedis(REDIS_PARAMS.fetchSchedule).zpopmax([host, 1], (err, reply) =>
-            err ? rej(err) : res(reply && reply.length !== 0 ? reply[0] : null)));
-    if (url) new ResourceURL(url).fetchLock();
-
-    return url;
+export function selectFetchedURLs(after: number) {
+    return genericSQLPromise<{ [key: string]: string }[], string[]>(sql.SELECT_FETCHED_URLS, [after], rows => rows.map(row => Object.values(row)[0]));
 }

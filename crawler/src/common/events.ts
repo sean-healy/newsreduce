@@ -11,3 +11,5 @@ export const FETCH_COMPLETE = "fetch-complete";
 export const COMPRESS_COMPLETE = "compress-complete";
 export const DELETE_FILE = "delete-file";
 export const UNLOCK_FILE = "unlock-file";
+
+export const BULK_INSERT_COMPLETE = "bulk-insert-complete";

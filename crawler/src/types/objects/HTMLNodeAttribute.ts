@@ -12,12 +12,6 @@ export class HTMLNodeAttribute extends DBObject<HTMLNodeAttribute> {
     getInsertParams(): any[] {
         return [this.node.getID(), this.attribute.getID()];
     }
-    hashPrefix(): string {
-        throw new Error("Method not implemented.");
-    }
-    hashSuffix(): string {
-        throw new Error("Method not implemented.");
-    }
     table(): string {
         return "HTMLNodeAttribute";
     }
