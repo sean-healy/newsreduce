@@ -1,7 +1,7 @@
-import { newRedis } from "../../common/connections";
-import { myIP } from "../../common/config";
-import { NET_AGENT_LOG, DELETE_FILE } from "../../common/events";
-import { deleteIfChecksumMatches } from "../../common/fs";
+import { newRedis } from "common/connections";
+import { myIP } from "common/config";
+import { NET_AGENT_LOG, DELETE_FILE } from "common/events";
+import { deleteIfChecksumMatches } from "common/fs";
 
 async function watch() {
     const ip = await myIP();

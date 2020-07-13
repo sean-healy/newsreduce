@@ -200,49 +200,87 @@ async function myIP() {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+// ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
-/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48);
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
 
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __webpack_require__(3);
+var external_fs_default = /*#__PURE__*/__webpack_require__.n(external_fs_);
+
+// EXTERNAL MODULE: ./dist/src/common/logging.js
+var logging = __webpack_require__(2);
+
+// EXTERNAL MODULE: external "dns"
+var external_dns_ = __webpack_require__(48);
+var external_dns_default = /*#__PURE__*/__webpack_require__.n(external_dns_);
+
+// EXTERNAL MODULE: external "express"
+var external_express_ = __webpack_require__(47);
+var external_express_default = /*#__PURE__*/__webpack_require__.n(external_express_);
+
+// CONCATENATED MODULE: ./dist/src/services/net-agent/functions.js
+
+
+
+async function getGuestlist() {
+    const hostsContent = external_fs_default.a.readFileSync("/var/newsreduce/network");
+    const hosts = hostsContent.toString().split(/\n/g).filter(host => host).concat(["127.0.0.1"]);
+    const guestlist = new Set(await Promise.all(hosts.map(host => new Promise((res, rej) => external_dns_default.a.lookup(host, (err, address, family) => {
+        if (err) {
+            console.debug(err);
+            rej(err);
+        }
+        else {
+            if (family === 4)
+                address = `::ffff:${address}`;
+            res(address);
+        }
+    })))));
+    return guestlist;
+}
+let GUESTLIST = null;
+async function cacheGuestlist() {
+    if (!GUESTLIST)
+        GUESTLIST = await getGuestlist();
+    return GUESTLIST;
+}
+async function newFilteredServer() {
+    const whitelist = await cacheGuestlist();
+    const app = external_express_default()();
+    app.use((req, res, next) => {
+        if (whitelist.has(req.ip))
+            next();
+        else
+            res.sendStatus(401);
+    });
+    return app;
+}
+
+// CONCATENATED MODULE: ./dist/src/services/net-agent/for-main.js
 
 
 
 const PORT = 9999;
-const hostsContent = fs__WEBPACK_IMPORTED_MODULE_1___default.a.readFileSync("/var/newsreduce/network");
-const hosts = hostsContent.toString().split(/\n/g).filter(host => host).concat(["127.0.0.1"]);
-const whitelist = new Set();
-hosts.forEach(host => dns__WEBPACK_IMPORTED_MODULE_2___default.a.lookup(host, (err, address, family) => {
-    if (err)
-        console.debug(err);
-    else {
-        if (family === 4)
-            address = `::ffff:${address}`;
-        whitelist.add(address);
-    }
-}));
-function serve() {
-    const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
-    app.use((req, res, next) => {
-        if (whitelist.has(req.ip))
-            next();
-        else {
-            res.sendStatus(401);
-        }
-    });
+async function serve() {
+    const app = await newFilteredServer();
     app.get("", (req, res) => {
-        Object(_common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`Request for parameters from ${req.ip}.`);
+        Object(logging["a" /* log */])(`Request for parameters from ${req.ip}.`);
         res.send({
-            sql: fs__WEBPACK_IMPORTED_MODULE_1___default.a.readFileSync("/var/newsreduce/sql_password").toString().replace(/\n$/g, ""),
+            sql: external_fs_default.a.readFileSync("/var/newsreduce/sql_password").toString().replace(/\n$/g, ""),
         });
     });
     app.get("/net", (req, res) => {
-        Object(_common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`Request for network info from ${req.ip}.`);
-        res.send(hostsContent);
+        Object(logging["a" /* log */])(`Request for network info from ${req.ip}.`);
+        res.send(external_fs_default.a.readFileSync("/var/newsreduce/network"));
+    });
+    app.get("/ip", (req, res) => {
+        Object(logging["a" /* log */])(`Request ip info for ${req.ip}.`);
+        res.send(req.ip);
+    });
+    app.get("/public-key", (req, res) => {
+        Object(logging["a" /* log */])(`Request SSH public key info for ${req.ip}.`);
+        res.send(external_fs_default.a.readFileSync("/var/newsreduce/.ssh/id_rsa.pub"));
+        res.send(req.ip);
     });
     app.listen(PORT, () => console.log(`Main net agent running on port ${PORT} `));
 }
