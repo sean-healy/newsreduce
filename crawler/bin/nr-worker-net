@@ -713,8 +713,8 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FETCHER_BIRTH_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_DEATH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return NET_AGENT_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SCHEDULE_COMPLETE; });
+/* unused harmony export NET_AGENT_LOG */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return HTML_PROCESS_COMPLETE; });
 /* unused harmony export WIKI_PROCESS_COMPLETE */
@@ -1539,8 +1539,8 @@ __webpack_require__.r(__webpack_exports__);
 async function watch() {
     const ip = await Object(common_config__WEBPACK_IMPORTED_MODULE_1__[/* myIP */ "d"])();
     const client = Object(common_connections__WEBPACK_IMPORTED_MODULE_0__[/* newRedis */ "c"])(ip);
-    client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_LOG */ "l"]);
-    console.log("Subscribed to channel:", common_events__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_LOG */ "l"]);
+    client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* DELETE_FILES */ "e"]);
+    console.log("Subscribed to channel:", common_events__WEBPACK_IMPORTED_MODULE_2__[/* DELETE_FILES */ "e"]);
     client.on(common_events__WEBPACK_IMPORTED_MODULE_2__[/* DELETE_FILES */ "e"], (_, msg) => {
         const lines = msg.split("\n").map(line => line.split("\t", 2));
         console.log(lines);

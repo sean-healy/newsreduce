@@ -713,8 +713,8 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FETCHER_BIRTH_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_DEATH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return NET_AGENT_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SCHEDULE_COMPLETE; });
+/* unused harmony export NET_AGENT_LOG */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return HTML_PROCESS_COMPLETE; });
 /* unused harmony export WIKI_PROCESS_COMPLETE */
@@ -2091,7 +2091,7 @@ async function findAndSchedule() {
     const urls = await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* selectPreSchedule */ "e"])();
     await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* schedule */ "c"])(urls);
 }
-Object(common_processor__WEBPACK_IMPORTED_MODULE_2__[/* startProcessor */ "a"])(findAndSchedule, new Set([common_events__WEBPACK_IMPORTED_MODULE_1__[/* COLD_START_COMPLETE */ "b"]]), common_events__WEBPACK_IMPORTED_MODULE_1__[/* SCHEDULE_COMPLETE */ "m"]);
+Object(common_processor__WEBPACK_IMPORTED_MODULE_2__[/* startProcessor */ "a"])(findAndSchedule, new Set([common_events__WEBPACK_IMPORTED_MODULE_1__[/* COLD_START_COMPLETE */ "b"]]), common_events__WEBPACK_IMPORTED_MODULE_1__[/* SCHEDULE_COMPLETE */ "l"]);
 
 
 /***/ })
