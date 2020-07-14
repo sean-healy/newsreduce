@@ -99,5 +99,9 @@ for host in $(cat /var/newsreduce/network); do
 done
 echo COMMIT) | iptables-restore
 awk -f redis.conf.awk /etc/redis/redis.conf > /etc/redis/redis.conf.tmp
-mv /etc/redis/redis.conf.tmp /etc/redis/redis.conf
+awk -f sudoers.awk /etc/sudoers > /etc/sudoers.tmp
+cat /etc/sudoers.tmp > /etc/sudoers
+cat /etc/redis/redis.conf.tmp > /etc/redis/redis.conf
+rm /etc/redis/redis.conf
+rm /etc/sudoers.tmp
 systemctl restart redis

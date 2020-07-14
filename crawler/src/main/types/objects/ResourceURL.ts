@@ -99,7 +99,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
     }
     writeVersion(version: number, format: FileFormat, input: string | Buffer | NodeJS.ReadableStream) {
         const id = this.getID();
-        // Wait 60 seconds before attempting to compress the outer dir.
+        // Wait 15 seconds before attempting to compress the outer dir.
         renewRedis(REDIS_PARAMS.fileLock).setex(id.toString(), 15, STR_ONE);
         log("Writing", FileFormat[format]);
 

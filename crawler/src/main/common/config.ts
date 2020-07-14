@@ -5,6 +5,7 @@ import path from "path";
 import fetch from "node-fetch";
 
 export const TAR = "tar";
+export const FIND = "find";
 
 export async function varDirPromise() {
     const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";

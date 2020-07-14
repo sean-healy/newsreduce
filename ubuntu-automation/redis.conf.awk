@@ -8,7 +8,6 @@ BEGIN {
 }
 {
 	print $0
-	prev = $0
 }
 END {
 	if (bound == 0) {
