@@ -1,0 +1,2 @@
+#!/bin/sh
+file-roller /var/newsreduce/blobs/resource/$1.tzst

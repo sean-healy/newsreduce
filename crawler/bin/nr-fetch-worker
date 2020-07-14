@@ -713,8 +713,8 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FETCHER_BIRTH_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_DEATH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return NET_AGENT_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SCHEDULE_COMPLETE; });
+/* unused harmony export NET_AGENT_LOG */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return HTML_PROCESS_COMPLETE; });
 /* unused harmony export WIKI_PROCESS_COMPLETE */
@@ -2228,7 +2228,7 @@ async function pollAndFetch(lo, hi) {
 
 
 
-start(pollAndFetch, events["g" /* FETCHER_BIRTH_LOG */], events["h" /* FETCHER_DEATH_LOG */], new Set(events["m" /* SCHEDULE_COMPLETE */]), events["i" /* FETCH_COMPLETE */]);
+start(pollAndFetch, events["g" /* FETCHER_BIRTH_LOG */], events["h" /* FETCHER_DEATH_LOG */], new Set(events["l" /* SCHEDULE_COMPLETE */]), events["i" /* FETCH_COMPLETE */]);
 
 
 /***/ })
