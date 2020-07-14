@@ -7,7 +7,7 @@ async function watch() {
     const client = newRedis(ip);
     client.subscribe(DELETE_FILES);
     console.log("Subscribed to channel:", DELETE_FILES);
-    client.on(DELETE_FILES, (_, msg: string) => {
+    client.on("message", (_, msg: string) => {
         const lines = msg.split("\n").map(line => line.split("\t", 2));
         console.log(lines);
     });
