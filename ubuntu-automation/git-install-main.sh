@@ -38,3 +38,15 @@ echo "set session sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERR
 chown -R newsreduce:newsreduce /var/newsreduce
 apt -y autoremove
 ln -sf /opt/newsreduce/ubuntu-automation/install-main.sh /usr/bin/nr-update
+cat > /usr/bin/nr-net-agent << END
+#!/usr/bin/bash
+if [ "\$USER" != newsreduce ]; then
+	sudo -u newsreduce \$0 \$@
+	exit
+fi
+(cd /opt/newsreduce/crawler\
+	&& git pull\
+	&& npm i\
+	&& npx node bin/nr-main-net)
+END
+chmod 755 /usr/bin/nr-net-agent
