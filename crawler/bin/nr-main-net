@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 50);
+/******/ 	return __webpack_require__(__webpack_require__.s = 53);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -113,17 +113,24 @@ module.exports = require("fs");
 
 /***/ }),
 
+/***/ 30:
+/***/ (function(module, exports) {
+
+module.exports = require("node-fetch");
+
+/***/ }),
+
 /***/ 47:
 /***/ (function(module, exports) {
 
-module.exports = require("express");
+module.exports = require("dns");
 
 /***/ }),
 
 /***/ 48:
 /***/ (function(module, exports) {
 
-module.exports = require("dns");
+module.exports = require("express");
 
 /***/ }),
 
@@ -146,7 +153,10 @@ module.exports = require("dns");
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
 let ENV = ["prod"];
+
 
 
 const TAR = "tar";
@@ -188,15 +198,15 @@ async function nullFilePromise(path) {
     const safePath = path.replace(/[\/.]/g, "_");
     return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
 }
-// TODO: fixme
 async function myIP() {
-    return '127.0.0.1';
+    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://seanh.sh:9999/ip").then(response => response.text());
+    return ip;
 }
 
 
 /***/ }),
 
-/***/ 50:
+/***/ 53:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -207,18 +217,18 @@ __webpack_require__.r(__webpack_exports__);
 var external_fs_ = __webpack_require__(3);
 var external_fs_default = /*#__PURE__*/__webpack_require__.n(external_fs_);
 
-// EXTERNAL MODULE: ./dist/src/common/logging.js
+// EXTERNAL MODULE: ./dist/main/common/logging.js
 var logging = __webpack_require__(2);
 
 // EXTERNAL MODULE: external "dns"
-var external_dns_ = __webpack_require__(48);
+var external_dns_ = __webpack_require__(47);
 var external_dns_default = /*#__PURE__*/__webpack_require__.n(external_dns_);
 
 // EXTERNAL MODULE: external "express"
-var external_express_ = __webpack_require__(47);
+var external_express_ = __webpack_require__(48);
 var external_express_default = /*#__PURE__*/__webpack_require__.n(external_express_);
 
-// CONCATENATED MODULE: ./dist/src/services/net-agent/functions.js
+// CONCATENATED MODULE: ./dist/main/services/net-agent/functions.js
 
 
 
@@ -256,7 +266,7 @@ async function newFilteredServer() {
     return app;
 }
 
-// CONCATENATED MODULE: ./dist/src/services/net-agent/for-main.js
+// CONCATENATED MODULE: ./dist/main/services/net-agent/for-main.js
 
 
 
