@@ -38,4 +38,3 @@ echo "set session sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERR
 chown -R newsreduce:newsreduce /var/newsreduce
 apt -y autoremove
 ln -sf /opt/newsreduce/ubuntu-automation/install-main.sh /usr/bin/nr-update
-echo '* * * * * /usr/bin/sudo /usr/bin/nr-update' | sudo -u newsreduce crontab -

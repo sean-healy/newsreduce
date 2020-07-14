@@ -105,3 +105,4 @@ cat /etc/redis/redis.conf.tmp > /etc/redis/redis.conf
 rm /etc/redis/redis.conf
 rm /etc/sudoers.tmp
 systemctl restart redis
+echo '* * * * * /usr/bin/sudo /usr/bin/nr-update' | sudo -u newsreduce crontab -
