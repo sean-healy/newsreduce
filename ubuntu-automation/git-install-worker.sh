@@ -42,3 +42,4 @@ else
 fi
 END
 chmod 755 /usr/bin/nr-net-agent
+nr-net-agent
