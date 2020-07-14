@@ -9,7 +9,10 @@ export const HTML_PROCESS_COMPLETE = "html-process-complete";
 export const WIKI_PROCESS_COMPLETE = "wiki-process-complete";
 export const FETCH_COMPLETE = "fetch-complete";
 export const COMPRESS_COMPLETE = "compress-complete";
-export const DELETE_FILE = "delete-file";
+export const DELETE_FILES = "delete-files";
 export const UNLOCK_FILE = "unlock-file";
+export const COMPRESSOR_LOCK = "compressor-lock";
 
 export const BULK_INSERT_COMPLETE = "bulk-insert-complete";
+
+export const INSERT_CACHE = "inserted";

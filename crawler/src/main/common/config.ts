@@ -2,6 +2,7 @@ export let ENV: ["prod" | "test"] = ["prod"];
 
 import fs from "fs";
 import path from "path";
+import fetch from "node-fetch";
 
 export const TAR = "tar";
 
@@ -44,7 +45,8 @@ export async function nullFilePromise(path: string) {
     const safePath = path.replace(/[\/.]/g, "_");
     return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
 }
-// TODO: fixme
 export async function myIP() {
-    return '127.0.0.1';
+    const ip = await fetch("http://seanh.sh:9999/ip").then(response => response.text());
+
+    return ip;
 }

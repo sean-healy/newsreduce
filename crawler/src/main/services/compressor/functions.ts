@@ -1,9 +1,11 @@
 import fs from "fs";
-import { tmpDirPromise, TAR, nullFilePromise } from "common/config";
+import path from "path";
+import { tmpDirPromise, TAR, nullFilePromise, safeMkdir } from "common/config";
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { log } from "common/logging";
 import { renewRedis, REDIS_PARAMS } from "common/connections";
 import { STR_ONE } from "common/util";
+import { COMPRESSOR_LOCK } from "common/events";
 
 const ZSTD = "zstd";
 const MV = "mv";
@@ -30,16 +32,19 @@ export function isEntityLocked(entityID: string) {
 }
 
 export async function compress() {
+    const locked = await new Promise<boolean>((res, rej) =>
+        renewRedis(REDIS_PARAMS.general).get(COMPRESSOR_LOCK, (err, reply) => err ? rej(err) : res(reply === STR_ONE)));
+    if (locked) return;
     const tmpDir = await tmpDirPromise();
     const entities = fs.readdirSync(tmpDir);
     const promises: Promise<void>[] = [];
     for (const entity of entities) {
-        const entitiesDir = `${tmpDir}/${entity}`;
+        const entitiesDir = path.join(tmpDir, entity);
         const entityIDs = fs.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         for (const entityID of entityIDs) {
             if (await isEntityLocked(entityID)) continue;
             console.log(entityID);
-            const entityDir = `${entitiesDir}/${entityID}`;
+            const entityDir = path.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`
             const arc = `${entityDir}.tar`
             const compressedArcExists = fs.existsSync(compressedArc);
@@ -52,6 +57,7 @@ export async function compress() {
                     [MV, undefined, [entityDir, await nullFilePromise(entityDir)]],
                 ], res, rej)));
             } else {
+                await safeMkdir(path.dirname(compressedArc));
                 promises.push(new Promise<void>(async (res, rej) => spawnSeq([
                     [TAR, entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
                     [MV, undefined, [entityDir, await nullFilePromise(entityDir)]],

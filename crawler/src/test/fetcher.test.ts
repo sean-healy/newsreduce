@@ -5,6 +5,7 @@ import { ResourceURL } from "types/objects/ResourceURL";
 import { renewRedis, REDIS_PARAMS } from "common/connections";
 import { STR_ONE } from "common/util";
 
+/*
 test("crawl allowed should work", async () => {
     let allowed = (await crawlAllowed("fakeurl.fake"));
     expect(allowed).toBe(true);
@@ -23,12 +24,12 @@ test("crawl allowed should work", async () => {
     });
     expect(allowed).toBe(true);
 });
-
+*/
 test("fetch and write should work", async () => {
     const url = "https://en.wikipedia.org/wiki/Main_Page";
     await fetchAndWrite(url);
 });
-
+/*
 test("poll and fetch should work", async () => {
     const url = "https://en.wikipedia.org/wiki/COVID-19_pandemic";
     await new Promise(res => renewRedis(REDIS_PARAMS.fetchLock).del(url, () => res()));
@@ -44,3 +45,5 @@ test("poll and fetch should work", async () => {
             err ? rej(err) : res(response === STR_ONE)));
     expect(locked).toBe(true);
 });
+
+*/

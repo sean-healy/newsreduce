@@ -123,7 +123,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
     }
     static async popForProcessing() {
         const url = await new Promise<string>((res, rej) =>
-            renewRedis(REDIS_PARAMS.processQueues).spop("html", async (err, url) => err ? rej(err) : res(url)));
+            renewRedis(REDIS_PARAMS.general).spop("html", async (err, url) => err ? rej(err) : res(url)));
         if (!url) return null;
 
         return new ResourceURL(url);
