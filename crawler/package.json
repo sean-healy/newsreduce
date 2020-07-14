@@ -4,7 +4,7 @@
   "description": "Crawl a small subset of the web for news data.",
   "main": "index.js",
   "scripts": {
-    "test": "jest --coverage --watchAll --forceExit",
+    "test": "jest --coverage --forceExit",
     "tsc": "tsc",
     "webpack": "webpack --config webpack.config.js",
     "watch-test": "jest --coverage --watchAll --forceExit",

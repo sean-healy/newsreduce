@@ -12,14 +12,13 @@
             "dom",
             "es2020"
         ],
-        "baseUrl": "src",
+        "baseUrl": "src/main",
         "paths": {
             ".": [""]
         },
         "target": "es2020"
 	},
     "include": [
-        "test/**.ts",
         "src/**.ts",
         "src/**/**.ts"
     ]
