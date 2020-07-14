@@ -3,12 +3,12 @@ const fs = require('fs');
 const nodeExternals = require('webpack-node-externals');
 
 const alias = {};
-const files = fs.readdirSync(path.join(__dirname, "dist/src"));
+const files = fs.readdirSync(path.join(__dirname, "dist/main"));
 const basenames = files
 	.filter(file => !file.match(/\.ts$/))
 	.map(file => file.replace(/\..*$/, ""));
 basenames.forEach(basename => {
-	alias[basename] = path.join(__dirname, `dist/src/${basename}`);
+	alias[basename] = path.join(__dirname, `dist/main/${basename}`);
 });
 console.log(alias);
 
@@ -16,15 +16,15 @@ module.exports = {
   target: 'node',
   mode: 'production',
   entry: {
-      'fetch-worker':    './dist/src/services/fetcher/worker.js',
-      'fetch-zookeeper': './dist/src/services/fetcher/zookeeper.js',
-      'html-process':    './dist/src/services/html-processor/main.js',
-      'schedule':        './dist/src/services/scheduler.js',
-      'main-net':        './dist/src/services/net-agent/for-main.js',
-      'worker-net':      './dist/src/services/net-agent/for-worker.js',
-      'cold-start':      './dist/src/services/cold-start/main.js',
-      'inserter':        './dist/src/services/inserter/main.js',
-      'compressor':      './dist/src/services/compressor/main.js',
+      'fetch-worker':    './dist/main/services/fetcher/worker.js',
+      'fetch-zookeeper': './dist/main/services/fetcher/zookeeper.js',
+      'html-process':    './dist/main/services/html-processor/main.js',
+      'schedule':        './dist/main/services/scheduler.js',
+      'main-net':        './dist/main/services/net-agent/for-main.js',
+      'worker-net':      './dist/main/services/net-agent/for-worker.js',
+      'cold-start':      './dist/main/services/cold-start/main.js',
+      'inserter':        './dist/main/services/inserter/main.js',
+      'compressor':      './dist/main/services/compressor/main.js',
   },
   externals: [
       //"jsdom",

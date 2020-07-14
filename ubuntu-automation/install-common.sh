@@ -98,3 +98,6 @@ for host in $(cat /var/newsreduce/network); do
     echo "-A OUTPUT -p tcp -m tcp --sport 9999 --dst $ip -m conntrack --ctstate ESTABLISHED -j ACCEPT"
 done
 echo COMMIT) | iptables-restore
+awk -f redis.conf.awk /etc/redis/redis.conf > /etc/redis/redis.conf.tmp
+mv /etc/redis/redis.conf.tmp /etc/redis/redis.conf
+systemctl restart redis
