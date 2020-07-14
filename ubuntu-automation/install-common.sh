@@ -141,7 +141,7 @@ awk -f redis.conf.awk /etc/redis/redis.conf > /etc/redis/redis.conf.tmp
 awk -f sudoers.awk /etc/sudoers > /etc/sudoers.tmp
 cat /etc/sudoers.tmp > /etc/sudoers
 cat /etc/redis/redis.conf.tmp > /etc/redis/redis.conf
-rm /etc/redis/redis.conf
+rm /etc/redis/redis.conf.tmp
 rm /etc/sudoers.tmp
 systemctl restart redis
 echo '* * * * * /usr/bin/sudo /usr/bin/nr-update' | sudo -u newsreduce crontab -
