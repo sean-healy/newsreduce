@@ -28,3 +28,4 @@ apt-get update
 apt-get -y install ${debs[*]}
 apt -y autoremove
 chown -R newsreduce:newsreduce /var/newsreduce
+ln -sf /opt/newsreduce/ubuntu-automation/install-worker.sh /usr/bin/nr-update

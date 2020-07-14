@@ -139,16 +139,17 @@ module.exports = require("express");
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return TAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return TAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FIND; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return varDirPromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return safetyFilePromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return safeMkdir; });
 /* unused harmony export varDirChildPromise */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return tmpDirPromise; });
 /* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return blobDirPromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return nullFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return myIP; });
+/* unused harmony export myIP */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
@@ -160,6 +161,7 @@ let ENV = ["prod"];
 
 
 const TAR = "tar";
+const FIND = "find";
 async function varDirPromise() {
     const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
     await safeMkdir(varDir);

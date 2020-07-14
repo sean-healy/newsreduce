@@ -556,7 +556,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     }
     writeVersion(version, format, input) {
         const id = this.getID();
-        // Wait 60 seconds before attempting to compress the outer dir.
+        // Wait 15 seconds before attempting to compress the outer dir.
         Object(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* renewRedis */ "d"])(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fileLock).setex(id.toString(), 15, common_util__WEBPACK_IMPORTED_MODULE_9__[/* STR_ONE */ "b"]);
         Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("Writing", types_FileFormat__WEBPACK_IMPORTED_MODULE_6__[/* FileFormat */ "a"][format]);
         return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "c"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
@@ -588,16 +588,17 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return TAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return TAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FIND; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return varDirPromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return safetyFilePromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return safeMkdir; });
 /* unused harmony export varDirChildPromise */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return tmpDirPromise; });
 /* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return blobDirPromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return nullFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return myIP; });
+/* unused harmony export myIP */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
@@ -609,6 +610,7 @@ let ENV = ["prod"];
 
 
 const TAR = "tar";
+const FIND = "find";
 async function varDirPromise() {
     const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
     await safeMkdir(varDir);
@@ -1208,7 +1210,7 @@ const TAR_LS_PARAMS = "-atf";
 const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
 const TAR_CAT_PARAMS_AFTER_FILE = "-O";
 async function entityIDs(entity) {
-    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "c"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity));
+    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "d"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity));
     const files = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readdirSync(entityDir);
     return files
         .map(file => file.match(/^([0-9]+)\.tzst$/))
@@ -1269,7 +1271,7 @@ const sortVersions = (versions) => versions.sort((v1, v2) => {
     return vFormat1 - vFormat2;
 });
 async function getVersions(entity, entityID) {
-    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "c"])();
+    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "d"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
         return [];
@@ -1277,7 +1279,7 @@ async function getVersions(entity, entityID) {
     const versions = [];
     const err = [];
     return await new Promise(async (res, rej) => {
-        const tarLS = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "b"], params);
+        const tarLS = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "c"], params);
         tarLS.on("error", err => rej(err));
         tarLS.stdout.on("data", (data) => {
             for (const version of data
@@ -1294,11 +1296,11 @@ async function getVersions(entity, entityID) {
     });
 }
 async function read(entity, entityID, version, format) {
-    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "c"])();
+    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "d"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}`, Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format));
     return await new Promise((res, rej) => {
-        const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "b"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
+        const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "c"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
         const allData = [];
         tarCat.stdout.on("data", (data) => allData.push(data));
         const errData = [];
