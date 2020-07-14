@@ -62,15 +62,16 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
             const host = new Host({ name: hostname });
             const id = host.getID();
             if (id >= lo() && id < hi()) {
-                log(`Host within range(${lo()} -- > ${hi()}: ${host}`);
-                if (await crawlAllowed(hostname)) {
+                log(`Host within range(${lo()} -- > ${hi()}: ${host.name}`);
+                const allowed = await crawlAllowed(hostname);
+                if (allowed) {
                     const resourceURL = await ResourceURL.popForFetching(hostname);
                     if (resourceURL) {
                         const url = resourceURL.toURL();
-                        console.log(url);
                         throttle(hostname, throttles[hostname]);
                         await fetchAndWrite(url);
-                        renewRedis(REDIS_PARAMS.processQueues).sadd("html", url)
+                        console.log(url);
+                        renewRedis(REDIS_PARAMS.general).sadd("html", url)
                         fetched.add(url);
                     }
                 }

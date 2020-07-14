@@ -4,4 +4,5 @@ import { db } from "common/connections";
 insertColdStartObjects().then(async () => {
     console.log("Done.");
     (await db()).destroy();
+    process.exit(0);
 });

@@ -3,6 +3,8 @@ import { bytesToBigInt } from "common/util";
 import { db, renewRedis, REDIS_PARAMS } from "common/connections";
 import { log } from "common/logging";
 import { Query } from "mysql";
+import { INSERT_CACHE } from "common/events";
+import { ResourceHeader } from "./objects/ResourceHeader";
 
 export abstract class DBObject<T extends DBObject<T>> {
     abstract getInsertParams(): any[];
@@ -21,7 +23,9 @@ export abstract class DBObject<T extends DBObject<T>> {
         return prefix ? defaultHash(prefix, this.hashSuffix()) : null;
     }
     getID() {
-        return bytesToBigInt(this.getIDBytes());
+        const idBytes = this.getIDBytes();
+
+        return idBytes ? bytesToBigInt(idBytes) : null;
     }
     getInsertStatement(): string {
         const cols = this.insertCols().map(col => "`" + col + "`").join(", ");
@@ -47,7 +51,12 @@ export abstract class DBObject<T extends DBObject<T>> {
                 if (err) {
                     log(err);
                     rej(err);
-                } else res();
+                } else {
+                    res();
+                    const id = this.getID();
+                    if (id)
+                        renewRedis(REDIS_PARAMS.general).sadd(INSERT_CACHE, id.toString());
+                }
             });
             log(filledQuery.sql);
         }));
@@ -88,10 +97,20 @@ export abstract class DBObject<T extends DBObject<T>> {
         DBObject.stringifyBigIntsInPlace(insertParams);
         const payload = JSON.stringify(insertParams);
         const id = this.getID();
-        promises.push(new Promise<void>((res, rej) => id ?
-            renewRedis(REDIS_PARAMS.inserts).hset(this.table(), this.getID().toString(), payload, err =>
-                err ? rej(err) : res()) :
-            renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload, err => err ? rej(err) : res())));
+        promises.push(new Promise<void>((res, rej) => {
+            if (id) {
+                const idStr = id.toString();
+                renewRedis(REDIS_PARAMS.general).sismember(INSERT_CACHE, idStr, (err, exists) => {
+                    if (err) rej(err);
+                    else if (!exists)
+                        renewRedis(REDIS_PARAMS.inserts).hset(this.table(), idStr, payload, err =>
+                            err ? rej(err) : res())
+                    else res();
+                });
+            } else {
+                renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload, err => err ? rej(err) : res());
+            }
+        }));
 
         await Promise.all(promises);
     }

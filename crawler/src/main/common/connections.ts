@@ -31,7 +31,7 @@ export const REDIS_PARAMS = {
         port: DEFAULT_REDIS_PORT,
         db: 1,
     } as RedisParamsValueType,
-    processQueues: {
+    general: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
         db: 2,

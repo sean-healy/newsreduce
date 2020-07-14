@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { blobDirPromise, tmpDirPromise, TAR, safeMkdir } from "./common/config";
-import { log } from "./common/logging";
 import { spawn } from "child_process";
-import { FileFormat, formatToFileName, fileNameToFormat } from "./types/FileFormat";
-import { Entity, entityName } from "./types/Entity";
+import { blobDirPromise, tmpDirPromise, TAR, safeMkdir } from "common/config";
+import { log } from "common/logging";
+import { FileFormat, formatToFileName, fileNameToFormat } from "types/FileFormat";
+import { Entity, entityName } from "types/Entity";
 
 const FINISH = "finish";
 const ERROR = "error";

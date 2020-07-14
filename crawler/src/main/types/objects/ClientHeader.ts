@@ -6,10 +6,10 @@ export class ClientHeader extends DBObject<ClientHeader> {
     readonly client: Client;
     readonly header: HTTPHeader;
 
-    constructor(client?: string, name?: string, value?: string) {
-        if (client && name && value) super({
-            client: new Client({ name }),
-            header: new HTTPHeader(name, value),
+    constructor(clientName?: string, headerName?: string, value?: string) {
+        if (clientName && headerName && value) super({
+            client: new Client({ name: clientName }),
+            header: new HTTPHeader(headerName, value),
         });
 
     }
