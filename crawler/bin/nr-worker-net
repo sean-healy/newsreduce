@@ -1541,7 +1541,7 @@ async function watch() {
     const client = Object(common_connections__WEBPACK_IMPORTED_MODULE_0__[/* newRedis */ "c"])(ip);
     client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* DELETE_FILES */ "e"]);
     console.log("Subscribed to channel:", common_events__WEBPACK_IMPORTED_MODULE_2__[/* DELETE_FILES */ "e"]);
-    client.on(common_events__WEBPACK_IMPORTED_MODULE_2__[/* DELETE_FILES */ "e"], (_, msg) => {
+    client.on("message", (_, msg) => {
         const lines = msg.split("\n").map(line => line.split("\t", 2));
         console.log(lines);
     });
