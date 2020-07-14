@@ -3,7 +3,6 @@ if [ $USER != root ]; then
     sudo $0 $@
     exit
 fi
-iptables -P OUTPUT -A
 if [ ! -d /opt/newsreduce ]; then
     git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
 fi
@@ -38,6 +37,41 @@ apt-get install -y ${debs[*]}
 
 chown -R newsreduce:newsreduce /var/newsreduce
 chown -R newsreduce:newsreduce /opt/newsreduce
+
+(cat << END
+*filter
+:INPUT DROP [15:1128]
+:FORWARD ACCEPT [0:0]
+:OUTPUT DROP [156:9495]
+-A INPUT  -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+-A INPUT  -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A OUTPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp -m tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp -m tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp -m tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p udp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p udp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 53 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 6379 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 6379 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 3306 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 3306 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --dport 9999 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT  -p tcp --sport 9999 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+COMMIT
+END
+) | ip6tables-restore
 
 (cat << END
 *filter
@@ -98,6 +132,11 @@ for host in $(cat /var/newsreduce/network); do
     echo "-A OUTPUT -p tcp -m tcp --sport 9999 --dst $ip -m conntrack --ctstate ESTABLISHED -j ACCEPT"
 done
 echo COMMIT) | iptables-restore
+if [ ! -f /etc/redis/redis.conf ]; then
+    cp redis.conf /etc/redis
+    chown redis:redis /etc/redis/redis.conf
+    chmod 640 /etc/redis/redis.conf
+fi
 awk -f redis.conf.awk /etc/redis/redis.conf > /etc/redis/redis.conf.tmp
 awk -f sudoers.awk /etc/sudoers > /etc/sudoers.tmp
 cat /etc/sudoers.tmp > /etc/sudoers
