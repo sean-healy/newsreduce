@@ -33,3 +33,5 @@ export function iteratorToArray<T>(itr: IterableIterator<T>) {
 
     return arr;
 }
+
+export const IDENTITY_FUNCTION = <T>(r: T) => r

@@ -1,5 +1,6 @@
 import "./setup.ts";
-import { db, newRedis, REDIS_PARAMS, renewRedis } from "common/connections";
+import { db } from "common/connections";
+import { Redis, REDIS_PARAMS } from "common/Redis";
 
 test("get DB should work", async () => {
     await db();
@@ -12,7 +13,7 @@ test("get DB should work and cache", async () => {
 });
 
 test("creating redis connections for var IP should work", async () => {
-    const client = newRedis("127.0.0.1");
+    const client = Redis.newRedis("127.0.0.1");
     expect(REDIS_PARAMS["127.0.0.1"]).toStrictEqual({
         host: "127.0.0.1",
         port: 6379,
@@ -22,7 +23,7 @@ test("creating redis connections for var IP should work", async () => {
 
     expect(!client).toBe(false);
 
-    const a = renewRedis("127.0.0.1");
-    const b = renewRedis("127.0.0.1");
-    expect(a === b).toBe(true);
+    const a = Redis.renewRedis("127.0.0.1");
+    const b = Redis.renewRedis("127.0.0.1");
+    expect(a.client === b.client).toBe(true);
 });

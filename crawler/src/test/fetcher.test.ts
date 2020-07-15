@@ -2,11 +2,10 @@ import "./setup";
 import { crawlAllowed, throttle, schedule } from "data";
 import { fetchAndWrite, pollAndFetch } from "services/fetcher/functions";
 import { ResourceURL } from "types/objects/ResourceURL";
-import { renewRedis, REDIS_PARAMS } from "common/connections";
-import { STR_ONE } from "common/util";
+import { Redis, REDIS_PARAMS } from "common/Redis";
 
-/*
 test("crawl allowed should work", async () => {
+    await Redis.renewRedis(REDIS_PARAMS.throttle).del("fakeurl.fake")
     let allowed = (await crawlAllowed("fakeurl.fake"));
     expect(allowed).toBe(true);
     throttle("fakeurl2.fake", 500);
@@ -24,15 +23,13 @@ test("crawl allowed should work", async () => {
     });
     expect(allowed).toBe(true);
 });
-*/
 test("fetch and write should work", async () => {
     const url = "https://en.wikipedia.org/wiki/Main_Page";
     await fetchAndWrite(url);
 });
-/*
 test("poll and fetch should work", async () => {
     const url = "https://en.wikipedia.org/wiki/COVID-19_pandemic";
-    await new Promise(res => renewRedis(REDIS_PARAMS.fetchLock).del(url, () => res()));
+    await Redis.renewRedis(REDIS_PARAMS.fetchLock).del(url)
     await schedule([url]);
     const resourceURL = new ResourceURL(url);
     const id = resourceURL.host.getID();
@@ -40,10 +37,6 @@ test("poll and fetch should work", async () => {
     const hi = id + 1n;
     const fetched = await pollAndFetch(() => lo, () => hi);
     expect(fetched).toStrictEqual(new Set([url]));
-    const locked = await new Promise<boolean>((res, rej) =>
-        renewRedis(REDIS_PARAMS.fetchLock).get(url, (err, response) =>
-            err ? rej(err) : res(response === STR_ONE)));
+    const locked = await Redis.renewRedis(REDIS_PARAMS.fetchLock).eq(url);
     expect(locked).toBe(true);
 });
-
-*/

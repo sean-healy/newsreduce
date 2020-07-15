@@ -1,4 +1,4 @@
-import { newRedis, renewRedis, REDIS_PARAMS } from "../common/connections"
+import { Redis, REDIS_PARAMS } from "./Redis";
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1)
@@ -30,16 +30,16 @@ export function start(birthLog: string, deathLog: string, idBytes: number) {
         for (const [id,] of dob) {
             let hi = lo + idsPerWorker;
             if (hi + idsPerWorker > MAX_ID) hi = MAX_ID;
-            renewRedis(REDIS_PARAMS.local).publish(id, `${lo} ${hi}`);
+            Redis.renewRedis(REDIS_PARAMS.local).publish(id, `${lo} ${hi}`);
             lo += idsPerWorker;
         }
     }
-    const birthsSub = newRedis(REDIS_PARAMS.local);
-    birthsSub.subscribe(birthLog);
-    birthsSub.on("message", (_, id) => sourceWorker(id));
-    const deathsSub = newRedis(REDIS_PARAMS.local);
-    deathsSub.subscribe(deathLog);
-    deathsSub.on("message", (_, id) => retireWorker(id));
+    const birthsSub = Redis.newRedis(REDIS_PARAMS.local);
+    birthsSub.client.subscribe(birthLog);
+    birthsSub.client.on("message", (_, id) => sourceWorker(id));
+    const deathsSub = Redis.newRedis(REDIS_PARAMS.local);
+    deathsSub.client.subscribe(deathLog);
+    deathsSub.client.on("message", (_, id) => retireWorker(id));
 
     setInterval(() => {
         const now = Date.now();
