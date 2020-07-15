@@ -1551,13 +1551,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 async function watch() {
-    //const ip = await myIP();
-    const ip = "127.0.0.1";
-    const client = Object(common_connections__WEBPACK_IMPORTED_MODULE_3__[/* newRedis */ "c"])(ip);
+    const client = Object(common_connections__WEBPACK_IMPORTED_MODULE_3__[/* newRedis */ "c"])(common_connections__WEBPACK_IMPORTED_MODULE_3__[/* REDIS_PARAMS */ "a"].local);
     client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_5__[/* DELETE_FILES */ "e"]);
     console.log("Subscribed to channel:", common_events__WEBPACK_IMPORTED_MODULE_5__[/* DELETE_FILES */ "e"]);
     client.on("message", async (_, msg) => {
         const lines = msg.split("\n").map(line => line.split(/\s+/, 2));
+        console.log("msg");
+        console.log(msg);
         for (const [expectedChecksum, file] of lines) {
             const cwd = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* tmpDirPromise */ "h"])();
             const dir = path__WEBPACK_IMPORTED_MODULE_0___default.a.join(cwd, file);
