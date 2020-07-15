@@ -1,11 +1,11 @@
 import "./setup.ts";
 import { schedule } from "data";
-import { renewRedis, REDIS_PARAMS } from "common/connections";
 import { ResourceURL } from "types/objects/ResourceURL";
+import { Redis, REDIS_PARAMS } from "common/Redis";
 
 test("scheduler should work", async () => {
     const url = "https://example.org"
-    await new Promise(res => renewRedis(REDIS_PARAMS.fetchLock).del(url, () => res()));
+    await Redis.renewRedis(REDIS_PARAMS.fetchLock).del(url);
     await schedule([url]);
     const popped = await ResourceURL.popForFetching("example.org");
     expect(popped.toURL()).toBe(url)

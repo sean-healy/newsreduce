@@ -6,11 +6,15 @@ import { write } from "file";
 import { Entity } from "types/Entity";
 import { FileFormat } from "types/FileFormat";
 import { log } from "common/logging";
-import { renewRedis, REDIS_PARAMS } from "common/connections";
-import { STR_ONE } from "common/util";
+import { Redis, REDIS_PARAMS } from "common/Redis";
 
 const URL_ENCODING = "utf8";
 const PORT_BASE = 10;
+const URL =
+    /^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/;
+
+type ConstructorParam =
+    string | { [key in keyof ResourceURL]?: string | number | boolean }
 
 export class ResourceURL extends DBObject<ResourceURL> {
     readonly ssl: boolean;
@@ -19,38 +23,45 @@ export class ResourceURL extends DBObject<ResourceURL> {
     readonly path: ResourceURLPath;
     readonly query: ResourceURLQuery;
 
-    constructor(arg?: string | { [key in keyof ResourceURL]?: string | number | boolean }) {
+    constructor(arg?: ConstructorParam) {
         if (!arg) super();
         else if (typeof arg === "string") {
-            const groups = arg.match(/^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/);
+            const groups = arg.match(URL);
             if (groups) {
                 const ssl = !!groups[1];
-                const port = groups[3] ? parseInt(groups[3].substr(1)) : ssl ? 443 : 80;
+                const portStr = groups[3];
+                const port = portStr ?
+                    parseInt(portStr.substr(1)) : ssl ? 443 : 80;
                 if (!port) log("error", "port should be truthy", arg);
+                const path = groups[4] ? groups[4] : "";
+                const query = groups[5] ? groups[5].substr(1) : "";
                 super({
                     ssl,
                     host: new Host({ name: groups[2] }),
                     port,
-                    path: new ResourceURLPath({ value: groups[4] ? groups[4] : "" }),
-                    query: new ResourceURLQuery({ value: groups[5] ? groups[5].substr(1) : "" }),
+                    path: new ResourceURLPath({ value: path }),
+                    query: new ResourceURLQuery({ value: query }),
                 });
             } else {
                 throw new Error(`invalid url: ${arg}`);
             }
         } else {
-            if (!arg.port) log("error", "port should be truthy", JSON.stringify(arg));
+            if (!arg.port)
+                log("error", "port should be truthy", JSON.stringify(arg));
             super({
                 ssl: !!arg.ssl,
-                host: new Host({ name: arg.host as string }),
+                host: new Host({ name: arg.host as any }),
                 port: arg.port as number,
-                path: new ResourceURLPath({ value: arg.path as string }),
-                query: new ResourceURLQuery({ value: arg.query as string }),
+                path: new ResourceURLPath({ value: arg.path as any }),
+                query: new ResourceURLQuery({ value: arg.query as any }),
             });
         }
     }
 
     toURL() {
-        if (!this.port) log("error", "port should be truthy in toURL", JSON.stringify(this));
+        if (!this.port)
+            log("error", "port should be truthy in toURL",
+                JSON.stringify(this));
         const protocol = this.ssl ? "https://" : "http://";
         let length = protocol.length;
         let portString: string = "";
@@ -89,7 +100,11 @@ export class ResourceURL extends DBObject<ResourceURL> {
         return ["id", "ssl", "host", "port", "path", "query"];
     }
     getInsertParams(): any[] {
-        return [this.getID(), this.ssl, this.host.getID(), this.port, this.path.getID(), this.query.getID()];
+        const id = this.getID();
+        const host = this.host.getID();
+        const path = this.path.getID();
+        const query = this.query.getID();
+        return [id, this.ssl, host, this.port, path, query];
     }
     table(): string {
         return "ResourceURL";
@@ -97,33 +112,32 @@ export class ResourceURL extends DBObject<ResourceURL> {
     getDeps() {
         return [this.host, this.path, this.query];
     }
-    writeVersion(version: number, format: FileFormat, input: string | Buffer | NodeJS.ReadableStream) {
+    writeVersion(
+        version: number,
+        format: FileFormat,
+        input: string | Buffer | NodeJS.ReadableStream
+    ) {
         const id = this.getID();
         // Wait 15 seconds before attempting to compress the outer dir.
-        renewRedis(REDIS_PARAMS.fileLock).setex(id.toString(), 15, STR_ONE);
+        Redis.renewRedis(REDIS_PARAMS.fileLock).setex(id.toString(), 15);
         log("Writing", FileFormat[format]);
 
         return write(Entity.RESOURCE, id, version, format, input);
     }
-    fetchLocked() {
-        return new Promise<boolean>((res, rej) =>
-            renewRedis(REDIS_PARAMS.fetchLock).get(this.toURL(), (err, response) =>
-                err ? rej(err) : res(response === STR_ONE)));
+    isFetchLocked() {
+        return Redis.renewRedis(REDIS_PARAMS.fileLock).eq(this.toURL());
     }
-    fetchLock() {
-        renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL(), 60, STR_ONE);
+    setFetchLock() {
+        Redis.renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL());
     }
     static async popForFetching(host: string) {
-        const url: string = await new Promise<any>((res, rej) =>
-            renewRedis(REDIS_PARAMS.fetchSchedule).zpopmax([host, 1], (err, reply) =>
-                err ? rej(err) : res(reply && reply.length !== 0 ? reply[0] : null)));
-        if (url) new ResourceURL(url).fetchLock();
+        const url = await Redis.renewRedis(REDIS_PARAMS.fetchSchedule).zpopmax(host, 1);
+        if (url) new ResourceURL(url).setFetchLock();
 
         return new ResourceURL(url);
     }
     static async popForProcessing() {
-        const url = await new Promise<string>((res, rej) =>
-            renewRedis(REDIS_PARAMS.general).spop("html", async (err, url) => err ? rej(err) : res(url)));
+        const url = await Redis.renewRedis(REDIS_PARAMS.general).spop("html");
         if (!url) return null;
 
         return new ResourceURL(url);

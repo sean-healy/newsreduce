@@ -118,7 +118,11 @@ var logging = __webpack_require__(2);
 // EXTERNAL MODULE: ./dist/main/common/events.js
 var events = __webpack_require__(8);
 
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(54);
+
 // CONCATENATED MODULE: ./dist/main/types/DBObject.js
+
 
 
 
@@ -139,7 +143,7 @@ class DBObject_DBObject {
     }
     getID() {
         const idBytes = this.getIDBytes();
-        return idBytes ? Object(util["c" /* bytesToBigInt */])(idBytes) : null;
+        return idBytes ? Object(util["d" /* bytesToBigInt */])(idBytes) : null;
     }
     getInsertStatement() {
         const cols = this.insertCols().map(col => "`" + col + "`").join(", ");
@@ -161,7 +165,7 @@ class DBObject_DBObject {
         promises.push(new Promise(async (res, rej) => {
             const query = this.getInsertStatement();
             const params = this.getSingularInsertParams();
-            const filledQuery = (await Object(connections["b" /* db */])()).query(query, params, err => {
+            const filledQuery = (await Object(connections["a" /* db */])()).query(query, params, err => {
                 if (err) {
                     Object(logging["a" /* log */])(err);
                     rej(err);
@@ -170,7 +174,7 @@ class DBObject_DBObject {
                     res();
                     const id = this.getID();
                     if (id)
-                        Object(connections["d" /* renewRedis */])(connections["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], id.toString());
+                        Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], id.toString());
                 }
             });
             Object(logging["a" /* log */])(filledQuery.sql);
@@ -185,7 +189,7 @@ class DBObject_DBObject {
         if (params.length === 0)
             return;
         const query = this.getInsertStatement();
-        const client = await Object(connections["b" /* db */])();
+        const client = await Object(connections["a" /* db */])();
         Object(logging["a" /* log */])(query);
         Object(logging["a" /* log */])(JSON.stringify(params));
         await new Promise(async (res, rej) => Object(logging["a" /* log */])(client.query(query, [params], err => err ? rej(err) : res()).sql));
@@ -213,21 +217,16 @@ class DBObject_DBObject {
         DBObject_DBObject.stringifyBigIntsInPlace(insertParams);
         const payload = JSON.stringify(insertParams);
         const id = this.getID();
-        promises.push(new Promise((res, rej) => {
+        promises.push(new Promise(async (res) => {
             if (id) {
                 const idStr = id.toString();
-                Object(connections["d" /* renewRedis */])(connections["a" /* REDIS_PARAMS */].general).sismember(events["k" /* INSERT_CACHE */], idStr, (err, exists) => {
-                    if (err)
-                        rej(err);
-                    else if (!exists)
-                        Object(connections["d" /* renewRedis */])(connections["a" /* REDIS_PARAMS */].inserts).hset(this.table(), idStr, payload, err => err ? rej(err) : res());
-                    else
-                        res();
-                });
+                const isMember = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sismember(events["k" /* INSERT_CACHE */], idStr);
+                if (!isMember)
+                    await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).hset(this.table(), idStr, payload);
             }
-            else {
-                Object(connections["d" /* renewRedis */])(connections["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload, err => err ? rej(err) : res());
-            }
+            else
+                await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
+            res();
         }));
         await Promise.all(promises);
     }
@@ -239,7 +238,7 @@ class DBObject_DBObject {
             else
                 cols = "*";
             const query = `select ${cols} from ${this.table()} where ${this.idCol()} = ?`;
-            const filledQuery = (await Object(connections["b" /* db */])()).query(query, [this.getID()], (err, response) => {
+            const filledQuery = (await Object(connections["a" /* db */])()).query(query, [this.getID()], (err, response) => {
                 if (err) {
                     Object(logging["a" /* log */])(err);
                     rej(err);
@@ -256,7 +255,7 @@ class DBObject_DBObject {
         return await new Promise(async (res, rej) => {
             const idCol = this.idCol();
             const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
-            const filledQuery = (await Object(connections["b" /* db */])()).query(query, [[ids]], (err, response) => {
+            const filledQuery = (await Object(connections["a" /* db */])()).query(query, [[ids]], (err, response) => {
                 if (err) {
                     Object(logging["a" /* log */])(err);
                     rej(err);
@@ -288,75 +287,19 @@ class DBObject_DBObject {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return REDIS_PARAMS; });
 /* unused harmony export ENTITIES_TO_COMPRESS */
 /* unused harmony export getParams */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return db; });
-/* unused harmony export STATIC_CONNECTIONS */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return renewRedis; });
-/* unused harmony export defaultHostParams */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return newRedis; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return db; });
 /* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(40);
 /* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(41);
-/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
-
-
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
 
 
 
 const MAIN_HOST = "newsreduce.org";
 const LOCALHOST = "127.0.0.1";
-const DEFAULT_REDIS_PORT = 6379;
-const DEFAULT_REDIS_DB = 0;
-const REDIS_PARAMS = {
-    local: {
-        host: LOCALHOST,
-        port: DEFAULT_REDIS_PORT,
-        db: DEFAULT_REDIS_DB,
-    },
-    events: {
-        host: MAIN_HOST,
-        port: DEFAULT_REDIS_PORT,
-        db: DEFAULT_REDIS_DB,
-    },
-    fetchSchedule: {
-        host: MAIN_HOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 1,
-    },
-    general: {
-        host: MAIN_HOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 2,
-    },
-    throttle: {
-        host: MAIN_HOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 3,
-    },
-    inserts: {
-        host: MAIN_HOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 4,
-    },
-    fileLock: {
-        host: LOCALHOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 5,
-    },
-    fetchLock: {
-        host: MAIN_HOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 6,
-    },
-};
-for (const key in REDIS_PARAMS)
-    REDIS_PARAMS[key].name = key;
 const ENTITIES_TO_COMPRESS = "entities-to-compress";
 const NET_AGENT_ENDPOINT = `http://${MAIN_HOST}:9999`;
 const SQL_PARAMS = {
@@ -369,46 +312,20 @@ let params = null;
 async function getParams() {
     if (!params) {
         const { ResourceURL } = __webpack_require__(4);
-        params = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(new ResourceURL(NET_AGENT_ENDPOINT).toURL()).then(res => res.json());
+        params = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()(new ResourceURL(NET_AGENT_ENDPOINT).toURL())
+            .then(res => res.json());
     }
     return params;
 }
 let dbClient = null;
 async function db() {
     if (dbClient === null) {
-        Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetching SQL config.");
+        Object(_logging__WEBPACK_IMPORTED_MODULE_2__[/* log */ "a"])("Fetching SQL config.");
         const password = (await getParams()).sql;
-        Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetched SQL config.");
+        Object(_logging__WEBPACK_IMPORTED_MODULE_2__[/* log */ "a"])("Fetched SQL config.");
         dbClient = Object(mysql__WEBPACK_IMPORTED_MODULE_0__["createConnection"])({ ...SQL_PARAMS, password });
     }
     return dbClient;
-}
-const STATIC_CONNECTIONS = {};
-function renewRedis(paramsOrHost) {
-    const name = (typeof paramsOrHost === "string") ? paramsOrHost : paramsOrHost.name;
-    let connection = STATIC_CONNECTIONS[name];
-    if (!connection) {
-        connection = newRedis(paramsOrHost);
-        STATIC_CONNECTIONS[name] = connection;
-    }
-    return connection;
-}
-const defaultHostParams = (host) => ({
-    host,
-    name: host,
-    port: DEFAULT_REDIS_PORT,
-    db: DEFAULT_REDIS_DB,
-});
-function newRedis(paramsOrHost) {
-    const name = (typeof paramsOrHost === "string") ? paramsOrHost : paramsOrHost.name;
-    if (!(name in REDIS_PARAMS))
-        REDIS_PARAMS[name] = defaultHostParams(paramsOrHost);
-    const params = REDIS_PARAMS[name];
-    return redis__WEBPACK_IMPORTED_MODULE_1___default.a.createClient({
-        host: _config__WEBPACK_IMPORTED_MODULE_4__[/* ENV */ "a"][0] === "prod" ? params.host : LOCALHOST,
-        port: _config__WEBPACK_IMPORTED_MODULE_4__[/* ENV */ "a"][0] === "prod" ? params.port : 1111,
-        db: params.db,
-    });
 }
 
 
@@ -452,9 +369,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
 /* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(10);
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
-/* harmony import */ var common_connections__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(1);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(6);
-
+/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(54);
 
 
 
@@ -466,23 +381,28 @@ __webpack_require__.r(__webpack_exports__);
 
 const URL_ENCODING = "utf8";
 const PORT_BASE = 10;
+const URL = /^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/;
 class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(arg) {
         if (!arg)
             super();
         else if (typeof arg === "string") {
-            const groups = arg.match(/^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/);
+            const groups = arg.match(URL);
             if (groups) {
                 const ssl = !!groups[1];
-                const port = groups[3] ? parseInt(groups[3].substr(1)) : ssl ? 443 : 80;
+                const portStr = groups[3];
+                const port = portStr ?
+                    parseInt(portStr.substr(1)) : ssl ? 443 : 80;
                 if (!port)
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy", arg);
+                const path = groups[4] ? groups[4] : "";
+                const query = groups[5] ? groups[5].substr(1) : "";
                 super({
                     ssl,
                     host: new types_objects_Host__WEBPACK_IMPORTED_MODULE_3__["Host"]({ name: groups[2] }),
                     port,
-                    path: new types_objects_ResourceURLPath__WEBPACK_IMPORTED_MODULE_2__["ResourceURLPath"]({ value: groups[4] ? groups[4] : "" }),
-                    query: new types_objects_ResourceURLQuery__WEBPACK_IMPORTED_MODULE_1__["ResourceURLQuery"]({ value: groups[5] ? groups[5].substr(1) : "" }),
+                    path: new types_objects_ResourceURLPath__WEBPACK_IMPORTED_MODULE_2__["ResourceURLPath"]({ value: path }),
+                    query: new types_objects_ResourceURLQuery__WEBPACK_IMPORTED_MODULE_1__["ResourceURLQuery"]({ value: query }),
                 });
             }
             else {
@@ -546,7 +466,11 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         return ["id", "ssl", "host", "port", "path", "query"];
     }
     getInsertParams() {
-        return [this.getID(), this.ssl, this.host.getID(), this.port, this.path.getID(), this.query.getID()];
+        const id = this.getID();
+        const host = this.host.getID();
+        const path = this.path.getID();
+        const query = this.query.getID();
+        return [id, this.ssl, host, this.port, path, query];
     }
     table() {
         return "ResourceURL";
@@ -557,24 +481,24 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     writeVersion(version, format, input) {
         const id = this.getID();
         // Wait 15 seconds before attempting to compress the outer dir.
-        Object(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* renewRedis */ "d"])(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fileLock).setex(id.toString(), 15, common_util__WEBPACK_IMPORTED_MODULE_9__[/* STR_ONE */ "b"]);
+        common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fileLock).setex(id.toString(), 15);
         Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("Writing", types_FileFormat__WEBPACK_IMPORTED_MODULE_6__[/* FileFormat */ "a"][format]);
         return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "c"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
     }
-    fetchLocked() {
-        return new Promise((res, rej) => Object(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* renewRedis */ "d"])(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).get(this.toURL(), (err, response) => err ? rej(err) : res(response === common_util__WEBPACK_IMPORTED_MODULE_9__[/* STR_ONE */ "b"])));
+    isFetchLocked() {
+        return common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fileLock).eq(this.toURL());
     }
-    fetchLock() {
-        Object(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* renewRedis */ "d"])(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL(), 60, common_util__WEBPACK_IMPORTED_MODULE_9__[/* STR_ONE */ "b"]);
+    setFetchLock() {
+        common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL());
     }
     static async popForFetching(host) {
-        const url = await new Promise((res, rej) => Object(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* renewRedis */ "d"])(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax([host, 1], (err, reply) => err ? rej(err) : res(reply && reply.length !== 0 ? reply[0] : null)));
+        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax(host, 1);
         if (url)
-            new ResourceURL(url).fetchLock();
+            new ResourceURL(url).setFetchLock();
         return new ResourceURL(url);
     }
     static async popForProcessing() {
-        const url = await new Promise((res, rej) => Object(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* renewRedis */ "d"])(common_connections__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general).spop("html", async (err, url) => err ? rej(err) : res(url)));
+        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general).spop("html");
         if (!url)
             return null;
         return new ResourceURL(url);
@@ -661,14 +585,15 @@ async function myIP() {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return setImmediateInterval; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return STR_ONE; });
 /* unused harmony export ZERO */
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return bytesToBigInt; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return IDENTITY_FUNCTION; });
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function setImmediateInterval(f, ms) {
     setImmediate(f);
@@ -699,6 +624,7 @@ function iteratorToArray(itr) {
         arr.push(item);
     return arr;
 }
+const IDENTITY_FUNCTION = (r) => r;
 
 
 /***/ }),
@@ -1838,9 +1764,9 @@ webpackContext.id = 42;
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
-/* harmony import */ var common_connections__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(1);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(6);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6);
+/* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(54);
 
 
 
@@ -1854,7 +1780,7 @@ async function synchronised(name, f, postcondition) {
     locks[name] = true;
     f().then(() => {
         delete locks[name];
-        Object(common_connections__WEBPACK_IMPORTED_MODULE_3__[/* renewRedis */ "d"])(common_connections__WEBPACK_IMPORTED_MODULE_3__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
+        _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
     });
 }
 function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
@@ -1862,29 +1788,29 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
     let interval = undefined;
     if (options.interval || options.interval === undefined)
-        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_5__[/* setImmediateInterval */ "e"])(() => {
+        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
             if (!safelyExit)
                 synchronised(name, f, postcondition);
         }, options.period ? options.period : 2000);
     let events;
     if (preconditions && preconditions.size > 0) {
-        events = Object(common_connections__WEBPACK_IMPORTED_MODULE_3__[/* newRedis */ "c"])(common_connections__WEBPACK_IMPORTED_MODULE_3__[/* REDIS_PARAMS */ "a"].events);
-        events.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"]);
-        events.on("message", (_, msg) => {
+        events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
+        events.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"]);
+        events.client.on("message", (_, msg) => {
             if (preconditions.has(msg))
                 synchronised(name, f, postcondition);
         });
     }
     else
         events = null;
-    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_5__[/* setImmediateInterval */ "e"])(async () => {
-        const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* safetyFilePromise */ "g"])()).toString();
+    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
+        const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "g"])()).toString();
         if (content.match(/1/)) {
             safelyExit = true;
             clearInterval(interval);
             clearInterval(safetyInterval);
             if (events)
-                events.quit();
+                events.client.quit();
             console.log("Safety procedure activated. Exiting.");
             process.exit();
         }
@@ -1900,12 +1826,11 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
 "use strict";
 
 // EXPORTS
-__webpack_require__.d(__webpack_exports__, "e", function() { return /* binding */ selectPreSchedule; });
-__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ schedule; });
-__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ getRedisKeys; });
+__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectPreSchedule; });
+__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ schedule; });
 __webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ crawlAllowed; });
-__webpack_require__.d(__webpack_exports__, "f", function() { return /* binding */ throttle; });
-__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectFetchedURLs; });
+__webpack_require__.d(__webpack_exports__, "e", function() { return /* binding */ throttle; });
+__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectFetchedURLs; });
 
 // UNUSED EXPORTS: processResourceLinks
 
@@ -1999,7 +1924,11 @@ var ResourceURL = __webpack_require__(4);
 // EXTERNAL MODULE: ./dist/main/common/util.js
 var util = __webpack_require__(6);
 
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(54);
+
 // CONCATENATED MODULE: ./dist/main/data.js
+
 
 
 
@@ -2009,7 +1938,7 @@ var util = __webpack_require__(6);
 
 function genericSQLPromise(query, params = [], mapper) {
     return new Promise(async (res, rej) => {
-        const filledQuery = (await Object(connections["b" /* db */])()).query(query, params, (err, response) => {
+        const filledQuery = (await Object(connections["a" /* db */])()).query(query, params, (err, response) => {
             if (err) {
                 console.debug(err);
                 rej(err);
@@ -2035,8 +1964,9 @@ async function schedule(urls) {
     let scheduled = 0;
     for (const url of urls) {
         const resourceURL = new ResourceURL["ResourceURL"](url);
-        if (!await resourceURL.fetchLocked()) {
-            promises.push(new Promise((res, rej) => Object(connections["d" /* renewRedis */])(connections["a" /* REDIS_PARAMS */].fetchSchedule).zincrby(resourceURL.host.name, 1, url, err => err ? rej(err) : res())));
+        if (!await resourceURL.isFetchLocked()) {
+            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
+                .zincrby(resourceURL.host.name, 1, url));
             ++scheduled;
         }
     }
@@ -2047,19 +1977,20 @@ function processResourceLinks(parentPositionChild) {
     const query = sql.INSERT_RESOURCE_LINK_IF_ABSENT;
     return genericSQLPromise(query, [parentPositionChild]);
 }
-const WILDCARD = "*";
-function getRedisKeys(redis) {
-    return new Promise((res, rej) => Object(connections["d" /* renewRedis */])(redis).keys(WILDCARD, (err, keys) => err ? rej(err) : res(keys)));
-}
 async function crawlAllowed(host) {
-    const reply = await new Promise((res, rej) => Object(connections["d" /* renewRedis */])(connections["a" /* REDIS_PARAMS */].throttle).get(host, (err, value) => err ? rej() : res(value)));
-    return reply !== util["b" /* STR_ONE */];
+    return !(await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].throttle).eq(host));
 }
 function throttle(host, ms) {
-    Object(connections["d" /* renewRedis */])(connections["a" /* REDIS_PARAMS */].throttle).set(host, util["b" /* STR_ONE */], "PX", ms, thenDebug);
+    Redis["b" /* Redis */]
+        .renewRedis(Redis["a" /* REDIS_PARAMS */].throttle)
+        .setpx(host, ms, util["c" /* STR_ONE */])
+        .catch(thenDebug);
 }
+const ROW_MAPPER = (rows) => rows.map(row => Object.values(row)[0]);
 function selectFetchedURLs(after) {
-    return genericSQLPromise(sql.SELECT_FETCHED_URLS, [after], rows => rows.map(row => Object.values(row)[0]));
+    const query = sql.SELECT_FETCHED_URLS;
+    const params = [after];
+    return genericSQLPromise(query, params, ROW_MAPPER);
 }
 
 
@@ -2090,10 +2021,233 @@ __webpack_require__.r(__webpack_exports__);
 
 
 async function findAndSchedule() {
-    const urls = await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* selectPreSchedule */ "e"])();
-    await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* schedule */ "c"])(urls);
+    const urls = await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* selectPreSchedule */ "d"])();
+    await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* schedule */ "b"])(urls);
 }
 Object(common_processor__WEBPACK_IMPORTED_MODULE_2__[/* startProcessor */ "a"])(findAndSchedule, new Set([common_events__WEBPACK_IMPORTED_MODULE_1__[/* COLD_START_COMPLETE */ "b"]]), common_events__WEBPACK_IMPORTED_MODULE_1__[/* SCHEDULE_COMPLETE */ "l"]);
+
+
+/***/ }),
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return REDIS_PARAMS; });
+/* unused harmony export STATIC_CONNECTIONS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
+/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(41);
+/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
+/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
+
+
+
+
+const MAIN_HOST = "newsreduce.org";
+const LOCALHOST = "127.0.0.1";
+const DEFAULT_REDIS_PORT = 6379;
+const DEFAULT_REDIS_DB = 0;
+const REDIS_PARAMS = {
+    local: {
+        host: LOCALHOST,
+        port: DEFAULT_REDIS_PORT,
+        db: DEFAULT_REDIS_DB,
+    },
+    events: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: DEFAULT_REDIS_DB,
+    },
+    fetchSchedule: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 1,
+    },
+    general: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 2,
+    },
+    throttle: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 3,
+    },
+    inserts: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 4,
+    },
+    fileLock: {
+        host: LOCALHOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 5,
+    },
+    fetchLock: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 6,
+    },
+};
+for (const key in REDIS_PARAMS)
+    REDIS_PARAMS[key].name = key;
+const STATIC_CONNECTIONS = {};
+/*
+ * A proxy for the redis client, which survives all sorts of
+ * errors from client resets.
+ */
+class Redis {
+    constructor(params, client) {
+        this.params = params;
+        this.client = client;
+    }
+    async tryLoop(cb) {
+        for (let attempt = 0; attempt < 10; ++attempt) {
+            try {
+                const response = await new Promise(cb);
+                return response;
+            }
+            catch (err) {
+                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
+                console.debug(err);
+                const oldClient = STATIC_CONNECTIONS[this.params.name];
+                delete STATIC_CONNECTIONS[this.params.name];
+                oldClient.quit();
+                this.client = Redis.renewRedis(this.params).client;
+            }
+        }
+        return null;
+    }
+    async zincrby(key, increment, member) {
+        const response = await this.tryLoop((res, rej) => this.client.zincrby(key, increment, member, err => err ? rej(err) : res()));
+        return response;
+    }
+    async zpopmaxN(key, count) {
+        const response = await this.tryLoop((res, rej) => this.client.zpopmax([key, count], (err, response) => err ? rej(err) : res(response)));
+        return response;
+    }
+    async zpopmax(key, count) {
+        const response = await this.tryLoop((res, rej) => this.client.zpopmax([key, count], (err, response) => err ? rej(err) : res(!response || response.length === 0 ? null : response[0])));
+        return response;
+    }
+    async spop(key) {
+        const response = await this.tryLoop((res, rej) => this.client.spop(key, (err, response) => err ? rej(err) : res(response)));
+        return response;
+    }
+    async srem(key, member) {
+        const response = await this.tryLoop((res, rej) => this.client.srem(key, member, err => err ? rej(err) : res()));
+        return response;
+    }
+    async hdel(key, member) {
+        const response = await this.tryLoop((res, rej) => this.client.hdel(key, member, err => err ? rej(err) : res()));
+        return response;
+    }
+    async smembers(key) {
+        const response = await this.tryLoop((res, rej) => this.client.smembers(key, (err, members) => err ? rej(err) : res(members)));
+        return response;
+    }
+    async hgetall(key) {
+        const response = await this.tryLoop((res, rej) => this.client.hgetall(key, (err, members) => err ? rej(err) : res(members)));
+        return response;
+    }
+    async type(key) {
+        const response = await this.tryLoop((res, rej) => this.client.type(key, (err, type) => err ? rej(err) : res(type)));
+        return response;
+    }
+    async srandmember(key, batch) {
+        const response = await this.tryLoop((res, rej) => this.client.srandmember(key, batch, (err, members) => err ? rej(err) : res(members)));
+        return response;
+    }
+    async setex(key, seconds = 60, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "c"]) {
+        const response = await this.tryLoop((res, rej) => this.client.setex(key, seconds, value, err => err ? rej(err) : res()));
+        return response;
+    }
+    async set(key, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "c"]) {
+        const response = await this.tryLoop((res, rej) => this.client.set(key, value, err => err ? rej(err) : res()));
+        return response;
+    }
+    async setpx(key, ms = 1050, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "c"]) {
+        const response = await this.tryLoop((res, rej) => this.client.set(key, value, "PX", ms, err => err ? rej(err) : res()));
+        return response;
+    }
+    async sadd(key, member) {
+        const response = await this.tryLoop((res, rej) => this.client.sadd(key, member, err => err ? rej(err) : res()));
+        return response;
+    }
+    async sismember(key, member) {
+        const response = await this.tryLoop((res, rej) => this.client.sismember(key, member, (err, exists) => err ? rej(err) : res(!!exists)));
+        return response;
+    }
+    async get(key) {
+        const response = await this.tryLoop((res, rej) => this.client.get(key, (err, response) => err ? rej(err) : res(response)));
+        return response;
+    }
+    async del(key) {
+        const response = await this.tryLoop((res, rej) => this.client.del(key, err => err ? rej(err) : res()));
+        return response;
+    }
+    async keys(pattern = "*") {
+        const response = await this.tryLoop((res, rej) => this.client.keys(pattern, (err, keys) => err ? rej(err) : res(keys)));
+        return response;
+    }
+    async hset(key, field, value) {
+        const response = await this.tryLoop((res, rej) => this.client.hset(key, field, value, err => err ? rej(err) : res()));
+        return response;
+    }
+    async eq(key, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "c"]) {
+        const response = await this.tryLoop((res, rej) => this.client.get(key, (err, response) => err ? rej(err) : res(response === value)));
+        return response;
+    }
+    async publish(channel, msg) {
+        const response = await this.tryLoop((res, rej) => this.client.publish(channel, msg, (err, response) => err ? rej(err) : res(response)));
+        return response;
+    }
+    static getName(paramsOrHost) {
+        return (typeof paramsOrHost === "string") ?
+            paramsOrHost : paramsOrHost.name;
+    }
+    static computeParams(paramsOrHost) {
+        const name = Redis.getName(paramsOrHost);
+        let params = REDIS_PARAMS[name];
+        if (!params) {
+            params = Redis.defaultHostParams(paramsOrHost);
+            REDIS_PARAMS[name] = params;
+        }
+        return params;
+    }
+    static renewRedis(paramsOrHost) {
+        const params = this.computeParams(paramsOrHost);
+        let client = STATIC_CONNECTIONS[params.name];
+        let redis;
+        if (!client) {
+            redis = Redis.newRedis(params);
+            STATIC_CONNECTIONS[params.name] = redis.client;
+        }
+        else {
+            redis = new Redis(params, client);
+        }
+        return redis;
+    }
+    static newRedis(paramsOrHost) {
+        const params = this.computeParams(paramsOrHost);
+        return new Redis(params, redis__WEBPACK_IMPORTED_MODULE_0___default.a.createClient({
+            host: common_config__WEBPACK_IMPORTED_MODULE_1__[/* ENV */ "a"][0] === "prod" ? params.host : LOCALHOST,
+            port: common_config__WEBPACK_IMPORTED_MODULE_1__[/* ENV */ "a"][0] === "prod" ? params.port : 1111,
+            db: params.db,
+        }));
+    }
+}
+Redis.defaultHostParams = (host) => ({
+    host,
+    name: host,
+    port: DEFAULT_REDIS_PORT,
+    db: DEFAULT_REDIS_DB,
+});
 
 
 /***/ })

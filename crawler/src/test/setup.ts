@@ -1,5 +1,5 @@
 import { ENV } from "common/config"
-import { STATIC_CONNECTIONS } from "common/connections";
+import { STATIC_CONNECTIONS } from "common/Redis";
 
 beforeAll(() => {
     ENV[0] = "test";

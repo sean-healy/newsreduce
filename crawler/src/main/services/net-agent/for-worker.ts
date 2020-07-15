@@ -1,16 +1,16 @@
 import path from "path";
 import crypto from "crypto";
 import { spawn } from "child_process";
-import { newRedis, REDIS_PARAMS } from "common/connections";
 import { FIND, tmpDirPromise } from "common/config";
 import { DELETE_FILES } from "common/events";
 import fs from "fs";
+import { Redis, REDIS_PARAMS } from "common/Redis";
 
 async function watch() {
-    const client = newRedis(REDIS_PARAMS.local);
-    client.subscribe(DELETE_FILES);
+    const client = Redis.newRedis(REDIS_PARAMS.local);
+    client.client.subscribe(DELETE_FILES);
     console.log("Subscribed to channel:", DELETE_FILES);
-    client.on("message", async (_, msg: string) => {
+    client.client.on("message", async (_, msg: string) => {
         if (!msg) {
             console.debug("ERR: empty message");
             return;

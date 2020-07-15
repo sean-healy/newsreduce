@@ -3,9 +3,8 @@ import path from "path";
 import { tmpDirPromise, TAR, nullFilePromise, safeMkdir } from "common/config";
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { log } from "common/logging";
-import { renewRedis, REDIS_PARAMS } from "common/connections";
-import { STR_ONE } from "common/util";
 import { COMPRESSOR_LOCK } from "common/events";
+import { Redis, REDIS_PARAMS } from "common/Redis";
 
 const ZSTD = "zstd";
 const MV = "mv";
@@ -26,14 +25,11 @@ function spawnSeq(sequence: [string, string, string[]][], res: () => void, rej: 
 }
 
 export function isEntityLocked(entityID: string) {
-    return new Promise<boolean>(res =>
-        renewRedis(REDIS_PARAMS.fileLock).get(entityID, (err, response) =>
-            res(!err && response === STR_ONE)));
+    return Redis.renewRedis(REDIS_PARAMS.fileLock).eq(entityID);
 }
 
 export async function compress() {
-    const locked = await new Promise<boolean>((res, rej) =>
-        renewRedis(REDIS_PARAMS.general).get(COMPRESSOR_LOCK, (err, reply) => err ? rej(err) : res(reply === STR_ONE)));
+    const locked = await Redis.renewRedis(REDIS_PARAMS.general).eq(COMPRESSOR_LOCK);
     if (locked) return;
     const tmpDir = await tmpDirPromise();
     const entities = fs.readdirSync(tmpDir);

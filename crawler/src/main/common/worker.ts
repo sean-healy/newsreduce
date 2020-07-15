@@ -1,7 +1,7 @@
 import { setImmediateInterval } from "./util";
-import { renewRedis, newRedis, REDIS_PARAMS } from "./connections";
 import { startProcessor } from "./processor";
 import { randomBytes } from "crypto";
+import { Redis, REDIS_PARAMS } from "./Redis";
 
 export function start(
     f: (lo: () => bigint, hi: () => bigint) => void,
@@ -14,10 +14,10 @@ export function start(
     let lo: bigint;
     let hi: bigint;
 
-    setImmediateInterval(() => renewRedis(REDIS_PARAMS.local).publish(birthLog, workerID), 400);
-    const listen = newRedis(REDIS_PARAMS.local);
-    listen.subscribe(workerID);
-    listen.on("message", (_, msg) => {
+    setImmediateInterval(() => Redis.renewRedis(REDIS_PARAMS.local).publish(birthLog, workerID), 400);
+    const listen = Redis.newRedis(REDIS_PARAMS.local);
+    listen.client.subscribe(workerID);
+    listen.client.on("message", (_, msg) => {
         [lo, hi] = msg.split(" ", 2).map(BigInt);
     });
     startProcessor(async () => f(() => lo, () => hi), preconditions, postcondition);

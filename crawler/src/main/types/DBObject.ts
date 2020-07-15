@@ -1,10 +1,10 @@
 import { defaultHash } from "common/hashing";
 import { bytesToBigInt } from "common/util";
-import { db, renewRedis, REDIS_PARAMS } from "common/connections";
+import { db } from "common/connections";
 import { log } from "common/logging";
 import { Query } from "mysql";
 import { INSERT_CACHE } from "common/events";
-import { ResourceHeader } from "./objects/ResourceHeader";
+import { Redis, REDIS_PARAMS } from "common/Redis";
 
 export abstract class DBObject<T extends DBObject<T>> {
     abstract getInsertParams(): any[];
@@ -55,7 +55,7 @@ export abstract class DBObject<T extends DBObject<T>> {
                     res();
                     const id = this.getID();
                     if (id)
-                        renewRedis(REDIS_PARAMS.general).sadd(INSERT_CACHE, id.toString());
+                        Redis.renewRedis(REDIS_PARAMS.general).sadd(INSERT_CACHE, id.toString());
                 }
             });
             log(filledQuery.sql);
@@ -97,19 +97,13 @@ export abstract class DBObject<T extends DBObject<T>> {
         DBObject.stringifyBigIntsInPlace(insertParams);
         const payload = JSON.stringify(insertParams);
         const id = this.getID();
-        promises.push(new Promise<void>((res, rej) => {
+        promises.push(new Promise<void>(async res => {
             if (id) {
                 const idStr = id.toString();
-                renewRedis(REDIS_PARAMS.general).sismember(INSERT_CACHE, idStr, (err, exists) => {
-                    if (err) rej(err);
-                    else if (!exists)
-                        renewRedis(REDIS_PARAMS.inserts).hset(this.table(), idStr, payload, err =>
-                            err ? rej(err) : res())
-                    else res();
-                });
-            } else {
-                renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload, err => err ? rej(err) : res());
-            }
+                const isMember = await Redis.renewRedis(REDIS_PARAMS.general).sismember(INSERT_CACHE, idStr);
+                if (!isMember) await Redis.renewRedis(REDIS_PARAMS.inserts).hset(this.table(), idStr, payload);
+            } else await Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload);
+            res();
         }));
 
         await Promise.all(promises);

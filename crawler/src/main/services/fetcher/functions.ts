@@ -2,7 +2,6 @@ import fetch, { Response } from "node-fetch";
 import {
     crawlAllowed,
     throttle,
-    getRedisKeys,
 } from "data";
 import { FileFormat } from "types/FileFormat";
 import { log } from "common/logging";
@@ -11,7 +10,7 @@ import { ResourceURL } from "types/objects/ResourceURL";
 import { milliTimestamp } from "common/time";
 import { Host } from "types/objects/Host";
 import { ResourceHeader } from "types/objects/ResourceHeader";
-import { REDIS_PARAMS, renewRedis } from "common/connections";
+import { Redis, REDIS_PARAMS } from "common/Redis";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
@@ -19,7 +18,8 @@ export function buildOnFetch(url: string) {
         let type: string;
         const now = milliTimestamp();
         let promises = [];
-        const actualLength = await resourceURL.writeVersion(now, FileFormat.RAW_HTML, response.body);
+        const actualLength = await resourceURL.writeVersion(
+            now, FileFormat.RAW_HTML, response.body);
         let headers = [];
         response.headers.forEach(async (value, anyCaseKey) => {
             headers.push(`${anyCaseKey}: ${value}`);
@@ -28,8 +28,10 @@ export function buildOnFetch(url: string) {
             promises.push(resourceHeader.enqueueInsert({ recursive: true }));
             if (key === "content-type") {
                 type = value.toLowerCase();
-                const fetchedResource = new FetchedResource(url, actualLength, type);
-                promises.push(fetchedResource.enqueueInsert({ recursive: true }));
+                const fetchedResource =
+                    new FetchedResource(url, actualLength, type);
+                promises.push(
+                    fetchedResource.enqueueInsert({ recursive: true }));
             }
         });
         const headerContent = headers.join("\n");
@@ -37,7 +39,8 @@ export function buildOnFetch(url: string) {
             log("header issue");
             log(JSON.stringify(headers));
         }
-        promises.push(resourceURL.writeVersion(now, FileFormat.RAW_HEADERS, headerContent));
+        promises.push(resourceURL.writeVersion(
+            now, FileFormat.RAW_HEADERS, headerContent));
 
         await Promise.all(promises);
     };
@@ -51,12 +54,15 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
     let hostnames: string[];
     let fetched = new Set<string>();
     do {
-        hostnames = await getRedisKeys(REDIS_PARAMS.fetchSchedule);
+        hostnames = await Redis.renewRedis(REDIS_PARAMS.fetchSchedule).keys();
         log("Got hosts from redis:", JSON.stringify(hostnames));
-        const hostIDs = hostnames.map(hostname => new Host({ name: hostname }).getID());
-        const throttleList = (await new Host().bulkSelect(hostIDs, ["name", "throttle"]));
+        const hostIDs =
+            hostnames.map(hostname => new Host({ name: hostname }).getID());
+        const throttleList =
+            (await new Host().bulkSelect(hostIDs, ["name", "throttle"]));
         const throttles: { [key: string]: number } = {};
-        for (const row of throttleList) throttles[row.name] = Number(row.throttle);
+        for (const row of throttleList)
+            throttles[row.name] = Number(row.throttle);
         log("Throttles for hosts", JSON.stringify(throttles));
         for (const hostname of hostnames) {
             const host = new Host({ name: hostname });
@@ -65,13 +71,14 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
                 log(`Host within range(${lo()} -- > ${hi()}: ${host.name}`);
                 const allowed = await crawlAllowed(hostname);
                 if (allowed) {
-                    const resourceURL = await ResourceURL.popForFetching(hostname);
+                    const resourceURL =
+                        await ResourceURL.popForFetching(hostname);
                     if (resourceURL) {
                         const url = resourceURL.toURL();
                         throttle(hostname, throttles[hostname]);
                         await fetchAndWrite(url);
                         console.log(url);
-                        renewRedis(REDIS_PARAMS.general).sadd("html", url)
+                        Redis.renewRedis(REDIS_PARAMS.general).sadd("html", url)
                         fetched.add(url);
                     }
                 }
