@@ -11,6 +11,10 @@ async function watch() {
     client.subscribe(DELETE_FILES);
     console.log("Subscribed to channel:", DELETE_FILES);
     client.on("message", async (_, msg: string) => {
+        if (!msg) {
+            console.debug("ERR: empty message");
+            return;
+        }
         const lines: [string, string][] = msg.split("\n").map(line => line.split(/\s+/, 2) as [string, string]);
         console.log("msg");
         console.log(msg);
