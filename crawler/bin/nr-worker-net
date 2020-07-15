@@ -1560,8 +1560,6 @@ async function watch() {
             return;
         }
         const lines = msg.split("\n").map(line => line.split(/\s+/, 2));
-        console.log("msg");
-        console.log(msg);
         for (const [expectedChecksum, file] of lines) {
             const cwd = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* tmpDirPromise */ "h"])();
             const dir = path__WEBPACK_IMPORTED_MODULE_0___default.a.join(cwd, file);

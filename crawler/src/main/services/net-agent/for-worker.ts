@@ -16,8 +16,6 @@ async function watch() {
             return;
         }
         const lines: [string, string][] = msg.split("\n").map(line => line.split(/\s+/, 2) as [string, string]);
-        console.log("msg");
-        console.log(msg);
         for (const [expectedChecksum, file] of lines) {
             const cwd = await tmpDirPromise();
             const dir = path.join(cwd, file);
