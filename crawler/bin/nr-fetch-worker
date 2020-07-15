@@ -2039,7 +2039,11 @@ var external_crypto_ = __webpack_require__(16);
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(54);
 
+// EXTERNAL MODULE: ./dist/main/common/logging.js
+var logging = __webpack_require__(2);
+
 // CONCATENATED MODULE: ./dist/main/common/worker.js
+
 
 
 
@@ -2054,6 +2058,10 @@ function start(f, birthLog, deathLog, preconditions, postcondition) {
     listen.client.on("message", (_, msg) => {
         [lo, hi] = msg.split(" ", 2).map(BigInt);
     });
+    listen.client.on("error", (_, msg) => {
+        Object(logging["a" /* log */])(msg);
+        console.debug(msg);
+    });
     Object(processor["a" /* startProcessor */])(async () => f(() => lo, () => hi), preconditions, postcondition);
 }
 
@@ -2066,9 +2074,6 @@ var data = __webpack_require__(44);
 
 // EXTERNAL MODULE: ./dist/main/types/FileFormat.js
 var FileFormat = __webpack_require__(10);
-
-// EXTERNAL MODULE: ./dist/main/common/logging.js
-var logging = __webpack_require__(2);
 
 // EXTERNAL MODULE: ./dist/main/types/objects/FetchedResource.js
 var FetchedResource = __webpack_require__(25);
