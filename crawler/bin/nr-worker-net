@@ -150,6 +150,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(54);
+/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
+
 
 
 
@@ -194,6 +196,10 @@ async function watch() {
                 }
             });
         }
+    });
+    client.client.on("error", (_, msg) => {
+        Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])(msg);
+        console.debug(msg);
     });
 }
 watch();

@@ -211,7 +211,11 @@ __webpack_require__.r(__webpack_exports__);
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(54);
 
+// EXTERNAL MODULE: ./dist/main/common/logging.js
+var logging = __webpack_require__(2);
+
 // CONCATENATED MODULE: ./dist/main/common/zookeeper.js
+
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1);
@@ -252,9 +256,17 @@ function start(birthLog, deathLog, idBytes) {
     const birthsSub = Redis["b" /* Redis */].newRedis(Redis["a" /* REDIS_PARAMS */].local);
     birthsSub.client.subscribe(birthLog);
     birthsSub.client.on("message", (_, id) => sourceWorker(id));
+    birthsSub.client.on("error", (_, msg) => {
+        Object(logging["a" /* log */])(msg);
+        console.debug(msg);
+    });
     const deathsSub = Redis["b" /* Redis */].newRedis(Redis["a" /* REDIS_PARAMS */].local);
     deathsSub.client.subscribe(deathLog);
     deathsSub.client.on("message", (_, id) => retireWorker(id));
+    deathsSub.client.on("error", (_, msg) => {
+        Object(logging["a" /* log */])(msg);
+        console.debug(msg);
+    });
     setInterval(() => {
         const now = Date.now();
         const toRetire = [];
