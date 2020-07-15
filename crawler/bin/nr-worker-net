@@ -1555,6 +1555,10 @@ async function watch() {
     client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_5__[/* DELETE_FILES */ "e"]);
     console.log("Subscribed to channel:", common_events__WEBPACK_IMPORTED_MODULE_5__[/* DELETE_FILES */ "e"]);
     client.on("message", async (_, msg) => {
+        if (!msg) {
+            console.debug("ERR: empty message");
+            return;
+        }
         const lines = msg.split("\n").map(line => line.split(/\s+/, 2));
         console.log("msg");
         console.log(msg);
