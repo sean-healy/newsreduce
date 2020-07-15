@@ -1,19 +1,19 @@
 import path from "path";
 import crypto from "crypto";
 import { spawn } from "child_process";
-import { newRedis } from "common/connections";
-import { myIP, FIND, tmpDirPromise } from "common/config";
+import { newRedis, REDIS_PARAMS } from "common/connections";
+import { FIND, tmpDirPromise } from "common/config";
 import { DELETE_FILES } from "common/events";
 import fs from "fs";
 
 async function watch() {
-    //const ip = await myIP();
-    const ip = "127.0.0.1";
-    const client = newRedis(ip);
+    const client = newRedis(REDIS_PARAMS.local);
     client.subscribe(DELETE_FILES);
     console.log("Subscribed to channel:", DELETE_FILES);
     client.on("message", async (_, msg: string) => {
         const lines: [string, string][] = msg.split("\n").map(line => line.split(/\s+/, 2) as [string, string]);
+        console.log("msg");
+        console.log(msg);
         for (const [expectedChecksum, file] of lines) {
             const cwd = await tmpDirPromise();
             const dir = path.join(cwd, file);
