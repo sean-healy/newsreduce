@@ -2,6 +2,7 @@ import { setImmediateInterval } from "./util";
 import { startProcessor } from "./processor";
 import { randomBytes } from "crypto";
 import { Redis, REDIS_PARAMS } from "./Redis";
+import { log } from "./logging";
 
 export function start(
     f: (lo: () => bigint, hi: () => bigint) => void,
@@ -19,6 +20,10 @@ export function start(
     listen.client.subscribe(workerID);
     listen.client.on("message", (_, msg) => {
         [lo, hi] = msg.split(" ", 2).map(BigInt);
+    });
+    listen.client.on("error", (_, msg) => {
+        log(msg);
+        console.debug(msg);
     });
     startProcessor(async () => f(() => lo, () => hi), preconditions, postcondition);
 }
