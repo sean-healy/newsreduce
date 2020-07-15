@@ -1767,6 +1767,8 @@ webpackContext.id = 42;
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6);
 /* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(54);
+/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(2);
+
 
 
 
@@ -1799,6 +1801,10 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
         events.client.on("message", (_, msg) => {
             if (preconditions.has(msg))
                 synchronised(name, f, postcondition);
+        });
+        events.client.on("error", (_, msg) => {
+            Object(_logging__WEBPACK_IMPORTED_MODULE_6__[/* log */ "a"])(msg);
+            console.debug(msg);
         });
     }
     else

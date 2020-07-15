@@ -5,6 +5,7 @@ import { FIND, tmpDirPromise } from "common/config";
 import { DELETE_FILES } from "common/events";
 import fs from "fs";
 import { Redis, REDIS_PARAMS } from "common/Redis";
+import { log } from "common/logging";
 
 async function watch() {
     const client = Redis.newRedis(REDIS_PARAMS.local);
@@ -41,6 +42,10 @@ async function watch() {
                 }
             });
         }
+    });
+    client.client.on("error", (_, msg) => {
+        log(msg);
+        console.debug(msg);
     });
 }
 watch();

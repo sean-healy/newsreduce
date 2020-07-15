@@ -5,6 +5,7 @@ import { EVENT_LOG } from "common/events";
 import { safetyFilePromise } from "common/config";
 import { setImmediateInterval } from "common/util";
 import { Redis, REDIS_PARAMS, ExtendedRedisClient } from "./Redis";
+import { log } from "./logging";
 
 let locks = {};
 async function synchronised(name: string, f: () => Promise<any>, postcondition: string) {
@@ -39,6 +40,10 @@ export function startProcessor(
         events.client.on("message", (_, msg) => {
             if (preconditions.has(msg))
                 synchronised(name, f, postcondition);
+        });
+        events.client.on("error", (_, msg) => {
+            log(msg);
+            console.debug(msg);
         });
     } else events = null;
     const safetyInterval = setImmediateInterval(async () => {
