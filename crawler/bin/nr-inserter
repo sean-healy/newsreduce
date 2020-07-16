@@ -2144,13 +2144,14 @@ var util = __webpack_require__(5);
 
 
 
-const BATCH_SIZE = 2000;
+const sizes = [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+let BATCH_SIZE = 100;
 const CHANGE = false;
 async function bulkInsert() {
     const client = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const keys = await client.keys();
     for (const key of keys) {
-        console.log(key);
+        //console.log(key);
         const typePromise = client.type(key);
         const table = DBObject["a" /* DBObject */].forTable(key);
         if (!CHANGE) {
@@ -2180,15 +2181,17 @@ async function bulkInsert() {
                     let start = Date.now();
                     const list = await listFn.bind(client)(key);
                     let end = Date.now();
-                    console.log(`LISTING ${(end - start)} ms`);
+                    //console.log(`LISTING ${(end - start)} ms`);
                     const toRemove = preMapper(list).slice(0, BATCH_SIZE);
                     const params = toRemove.map(row => JSON.parse(postMapper(row, list)));
+                    //console.log("MAPPED");
                     res([params, toRemove]);
                 });
                 let start = Date.now();
                 await table.bulkInsert(params);
                 let end = Date.now();
-                console.log(`BULK INSERT ${(end - start)} ms`);
+                //console.log(`BULK INSERT ${(end - start)} ms`);
+                console.log(params.length, end - start);
                 start = Date.now();
                 if (useInsertedCache)
                     await Promise.all([
@@ -2198,7 +2201,8 @@ async function bulkInsert() {
                 else
                     await deleteFn.bind(client)(key, toRemove);
                 end = Date.now();
-                console.log(`CLEANUP ${(end - start)} ms`);
+                //console.log(`CLEANUP ${(end - start)} ms`);
+                BATCH_SIZE = sizes[Math.floor(Math.random() * sizes.length)];
             });
         }
         else {
