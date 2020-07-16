@@ -713,7 +713,7 @@ function isEntityLocked(entityID) {
     return Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fileLock).eq(entityID);
 }
 async function compress() {
-    const locked = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).eq(events["c" /* COMPRESSOR_LOCK */]);
+    const locked = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local).eq(events["c" /* COMPRESSOR_LOCK */]);
     if (locked)
         return;
     const tmpDir = await Object(config["j" /* tmpDirPromise */])();

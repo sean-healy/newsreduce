@@ -68,7 +68,7 @@ export function isEntityLocked(entityID: string) {
 }
 
 export async function compress() {
-    const locked = await Redis.renewRedis(REDIS_PARAMS.general).eq(COMPRESSOR_LOCK);
+    const locked = await Redis.renewRedis(REDIS_PARAMS.local).eq(COMPRESSOR_LOCK);
     if (locked) return;
     const tmpDir = await tmpDirPromise();
     const entities = fs.readdirSync(tmpDir);

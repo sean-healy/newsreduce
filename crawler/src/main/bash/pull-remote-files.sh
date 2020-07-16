@@ -3,7 +3,9 @@ fileList=/tmp/$(openssl rand -hex 30)
 checksums=/tmp/$(openssl rand -hex 30)
 cat /var/newsreduce/network | while read host; do
     if [ $host = newsreduce.org ]; then continue; fi
+    if [[ ! "$host" =~ newsreduce ]]; then continue; fi
     echo $host
+    echo "set compressor-lock 1" | redis-cli -h $host
     (rsync -alrpgoDuzhtv newsreduce@$host:/var/newsreduce/tmp/ /var/newsreduce/tmp/\
         | awk -F/ '$1=="resource"&&$2~/^[0-9]+$/&&$0~/[^\/]$/{print}'\
         > $fileList)
@@ -18,4 +20,5 @@ cat /var/newsreduce/network | while read host; do
     fi
     rm $fileList
     rm $checksums
+    echo "del compressor-lock" | redis-cli -h $host
 done
