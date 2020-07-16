@@ -295,9 +295,15 @@ class Redis {
             port: common_config__WEBPACK_IMPORTED_MODULE_1__[/* ENV */ "a"][0] === "prod" ? params.port : 1111,
             db: params.db,
         });
-        client.on("error", (_, msg) => {
-            Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
-            console.debug(msg);
+        client.on("error", (error, msg) => {
+            if (msg) {
+                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
+                console.debug(msg);
+            }
+            if (error) {
+                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
+                console.debug(error);
+            }
         });
         return new Redis(params, client);
     }

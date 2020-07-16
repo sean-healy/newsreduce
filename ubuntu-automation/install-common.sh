@@ -147,7 +147,8 @@ systemctl restart redis
 cat crontab.cron | sudo -u newsreduce crontab -
 function mk-daemon-script() {
 node_script=$1
-daemon_script=$2
+daemon_script=$1
+[[ "$2" ]] && daemon_script=$2
 cat > /usr/bin/nr-$daemon_script << END
 #!/usr/bin/bash
 if [ "\$USER" != newsreduce ]; then
@@ -163,6 +164,10 @@ END
 chmod 755 /usr/bin/nr-$daemon_script
 }
 mk-daemon-script $env-net net-agent
-mk-daemon-script inserter inserter
-mk-daemon-script compressor compressor
+mk-daemon-script inserter
+mk-daemon-script compressor
+mk-daemon-script fetch-zookeeper
+mk-daemon-script fetch-worker
+mk-daemon-script schedule
+mk-daemon-script html-process
 ln -sf /opt/newsreduce/ubuntu-automation/install-$env.sh /usr/bin/nr-update

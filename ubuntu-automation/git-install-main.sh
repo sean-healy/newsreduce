@@ -34,3 +34,4 @@ chown -R newsreduce:newsreduce /var/newsreduce
 apt -y autoremove
 nr-net-agent
 nr-inserter
+nr-schedule
