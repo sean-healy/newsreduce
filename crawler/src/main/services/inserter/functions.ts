@@ -3,7 +3,7 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { IDENTITY_FUNCTION } from "common/util";
 import { INSERT_CACHE } from "common/events";
 
-const BATCH_SIZE = 5000;
+const BATCH_SIZE = 50;
 
 export async function bulkInsert() {
     const client = Redis.renewRedis(REDIS_PARAMS.inserts);
@@ -19,7 +19,12 @@ export async function bulkInsert() {
         let preMapper: (response: any) => string[];
         let postMapper: (row: string, response: any) => string;
         let useInsertedCache: boolean;
-        promises.push(typePromise.then(async type => {
+        //promises.push(typePromise.then(async type => {
+        await typePromise.then(async type => {
+            if (type === "hash") {
+                console.log(key, "is hash, returning")
+                return;
+            }
             [listFn, preMapper, postMapper, deleteFn, useInsertedCache] = {
                 hash: [
                     client.hgetall,
@@ -52,9 +57,9 @@ export async function bulkInsert() {
                 ]);
             else
                 await deleteFn.bind(client)(key, toRemove);
-        }));
+        });
     }
-    await Promise.all(promises);
+    //await Promise.all(promises);
     let end = Date.now();
     console.log(`${(end - start)} ms`);
 }
