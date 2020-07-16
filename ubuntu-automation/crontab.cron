@@ -1,0 +1,2 @@
+* * * * * /usr/bin/sudo /usr/bin/nr-update
+* * * * * /opt/newsreduce/crawler/src/main/bash/cleanup-empty-dirs.sh

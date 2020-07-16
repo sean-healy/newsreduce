@@ -144,7 +144,7 @@ cat /etc/redis/redis.conf.tmp > /etc/redis/redis.conf
 rm /etc/redis/redis.conf.tmp
 rm /etc/sudoers.tmp
 systemctl restart redis
-echo '* * * * * /usr/bin/sudo /usr/bin/nr-update' | sudo -u newsreduce crontab -
+cat crontab.cron | sudo -u newsreduce crontab -
 function mk-daemon-script() {
 node_script=$1
 daemon_script=$2
