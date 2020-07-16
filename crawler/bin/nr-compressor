@@ -409,7 +409,8 @@ module.exports = require("child_process");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return LOCALHOST; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return MAIN_HOSTNAME; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return TAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NET_AGENT_ENDPOINT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
 /* unused harmony export FIND */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return varDirPromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safetyFilePromise; });
@@ -417,10 +418,10 @@ module.exports = require("child_process");
 /* unused harmony export varDirChildPromise */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return tmpDirPromise; });
 /* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return nullFilePromise; });
 /* unused harmony export myIP */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return getParams; });
+/* unused harmony export getParams */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
@@ -435,6 +436,7 @@ let ENV = ["prod"];
 
 const LOCALHOST = common_DNS__WEBPACK_IMPORTED_MODULE_3__[/* DNS */ "a"].ipv4AsIpv6("127.0.0.1");
 const MAIN_HOSTNAME = "newsreduce.org";
+const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
 const TAR = "tar";
 const FIND = "find";
 async function varDirPromise() {
@@ -479,7 +481,6 @@ async function myIP() {
     const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://newsreduce.org:9999/ip").then(response => response.text());
     return ip;
 }
-const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
 let params = null;
 async function getParams() {
     if (!params)
@@ -735,7 +736,7 @@ async function compress() {
             if (compressedArcExists) {
                 promises.push(spawnSeq([
                     [ZSTD, undefined, ["-df", compressedArc, "-o", arc]],
-                    [config["d" /* TAR */], entitiesDir, ["-uvf", arc, entityID]],
+                    [config["e" /* TAR */], entitiesDir, ["-uvf", arc, entityID]],
                     [ZSTD, undefined, ["-f", arc, "-o", compressedArc]],
                     [MV, undefined, [arc, await Object(config["g" /* nullFilePromise */])(arc)]],
                     [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
@@ -744,7 +745,7 @@ async function compress() {
             else {
                 await Object(config["h" /* safeMkdir */])(external_path_default.a.dirname(compressedArc));
                 promises.push(spawnSeq([
-                    [config["d" /* TAR */], entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
+                    [config["e" /* TAR */], entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
                     [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
                 ]));
             }

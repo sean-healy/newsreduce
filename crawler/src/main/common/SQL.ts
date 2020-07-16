@@ -1,6 +1,6 @@
 import { DNS } from "common/DNS";
 import { createConnection, Connection } from "mysql";
-import { getParams } from "common/config";
+import { NET_AGENT_ENDPOINT } from "common/config";
 import { log } from "common/logging";
 import { MAIN_HOSTNAME, LOCALHOST } from "common/config";
 
@@ -18,7 +18,8 @@ export class SQL {
             const myIP = await DNS.whoami();
             if (ip === myIP) ip = LOCALHOST;
             log("Fetching SQL config.");
-            const password = (await getParams()).sql
+            const params = await fetch(NET_AGENT_ENDPOINT).then(res => res.json());
+            const password = params.sql
             log("Fetched SQL config.");
             DB_CLIENT = createConnection({ ...SQL_PARAMS, password, host: ip });
         }

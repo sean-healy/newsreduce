@@ -8,6 +8,7 @@ import { DNS } from "common/DNS";
 
 export const LOCALHOST = DNS.ipv4AsIpv6("127.0.0.1");
 export const MAIN_HOSTNAME = "newsreduce.org";
+export const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
 
 export const TAR = "tar";
 export const FIND = "find";
@@ -57,8 +58,6 @@ export async function myIP() {
     return ip;
 }
 
-
-const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
 
 interface Params {
     sql: string;
