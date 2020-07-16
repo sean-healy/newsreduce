@@ -86,6 +86,42 @@
 /************************************************************************/
 /******/ ({
 
+/***/ 1:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
+
+
+class DNS {
+    static lookup(hostname) {
+        return new Promise((res, rej) => {
+            dns__WEBPACK_IMPORTED_MODULE_0___default.a.lookup(hostname, (err, address, family) => {
+                if (err)
+                    rej(err);
+                else if (family === 4)
+                    res(DNS.ipv4AsIpv6(address));
+                else
+                    res(address);
+            });
+        });
+    }
+    static ipv4AsIpv6(ipv4) {
+        return `::ffff:${ipv4}`;
+    }
+    static async whoami() {
+        const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()("http://newsreduce.org:9999/ip").then(response => response.text());
+        return ip;
+    }
+}
+
+
+/***/ }),
+
 /***/ 2:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -98,7 +134,7 @@
 
 async function log(...args) {
     const now = Date.now();
-    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "i"])();
+    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "l"])();
     const logFile = `${varDir}/log`;
     fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
 }
@@ -127,32 +163,46 @@ module.exports = require("redis");
 
 /***/ }),
 
+/***/ 47:
+/***/ (function(module, exports) {
+
+module.exports = require("dns");
+
+/***/ }),
+
 /***/ 5:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return TAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return LOCALHOST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return MAIN_HOSTNAME; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FIND; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return varDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return safetyFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return safeMkdir; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return varDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return safetyFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safeMkdir; });
 /* unused harmony export varDirChildPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return tmpDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return tmpDirPromise; });
 /* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return blobDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return nullFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return nullFilePromise; });
 /* unused harmony export myIP */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return getParams; });
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(1);
 let ENV = ["prod"];
 
 
 
+
+const LOCALHOST = common_DNS__WEBPACK_IMPORTED_MODULE_3__[/* DNS */ "a"].ipv4AsIpv6("127.0.0.1");
+const MAIN_HOSTNAME = "newsreduce.org";
 const TAR = "tar";
 const FIND = "find";
 async function varDirPromise() {
@@ -194,8 +244,15 @@ async function nullFilePromise(path) {
     return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
 }
 async function myIP() {
-    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://seanh.sh:9999/ip").then(response => response.text());
+    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://newsreduce.org:9999/ip").then(response => response.text());
     return ip;
+}
+const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
+let params = null;
+async function getParams() {
+    if (!params)
+        params = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(NET_AGENT_ENDPOINT).then(res => res.json());
+    return params;
 }
 
 

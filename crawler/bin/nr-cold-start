@@ -109,9 +109,6 @@ function defaultHash(prefix, str) {
 // EXTERNAL MODULE: ./dist/main/common/util.js
 var util = __webpack_require__(6);
 
-// EXTERNAL MODULE: ./dist/main/common/connections.js
-var connections = __webpack_require__(1);
-
 // EXTERNAL MODULE: ./dist/main/common/logging.js
 var logging = __webpack_require__(2);
 
@@ -120,6 +117,9 @@ var events = __webpack_require__(8);
 
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(54);
+
+// EXTERNAL MODULE: ./dist/main/common/SQL.js
+var SQL = __webpack_require__(59);
 
 // CONCATENATED MODULE: ./dist/main/types/DBObject.js
 
@@ -158,26 +158,15 @@ class DBObject_DBObject {
     async singularInsert(options = { recursive: false }) {
         const promises = [];
         // No circular dependencies allowed.
-        if (options.recursive) {
+        if (options.recursive)
             for (const promise of this.getDeps().map(dep => dep.singularInsert(options)))
                 promises.push(promise);
-        }
-        promises.push(new Promise(async (res, rej) => {
-            const query = this.getInsertStatement();
-            const params = this.getSingularInsertParams();
-            const filledQuery = (await Object(connections["a" /* db */])()).query(query, params, err => {
-                if (err) {
-                    Object(logging["a" /* log */])(err);
-                    rej(err);
-                }
-                else {
-                    res();
-                    const id = this.getID();
-                    if (id)
-                        Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], id.toString());
-                }
-            });
-            Object(logging["a" /* log */])(filledQuery.sql);
+        const query = this.getInsertStatement();
+        const params = this.getSingularInsertParams();
+        promises.push(SQL["a" /* SQL */].query(query, params).then(() => {
+            const id = this.getID();
+            if (id)
+                Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], id.toString());
         }));
         await Promise.all(promises);
     }
@@ -189,10 +178,9 @@ class DBObject_DBObject {
         if (params.length === 0)
             return;
         const query = this.getInsertStatement();
-        const client = await Object(connections["a" /* db */])();
         Object(logging["a" /* log */])(query);
         Object(logging["a" /* log */])(JSON.stringify(params));
-        await new Promise(async (res, rej) => Object(logging["a" /* log */])(client.query(query, [params], err => err ? rej(err) : res()).sql));
+        await SQL["a" /* SQL */].query(query, [params]);
     }
     static stringifyBigIntsInPlace(obj) {
         if (typeof obj === "object") {
@@ -230,41 +218,22 @@ class DBObject_DBObject {
         }));
         await Promise.all(promises);
     }
-    singularSelect(columns) {
-        return new Promise(async (res, rej) => {
-            let cols;
-            if (columns)
-                cols = columns.map(column => "`" + column + "`").join(", ");
-            else
-                cols = "*";
-            const query = `select ${cols} from ${this.table()} where ${this.idCol()} = ?`;
-            const filledQuery = (await Object(connections["a" /* db */])()).query(query, [this.getID()], (err, response) => {
-                if (err) {
-                    Object(logging["a" /* log */])(err);
-                    rej(err);
-                }
-                else
-                    res(response[0]);
-            });
-            Object(logging["a" /* log */])(filledQuery.sql);
-        });
+    async singularSelect(columns) {
+        let cols;
+        if (columns)
+            cols = columns.map(column => "`" + column + "`").join(", ");
+        else
+            cols = "*";
+        const query = `select ${cols} from ${this.table()} where ${this.idCol()} = ?`;
+        return await SQL["a" /* SQL */].query(query, [this.getID()])[0];
     }
     async bulkSelect(ids, columns) {
         if (!ids || ids.length === 0)
             return [];
-        return await new Promise(async (res, rej) => {
-            const idCol = this.idCol();
-            const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
-            const filledQuery = (await Object(connections["a" /* db */])()).query(query, [[ids]], (err, response) => {
-                if (err) {
-                    Object(logging["a" /* log */])(err);
-                    rej(err);
-                }
-                else
-                    res(response);
-            });
-            Object(logging["a" /* log */])(filledQuery.sql);
-        });
+        const idCol = this.idCol();
+        const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
+        const response = await SQL["a" /* SQL */].query(query, [[ids]]);
+        return response;
     }
     idCol() {
         return "id";
@@ -287,45 +256,33 @@ class DBObject_DBObject {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* unused harmony export ENTITIES_TO_COMPRESS */
-/* unused harmony export getParams */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return db; });
-/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(40);
-/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
 
 
-
-const MAIN_HOST = "newsreduce.org";
-const LOCALHOST = "127.0.0.1";
-const ENTITIES_TO_COMPRESS = "entities-to-compress";
-const NET_AGENT_ENDPOINT = `http://${MAIN_HOST}:9999`;
-const SQL_PARAMS = {
-    host: MAIN_HOST,
-    user: "newsreduce",
-    database: "newsreduce",
-    supportBigNumbers: true,
-};
-let params = null;
-async function getParams() {
-    if (!params) {
-        const { ResourceURL } = __webpack_require__(4);
-        params = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()(new ResourceURL(NET_AGENT_ENDPOINT).toURL())
-            .then(res => res.json());
+class DNS {
+    static lookup(hostname) {
+        return new Promise((res, rej) => {
+            dns__WEBPACK_IMPORTED_MODULE_0___default.a.lookup(hostname, (err, address, family) => {
+                if (err)
+                    rej(err);
+                else if (family === 4)
+                    res(DNS.ipv4AsIpv6(address));
+                else
+                    res(address);
+            });
+        });
     }
-    return params;
-}
-let dbClient = null;
-async function db() {
-    if (dbClient === null) {
-        Object(_logging__WEBPACK_IMPORTED_MODULE_2__[/* log */ "a"])("Fetching SQL config.");
-        const password = (await getParams()).sql;
-        Object(_logging__WEBPACK_IMPORTED_MODULE_2__[/* log */ "a"])("Fetched SQL config.");
-        dbClient = Object(mysql__WEBPACK_IMPORTED_MODULE_0__["createConnection"])({ ...SQL_PARAMS, password });
+    static ipv4AsIpv6(ipv4) {
+        return `::ffff:${ipv4}`;
     }
-    return dbClient;
+    static async whoami() {
+        const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()("http://newsreduce.org:9999/ip").then(response => response.text());
+        return ip;
+    }
 }
 
 
@@ -342,7 +299,7 @@ async function db() {
 
 async function log(...args) {
     const now = Date.now();
-    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "i"])();
+    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "l"])();
     const logFile = `${varDir}/log`;
     fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
 }
@@ -512,27 +469,34 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return TAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return LOCALHOST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return MAIN_HOSTNAME; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FIND; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return varDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return safetyFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return safeMkdir; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return varDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return safetyFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safeMkdir; });
 /* unused harmony export varDirChildPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return tmpDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return tmpDirPromise; });
 /* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return blobDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return nullFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return nullFilePromise; });
 /* unused harmony export myIP */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return getParams; });
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(1);
 let ENV = ["prod"];
 
 
 
+
+const LOCALHOST = common_DNS__WEBPACK_IMPORTED_MODULE_3__[/* DNS */ "a"].ipv4AsIpv6("127.0.0.1");
+const MAIN_HOSTNAME = "newsreduce.org";
 const TAR = "tar";
 const FIND = "find";
 async function varDirPromise() {
@@ -574,8 +538,15 @@ async function nullFilePromise(path) {
     return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
 }
 async function myIP() {
-    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://seanh.sh:9999/ip").then(response => response.text());
+    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://newsreduce.org:9999/ip").then(response => response.text());
     return ip;
+}
+const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
+let params = null;
+async function getParams() {
+    if (!params)
+        params = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(NET_AGENT_ENDPOINT).then(res => res.json());
+    return params;
 }
 
 
@@ -1136,7 +1107,7 @@ const TAR_LS_PARAMS = "-atf";
 const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
 const TAR_CAT_PARAMS_AFTER_FILE = "-O";
 async function entityIDs(entity) {
-    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "d"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity));
+    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity));
     const files = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readdirSync(entityDir);
     return files
         .map(file => file.match(/^([0-9]+)\.tzst$/))
@@ -1156,8 +1127,8 @@ async function write(entity, entityID, version, format, src) {
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
     if (found)
         return -1;
-    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "h"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`, `${version}`);
-    await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "f"])(dir);
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "k"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`, `${version}`);
+    await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "i"])(dir);
     const tmpFile = `${dir}/${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`;
     Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing to", tmpFile);
     const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
@@ -1197,7 +1168,7 @@ const sortVersions = (versions) => versions.sort((v1, v2) => {
     return vFormat1 - vFormat2;
 });
 async function getVersions(entity, entityID) {
-    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "d"])();
+    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
         return [];
@@ -1205,7 +1176,7 @@ async function getVersions(entity, entityID) {
     const versions = [];
     const err = [];
     return await new Promise(async (res, rej) => {
-        const tarLS = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "c"], params);
+        const tarLS = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], params);
         tarLS.on("error", err => rej(err));
         tarLS.stdout.on("data", (data) => {
             for (const version of data
@@ -1222,11 +1193,11 @@ async function getVersions(entity, entityID) {
     });
 }
 async function read(entity, entityID, version, format) {
-    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "d"])();
+    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}`, Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format));
     return await new Promise((res, rej) => {
-        const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "c"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
+        const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
         const allData = [];
         tarCat.stdout.on("data", (data) => allData.push(data));
         const errData = [];
@@ -1758,7 +1729,12 @@ webpackContext.id = 42;
 /* 44 */,
 /* 45 */,
 /* 46 */,
-/* 47 */,
+/* 47 */
+/***/ (function(module, exports) {
+
+module.exports = require("dns");
+
+/***/ }),
 /* 48 */,
 /* 49 */,
 /* 50 */,
@@ -2044,17 +2020,75 @@ async function insertColdStartObjects() {
     await Promise.all(promises);
 }
 
-// EXTERNAL MODULE: ./dist/main/common/connections.js
-var connections = __webpack_require__(1);
+// EXTERNAL MODULE: ./dist/main/common/SQL.js
+var SQL = __webpack_require__(59);
 
 // CONCATENATED MODULE: ./dist/main/services/cold-start/main.js
 
 
 insertColdStartObjects().then(async () => {
     console.log("Done.");
-    (await Object(connections["a" /* db */])()).destroy();
+    SQL["a" /* SQL */].destroy();
     process.exit(0);
 });
+
+
+/***/ }),
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export SQL_PARAMS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SQL; });
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(40);
+/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
+/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
+
+
+
+
+
+const SQL_PARAMS = {
+    user: "newsreduce",
+    database: "newsreduce",
+    supportBigNumbers: true,
+};
+let DB_CLIENT = null;
+class SQL {
+    static async db() {
+        if (DB_CLIENT === null) {
+            let ip = await common_DNS__WEBPACK_IMPORTED_MODULE_0__[/* DNS */ "a"].lookup(common_config__WEBPACK_IMPORTED_MODULE_2__[/* MAIN_HOSTNAME */ "d"]);
+            const myIP = await common_DNS__WEBPACK_IMPORTED_MODULE_0__[/* DNS */ "a"].whoami();
+            if (ip === myIP)
+                ip = common_config__WEBPACK_IMPORTED_MODULE_2__[/* LOCALHOST */ "c"];
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetching SQL config.");
+            const password = (await Object(common_config__WEBPACK_IMPORTED_MODULE_2__[/* getParams */ "g"])()).sql;
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetched SQL config.");
+            DB_CLIENT = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])({ ...SQL_PARAMS, password, host: ip });
+        }
+        return DB_CLIENT;
+    }
+    static async query(template, params) {
+        return new Promise((res, rej) => {
+            SQL.db().then(db => {
+                db.query(template, params, (err, results) => {
+                    if (err)
+                        rej(err);
+                    else
+                        res(results);
+                });
+            });
+        });
+    }
+    static async destroy() {
+        (await SQL.db()).destroy();
+    }
+}
 
 
 /***/ })

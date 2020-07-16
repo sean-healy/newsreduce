@@ -4,6 +4,11 @@ import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
 
+import { DNS } from "common/DNS";
+
+export const LOCALHOST = DNS.ipv4AsIpv6("127.0.0.1");
+export const MAIN_HOSTNAME = "newsreduce.org";
+
 export const TAR = "tar";
 export const FIND = "find";
 
@@ -47,7 +52,20 @@ export async function nullFilePromise(path: string) {
     return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
 }
 export async function myIP() {
-    const ip = await fetch("http://seanh.sh:9999/ip").then(response => response.text());
+    const ip = await fetch("http://newsreduce.org:9999/ip").then(response => response.text());
 
     return ip;
+}
+
+
+const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
+
+interface Params {
+    sql: string;
+}
+let params: Params = null;
+export async function getParams() {
+    if (!params) params = await fetch(NET_AGENT_ENDPOINT).then(res => res.json());
+
+    return params;
 }

@@ -1,15 +1,20 @@
 import "./setup.ts";
-import { db } from "common/connections";
 import { Redis, REDIS_PARAMS } from "common/Redis";
+import { SQL } from "common/SQL";
 
 test("get DB should work", async () => {
-    await db();
+    await SQL.db();
 });
 
 test("get DB should work and cache", async () => {
-    const a = await db();
-    const b = await db();
+    const a = await SQL.db();
+    const b = await SQL.db();
     expect(a === b).toBe(true);
+});
+
+test("DB functioning", async () => {
+    const rows = await SQL.query("select 1 as one", []);
+    expect(rows[0].one).toBe(1);
 });
 
 test("creating redis connections for var IP should work", async () => {

@@ -1,5 +1,5 @@
 import "./setup.ts";
-import { getParams } from "common/connections";
+import { getParams } from "common/config";
 
 test("net agent communication possible", async () => {
     const params = await getParams();

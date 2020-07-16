@@ -6,6 +6,7 @@ fi
 mkdir -p /var/newsreduce
 curl http://newsreduce.org:9999/net > /var/newsreduce/network
 echo 0 > /var/newsreduce/is_main
+export env=worker
 bash "$(dirname $0)/install-common.sh"
 access_key="$(curl http://newsreduce.org:9999/public-key)"
 ssh_dir="/var/newsreduce/.ssh"
@@ -28,18 +29,4 @@ apt-get update
 apt-get -y install ${debs[*]}
 apt -y autoremove
 chown -R newsreduce:newsreduce /var/newsreduce
-ln -sf /opt/newsreduce/ubuntu-automation/install-worker.sh /usr/bin/nr-update
-cat > /usr/bin/nr-net-agent << END
-#!/usr/bin/bash
-if [ "\$USER" != newsreduce ]; then
-    sudo -u newsreduce \$0 \$@
-    exit
-fi
-if [ "\$TMUX" ]; then
-    (cd /opt/newsreduce/crawler && git pull && npm i && npx node bin/nr-worker-net)
-else
-    [[ "\$(tmux list-sessions | cut -d: -f1 | grep -Fo net-agent)" ]] || tmux new -d -s net-agent \$0 \$@
-fi
-END
-chmod 755 /usr/bin/nr-net-agent
 nr-net-agent
