@@ -6,21 +6,60 @@ import { log } from "common/logging";
 import { COMPRESSOR_LOCK } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 
+async function tryLoop(spawner: () => ChildProcessWithoutNullStreams) {
+    for (let attempt = 0; attempt < 10; attempt++) {
+        try {
+            const content = await new Promise<string>((res, rej) => {
+                const process = spawner();
+                process.on("error", err => rej(err));
+                process.stdout.on("error", err => rej(err));
+                process.stderr.on("error", (err) => {
+                    console.log("stderr error");
+                    console.log(err);
+                });
+                const stdout = [];
+                const stderr = [];
+                process.stdout.on("data", (data: Buffer) => stdout.push(data));
+                process.stderr.on("data", (data: Buffer) => stderr.push(data));
+                process.on("close", code => {
+                    if (code === 0) {
+                        const content = Buffer.concat(stdout).toString();
+                        res(content);
+                    } else {
+                        const content = Buffer.concat(stderr).toString();
+                        rej(content);
+                    }
+                });
+            });
+
+            return content;
+        } catch (err) {
+            console.debug("Caught error during attempt", attempt);
+            console.debug(err);
+            await new Promise(res => setTimeout(res, 100));
+        }
+    }
+}
+
 const ZSTD = "zstd";
 const MV = "mv";
 
-function spawnSeq(sequence: [string, string, string[]][], res: () => void, rej: (err: string) => void) {
-    if (sequence.length === 0) res();
+async function spawnSeq(sequence: [string, string, string[]][]) {
+    if (sequence.length === 0) return;
     else {
         const [head, ...tail] = sequence;
         log(JSON.stringify(head));
         const [command, cwd, args] = head;
-        let process: ChildProcessWithoutNullStreams;
-        if (cwd) process = spawn(command, args, { cwd });
-        else process = spawn(command, args);
-        const err = [];
-        process.stderr.on("data", data => err.push(data));
-        process.on("close", c => c === 0 ? spawnSeq(tail, res, rej) : rej(Buffer.concat(err).toString()));
+        let promise: Promise<string>;
+        if (cwd) promise = tryLoop(() => spawn(command, args, { cwd }));
+        else promise = tryLoop(() => spawn(command, args));
+        const stdout = await promise;
+        if (stdout) {
+            log(JSON.stringify(head));
+            log("STDOUT:");
+            log(stdout);
+        }
+        await spawnSeq(tail);
     }
 }
 
@@ -45,19 +84,19 @@ export async function compress() {
             const arc = `${entityDir}.tar`
             const compressedArcExists = fs.existsSync(compressedArc);
             if (compressedArcExists) {
-                promises.push(new Promise<void>(async (res, rej) => spawnSeq([
+                promises.push(spawnSeq([
                     [ZSTD, undefined, ["-df", compressedArc, "-o", arc]],
                     [TAR, entitiesDir, ["-uvf", arc, entityID]],
                     [ZSTD, undefined, ["-f", arc, "-o", compressedArc]],
                     [MV, undefined, [arc, await nullFilePromise(arc)]],
                     [MV, undefined, [entityDir, await nullFilePromise(entityDir)]],
-                ], res, rej)));
+                ]));
             } else {
                 await safeMkdir(path.dirname(compressedArc));
-                promises.push(new Promise<void>(async (res, rej) => spawnSeq([
+                promises.push(spawnSeq([
                     [TAR, entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
                     [MV, undefined, [entityDir, await nullFilePromise(entityDir)]],
-                ], res, rej)));
+                ]));
             }
         }
     }

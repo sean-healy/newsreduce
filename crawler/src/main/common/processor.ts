@@ -1,11 +1,9 @@
 import fs from "fs";
 import crypto from "crypto";
-import { RedisClient } from "redis";
 import { EVENT_LOG } from "common/events";
 import { safetyFilePromise } from "common/config";
 import { setImmediateInterval } from "common/util";
-import { Redis, REDIS_PARAMS, ExtendedRedisClient } from "./Redis";
-import { log } from "./logging";
+import { Redis, REDIS_PARAMS } from "./Redis";
 
 let locks = {};
 async function synchronised(name: string, f: () => Promise<any>, postcondition: string) {
