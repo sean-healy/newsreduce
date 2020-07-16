@@ -312,9 +312,15 @@ export class Redis {
             port: ENV[0] === "prod" ? params.port : 1111,
             db: params.db,
         }) as ExtendedRedisClient;
-        client.on("error", (_, msg) => {
-            log(msg);
-            console.debug(msg);
+        client.on("error", (error, msg) => {
+            if (msg) {
+                log(msg);
+                console.debug(msg);
+            }
+            if (error) {
+                log(msg);
+                console.debug(error);
+            }
         });
 
         return new Redis(params, client);
