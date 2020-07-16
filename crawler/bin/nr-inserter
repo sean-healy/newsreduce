@@ -978,8 +978,25 @@ class SQL {
         }
         return DB_CLIENT;
     }
+    static async tryLoop(cb) {
+        for (let attempt = 0; attempt < 10; ++attempt) {
+            try {
+                const response = await new Promise(cb);
+                return response;
+            }
+            catch (err) {
+                Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
+                Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
+                console.debug(err);
+                const oldClient = DB_CLIENT;
+                DB_CLIENT = null;
+                oldClient.destroy();
+            }
+        }
+        return null;
+    }
     static async query(template, params) {
-        return new Promise((res, rej) => {
+        return this.tryLoop((res, rej) => {
             SQL.db().then(db => {
                 db.query(template, params, (err, results) => {
                     if (err)
@@ -2126,7 +2143,7 @@ var util = __webpack_require__(5);
 
 
 
-const BATCH_SIZE = 5000;
+const BATCH_SIZE = 50;
 async function bulkInsert() {
     const client = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const keys = await client.keys();
@@ -2141,7 +2158,12 @@ async function bulkInsert() {
         let preMapper;
         let postMapper;
         let useInsertedCache;
-        promises.push(typePromise.then(async (type) => {
+        //promises.push(typePromise.then(async type => {
+        await typePromise.then(async (type) => {
+            if (type === "hash") {
+                console.log(key, "is hash, returning");
+                return;
+            }
             [listFn, preMapper, postMapper, deleteFn, useInsertedCache] = {
                 hash: [
                     client.hgetall,
@@ -2173,9 +2195,9 @@ async function bulkInsert() {
                 ]);
             else
                 await deleteFn.bind(client)(key, toRemove);
-        }));
+        });
     }
-    await Promise.all(promises);
+    //await Promise.all(promises);
     let end = Date.now();
     console.log(`${(end - start)} ms`);
 }

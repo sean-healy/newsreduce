@@ -25,8 +25,28 @@ export class SQL {
 
         return DB_CLIENT;
     }
+    static async tryLoop<T>(
+        cb: (res: (response?: T) => void, rej: (reason?: any) => void) => void
+    ) {
+        for (let attempt = 0; attempt < 10; ++attempt) {
+            try {
+                const response = await new Promise<T>(cb);
+
+                return response;
+            } catch (err) {
+                log("error on attempt", attempt.toString());
+                log(err);
+                console.debug(err);
+                const oldClient = DB_CLIENT;
+                DB_CLIENT = null;
+                oldClient.destroy();
+            }
+        }
+
+        return null;
+    }
     static async query<T>(template: string, params: any[]) {
-        return new Promise<T>((res, rej) => {
+        return this.tryLoop<T>((res, rej) => {
             SQL.db().then(db => {
                 db.query(template, params, (err, results: T) => {
                     if (err) rej(err);
