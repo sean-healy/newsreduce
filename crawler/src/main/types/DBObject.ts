@@ -46,7 +46,9 @@ export abstract class DBObject<T extends DBObject<T>> {
         const params = this.getSingularInsertParams();
         promises.push(SQL.query(query, params).then(() => {
             const id = this.getID();
-            if (id) Redis.renewRedis(REDIS_PARAMS.general).sadd(INSERT_CACHE, id.toString());
+            if (id) Redis
+                .renewRedis(REDIS_PARAMS.general)
+                .sadd(INSERT_CACHE, id.toString());
         }));
 
         await Promise.all(promises);
@@ -71,9 +73,7 @@ export abstract class DBObject<T extends DBObject<T>> {
             }
         }
     }
-    async enqueueInsert(options = {
-        recursive: false,
-    }) {
+    async enqueueInsert(options = { recursive: false }) {
         const promises = [];
         // No circular dependencies allowed.
         if (options.recursive)
@@ -86,8 +86,12 @@ export abstract class DBObject<T extends DBObject<T>> {
         promises.push(new Promise<void>(async res => {
             if (id) {
                 const idStr = id.toString();
-                const isMember = await Redis.renewRedis(REDIS_PARAMS.general).sismember(INSERT_CACHE, idStr);
-                if (!isMember) await Redis.renewRedis(REDIS_PARAMS.inserts).hset(this.table(), idStr, payload);
+                const isMember = await Redis
+                    .renewRedis(REDIS_PARAMS.general)
+                    .sismember(INSERT_CACHE, idStr);
+                if (!isMember) await Redis
+                    .renewRedis(REDIS_PARAMS.inserts)
+                    .hset(this.table(), idStr, payload);
             } else await Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload);
             res();
         }));

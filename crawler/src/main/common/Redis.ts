@@ -207,7 +207,7 @@ export class Redis {
         return response;
     }
 
-    async sadd(key: string, member: string) {
+    async sadd(key: string, member: string | string[]) {
         const response: void = await this.tryLoop((res, rej) =>
             this.client.sadd(key, member, err =>
                 err ? rej(err) : res()));

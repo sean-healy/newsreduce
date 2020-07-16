@@ -1,6 +1,7 @@
 import { DBObject } from "types/DBObject";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { IDENTITY_FUNCTION } from "common/util";
+import { INSERT_CACHE } from "common/events";
 
 const BATCH_SIZE = 5000;
 
@@ -17,19 +18,22 @@ export async function bulkInsert() {
         let listFn: typeof client.smembers;
         let preMapper: (response: any) => string[];
         let postMapper: (row: string, response: any) => string;
+        let useInsertedCache: boolean;
         promises.push(typePromise.then(async type => {
-            [listFn, preMapper, postMapper, deleteFn] = {
+            [listFn, preMapper, postMapper, deleteFn, useInsertedCache] = {
                 hash: [
                     client.hgetall,
                     Object.keys,
                     (row: string, response: any) => response[row],
-                    client.hdel
+                    client.hdel,
+                    true
                 ],
                 set: [
                     (key: string) => client.srandmember(key, BATCH_SIZE),
                     IDENTITY_FUNCTION,
                     (row: string, _: any) => row,
-                    client.srem
+                    client.srem,
+                    false
                 ]
             }[type];
             const [params, toRemove] = await new Promise(async res => {
@@ -39,10 +43,15 @@ export async function bulkInsert() {
                     JSON.parse(postMapper(row, list)));
                 res([params, toRemove]);
             });
-            await Promise.all([
-                table.bulkInsert(params),
-                deleteFn.bind(client)(key, toRemove)
-            ]);
+            await table.bulkInsert(params);
+            await deleteFn.bind(client)(key, toRemove);
+            if (useInsertedCache)
+                await Promise.all([
+                    Redis.renewRedis(REDIS_PARAMS.general).sadd(INSERT_CACHE, toRemove),
+                    deleteFn.bind(client)(key, toRemove),
+                ]);
+            else
+                await deleteFn.bind(client)(key, toRemove);
         }));
     }
     await Promise.all(promises);
