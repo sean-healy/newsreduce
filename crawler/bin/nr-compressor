@@ -713,9 +713,11 @@ function isEntityLocked(entityID) {
     return Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fileLock).eq(entityID);
 }
 async function compress() {
-    const locked = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local).eq(events["c" /* COMPRESSOR_LOCK */]);
+    const redis = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local);
+    const locked = await redis.eq(events["c" /* COMPRESSOR_LOCK */]);
     if (locked)
         return;
+    redis.setex(events["m" /* SYNC_LOCK */], 3600);
     const tmpDir = await Object(config["j" /* tmpDirPromise */])();
     const entities = external_fs_default.a.readdirSync(tmpDir);
     const promises = [];
@@ -749,6 +751,7 @@ async function compress() {
         }
     }
     await Promise.all(promises);
+    redis.del(events["m" /* SYNC_LOCK */]);
 }
 
 // EXTERNAL MODULE: ./dist/main/common/processor.js
@@ -787,6 +790,7 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
 /* unused harmony export UNLOCK_FILE */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SYNC_LOCK; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return INSERT_CACHE; });
 const EVENT_LOG = "event-log";
@@ -802,6 +806,7 @@ const COMPRESS_COMPLETE = "compress-complete";
 const DELETE_FILES = "delete-files";
 const UNLOCK_FILE = "unlock-file";
 const COMPRESSOR_LOCK = "compressor-lock";
+const SYNC_LOCK = "sync-lock";
 const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 const INSERT_CACHE = "inserted";
 

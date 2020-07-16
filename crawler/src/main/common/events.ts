@@ -12,6 +12,7 @@ export const COMPRESS_COMPLETE = "compress-complete";
 export const DELETE_FILES = "delete-files";
 export const UNLOCK_FILE = "unlock-file";
 export const COMPRESSOR_LOCK = "compressor-lock";
+export const SYNC_LOCK = "sync-lock";
 
 export const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 

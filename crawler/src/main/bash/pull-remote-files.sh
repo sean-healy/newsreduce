@@ -1,9 +1,16 @@
 #!/usr/bin/bash
+trap ctrl_c INT
 if [ -f /tmp/pull-remote-files ]; then
     echo Script already running elsewhere.
     exit
 fi
 touch /tmp/pull-remote-files
+redisCLIOut=/tmp/redis-cli-out
+lock="1"
+while [[ "$lock" =~ "1" ]]; do
+    echo locked
+    lock=$(redis-cli get sync-lock)
+done
 echo "setex compressor-lock 3600 1" | redis-cli
 fileList=/tmp/$(openssl rand -hex 30)
 checksums=/tmp/$(openssl rand -hex 30)
