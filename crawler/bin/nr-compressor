@@ -141,7 +141,7 @@ module.exports = require("crypto");
 
 async function log(...args) {
     const now = Date.now();
-    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "l"])();
+    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
     const logFile = `${varDir}/log`;
     fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
 }
@@ -227,7 +227,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     else
         events = null;
     const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
-        const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "j"])()).toString();
+        const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
         if (content.match(/1/)) {
             safelyExit = true;
             clearInterval(interval);
@@ -256,20 +256,20 @@ module.exports = require("dns");
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return LOCALHOST; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return MAIN_HOSTNAME; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FIND; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return varDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return safetyFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safeMkdir; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return LOCALHOST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return MAIN_HOSTNAME; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return TAR; });
+/* unused harmony export FIND */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return varDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safetyFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return safeMkdir; });
 /* unused harmony export varDirChildPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return tmpDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return tmpDirPromise; });
 /* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return nullFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return nullFilePromise; });
 /* unused harmony export myIP */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return getParams; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return getParams; });
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
@@ -629,7 +629,7 @@ async function compress() {
     const locked = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).eq(events["c" /* COMPRESSOR_LOCK */]);
     if (locked)
         return;
-    const tmpDir = await Object(config["k" /* tmpDirPromise */])();
+    const tmpDir = await Object(config["j" /* tmpDirPromise */])();
     const entities = external_fs_default.a.readdirSync(tmpDir);
     const promises = [];
     for (const entity of entities) {
@@ -646,17 +646,17 @@ async function compress() {
             if (compressedArcExists) {
                 promises.push(new Promise(async (res, rej) => spawnSeq([
                     [ZSTD, undefined, ["-df", compressedArc, "-o", arc]],
-                    [config["e" /* TAR */], entitiesDir, ["-uvf", arc, entityID]],
+                    [config["d" /* TAR */], entitiesDir, ["-uvf", arc, entityID]],
                     [ZSTD, undefined, ["-f", arc, "-o", compressedArc]],
-                    [MV, undefined, [arc, await Object(config["h" /* nullFilePromise */])(arc)]],
-                    [MV, undefined, [entityDir, await Object(config["h" /* nullFilePromise */])(entityDir)]],
+                    [MV, undefined, [arc, await Object(config["g" /* nullFilePromise */])(arc)]],
+                    [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
                 ], res, rej)));
             }
             else {
-                await Object(config["i" /* safeMkdir */])(external_path_default.a.dirname(compressedArc));
+                await Object(config["h" /* safeMkdir */])(external_path_default.a.dirname(compressedArc));
                 promises.push(new Promise(async (res, rej) => spawnSeq([
-                    [config["e" /* TAR */], entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
-                    [MV, undefined, [entityDir, await Object(config["h" /* nullFilePromise */])(entityDir)]],
+                    [config["d" /* TAR */], entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
+                    [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
                 ], res, rej)));
             }
         }

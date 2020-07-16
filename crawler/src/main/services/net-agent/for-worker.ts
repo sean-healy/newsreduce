@@ -51,14 +51,14 @@ async function watch() {
             return;
         }
         const lines: [string, string][] = msg.split("\n").map(line => line.split(/\s+/, 2) as [string, string]);
-        for (const [expectedChecksum, file] of lines) {
+        for (const [expectedChecksum, suffix] of lines) {
             const cwd = await tmpDirPromise();
-            const dir = path.join(cwd, file);
-            const nChecksums = await tryLoop(() => spawn(FIND, [file, "-type", "f", "-exec", "md5sum", "{}", "\;"], { cwd }));
-            const actualChecksum = crypto.createHash("md5").update(nChecksums).digest().toString("hex");
+            const file = path.join(cwd, suffix);
+            const content = fs.readFileSync(file);
+            const actualChecksum = crypto.createHash("md5").update(content).digest().toString("hex");
             if (expectedChecksum === actualChecksum) {
-                console.log("Removing dir:", dir);
-                fs.rmdir(dir, { recursive: true }, err => {
+                console.log("Removing file:", file);
+                fs.unlink(file, err => {
                     if (err) console.log(err);
                 });
             } else {
