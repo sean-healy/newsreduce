@@ -1,30 +1,19 @@
-import { log } from "common/logging";
 import sql from "sql";
 import { milliTimestamp } from "common/time";
-import { db } from "common/connections";
 import { thenDebug } from "common/functional";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { STR_ONE } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
+import { SQL } from "common/SQL";
 
-function genericSQLPromise<From, To>(
+async function genericSQLPromise<From, To>(
     query: string,
     params: any[] = [],
     mapper?: (v: From) => To
-) {
-    return new Promise<To>(async (res, rej) => {
-        const filledQuery =
-            (await db()).query(query, params, (err, response) => {
-                if (err) {
-                    console.debug(err);
-                    rej(err);
-                } else {
-                    if (mapper) res(mapper(response));
-                    else res(response);
-                }
-            });
-        log(filledQuery.sql);
-    });
+): Promise<To> {
+    let response: From | To = await SQL.query<From>(query, params);
+    if (mapper) response = mapper(response);
+    return response as To;
 }
 
 export function selectPreSchedule() {

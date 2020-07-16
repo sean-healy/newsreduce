@@ -1,10 +1,9 @@
 import { defaultHash } from "common/hashing";
 import { bytesToBigInt } from "common/util";
-import { db } from "common/connections";
 import { log } from "common/logging";
-import { Query } from "mysql";
 import { INSERT_CACHE } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
+import { SQL } from "common/SQL";
 
 export abstract class DBObject<T extends DBObject<T>> {
     abstract getInsertParams(): any[];
@@ -40,25 +39,14 @@ export abstract class DBObject<T extends DBObject<T>> {
     async singularInsert(options = { recursive: false }) {
         const promises: Promise<any>[] = [];
         // No circular dependencies allowed.
-        if (options.recursive) {
+        if (options.recursive)
             for (const promise of this.getDeps().map(dep => dep.singularInsert(options)))
                 promises.push(promise);
-        }
-        promises.push(new Promise<void>(async (res, rej) => {
-            const query = this.getInsertStatement();
-            const params = this.getSingularInsertParams();
-            const filledQuery = (await db()).query(query, params, err => {
-                if (err) {
-                    log(err);
-                    rej(err);
-                } else {
-                    res();
-                    const id = this.getID();
-                    if (id)
-                        Redis.renewRedis(REDIS_PARAMS.general).sadd(INSERT_CACHE, id.toString());
-                }
-            });
-            log(filledQuery.sql);
+        const query = this.getInsertStatement();
+        const params = this.getSingularInsertParams();
+        promises.push(SQL.query(query, params).then(() => {
+            const id = this.getID();
+            if (id) Redis.renewRedis(REDIS_PARAMS.general).sadd(INSERT_CACHE, id.toString());
         }));
 
         await Promise.all(promises);
@@ -69,11 +57,9 @@ export abstract class DBObject<T extends DBObject<T>> {
         params = params.filter(paramRow => paramRow.length === insertCols);
         if (params.length === 0) return;
         const query = this.getInsertStatement();
-        const client = await db();
         log(query);
         log(JSON.stringify(params));
-        await new Promise<Query>(async (res, rej) =>
-            log(client.query(query, [params], err => err ? rej(err) : res()).sql));
+        await SQL.query(query, [params]);
     }
     static stringifyBigIntsInPlace(obj: object) {
         if (typeof obj === "object") {
@@ -108,34 +94,20 @@ export abstract class DBObject<T extends DBObject<T>> {
 
         await Promise.all(promises);
     }
-    singularSelect(columns?: (keyof T | "*")[]) {
-        return new Promise(async (res, rej) => {
-            let cols: string;
-            if (columns) cols = columns.map(column => "`" + column + "`").join(", ");
-            else cols = "*";
-            const query = `select ${cols} from ${this.table()} where ${this.idCol()} = ?`;
-            const filledQuery = (await db()).query(query, [this.getID()], (err, response) => {
-                if (err) {
-                    log(err);
-                    rej(err);
-                } else res(response[0]);
-            });
-            log(filledQuery.sql);
-        });
+    async singularSelect(columns?: (keyof T | "*")[]) {
+        let cols: string;
+        if (columns) cols = columns.map(column => "`" + column + "`").join(", ");
+        else cols = "*";
+        const query = `select ${cols} from ${this.table()} where ${this.idCol()} = ?`;
+        return await SQL.query(query, [this.getID()])[0];
     }
     async bulkSelect(ids: bigint[], columns: (keyof T)[]): Promise<{ [key: string]: string }[]> {
         if (!ids || ids.length === 0) return [];
-        return await new Promise(async (res, rej) => {
-            const idCol = this.idCol();
-            const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
-            const filledQuery = (await db()).query(query, [[ids]], (err, response) => {
-                if (err) {
-                    log(err);
-                    rej(err);
-                } else res(response);
-            });
-            log(filledQuery.sql);
-        });
+        const idCol = this.idCol();
+        const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
+        const response = await SQL.query<{ [key: string]: string }[]>(query, [[ids]]);
+
+        return response;
     }
     idCol(): string {
         return "id";

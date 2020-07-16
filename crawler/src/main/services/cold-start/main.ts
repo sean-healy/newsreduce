@@ -1,8 +1,8 @@
 import { insertColdStartObjects } from "services/cold-start/functions";
-import { db } from "common/connections";
+import { SQL } from "common/SQL";
 
 insertColdStartObjects().then(async () => {
     console.log("Done.");
-    (await db()).destroy();
+    SQL.destroy();
     process.exit(0);
 });

@@ -145,3 +145,23 @@ rm /etc/redis/redis.conf.tmp
 rm /etc/sudoers.tmp
 systemctl restart redis
 echo '* * * * * /usr/bin/sudo /usr/bin/nr-update' | sudo -u newsreduce crontab -
+function mk-daemon-script() {
+node_script=$1
+daemon_script=$2
+cat > /usr/bin/nr-$daemon_script << END
+#!/usr/bin/bash
+if [ "\$USER" != newsreduce ]; then
+    sudo -u newsreduce \$0 \$@
+    exit
+fi
+if [ "\$TMUX" ]; then
+    (cd /opt/newsreduce/crawler && git pull && npm i && npx node bin/nr-$node_script)
+else
+    [[ "\$(tmux list-sessions | cut -d: -f1 | grep -Fo $daemon_script)" ]] || tmux new -d -s $daemon_script \$0 \$@
+fi
+END
+chmod 755 /usr/bin/nr-$daemon_script
+}
+mk-daemon-script $env-net net-agent
+mk-daemon-script inserter inserter
+mk-daemon-script compressor compressor
