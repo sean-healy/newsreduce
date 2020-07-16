@@ -954,6 +954,9 @@ class DNS {
 /* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3);
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(9);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_4__);
+
 
 
 
@@ -973,7 +976,7 @@ class SQL {
             if (ip === myIP)
                 ip = common_config__WEBPACK_IMPORTED_MODULE_2__[/* LOCALHOST */ "b"];
             Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetching SQL config.");
-            const params = await fetch(common_config__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_ENDPOINT */ "d"]).then(res => res.json());
+            const params = await node_fetch__WEBPACK_IMPORTED_MODULE_4___default()(common_config__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_ENDPOINT */ "d"]).then(res => res.json());
             const password = params.sql;
             Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetched SQL config.");
             DB_CLIENT = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])({ ...SQL_PARAMS, password, host: ip });
