@@ -3,9 +3,9 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { IDENTITY_FUNCTION } from "common/util";
 import { INSERT_CACHE } from "common/events";
 
-const sizes = [200, 500, 1000, 2000, 5000, 10000];
+const sizes = [5000, 10000, 15000, 20000];
 
-let BATCH_SIZE = 100;
+let BATCH_SIZE = 5000;
 
 const CHANGE = false;
 
