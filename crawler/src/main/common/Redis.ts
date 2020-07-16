@@ -135,7 +135,7 @@ export class Redis {
         return response;
     }
 
-    async srem(key: string, member: string) {
+    async srem(key: string, member: string | string[]) {
         const response: void = await this.tryLoop((res, rej) =>
             this.client.srem(key, member, err =>
                 err ? rej(err) : res()));

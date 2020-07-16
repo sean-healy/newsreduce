@@ -206,17 +206,13 @@ class DBObject_DBObject {
         const payload = JSON.stringify(insertParams);
         const id = this.getID();
         promises.push(new Promise(async (res) => {
-            if (id) {
-                const idStr = id.toString();
-                const isMember = await Redis["b" /* Redis */]
-                    .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                    .sismember(events["k" /* INSERT_CACHE */], idStr);
-                if (!isMember)
-                    await Redis["b" /* Redis */]
-                        .renewRedis(Redis["a" /* REDIS_PARAMS */].inserts)
-                        .hset(this.table(), idStr, payload);
-            }
+            let key;
+            if (id)
+                key = id.toString();
             else
+                key = `${this.table()}:${payload}`;
+            const isMember = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sismember(events["k" /* INSERT_CACHE */], key);
+            if (!isMember)
                 await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
             res();
         }));
@@ -2148,63 +2144,73 @@ var util = __webpack_require__(5);
 
 
 
-const BATCH_SIZE = 50;
+const BATCH_SIZE = 2000;
+const CHANGE = false;
 async function bulkInsert() {
     const client = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const keys = await client.keys();
-    let start = Date.now();
-    const promises = new Array(keys.length);
     for (const key of keys) {
         console.log(key);
         const typePromise = client.type(key);
         const table = DBObject["a" /* DBObject */].forTable(key);
-        let deleteFn;
-        let listFn;
-        let preMapper;
-        let postMapper;
-        let useInsertedCache;
-        //promises.push(typePromise.then(async type => {
-        await typePromise.then(async (type) => {
-            if (type === "hash") {
-                console.log(key, "is hash, returning");
-                return;
-            }
-            [listFn, preMapper, postMapper, deleteFn, useInsertedCache] = {
-                hash: [
-                    client.hgetall,
-                    Object.keys,
-                    (row, response) => response[row],
-                    client.hdel,
-                    true
-                ],
-                set: [
-                    (key) => client.srandmember(key, BATCH_SIZE),
-                    util["b" /* IDENTITY_FUNCTION */],
-                    (row, _) => row,
-                    client.srem,
-                    false
-                ]
-            }[type];
-            const [params, toRemove] = await new Promise(async (res) => {
-                const list = await listFn.bind(client)(key);
-                const toRemove = preMapper(list).slice(0, BATCH_SIZE);
-                const params = toRemove.map(row => JSON.parse(postMapper(row, list)));
-                res([params, toRemove]);
+        if (!CHANGE) {
+            let deleteFn;
+            let listFn;
+            let preMapper;
+            let postMapper;
+            let useInsertedCache;
+            await typePromise.then(async (type) => {
+                [listFn, preMapper, postMapper, deleteFn, useInsertedCache] = {
+                    hash: [
+                        client.hgetall,
+                        Object.keys,
+                        (row, response) => response[row],
+                        client.hdel,
+                        true
+                    ],
+                    set: [
+                        (key) => client.srandmember(key, BATCH_SIZE),
+                        util["b" /* IDENTITY_FUNCTION */],
+                        (row, _) => row,
+                        client.srem,
+                        false
+                    ]
+                }[type];
+                const [params, toRemove] = await new Promise(async (res) => {
+                    let start = Date.now();
+                    const list = await listFn.bind(client)(key);
+                    let end = Date.now();
+                    console.log(`LISTING ${(end - start)} ms`);
+                    const toRemove = preMapper(list).slice(0, BATCH_SIZE);
+                    const params = toRemove.map(row => JSON.parse(postMapper(row, list)));
+                    res([params, toRemove]);
+                });
+                let start = Date.now();
+                await table.bulkInsert(params);
+                let end = Date.now();
+                console.log(`BULK INSERT ${(end - start)} ms`);
+                start = Date.now();
+                if (useInsertedCache)
+                    await Promise.all([
+                        Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], toRemove),
+                        deleteFn.bind(client)(key, toRemove),
+                    ]);
+                else
+                    await deleteFn.bind(client)(key, toRemove);
+                end = Date.now();
+                console.log(`CLEANUP ${(end - start)} ms`);
             });
+        }
+        else {
+            const list = await client.srandmember(key, BATCH_SIZE);
+            const params = list.map(row => JSON.parse(row));
             await table.bulkInsert(params);
-            await deleteFn.bind(client)(key, toRemove);
-            if (useInsertedCache)
-                await Promise.all([
-                    Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], toRemove),
-                    deleteFn.bind(client)(key, toRemove),
-                ]);
-            else
-                await deleteFn.bind(client)(key, toRemove);
-        });
+            await Promise.all([
+                Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], list),
+                client.srem(key, list),
+            ]);
+        }
     }
-    //await Promise.all(promises);
-    let end = Date.now();
-    console.log(`${(end - start)} ms`);
 }
 
 // CONCATENATED MODULE: ./dist/main/services/inserter/main.js
