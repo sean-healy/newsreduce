@@ -3,6 +3,7 @@ import { createConnection, Connection } from "mysql";
 import { NET_AGENT_ENDPOINT } from "common/config";
 import { log } from "common/logging";
 import { MAIN_HOSTNAME, LOCALHOST } from "common/config";
+import fetch from "node-fetch";
 
 export const SQL_PARAMS = {
     user: "newsreduce",
