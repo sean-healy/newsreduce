@@ -21,9 +21,5 @@ export function start(
     listen.client.on("message", (_, msg) => {
         [lo, hi] = msg.split(" ", 2).map(BigInt);
     });
-    listen.client.on("error", (_, msg) => {
-        log(msg);
-        console.debug(msg);
-    });
     startProcessor(async () => f(() => lo, () => hi), preconditions, postcondition);
 }

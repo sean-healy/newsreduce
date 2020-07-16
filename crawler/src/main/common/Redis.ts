@@ -81,13 +81,16 @@ export class Redis {
         this.client = client;
     }
 
-    async tryLoop<T>(cb: (res: (response?: T) => void, rej: (reason?: any) => void) => void) {
+    async tryLoop<T>(
+        cb: (res: (response?: T) => void, rej: (reason?: any) => void) => void
+    ) {
         for (let attempt = 0; attempt < 10; ++attempt) {
             try {
                 const response = await new Promise<T>(cb);
 
                 return response;
             } catch (err) {
+                log("error on attempt", attempt.toString());
                 log(err);
                 console.debug(err);
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
@@ -304,11 +307,16 @@ export class Redis {
     });
     static newRedis(paramsOrHost: RedisParamsValueType | string) {
         const params = this.computeParams(paramsOrHost);
-
-        return new Redis(params, redis.createClient({
+        const client = redis.createClient({
             host: ENV[0] === "prod" ? params.host : LOCALHOST,
             port: ENV[0] === "prod" ? params.port : 1111,
             db: params.db,
-        }) as ExtendedRedisClient);
+        }) as ExtendedRedisClient;
+        client.on("error", (_, msg) => {
+            log(msg);
+            console.debug(msg);
+        });
+
+        return new Redis(params, client);
     }
 }

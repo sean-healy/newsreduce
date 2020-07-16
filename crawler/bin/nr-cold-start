@@ -1846,6 +1846,7 @@ class Redis {
                 return response;
             }
             catch (err) {
+                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
                 console.debug(err);
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
@@ -1968,11 +1969,16 @@ class Redis {
     }
     static newRedis(paramsOrHost) {
         const params = this.computeParams(paramsOrHost);
-        return new Redis(params, redis__WEBPACK_IMPORTED_MODULE_0___default.a.createClient({
+        const client = redis__WEBPACK_IMPORTED_MODULE_0___default.a.createClient({
             host: common_config__WEBPACK_IMPORTED_MODULE_1__[/* ENV */ "a"][0] === "prod" ? params.host : LOCALHOST,
             port: common_config__WEBPACK_IMPORTED_MODULE_1__[/* ENV */ "a"][0] === "prod" ? params.port : 1111,
             db: params.db,
-        }));
+        });
+        client.on("error", (_, msg) => {
+            Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
+            console.debug(msg);
+        });
+        return new Redis(params, client);
     }
 }
 Redis.defaultHostParams = (host) => ({
