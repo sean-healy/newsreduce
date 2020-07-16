@@ -22,7 +22,9 @@ export class SQL {
             const params = await fetch(NET_AGENT_ENDPOINT).then(res => res.json());
             const password = params.sql
             log("Fetched SQL config.");
-            DB_CLIENT = createConnection({ ...SQL_PARAMS, password, host: ip });
+            const sqlParams = { ...SQL_PARAMS, password, host: ip };
+            console.log(sqlParams);
+            DB_CLIENT = createConnection(sqlParams);
         }
 
         return DB_CLIENT;
