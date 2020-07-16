@@ -141,18 +141,11 @@ module.exports = require("crypto");
 
 async function log(...args) {
     const now = Date.now();
-    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "l"])();
+    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
     const logFile = `${varDir}/log`;
     fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
 }
 
-
-/***/ }),
-
-/***/ 21:
-/***/ (function(module, exports) {
-
-module.exports = require("child_process");
 
 /***/ }),
 
@@ -179,14 +172,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(21);
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(8);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(3);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(54);
-
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(8);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(54);
 
 
 
@@ -229,23 +219,23 @@ async function tryLoop(spawner) {
     }
 }
 async function watch() {
-    const client = common_Redis__WEBPACK_IMPORTED_MODULE_6__[/* Redis */ "b"].newRedis(common_Redis__WEBPACK_IMPORTED_MODULE_6__[/* REDIS_PARAMS */ "a"].local);
-    client.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_4__[/* DELETE_FILES */ "e"]);
-    console.log("Subscribed to channel:", common_events__WEBPACK_IMPORTED_MODULE_4__[/* DELETE_FILES */ "e"]);
+    const client = common_Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newRedis(common_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].local);
+    client.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_3__[/* DELETE_FILES */ "e"]);
+    console.log("Subscribed to channel:", common_events__WEBPACK_IMPORTED_MODULE_3__[/* DELETE_FILES */ "e"]);
     client.client.on("message", async (_, msg) => {
         if (!msg) {
             console.debug("ERR: empty message");
             return;
         }
         const lines = msg.split("\n").map(line => line.split(/\s+/, 2));
-        for (const [expectedChecksum, file] of lines) {
-            const cwd = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "k"])();
-            const dir = path__WEBPACK_IMPORTED_MODULE_0___default.a.join(cwd, file);
-            const nChecksums = await tryLoop(() => Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* FIND */ "b"], [file, "-type", "f", "-exec", "md5sum", "{}", "\;"], { cwd }));
-            const actualChecksum = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.createHash("md5").update(nChecksums).digest().toString("hex");
+        for (const [expectedChecksum, suffix] of lines) {
+            const cwd = await Object(common_config__WEBPACK_IMPORTED_MODULE_2__[/* tmpDirPromise */ "j"])();
+            const file = path__WEBPACK_IMPORTED_MODULE_0___default.a.join(cwd, suffix);
+            const content = fs__WEBPACK_IMPORTED_MODULE_4___default.a.readFileSync(file);
+            const actualChecksum = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.createHash("md5").update(content).digest().toString("hex");
             if (expectedChecksum === actualChecksum) {
-                console.log("Removing dir:", dir);
-                fs__WEBPACK_IMPORTED_MODULE_5___default.a.rmdir(dir, { recursive: true }, err => {
+                console.log("Removing file:", file);
+                fs__WEBPACK_IMPORTED_MODULE_4___default.a.unlink(file, err => {
                     if (err)
                         console.log(err);
                 });
@@ -280,20 +270,20 @@ module.exports = require("dns");
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return LOCALHOST; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return MAIN_HOSTNAME; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FIND; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return varDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return safetyFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safeMkdir; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return LOCALHOST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return MAIN_HOSTNAME; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return TAR; });
+/* unused harmony export FIND */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return varDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safetyFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return safeMkdir; });
 /* unused harmony export varDirChildPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return tmpDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return tmpDirPromise; });
 /* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return nullFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return nullFilePromise; });
 /* unused harmony export myIP */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return getParams; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return getParams; });
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
