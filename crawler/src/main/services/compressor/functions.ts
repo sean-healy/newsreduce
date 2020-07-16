@@ -3,7 +3,7 @@ import path from "path";
 import { tmpDirPromise, TAR, nullFilePromise, safeMkdir } from "common/config";
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { log } from "common/logging";
-import { COMPRESSOR_LOCK } from "common/events";
+import { COMPRESSOR_LOCK, SYNC_LOCK } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 
 async function tryLoop(spawner: () => ChildProcessWithoutNullStreams) {
@@ -68,8 +68,10 @@ export function isEntityLocked(entityID: string) {
 }
 
 export async function compress() {
-    const locked = await Redis.renewRedis(REDIS_PARAMS.local).eq(COMPRESSOR_LOCK);
+    const redis = Redis.renewRedis(REDIS_PARAMS.local);
+    const locked = await redis.eq(COMPRESSOR_LOCK);
     if (locked) return;
+    redis.setex(SYNC_LOCK, 3600);
     const tmpDir = await tmpDirPromise();
     const entities = fs.readdirSync(tmpDir);
     const promises: Promise<void>[] = [];
@@ -102,4 +104,5 @@ export async function compress() {
     }
 
     await Promise.all(promises);
+    redis.del(SYNC_LOCK);
 }
