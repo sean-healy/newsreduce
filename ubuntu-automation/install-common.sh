@@ -165,3 +165,4 @@ chmod 755 /usr/bin/nr-$daemon_script
 mk-daemon-script $env-net net-agent
 mk-daemon-script inserter inserter
 mk-daemon-script compressor compressor
+ln -sf /opt/newsreduce/ubuntu-automation/install-$env.sh /usr/bin/nr-update
