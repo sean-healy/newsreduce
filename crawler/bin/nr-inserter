@@ -2146,7 +2146,7 @@ var util = __webpack_require__(5);
 
 
 
-const sizes = [50, 100, 200, 500, 1000, 2000, 5000, 10000];
+const sizes = [200, 500, 1000, 2000, 5000, 10000];
 let BATCH_SIZE = 100;
 const CHANGE = false;
 async function bulkInsert() {
