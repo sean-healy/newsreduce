@@ -1,11 +1,45 @@
 import path from "path";
 import crypto from "crypto";
-import { spawn } from "child_process";
+import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { FIND, tmpDirPromise } from "common/config";
 import { DELETE_FILES } from "common/events";
 import fs from "fs";
 import { Redis, REDIS_PARAMS } from "common/Redis";
-import { log } from "common/logging";
+
+async function tryLoop(spawner: () => ChildProcessWithoutNullStreams) {
+    for (let attempt = 0; attempt < 10; attempt++) {
+        try {
+            const content = await new Promise<string>((res, rej) => {
+                const process = spawner();
+                process.on("error", err => rej(err));
+                process.stdout.on("error", err => rej(err));
+                process.stderr.on("error", (err) => {
+                    console.log("stderr error");
+                    console.log(err);
+                });
+                const stdout = [];
+                const stderr = [];
+                process.stdout.on("data", (data: Buffer) => stdout.push(data));
+                process.stderr.on("data", (data: Buffer) => stderr.push(data));
+                process.on("close", code => {
+                    if (code === 0) {
+                        const content = Buffer.concat(stdout).toString();
+                        res(content);
+                    } else {
+                        const content = Buffer.concat(stderr).toString();
+                        rej(content);
+                    }
+                });
+            });
+
+            return content;
+        } catch (err) {
+            console.debug("Caught error during attempt", attempt);
+            console.debug(err);
+            await new Promise(res => setTimeout(res, 100));
+        }
+    }
+}
 
 async function watch() {
     const client = Redis.newRedis(REDIS_PARAMS.local);
@@ -20,27 +54,16 @@ async function watch() {
         for (const [expectedChecksum, file] of lines) {
             const cwd = await tmpDirPromise();
             const dir = path.join(cwd, file);
-            const md5sum = spawn(FIND, [file, "-type", "f", "-exec", "md5sum", "{}", "\;"], { cwd });
-            md5sum.on("error", err => {
-                console.log(err);
-            });
-            const stdout = [];
-            const stderr = [];
-            md5sum.stdout.on("data", (data: Buffer) => stdout.push(data));
-            md5sum.stderr.on("data", (data: Buffer) => stderr.push(data));
-            md5sum.on("close", code => {
-                console.log(code);
-                const content = Buffer.concat(stdout).toString();
-                const actualChecksum = crypto.createHash("md5").update(content).digest().toString("hex");
-                if (expectedChecksum === actualChecksum) {
-                    console.log("Removing dir:", dir);
-                    fs.rmdir(dir, { recursive: true }, err => {
-                        if (err) console.log(err);
-                    });
-                } else {
-                    console.debug("checksum mismatch", actualChecksum, expectedChecksum);
-                }
-            });
+            const nChecksums = await tryLoop(() => spawn(FIND, [file, "-type", "f", "-exec", "md5sum", "{}", "\;"], { cwd }));
+            const actualChecksum = crypto.createHash("md5").update(nChecksums).digest().toString("hex");
+            if (expectedChecksum === actualChecksum) {
+                console.log("Removing dir:", dir);
+                fs.rmdir(dir, { recursive: true }, err => {
+                    if (err) console.log(err);
+                });
+            } else {
+                console.debug("checksum mismatch", actualChecksum, expectedChecksum);
+            }
         }
     });
 }
