@@ -84,15 +84,11 @@ export abstract class DBObject<T extends DBObject<T>> {
         const payload = JSON.stringify(insertParams);
         const id = this.getID();
         promises.push(new Promise<void>(async res => {
-            if (id) {
-                const idStr = id.toString();
-                const isMember = await Redis
-                    .renewRedis(REDIS_PARAMS.general)
-                    .sismember(INSERT_CACHE, idStr);
-                if (!isMember) await Redis
-                    .renewRedis(REDIS_PARAMS.inserts)
-                    .hset(this.table(), idStr, payload);
-            } else await Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload);
+            let key: string;
+            if (id) key = id.toString();
+            else key = `${this.table()}:${payload}`;
+            const isMember = await Redis.renewRedis(REDIS_PARAMS.general).sismember(INSERT_CACHE, key);
+            if (!isMember) await Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload);
             res();
         }));
 

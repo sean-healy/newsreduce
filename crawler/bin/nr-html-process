@@ -206,17 +206,13 @@ class DBObject_DBObject {
         const payload = JSON.stringify(insertParams);
         const id = this.getID();
         promises.push(new Promise(async (res) => {
-            if (id) {
-                const idStr = id.toString();
-                const isMember = await Redis["b" /* Redis */]
-                    .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                    .sismember(events["k" /* INSERT_CACHE */], idStr);
-                if (!isMember)
-                    await Redis["b" /* Redis */]
-                        .renewRedis(Redis["a" /* REDIS_PARAMS */].inserts)
-                        .hset(this.table(), idStr, payload);
-            }
+            let key;
+            if (id)
+                key = id.toString();
             else
+                key = `${this.table()}:${payload}`;
+            const isMember = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sismember(events["k" /* INSERT_CACHE */], key);
+            if (!isMember)
                 await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
             res();
         }));
