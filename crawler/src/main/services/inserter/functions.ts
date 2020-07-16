@@ -3,7 +3,7 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { IDENTITY_FUNCTION } from "common/util";
 import { INSERT_CACHE } from "common/events";
 
-const sizes = [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+const sizes = [50, 100, 200, 500, 1000, 2000, 5000, 10000];
 
 let BATCH_SIZE = 100;
 
