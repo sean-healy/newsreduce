@@ -166,7 +166,9 @@ class DBObject_DBObject {
         promises.push(SQL["a" /* SQL */].query(query, params).then(() => {
             const id = this.getID();
             if (id)
-                Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], id.toString());
+                Redis["b" /* Redis */]
+                    .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
+                    .sadd(events["k" /* INSERT_CACHE */], id.toString());
         }));
         await Promise.all(promises);
     }
@@ -193,9 +195,7 @@ class DBObject_DBObject {
             }
         }
     }
-    async enqueueInsert(options = {
-        recursive: false,
-    }) {
+    async enqueueInsert(options = { recursive: false }) {
         const promises = [];
         // No circular dependencies allowed.
         if (options.recursive)
@@ -208,9 +208,13 @@ class DBObject_DBObject {
         promises.push(new Promise(async (res) => {
             if (id) {
                 const idStr = id.toString();
-                const isMember = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sismember(events["k" /* INSERT_CACHE */], idStr);
+                const isMember = await Redis["b" /* Redis */]
+                    .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
+                    .sismember(events["k" /* INSERT_CACHE */], idStr);
                 if (!isMember)
-                    await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).hset(this.table(), idStr, payload);
+                    await Redis["b" /* Redis */]
+                        .renewRedis(Redis["a" /* REDIS_PARAMS */].inserts)
+                        .hset(this.table(), idStr, payload);
             }
             else
                 await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);

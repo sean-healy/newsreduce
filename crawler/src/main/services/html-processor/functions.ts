@@ -1,5 +1,5 @@
 import { JSDOM, DOMWindow } from "jsdom";
-import { readLatestVersion, findLatestVersion, read } from "file";
+import { findLatestVersion, read } from "file";
 import { FileFormat } from "types/FileFormat";
 import { Entity } from "types/Entity";
 import { process as process0 } from "services/html-processor/extract-ahrefs";
