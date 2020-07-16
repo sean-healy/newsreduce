@@ -180,8 +180,7 @@ class DBObject_DBObject {
         if (params.length === 0)
             return;
         const query = this.getInsertStatement();
-        Object(logging["a" /* log */])(query);
-        Object(logging["a" /* log */])(JSON.stringify(params));
+        Object(logging["a" /* log */])(`inserting ${params.length} rows with SQL: ${query}`);
         await SQL["a" /* SQL */].query(query, [params]);
     }
     static stringifyBigIntsInPlace(obj) {

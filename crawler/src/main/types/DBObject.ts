@@ -59,8 +59,7 @@ export abstract class DBObject<T extends DBObject<T>> {
         params = params.filter(paramRow => paramRow.length === insertCols);
         if (params.length === 0) return;
         const query = this.getInsertStatement();
-        log(query);
-        log(JSON.stringify(params));
+        log(`inserting ${params.length} rows with SQL: ${query}`);
         await SQL.query(query, [params]);
     }
     static stringifyBigIntsInPlace(obj: object) {
