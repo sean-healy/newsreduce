@@ -41,10 +41,6 @@ export function startProcessor(
             if (preconditions.has(msg))
                 synchronised(name, f, postcondition);
         });
-        events.client.on("error", (_, msg) => {
-            log(msg);
-            console.debug(msg);
-        });
     } else events = null;
     const safetyInterval = setImmediateInterval(async () => {
         const content = fs.readFileSync(await safetyFilePromise()).toString();

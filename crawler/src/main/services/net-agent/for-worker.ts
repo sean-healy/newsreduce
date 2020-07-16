@@ -43,9 +43,5 @@ async function watch() {
             });
         }
     });
-    client.client.on("error", (_, msg) => {
-        log(msg);
-        console.debug(msg);
-    });
 }
 watch();

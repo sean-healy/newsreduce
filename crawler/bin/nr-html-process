@@ -1767,8 +1767,6 @@ webpackContext.id = 42;
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6);
 /* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(54);
-/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(2);
-
 
 
 
@@ -1801,10 +1799,6 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
         events.client.on("message", (_, msg) => {
             if (preconditions.has(msg))
                 synchronised(name, f, postcondition);
-        });
-        events.client.on("error", (_, msg) => {
-            Object(_logging__WEBPACK_IMPORTED_MODULE_6__[/* log */ "a"])(msg);
-            console.debug(msg);
         });
     }
     else
@@ -2611,6 +2605,7 @@ class Redis {
                 return response;
             }
             catch (err) {
+                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
                 console.debug(err);
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
@@ -2733,11 +2728,16 @@ class Redis {
     }
     static newRedis(paramsOrHost) {
         const params = this.computeParams(paramsOrHost);
-        return new Redis(params, redis__WEBPACK_IMPORTED_MODULE_0___default.a.createClient({
+        const client = redis__WEBPACK_IMPORTED_MODULE_0___default.a.createClient({
             host: common_config__WEBPACK_IMPORTED_MODULE_1__[/* ENV */ "a"][0] === "prod" ? params.host : LOCALHOST,
             port: common_config__WEBPACK_IMPORTED_MODULE_1__[/* ENV */ "a"][0] === "prod" ? params.port : 1111,
             db: params.db,
-        }));
+        });
+        client.on("error", (_, msg) => {
+            Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
+            console.debug(msg);
+        });
+        return new Redis(params, client);
     }
 }
 Redis.defaultHostParams = (host) => ({

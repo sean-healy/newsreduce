@@ -38,17 +38,9 @@ export function start(birthLog: string, deathLog: string, idBytes: number) {
     const birthsSub = Redis.newRedis(REDIS_PARAMS.local);
     birthsSub.client.subscribe(birthLog);
     birthsSub.client.on("message", (_, id) => sourceWorker(id));
-    birthsSub.client.on("error", (_, msg) => {
-        log(msg);
-        console.debug(msg);
-    });
     const deathsSub = Redis.newRedis(REDIS_PARAMS.local);
     deathsSub.client.subscribe(deathLog);
     deathsSub.client.on("message", (_, id) => retireWorker(id));
-    deathsSub.client.on("error", (_, msg) => {
-        log(msg);
-        console.debug(msg);
-    });
 
     setInterval(() => {
         const now = Date.now();
