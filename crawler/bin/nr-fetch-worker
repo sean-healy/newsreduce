@@ -774,7 +774,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "c"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
     }
     isFetchLocked() {
-        return common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fileLock).eq(this.toURL());
+        return common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).eq(this.toURL());
     }
     setFetchLock() {
         common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL());

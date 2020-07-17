@@ -125,7 +125,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
         return write(Entity.RESOURCE, id, version, format, input);
     }
     isFetchLocked() {
-        return Redis.renewRedis(REDIS_PARAMS.fileLock).eq(this.toURL());
+        return Redis.renewRedis(REDIS_PARAMS.fetchLock).eq(this.toURL());
     }
     setFetchLock() {
         Redis.renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL());
