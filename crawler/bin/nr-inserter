@@ -143,7 +143,7 @@ class DBObject_DBObject {
     }
     getID() {
         const idBytes = this.getIDBytes();
-        return idBytes ? Object(util["d" /* bytesToBigInt */])(idBytes) : null;
+        return idBytes ? Object(util["c" /* bytesToBigInt */])(idBytes) : null;
     }
     getInsertStatement() {
         const cols = this.insertCols().map(col => "`" + col + "`").join(", ");
@@ -383,15 +383,15 @@ class Redis {
         const response = await this.tryLoop((res, rej) => this.client.srandmember(key, batch, (err, members) => err ? rej(err) : res(members)));
         return response;
     }
-    async setex(key, seconds = 60, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "c"]) {
+    async setex(key, seconds = 60, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "b"]) {
         const response = await this.tryLoop((res, rej) => this.client.setex(key, seconds, value, err => err ? rej(err) : res()));
         return response;
     }
-    async set(key, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "c"]) {
+    async set(key, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "b"]) {
         const response = await this.tryLoop((res, rej) => this.client.set(key, value, err => err ? rej(err) : res()));
         return response;
     }
-    async setpx(key, ms = 1050, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "c"]) {
+    async setpx(key, ms = 1050, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "b"]) {
         const response = await this.tryLoop((res, rej) => this.client.set(key, value, "PX", ms, err => err ? rej(err) : res()));
         return response;
     }
@@ -419,7 +419,7 @@ class Redis {
         const response = await this.tryLoop((res, rej) => this.client.hset(key, field, value, err => err ? rej(err) : res()));
         return response;
     }
-    async eq(key, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "c"]) {
+    async eq(key, value = _util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "b"]) {
         const response = await this.tryLoop((res, rej) => this.client.get(key, (err, response) => err ? rej(err) : res(response === value)));
         return response;
     }
@@ -600,15 +600,15 @@ module.exports = require("fs");
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return STR_ONE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
 /* unused harmony export ZERO */
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return IDENTITY_FUNCTION; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return iteratorToArray; });
+/* unused harmony export IDENTITY_FUNCTION */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function setImmediateInterval(f, ms) {
     setImmediate(f);
@@ -1992,7 +1992,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
     let interval = undefined;
     if (options.interval || options.interval === undefined)
-        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
+        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "e"])(() => {
             if (!safelyExit)
                 synchronised(name, f, postcondition);
         }, options.period ? options.period : 2000);
@@ -2007,7 +2007,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     }
     else
         events = null;
-    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
+    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "e"])(async () => {
         const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
         if (content.match(/1/)) {
             safelyExit = true;
@@ -2137,83 +2137,35 @@ var DBObject = __webpack_require__(0);
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(1);
 
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(5);
-
 // CONCATENATED MODULE: ./dist/main/services/inserter/functions.js
 
 
 
-
-const sizes = [5000, 10000, 15000, 20000];
-let BATCH_SIZE = 5000;
-const CHANGE = false;
+const sizes = [10000, 20000];
+let BATCH_SIZE = 10000;
 async function bulkInsert() {
     const client = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const keys = await client.keys();
     for (const key of keys) {
-        //console.log(key);
-        const typePromise = client.type(key);
+        console.log(key);
         const table = DBObject["a" /* DBObject */].forTable(key);
-        if (!CHANGE) {
-            let deleteFn;
-            let listFn;
-            let preMapper;
-            let postMapper;
-            let useInsertedCache;
-            await typePromise.then(async (type) => {
-                [listFn, preMapper, postMapper, deleteFn, useInsertedCache] = {
-                    hash: [
-                        client.hgetall,
-                        Object.keys,
-                        (row, response) => response[row],
-                        client.hdel,
-                        true
-                    ],
-                    set: [
-                        (key) => client.srandmember(key, BATCH_SIZE),
-                        util["b" /* IDENTITY_FUNCTION */],
-                        (row, _) => row,
-                        client.srem,
-                        false
-                    ]
-                }[type];
-                const [params, toRemove] = await new Promise(async (res) => {
-                    let start = Date.now();
-                    const list = await listFn.bind(client)(key);
-                    let end = Date.now();
-                    //console.log(`LISTING ${(end - start)} ms`);
-                    const toRemove = preMapper(list).slice(0, BATCH_SIZE);
-                    const params = toRemove.map(row => JSON.parse(postMapper(row, list)));
-                    //console.log("MAPPED");
-                    res([params, toRemove]);
-                });
-                let start = Date.now();
-                await table.bulkInsert(params);
-                let end = Date.now();
-                //console.log(`BULK INSERT ${(end - start)} ms`);
-                console.log(params.length, end - start);
-                start = Date.now();
-                if (useInsertedCache)
-                    await Promise.all([
-                        Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], toRemove),
-                        deleteFn.bind(client)(key, toRemove),
-                    ]);
-                else
-                    await deleteFn.bind(client)(key, toRemove);
-                end = Date.now();
-                //console.log(`CLEANUP ${(end - start)} ms`);
-                BATCH_SIZE = sizes[Math.floor(Math.random() * sizes.length)];
-            });
-        }
-        else {
-            const list = await client.srandmember(key, BATCH_SIZE);
+        let start = Date.now();
+        const list = await client.srandmember(key, BATCH_SIZE);
+        let end = Date.now();
+        console.log(`LISTING ${(end - start)} ms`);
+        if (list && list.length !== 0) {
             const params = list.map(row => JSON.parse(row));
+            start = Date.now();
             await table.bulkInsert(params);
+            end = Date.now();
+            console.log(`BULK INSERT ${(end - start)} ms`);
+            start = Date.now();
             await Promise.all([
                 Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], list),
                 client.srem(key, list),
             ]);
+            end = Date.now();
+            console.log(`CLEANUP ${(end - start)} ms`);
         }
     }
 }
