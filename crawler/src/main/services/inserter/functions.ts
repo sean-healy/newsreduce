@@ -1,11 +1,8 @@
 import { DBObject } from "types/DBObject";
 import { Redis, REDIS_PARAMS } from "common/Redis";
-import { IDENTITY_FUNCTION } from "common/util";
 import { INSERT_CACHE } from "common/events";
 
-const sizes = [10000, 20000];
-
-let BATCH_SIZE = 10000;
+const BATCH_SIZE = 20000;
 
 export async function bulkInsert() {
     const client = Redis.renewRedis(REDIS_PARAMS.inserts);

@@ -2141,8 +2141,7 @@ var Redis = __webpack_require__(1);
 
 
 
-const sizes = [10000, 20000];
-let BATCH_SIZE = 10000;
+const BATCH_SIZE = 20000;
 async function bulkInsert() {
     const client = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const keys = await client.keys();
