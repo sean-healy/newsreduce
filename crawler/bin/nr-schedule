@@ -2166,6 +2166,7 @@ function selectPreSchedule() {
     return genericSQLPromise(query, params, (rows) => rows.map(row => new ResourceURL["ResourceURL"](row).toURL()));
 }
 async function schedule(urls) {
+    console.log(`Attempting to schedule ${urls.length} URLs.`);
     const promises = [];
     let scheduled = 0;
     for (const url of urls) {

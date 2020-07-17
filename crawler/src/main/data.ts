@@ -25,6 +25,7 @@ export function selectPreSchedule() {
         rows.map(row => new ResourceURL(row).toURL()));
 }
 export async function schedule(urls: string[]) {
+    console.log(`Attempting to schedule ${urls.length} URLs.`);
     const promises = [];
     let scheduled = 0;
     for (const url of urls) {
