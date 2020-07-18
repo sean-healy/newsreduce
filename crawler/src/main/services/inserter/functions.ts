@@ -6,29 +6,33 @@ const BATCH_SIZE = 20000;
 
 const KEY_LOCK = new Set<string>();
 
-export async function asyncBulkInsert() {
+export async function insertForKey(key: string) {
     const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
     const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
+    const table = DBObject.forTable(key);
+    const list = await insertsClient.srandmember(key, BATCH_SIZE);
+    if (list && list.length !== 0) {
+        const params: any[][] = list.map(row => JSON.parse(row));
+        console.log("Inserting.", key);
+        await table.bulkInsert(params);
+        console.log("Inserted.", key);
+        await Promise.all([
+            generalClient.sadd(INSERT_CACHE, list),
+            insertsClient.srem(key, list),
+        ]);
+        console.log("Unlocked", key);
+        KEY_LOCK.delete(key);
+    }
+}
+
+export async function asyncBulkInsert() {
+    const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
     const keys = await insertsClient.keys();
     for (const key of keys) {
         if (KEY_LOCK.has(key)) continue;
         KEY_LOCK.add(key);
         console.log("Locked", key);
-        console.log(key);
-        const table = DBObject.forTable(key);
-        const list = await insertsClient.srandmember(key, BATCH_SIZE);
-        if (list && list.length !== 0) {
-            const params: any[][] = list.map(row => JSON.parse(row));
-            console.log("Inserting.", key);
-            await table.bulkInsert(params);
-            console.log("Inserted.", key);
-            await Promise.all([
-                generalClient.sadd(INSERT_CACHE, list),
-                insertsClient.srem(key, list),
-            ]);
-            console.log("Unlocked", key);
-            KEY_LOCK.delete(key);
-        }
+        insertForKey(key);
     }
     console.log("Returning.");
 }
