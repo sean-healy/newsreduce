@@ -34,9 +34,9 @@ export async function insertForKey(key: string) {
             generalClient.sadd(INSERT_CACHE, list),
             insertsClient.srem(key, list),
         ]);
-        setStage(key, "UNLOCKED");
-        KEY_LOCK.delete(key);
     }
+    KEY_LOCK.delete(key);
+    setStage(key, "UNLOCKED");
 }
 
 export async function asyncBulkInsert() {

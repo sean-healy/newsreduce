@@ -2192,9 +2192,9 @@ async function insertForKey(key) {
             generalClient.sadd(events["k" /* INSERT_CACHE */], list),
             insertsClient.srem(key, list),
         ]);
-        setStage(key, "UNLOCKED");
-        KEY_LOCK.delete(key);
     }
+    KEY_LOCK.delete(key);
+    setStage(key, "UNLOCKED");
 }
 async function asyncBulkInsert() {
     const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
