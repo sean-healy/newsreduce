@@ -2156,28 +2156,20 @@ const BATCH_SIZE = 20000;
 async function bulkInsert() {
     const client = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const keys = await client.keys();
+    const promises = [];
     for (const key of keys) {
         console.log(key);
         const table = DBObject["a" /* DBObject */].forTable(key);
-        let start = Date.now();
         const list = await client.srandmember(key, BATCH_SIZE);
-        let end = Date.now();
-        console.log(`LISTING ${(end - start)} ms`);
         if (list && list.length !== 0) {
             const params = list.map(row => JSON.parse(row));
-            start = Date.now();
-            await table.bulkInsert(params);
-            end = Date.now();
-            console.log(`BULK INSERT ${(end - start)} ms`);
-            start = Date.now();
-            await Promise.all([
+            promises.push(table.bulkInsert(params).then(() => Promise.all([
                 Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd(events["k" /* INSERT_CACHE */], list),
                 client.srem(key, list),
-            ]);
-            end = Date.now();
-            console.log(`CLEANUP ${(end - start)} ms`);
+            ])));
         }
     }
+    await Promise.all(promises);
 }
 
 // CONCATENATED MODULE: ./dist/main/services/inserter/main.js
