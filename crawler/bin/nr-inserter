@@ -1011,7 +1011,14 @@ class SQL {
             catch (err) {
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
+                for (const key in err) {
+                    const value = err[key];
+                    if (value && typeof value === "string" && value.length > 150) {
+                        err[key] = value.substr(0, 150);
+                    }
+                }
                 console.debug("error on attempt", attempt.toString());
+                console.debug(err);
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();
@@ -2179,7 +2186,6 @@ async function insertForKey(key) {
     const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
     const table = DBObject["a" /* DBObject */].forTable(key);
-    setStage(key, "LISTING");
     const list = await insertsClient.srandmember(key, BATCH_SIZE);
     setStage(key, "LISTED");
     if (list && list.length !== 0) {
@@ -2215,7 +2221,7 @@ async function bulkInsert() {
 
 
 
-Object(processor["a" /* startProcessor */])(bulkInsert, null, events["a" /* BULK_INSERT_COMPLETE */], { interval: true, period: 100 });
+Object(processor["a" /* startProcessor */])(bulkInsert, null, events["a" /* BULK_INSERT_COMPLETE */], { interval: true, period: 1000 });
 
 
 /***/ })

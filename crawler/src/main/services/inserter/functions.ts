@@ -21,7 +21,6 @@ export async function insertForKey(key: string) {
     const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
     const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
     const table = DBObject.forTable(key);
-    setStage(key, "LISTING");
     const list = await insertsClient.srandmember(key, BATCH_SIZE);
     setStage(key, "LISTED");
     if (list && list.length !== 0) {

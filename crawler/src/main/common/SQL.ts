@@ -60,7 +60,14 @@ export class SQL {
             } catch (err) {
                 log("error on attempt", attempt.toString());
                 log(err);
+                for (const key in err) {
+                    const value = err[key];
+                    if (value && typeof value === "string" && value.length > 150) {
+                        err[key] = value.substr(0, 150);
+                    }
+                }
                 console.debug("error on attempt", attempt.toString());
+                console.debug(err);
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();

@@ -6,5 +6,5 @@ startProcessor(
     bulkInsert,
     null,
     BULK_INSERT_COMPLETE,
-    { interval: true, period: 100 }
+    { interval: true, period: 1000 }
 );
