@@ -25,7 +25,6 @@ export async function insertForKey(key: string) {
 }
 
 export async function asyncBulkInsert() {
-    console.log("Poll.");
     const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
     const keys = await insertsClient.keys();
     for (const key of keys) {
@@ -34,7 +33,6 @@ export async function asyncBulkInsert() {
         console.log("Locked", key);
         insertForKey(key);
     }
-    console.log("Returning.");
 }
 
 export async function bulkInsert() {
