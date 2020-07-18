@@ -25,6 +25,15 @@ export class SQL {
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
             console.log(sqlParams);
             DB_CLIENT = createConnection(sqlParams);
+            DB_CLIENT.on("error", error => {
+                if (error) {
+                    log(error);
+                    console.debug(error);
+                }
+                const oldDB = DB_CLIENT;
+                DB_CLIENT = null;
+                oldDB.destroy();
+            });
         }
 
         return DB_CLIENT;
