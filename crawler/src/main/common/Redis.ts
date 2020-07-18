@@ -318,7 +318,7 @@ export class Redis {
                 console.debug(msg);
             }
             if (error) {
-                log(msg);
+                log(error);
                 console.debug(error);
             }
         });

@@ -301,7 +301,7 @@ class Redis {
                 console.debug(msg);
             }
             if (error) {
-                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
+                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
                 console.debug(error);
             }
         });

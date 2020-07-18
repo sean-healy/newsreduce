@@ -466,7 +466,7 @@ class Redis {
                 console.debug(msg);
             }
             if (error) {
-                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
+                Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
                 console.debug(error);
             }
         });
@@ -977,6 +977,15 @@ class SQL {
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
             console.log(sqlParams);
             DB_CLIENT = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
+            DB_CLIENT.on("error", error => {
+                if (error) {
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
+                    console.debug(error);
+                }
+                const oldDB = DB_CLIENT;
+                DB_CLIENT = null;
+                oldDB.destroy();
+            });
         }
         return DB_CLIENT;
     }
