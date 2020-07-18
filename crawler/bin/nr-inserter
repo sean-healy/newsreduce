@@ -2186,7 +2186,7 @@ function printStages() {
 function setStage(key, value) {
     const prev = stages[key];
     if (!prev || prev[0] !== value) {
-        stages[key] = [prev[1], Date.now()];
+        stages[key] = [value, Date.now()];
         printStages();
     }
     else
