@@ -60,7 +60,7 @@ export class SQL {
             } catch (err) {
                 log("error on attempt", attempt.toString());
                 log(err);
-                console.debug(err);
+                console.debug("error on attempt", attempt.toString());
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();

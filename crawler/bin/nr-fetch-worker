@@ -1011,7 +1011,7 @@ class SQL {
             catch (err) {
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                console.debug(err);
+                console.debug("error on attempt", attempt.toString());
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();
