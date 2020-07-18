@@ -977,7 +977,7 @@ class SQL {
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
             console.log(sqlParams);
             DB_CLIENT = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
-            DB_CLIENT.on("error", error => {
+            DB_CLIENT.on("error", async (error) => {
                 if (error) {
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
                     console.debug(error);
@@ -985,6 +985,7 @@ class SQL {
                 const oldDB = DB_CLIENT;
                 DB_CLIENT = null;
                 oldDB.destroy();
+                await SQL.db();
             });
         }
         return DB_CLIENT;
@@ -1002,6 +1003,7 @@ class SQL {
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();
+                await SQL.db();
             }
         }
         return null;

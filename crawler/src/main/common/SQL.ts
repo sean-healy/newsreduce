@@ -25,7 +25,7 @@ export class SQL {
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
             console.log(sqlParams);
             DB_CLIENT = createConnection(sqlParams);
-            DB_CLIENT.on("error", error => {
+            DB_CLIENT.on("error", async error => {
                 if (error) {
                     log(error);
                     console.debug(error);
@@ -33,6 +33,7 @@ export class SQL {
                 const oldDB = DB_CLIENT;
                 DB_CLIENT = null;
                 oldDB.destroy();
+                await SQL.db();
             });
         }
 
@@ -53,6 +54,7 @@ export class SQL {
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();
+                await SQL.db();
             }
         }
 
