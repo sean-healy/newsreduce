@@ -11,7 +11,7 @@ const stages = {};
 function setStage(key: string, value: string) {
     const oldValue = stages[key];
     if (oldValue !== value) {
-        oldValue[key] = value;
+        stages[key] = value;
         console.clear();
         console.table(stages);
     }

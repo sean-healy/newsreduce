@@ -2170,7 +2170,7 @@ const stages = {};
 function setStage(key, value) {
     const oldValue = stages[key];
     if (oldValue !== value) {
-        oldValue[key] = value;
+        stages[key] = value;
         console.clear();
         console.table(stages);
     }
