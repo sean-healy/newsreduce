@@ -70,17 +70,20 @@ export function isEntityLocked(entityID: string) {
 export async function compress() {
     const redis = Redis.renewRedis(REDIS_PARAMS.local);
     const locked = await redis.eq(COMPRESSOR_LOCK);
-    if (locked) return;
+    if (locked) {
+        console.log("Compressor locked while syncing.");
+        return;
+    }
     redis.setex(SYNC_LOCK, 3600);
-    const tmpDir = await tmpDirPromise();
-    const entities = fs.readdirSync(tmpDir);
-    const promises: Promise<void>[] = [];
+    console.log("Placed sync lock.");
+    const tmpDir = await tmpDirPromise(); const entities = fs.readdirSync(tmpDir); const promises: Promise<void>[] = [];
+    let newArcs = 0;
+    let oldArcs = 0;
     for (const entity of entities) {
         const entitiesDir = path.join(tmpDir, entity);
         const entityIDs = fs.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         for (const entityID of entityIDs) {
             if (await isEntityLocked(entityID)) continue;
-            console.log(entityID);
             const entityDir = path.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`
             const arc = `${entityDir}.tar`
@@ -93,16 +96,21 @@ export async function compress() {
                     [MV, undefined, [arc, await nullFilePromise(arc)]],
                     [MV, undefined, [entityDir, await nullFilePromise(entityDir)]],
                 ]));
+                ++oldArcs;
             } else {
                 await safeMkdir(path.dirname(compressedArc));
                 promises.push(spawnSeq([
                     [TAR, entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
                     [MV, undefined, [entityDir, await nullFilePromise(entityDir)]],
                 ]));
+                ++newArcs
             }
         }
     }
 
     await Promise.all(promises);
     redis.del(SYNC_LOCK);
+    console.log("Released sync lock");
+    console.log(`${newArcs} archives created.`);
+    console.log(`${oldArcs} archives updated.`);
 }

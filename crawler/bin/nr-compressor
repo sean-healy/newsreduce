@@ -716,19 +716,23 @@ function isEntityLocked(entityID) {
 async function compress() {
     const redis = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local);
     const locked = await redis.eq(events["c" /* COMPRESSOR_LOCK */]);
-    if (locked)
+    if (locked) {
+        console.log("Compressor locked while syncing.");
         return;
+    }
     redis.setex(events["m" /* SYNC_LOCK */], 3600);
+    console.log("Placed sync lock.");
     const tmpDir = await Object(config["j" /* tmpDirPromise */])();
     const entities = external_fs_default.a.readdirSync(tmpDir);
     const promises = [];
+    let newArcs = 0;
+    let oldArcs = 0;
     for (const entity of entities) {
         const entitiesDir = external_path_default.a.join(tmpDir, entity);
         const entityIDs = external_fs_default.a.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         for (const entityID of entityIDs) {
             if (await isEntityLocked(entityID))
                 continue;
-            console.log(entityID);
             const entityDir = external_path_default.a.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
             const arc = `${entityDir}.tar`;
@@ -741,6 +745,7 @@ async function compress() {
                     [MV, undefined, [arc, await Object(config["g" /* nullFilePromise */])(arc)]],
                     [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
                 ]));
+                ++oldArcs;
             }
             else {
                 await Object(config["h" /* safeMkdir */])(external_path_default.a.dirname(compressedArc));
@@ -748,11 +753,15 @@ async function compress() {
                     [config["e" /* TAR */], entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
                     [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
                 ]));
+                ++newArcs;
             }
         }
     }
     await Promise.all(promises);
     redis.del(events["m" /* SYNC_LOCK */]);
+    console.log("Released sync lock");
+    console.log(`${newArcs} archives created.`);
+    console.log(`${oldArcs} archives updated.`);
 }
 
 // EXTERNAL MODULE: ./dist/main/common/processor.js
