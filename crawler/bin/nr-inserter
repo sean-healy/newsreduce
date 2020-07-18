@@ -2166,9 +2166,8 @@ async function insertForKey(key) {
     const list = await insertsClient.srandmember(key, BATCH_SIZE);
     if (list && list.length !== 0) {
         const params = list.map(row => JSON.parse(row));
-        console.log("Inserting.", key);
         await table.bulkInsert(params);
-        console.log("Inserted.", key);
+        console.log("Inserted", key);
         await Promise.all([
             generalClient.sadd(events["k" /* INSERT_CACHE */], list),
             insertsClient.srem(key, list),
@@ -2178,6 +2177,7 @@ async function insertForKey(key) {
     }
 }
 async function asyncBulkInsert() {
+    console.log("Poll.");
     const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const keys = await insertsClient.keys();
     for (const key of keys) {
