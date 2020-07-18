@@ -1,6 +1,7 @@
 #!/usr/bin/bash
+pass=$(curl -s http://newsreduce.org:9999 | cut -d'"' -f4)
 if [ "$1" == "--noerr" ]; then
-    mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -pw7itCOMZ9RFGmPZmsNCv -A --column-names=false 2>/dev/null
+    mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -p$pass -A --column-names=false 2>/dev/null
 else
-    mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -pw7itCOMZ9RFGmPZmsNCv -A --column-names=false
+    mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -p$pass -A --column-names=false
 fi
