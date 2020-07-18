@@ -76,7 +76,9 @@ export async function compress() {
     }
     redis.setex(SYNC_LOCK, 3600);
     console.log("Placed sync lock.");
-    const tmpDir = await tmpDirPromise(); const entities = fs.readdirSync(tmpDir); const promises: Promise<void>[] = [];
+    const tmpDir = await tmpDirPromise();
+    const entities = fs.readdirSync(tmpDir);
+    const promises: Promise<void>[] = [];
     let newArcs = 0;
     let oldArcs = 0;
     for (const entity of entities) {
