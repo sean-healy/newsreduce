@@ -4,21 +4,28 @@ import { INSERT_CACHE } from "common/events";
 
 const BATCH_SIZE = 20000;
 
+const KEY_LOCK = new Set<string>();
+
 export async function bulkInsert() {
-    const client = Redis.renewRedis(REDIS_PARAMS.inserts);
-    const keys = await client.keys();
-    const promises = [];
+    const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
+    const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
+    const keys = await insertsClient.keys();
     for (const key of keys) {
+        if (KEY_LOCK.has(key)) continue;
         console.log(key);
+        KEY_LOCK.add(key);
         const table = DBObject.forTable(key);
-        const list = await client.srandmember(key, BATCH_SIZE);
+        const list = await insertsClient.srandmember(key, BATCH_SIZE);
         if (list && list.length !== 0) {
             const params: any[][] = list.map(row => JSON.parse(row));
-            promises.push(table.bulkInsert(params).then(() => Promise.all([
-                Redis.renewRedis(REDIS_PARAMS.general).sadd(INSERT_CACHE, list),
-                client.srem(key, list),
-            ])));
+            table.bulkInsert(params)
+                .then(() => Promise.all([
+                    generalClient.sadd(INSERT_CACHE, list),
+                    insertsClient.srem(key, list),
+                ]))
+                .then(() => {
+                    KEY_LOCK.delete(key);
+                });
         }
     }
-    await Promise.all(promises);
 }

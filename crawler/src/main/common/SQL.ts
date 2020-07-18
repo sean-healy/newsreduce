@@ -24,8 +24,8 @@ export class SQL {
             log("Fetched SQL config.");
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
             console.log(sqlParams);
-            DB_CLIENT = createConnection(sqlParams);
-            DB_CLIENT.on("error", async error => {
+            let newClient = createConnection(sqlParams);
+            newClient.on("error", async error => {
                 if (error) {
                     log(error);
                     console.debug(error);
@@ -35,6 +35,9 @@ export class SQL {
                 oldDB.destroy();
                 await SQL.db();
             });
+            // Be careful for concurrency bugs creating multiple connections.
+            if (DB_CLIENT === null) DB_CLIENT = newClient;
+            else newClient.destroy();
         }
 
         return DB_CLIENT;
