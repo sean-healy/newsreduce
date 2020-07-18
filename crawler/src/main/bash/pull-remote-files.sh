@@ -38,8 +38,12 @@ function process-host() {
 	fi
     fi
 }
-cat /var/newsreduce/network | while read host; do
+children=()
+while read host; do
     process-host $host&
+    children+=($!)
+done <<<$(cat /var/newsreduce/network)
+for child in "${children[@]}"; do
+    wait $child
 done
-wait
 cleanup
