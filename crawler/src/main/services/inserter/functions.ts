@@ -6,20 +6,35 @@ const BATCH_SIZE = 20000;
 
 const KEY_LOCK = new Set<string>();
 
+const stages = {};
+
+function setStage(key: string, value: string) {
+    const oldValue = stages[key];
+    if (oldValue !== value) {
+        oldValue[key] = value;
+        console.clear();
+        console.table(stages);
+    }
+}
+
 export async function insertForKey(key: string) {
     const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
     const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
     const table = DBObject.forTable(key);
+    setStage(key, "LISTING");
     const list = await insertsClient.srandmember(key, BATCH_SIZE);
+    setStage(key, "LISTED");
     if (list && list.length !== 0) {
+        setStage(key, `MAPPING`);
         const params: any[][] = list.map(row => JSON.parse(row));
-        console.log("Inserting", key);
+        setStage(key, `INSERTING (${params.length})`);
         await table.bulkInsert(params);
+        setStage(key, "CLEANUP");
         await Promise.all([
             generalClient.sadd(INSERT_CACHE, list),
             insertsClient.srem(key, list),
         ]);
-        console.log("Unlocked", key);
+        setStage(key, "UNLOCKED");
         KEY_LOCK.delete(key);
     }
 }
@@ -30,7 +45,7 @@ export async function asyncBulkInsert() {
     for (const key of keys) {
         if (KEY_LOCK.has(key)) continue;
         KEY_LOCK.add(key);
-        console.log("Locked", key);
+        setStage(key, "LOCKED");
         insertForKey(key);
     }
 }

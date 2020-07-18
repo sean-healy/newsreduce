@@ -977,6 +977,10 @@ class SQL {
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
             let newClient = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
             newClient.on("error", async (error) => {
+                const oldDB = DB_CLIENT;
+                DB_CLIENT = null;
+                oldDB.destroy();
+                await SQL.db();
                 if (error) {
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`${error.errno}`);
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.code);
@@ -989,10 +993,6 @@ class SQL {
                     console.debug(error.name);
                     console.debug(error.sqlMessage);
                 }
-                const oldDB = DB_CLIENT;
-                DB_CLIENT = null;
-                oldDB.destroy();
-                await SQL.db();
             });
             // Be careful for concurrency bugs creating multiple connections.
             if (DB_CLIENT === null)

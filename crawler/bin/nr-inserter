@@ -977,6 +977,10 @@ class SQL {
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
             let newClient = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
             newClient.on("error", async (error) => {
+                const oldDB = DB_CLIENT;
+                DB_CLIENT = null;
+                oldDB.destroy();
+                await SQL.db();
                 if (error) {
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`${error.errno}`);
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.code);
@@ -989,10 +993,6 @@ class SQL {
                     console.debug(error.name);
                     console.debug(error.sqlMessage);
                 }
-                const oldDB = DB_CLIENT;
-                DB_CLIENT = null;
-                oldDB.destroy();
-                await SQL.db();
             });
             // Be careful for concurrency bugs creating multiple connections.
             if (DB_CLIENT === null)
@@ -2166,20 +2166,33 @@ var Redis = __webpack_require__(1);
 
 const BATCH_SIZE = 20000;
 const KEY_LOCK = new Set();
+const stages = {};
+function setStage(key, value) {
+    const oldValue = stages[key];
+    if (oldValue !== value) {
+        oldValue[key] = value;
+        console.clear();
+        console.table(stages);
+    }
+}
 async function insertForKey(key) {
     const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
     const table = DBObject["a" /* DBObject */].forTable(key);
+    setStage(key, "LISTING");
     const list = await insertsClient.srandmember(key, BATCH_SIZE);
+    setStage(key, "LISTED");
     if (list && list.length !== 0) {
+        setStage(key, `MAPPING`);
         const params = list.map(row => JSON.parse(row));
-        console.log("Inserting", key);
+        setStage(key, `INSERTING (${params.length})`);
         await table.bulkInsert(params);
+        setStage(key, "CLEANUP");
         await Promise.all([
             generalClient.sadd(events["k" /* INSERT_CACHE */], list),
             insertsClient.srem(key, list),
         ]);
-        console.log("Unlocked", key);
+        setStage(key, "UNLOCKED");
         KEY_LOCK.delete(key);
     }
 }
@@ -2190,7 +2203,7 @@ async function asyncBulkInsert() {
         if (KEY_LOCK.has(key))
             continue;
         KEY_LOCK.add(key);
-        console.log("Locked", key);
+        setStage(key, "LOCKED");
         insertForKey(key);
     }
 }

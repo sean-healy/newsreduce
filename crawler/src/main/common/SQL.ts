@@ -25,6 +25,10 @@ export class SQL {
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
             let newClient = createConnection(sqlParams);
             newClient.on("error", async error => {
+                const oldDB = DB_CLIENT;
+                DB_CLIENT = null;
+                oldDB.destroy();
+                await SQL.db();
                 if (error) {
                     log(`${error.errno}`);
                     log(error.code);
@@ -37,10 +41,6 @@ export class SQL {
                     console.debug(error.name);
                     console.debug(error.sqlMessage);
                 }
-                const oldDB = DB_CLIENT;
-                DB_CLIENT = null;
-                oldDB.destroy();
-                await SQL.db();
             });
             // Be careful for concurrency bugs creating multiple connections.
             if (DB_CLIENT === null) DB_CLIENT = newClient;
