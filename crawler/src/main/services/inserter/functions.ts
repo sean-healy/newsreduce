@@ -13,8 +13,8 @@ export async function insertForKey(key: string) {
     const list = await insertsClient.srandmember(key, BATCH_SIZE);
     if (list && list.length !== 0) {
         const params: any[][] = list.map(row => JSON.parse(row));
+        console.log("Inserting", key);
         await table.bulkInsert(params);
-        console.log("Inserted", key);
         await Promise.all([
             generalClient.sadd(INSERT_CACHE, list),
             insertsClient.srem(key, list),
