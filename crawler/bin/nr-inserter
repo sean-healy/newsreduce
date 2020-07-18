@@ -2171,7 +2171,7 @@ var Redis = __webpack_require__(1);
 
 
 
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 5;
 const KEY_LOCK = new Set();
 const stages = {};
 function printStages() {
