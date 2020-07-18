@@ -2159,7 +2159,7 @@ var Redis = __webpack_require__(1);
 
 const BATCH_SIZE = 20000;
 const KEY_LOCK = new Set();
-async function bulkInsert() {
+async function asyncBulkInsert() {
     const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
     const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
     const keys = await insertsClient.keys();
@@ -2167,22 +2167,27 @@ async function bulkInsert() {
         if (KEY_LOCK.has(key))
             continue;
         KEY_LOCK.add(key);
+        console.log("Locked", key);
         console.log(key);
         const table = DBObject["a" /* DBObject */].forTable(key);
         const list = await insertsClient.srandmember(key, BATCH_SIZE);
         if (list && list.length !== 0) {
             const params = list.map(row => JSON.parse(row));
-            table.bulkInsert(params)
-                .then(() => Promise.all([
+            console.log("Inserting.", key);
+            await table.bulkInsert(params);
+            console.log("Inserted.", key);
+            await Promise.all([
                 generalClient.sadd(events["k" /* INSERT_CACHE */], list),
                 insertsClient.srem(key, list),
-            ]))
-                .then(() => {
-                KEY_LOCK.delete(key);
-            });
+            ]);
+            console.log("Unlocked", key);
+            KEY_LOCK.delete(key);
         }
     }
     console.log("Returning.");
+}
+function bulkInsert() {
+    asyncBulkInsert();
 }
 
 // CONCATENATED MODULE: ./dist/main/services/inserter/main.js
