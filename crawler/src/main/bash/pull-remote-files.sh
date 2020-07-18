@@ -26,7 +26,7 @@ function process-host() {
 	echo $host
 	(rsync -alrpgoDuzhtv newsreduce@$host:/var/newsreduce/tmp/ /var/newsreduce/tmp/\
 	    | awk -F/ '$1=="resource"&&$2~/^[0-9]+$/&&$0~/[^\/]$/{print}'\
-	    > $fileList)
+	    2>/dev/null > $fileList)
 	echo $(wc -l $fileList | cut -d' ' -f1) files transferred.
 	(cd /var/newsreduce/tmp && cat $fileList | while read file; do
 	    md5sum "$file"
