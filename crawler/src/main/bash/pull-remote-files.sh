@@ -1,5 +1,11 @@
 #!/usr/bin/bash
-trap ctrl_c INT
+function cleanup() {
+    rm -f $fileList
+    rm -f $checksums
+    echo "del compressor-lock" | redis-cli
+    rm -f /tmp/pull-remote-files
+}
+trap cleanup INT
 if [ -f /tmp/pull-remote-files ]; then
     echo Script already running elsewhere.
     exit
@@ -30,8 +36,5 @@ cat /var/newsreduce/network | while read host; do
     if [ "$msg" ]; then
         echo -e 'publish delete-files "'"$msg"'"' | redis-cli -h $host
     fi
-    rm $fileList
-    rm $checksums
 done
-echo "del compressor-lock" | redis-cli
-rm /tmp/pull-remote-files
+cleanup
