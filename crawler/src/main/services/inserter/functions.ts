@@ -2,7 +2,7 @@ import { DBObject } from "types/DBObject";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { INSERT_CACHE } from "common/events";
 
-const BATCH_SIZE = 5;
+const BATCH_SIZE = 10000;
 
 const KEY_LOCK = new Set<string>();
 
