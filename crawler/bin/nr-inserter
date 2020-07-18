@@ -2189,7 +2189,7 @@ async function asyncBulkInsert() {
     }
     console.log("Returning.");
 }
-function bulkInsert() {
+async function bulkInsert() {
     asyncBulkInsert();
 }
 

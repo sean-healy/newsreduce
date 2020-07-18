@@ -37,6 +37,6 @@ export async function asyncBulkInsert() {
     console.log("Returning.");
 }
 
-export function bulkInsert() {
+export async function bulkInsert() {
     asyncBulkInsert();
 }
