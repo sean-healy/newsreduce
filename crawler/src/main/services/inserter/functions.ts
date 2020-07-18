@@ -12,8 +12,8 @@ export async function bulkInsert() {
     const keys = await insertsClient.keys();
     for (const key of keys) {
         if (KEY_LOCK.has(key)) continue;
-        console.log(key);
         KEY_LOCK.add(key);
+        console.log(key);
         const table = DBObject.forTable(key);
         const list = await insertsClient.srandmember(key, BATCH_SIZE);
         if (list && list.length !== 0) {
@@ -28,4 +28,5 @@ export async function bulkInsert() {
                 });
         }
     }
+    console.log("Returning.");
 }
