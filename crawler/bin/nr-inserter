@@ -2184,9 +2184,9 @@ function printStages() {
     console.table(tmpStages);
 }
 function setStage(key, value) {
-    const [oldValue,] = stages[key];
-    if (oldValue !== value) {
-        stages[key] = [value, Date.now()];
+    const prev = stages[key];
+    if (!prev || prev[0] !== value) {
+        stages[key] = [prev[1], Date.now()];
         printStages();
     }
     else

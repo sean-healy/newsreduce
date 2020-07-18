@@ -19,9 +19,9 @@ function printStages() {
 }
 
 function setStage(key: string, value: string) {
-    const [oldValue,] = stages[key];
-    if (oldValue !== value) {
-        stages[key] = [value, Date.now()];
+    const prev = stages[key];
+    if (!prev || prev[0] !== value) {
+        stages[key] = [prev[1], Date.now()];
         printStages();
     }
     else console.log("stage re-entered:", value);
