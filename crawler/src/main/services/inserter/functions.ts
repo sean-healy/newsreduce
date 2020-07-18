@@ -6,7 +6,7 @@ const BATCH_SIZE = 10000;
 
 const KEY_LOCK = new Set<string>();
 
-const stages = {};
+const stages: { [key: string]: [string, number] } = {};
 
 function printStages() {
     const tmpStages = {};
@@ -28,23 +28,29 @@ function setStage(key: string, value: string) {
 }
 
 export async function insertForKey(key: string) {
-    const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
-    const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
-    const table = DBObject.forTable(key);
-    const list = await insertsClient.srandmember(key, BATCH_SIZE);
-    setStage(key, "LISTED");
-    if (list && list.length !== 0) {
-        const params: any[][] = list.map(row => JSON.parse(row));
-        setStage(key, `INSERTING (${params.length})`);
-        await table.bulkInsert(params);
-        setStage(key, "CLEANUP");
-        await Promise.all([
-            generalClient.sadd(INSERT_CACHE, list),
-            insertsClient.srem(key, list),
-        ]);
+    try {
+        const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
+        const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
+        const table = DBObject.forTable(key);
+        const list = await insertsClient.srandmember(key, BATCH_SIZE);
+        setStage(key, "LISTED");
+        if (list && list.length !== 0) {
+            const params: any[][] = list.map(row => JSON.parse(row));
+            setStage(key, `INSERTING (${params.length})`);
+            await table.bulkInsert(params);
+            setStage(key, "CLEANUP");
+            await Promise.all([
+                generalClient.sadd(INSERT_CACHE, list),
+                insertsClient.srem(key, list),
+            ]);
+        }
+        KEY_LOCK.delete(key);
+        setStage(key, "UNLOCKED");
+    } catch (err) {
+        KEY_LOCK.delete(key);
+        setStage(key, "UNLOCKED BY ERROR");
+        setStage("ERRORS", stages.ERRORS ? stages.ERRORS + 1 : 1);
     }
-    KEY_LOCK.delete(key);
-    setStage(key, "UNLOCKED");
 }
 
 export async function asyncBulkInsert() {

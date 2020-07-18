@@ -2193,23 +2193,30 @@ function setStage(key, value) {
         console.log("stage re-entered:", value);
 }
 async function insertForKey(key) {
-    const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
-    const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
-    const table = DBObject["a" /* DBObject */].forTable(key);
-    const list = await insertsClient.srandmember(key, BATCH_SIZE);
-    setStage(key, "LISTED");
-    if (list && list.length !== 0) {
-        const params = list.map(row => JSON.parse(row));
-        setStage(key, `INSERTING (${params.length})`);
-        await table.bulkInsert(params);
-        setStage(key, "CLEANUP");
-        await Promise.all([
-            generalClient.sadd(events["k" /* INSERT_CACHE */], list),
-            insertsClient.srem(key, list),
-        ]);
+    try {
+        const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
+        const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
+        const table = DBObject["a" /* DBObject */].forTable(key);
+        const list = await insertsClient.srandmember(key, BATCH_SIZE);
+        setStage(key, "LISTED");
+        if (list && list.length !== 0) {
+            const params = list.map(row => JSON.parse(row));
+            setStage(key, `INSERTING (${params.length})`);
+            await table.bulkInsert(params);
+            setStage(key, "CLEANUP");
+            await Promise.all([
+                generalClient.sadd(events["k" /* INSERT_CACHE */], list),
+                insertsClient.srem(key, list),
+            ]);
+        }
+        KEY_LOCK.delete(key);
+        setStage(key, "UNLOCKED");
     }
-    KEY_LOCK.delete(key);
-    setStage(key, "UNLOCKED");
+    catch (err) {
+        KEY_LOCK.delete(key);
+        setStage(key, "UNLOCKED BY ERROR");
+        setStage("ERRORS", stages.ERRORS ? stages.ERRORS + 1 : 1);
+    }
 }
 async function asyncBulkInsert() {
     const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
