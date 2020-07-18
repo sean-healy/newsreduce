@@ -2181,6 +2181,9 @@ function setStage(key, value) {
         console.clear();
         console.table(stages);
     }
+    else {
+        console.log("stage re-entered:", value);
+    }
 }
 async function insertForKey(key) {
     const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);

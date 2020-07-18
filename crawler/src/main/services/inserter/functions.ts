@@ -14,6 +14,8 @@ function setStage(key: string, value: string) {
         stages[key] = value;
         console.clear();
         console.table(stages);
+    } else {
+        console.log("stage re-entered:", value);
     }
 }
 
