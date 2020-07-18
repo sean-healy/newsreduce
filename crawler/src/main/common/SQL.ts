@@ -27,8 +27,16 @@ export class SQL {
             let newClient = createConnection(sqlParams);
             newClient.on("error", async error => {
                 if (error) {
-                    log(error);
-                    console.debug(error);
+                    log(`${error.errno}`);
+                    log(error.code);
+                    log(error.message);
+                    log(error.name);
+                    log(error.sqlMessage);
+                    console.debug(error.errno);
+                    console.debug(error.code);
+                    console.debug(error.message);
+                    console.debug(error.name);
+                    console.debug(error.sqlMessage);
                 }
                 const oldDB = DB_CLIENT;
                 DB_CLIENT = null;

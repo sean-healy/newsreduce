@@ -979,8 +979,16 @@ class SQL {
             let newClient = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
             newClient.on("error", async (error) => {
                 if (error) {
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
-                    console.debug(error);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`${error.errno}`);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.code);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.message);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.name);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.sqlMessage);
+                    console.debug(error.errno);
+                    console.debug(error.code);
+                    console.debug(error.message);
+                    console.debug(error.name);
+                    console.debug(error.sqlMessage);
                 }
                 const oldDB = DB_CLIENT;
                 DB_CLIENT = null;
