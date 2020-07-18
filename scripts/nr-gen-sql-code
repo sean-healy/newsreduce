@@ -15,7 +15,7 @@ for statementFileName in $(ls "$projectDir/sql/"); do
         | sed 's/$/",/g'
 done
 echo "};") > "$tmpFileTS"
-srcDir="$projectDir/crawler/src"
+srcDir="$projectDir/crawler/src/main"
 if [ ! -d "$srcDir" ]; then mkdir -p "$srcDir"; fi
 cp "$tmpFileTS" "$srcDir/sql.ts"
 rm "$tmpFileTS"
