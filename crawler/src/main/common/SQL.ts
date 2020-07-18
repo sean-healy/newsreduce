@@ -23,7 +23,6 @@ export class SQL {
             const password = params.sql
             log("Fetched SQL config.");
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
-            console.log(sqlParams);
             let newClient = createConnection(sqlParams);
             newClient.on("error", async error => {
                 if (error) {

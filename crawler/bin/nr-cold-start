@@ -975,7 +975,6 @@ class SQL {
             const password = params.sql;
             Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetched SQL config.");
             const sqlParams = { ...SQL_PARAMS, password, host: ip };
-            console.log(sqlParams);
             let newClient = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
             newClient.on("error", async (error) => {
                 if (error) {
