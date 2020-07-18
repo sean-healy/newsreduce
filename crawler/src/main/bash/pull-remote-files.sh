@@ -20,7 +20,8 @@ done
 echo "setex compressor-lock 3600 1" | redis-cli
 fileList=/tmp/$(openssl rand -hex 30)
 checksums=/tmp/$(openssl rand -hex 30)
-cat /var/newsreduce/network | while read host; do
+function process-host() {
+    host=$1
     if [ $host = newsreduce.org ]; then continue; fi
     if [[ ! "$host" =~ newsreduce ]]; then continue; fi
     echo $host
@@ -36,5 +37,9 @@ cat /var/newsreduce/network | while read host; do
     if [ "$msg" ]; then
         echo -e 'publish delete-files "'"$msg"'"' | redis-cli -h $host
     fi
+}
+cat /var/newsreduce/network | while read host; do
+    process-host $host&
 done
+wait
 cleanup
