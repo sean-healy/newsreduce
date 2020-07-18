@@ -2174,16 +2174,23 @@ var Redis = __webpack_require__(1);
 const BATCH_SIZE = 100;
 const KEY_LOCK = new Set();
 const stages = {};
+function printStages() {
+    const tmpStages = {};
+    for (const key in stages) {
+        const [value, time] = stages[key];
+        tmpStages[key] = [value, Date.now() - time];
+    }
+    console.clear();
+    console.table(tmpStages);
+}
 function setStage(key, value) {
-    const oldValue = stages[key];
+    const [oldValue,] = stages[key];
     if (oldValue !== value) {
-        stages[key] = value;
-        console.clear();
-        console.table(stages);
+        stages[key] = [value, Date.now()];
+        printStages();
     }
-    else {
+    else
         console.log("stage re-entered:", value);
-    }
 }
 async function insertForKey(key) {
     const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
@@ -2192,7 +2199,6 @@ async function insertForKey(key) {
     const list = await insertsClient.srandmember(key, BATCH_SIZE);
     setStage(key, "LISTED");
     if (list && list.length !== 0) {
-        setStage(key, `MAPPING`);
         const params = list.map(row => JSON.parse(row));
         setStage(key, `INSERTING (${params.length})`);
         await table.bulkInsert(params);

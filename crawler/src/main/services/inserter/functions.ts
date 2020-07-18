@@ -8,15 +8,23 @@ const KEY_LOCK = new Set<string>();
 
 const stages = {};
 
-function setStage(key: string, value: string) {
-    const oldValue = stages[key];
-    if (oldValue !== value) {
-        stages[key] = value;
-        console.clear();
-        console.table(stages);
-    } else {
-        console.log("stage re-entered:", value);
+function printStages() {
+    const tmpStages = {};
+    for (const key in stages) {
+        const [value, time] = stages[key];
+        tmpStages[key] = [value, Date.now() - time];
     }
+    console.clear();
+    console.table(tmpStages);
+}
+
+function setStage(key: string, value: string) {
+    const [oldValue,] = stages[key];
+    if (oldValue !== value) {
+        stages[key] = [value, Date.now()];
+        printStages();
+    }
+    else console.log("stage re-entered:", value);
 }
 
 export async function insertForKey(key: string) {
@@ -26,7 +34,6 @@ export async function insertForKey(key: string) {
     const list = await insertsClient.srandmember(key, BATCH_SIZE);
     setStage(key, "LISTED");
     if (list && list.length !== 0) {
-        setStage(key, `MAPPING`);
         const params: any[][] = list.map(row => JSON.parse(row));
         setStage(key, `INSERTING (${params.length})`);
         await table.bulkInsert(params);
