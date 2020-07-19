@@ -127,7 +127,7 @@ var SQL = __webpack_require__(11);
 const ESCAPE = "ESCAPED BY '\\'";
 const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
-const LINE_TERM = "LINES TERMINATED BY '\n'";
+const LINE_TERM = "LINES TERMINATED BY '\\n'";
 class DBObject_DBObject {
     constructor(src) {
         if (src) {

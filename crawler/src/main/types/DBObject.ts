@@ -7,7 +7,7 @@ import { SQL } from "common/SQL";
 const ESCAPE = "ESCAPED BY '\\'";
 const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
-const LINE_TERM = "LINES TERMINATED BY '\n'";
+const LINE_TERM = "LINES TERMINATED BY '\\n'";
 
 export abstract class DBObject<T extends DBObject<T>> {
     abstract getInsertParams(): any[];
