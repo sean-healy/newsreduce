@@ -39,14 +39,14 @@ function randomTmpFile() {
 const NEW_SADD_FEATURE = false;
 
 export async function insertForKey(key: string) {
+    const loadFile: string = randomTmpFile();
+    const table = DBObject.forTable(key);
     try {
         const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
         const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
-        const table = DBObject.forTable(key);
         let list = await insertsClient.srandmember(key, BATCH_SIZE);
         setStage(key, "LISTED");
         if (list && list.length !== 0) {
-            const loadFile: string = randomTmpFile();
             if (!NEW_SADD_FEATURE)
                 list = list.map(row => row.charAt(0) === "[" ? SQL.csvRow(JSON.parse(row)) : row);
             setStage(key, `INSERTING (${list.length})`);
@@ -58,12 +58,15 @@ export async function insertForKey(key: string) {
                 insertsClient.srem(key, list),
             ]);
         }
+        fs.unlinkSync(loadFile);
         KEY_LOCK.delete(key);
         setStage(key, "UNLOCKED");
     } catch (err) {
+        fs.unlinkSync(loadFile);
         KEY_LOCK.delete(key);
         setStage(key, "UNLOCKED BY ERROR");
         setStage("ERRORS", stages.ERRORS ? `${parseInt(stages.ERRORS[0]) + 1}` : "1");
+        throw err;
     }
 }
 

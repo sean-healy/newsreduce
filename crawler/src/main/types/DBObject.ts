@@ -1,6 +1,5 @@
 import { defaultHash } from "common/hashing";
 import { bytesToBigInt } from "common/util";
-import sql from "sql";
 import { INSERT_CACHE } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
@@ -65,7 +64,7 @@ export abstract class DBObject<T extends DBObject<T>> {
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
         const table = this.table();
         const query = `LOAD DATA INFILE ? IGNORE INTO TABLE \`${table}\` ${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
-        await SQL.query(query, [csvFile]);
+        await SQL.query(query, [csvFile])
     }
     static stringifyBigIntsInPlace(obj: object) {
         if (typeof obj === "object") {

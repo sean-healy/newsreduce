@@ -956,8 +956,8 @@ class SQL {
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
                 for (const key in err) {
                     const value = err[key];
-                    if (value && typeof value === "string" && value.length > 150) {
-                        err[key] = value.substr(0, 150);
+                    if (value && typeof value === "string" && value.length > 250) {
+                        err[key] = value.substr(0, 250);
                     }
                 }
                 console.debug("error on attempt", attempt.toString());
@@ -2245,14 +2245,14 @@ function randomTmpFile() {
 }
 const NEW_SADD_FEATURE = false;
 async function insertForKey(key) {
+    const loadFile = randomTmpFile();
+    const table = DBObject["a" /* DBObject */].forTable(key);
     try {
         const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
         const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
-        const table = DBObject["a" /* DBObject */].forTable(key);
         let list = await insertsClient.srandmember(key, BATCH_SIZE);
         setStage(key, "LISTED");
         if (list && list.length !== 0) {
-            const loadFile = randomTmpFile();
             if (!NEW_SADD_FEATURE)
                 list = list.map(row => row.charAt(0) === "[" ? SQL["a" /* SQL */].csvRow(JSON.parse(row)) : row);
             setStage(key, `INSERTING (${list.length})`);
@@ -2264,13 +2264,16 @@ async function insertForKey(key) {
                 insertsClient.srem(key, list),
             ]);
         }
+        external_fs_default.a.unlinkSync(loadFile);
         KEY_LOCK.delete(key);
         setStage(key, "UNLOCKED");
     }
     catch (err) {
+        external_fs_default.a.unlinkSync(loadFile);
         KEY_LOCK.delete(key);
         setStage(key, "UNLOCKED BY ERROR");
         setStage("ERRORS", stages.ERRORS ? `${parseInt(stages.ERRORS[0]) + 1}` : "1");
+        throw err;
     }
 }
 async function asyncBulkInsert() {
