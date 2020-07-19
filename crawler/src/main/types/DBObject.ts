@@ -4,7 +4,7 @@ import { INSERT_CACHE } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 
-const ESCAPE = "ESCAPED BY '\\'";
+const ESCAPE = "ESCAPED BY '\\\\'";
 const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
 const LINE_TERM = "LINES TERMINATED BY '\\n'";
