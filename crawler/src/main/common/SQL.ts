@@ -62,8 +62,8 @@ export class SQL {
                 log(err);
                 for (const key in err) {
                     const value = err[key];
-                    if (value && typeof value === "string" && value.length > 250) {
-                        err[key] = value.substr(0, 250);
+                    if (value && typeof value === "string" && value.length > 1000) {
+                        err[key] = value.substr(0, 1000);
                     }
                 }
                 console.debug("error on attempt", attempt.toString());
