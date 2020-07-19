@@ -96,7 +96,7 @@
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
 /* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
 
 
@@ -318,14 +318,14 @@ Redis.defaultHostParams = (host) => ({
 
 /***/ }),
 
-/***/ 12:
+/***/ 13:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
 /* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(20);
 /* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
 
 
@@ -426,9 +426,9 @@ module.exports = require("child_process");
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
 let ENV = ["prod"];
 
 
@@ -507,9 +507,9 @@ module.exports = require("fs");
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6);
 /* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
 
 
@@ -565,55 +565,6 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
 
 /***/ }),
 
-/***/ 5:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return setImmediateInterval; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
-/* unused harmony export ZERO */
-/* unused harmony export EIGHT */
-/* unused harmony export MASK */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return iteratorToArray; });
-/* unused harmony export IDENTITY_FUNCTION */
-const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
-function setImmediateInterval(f, ms) {
-    setImmediate(f);
-    return setInterval(f, ms);
-}
-const STR_ONE = "1";
-const ZERO = BigInt(0);
-const EIGHT = BigInt(8);
-const MASK = BigInt(0xFF);
-function bytesToBigInt(bytes) {
-    if (!bytes)
-        return bytes;
-    let result = ZERO;
-    for (const byte of bytes)
-        result = (result << EIGHT) | BigInt(byte);
-    return result;
-}
-function writeBigUInt96BE(n, buffer, offset) {
-    for (let i = 0; i <= 11; ++i) {
-        const byte = (n & MASK);
-        buffer[offset + 11 - i] = Number(byte);
-        n >>= EIGHT;
-    }
-}
-function iteratorToArray(itr) {
-    const arr = [];
-    for (const item of itr)
-        arr.push(item);
-    return arr;
-}
-const IDENTITY_FUNCTION = (r) => r;
-
-
-/***/ }),
-
 /***/ 58:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -639,7 +590,7 @@ var external_child_process_ = __webpack_require__(26);
 var logging = __webpack_require__(2);
 
 // EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(8);
+var events = __webpack_require__(9);
 
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(1);
@@ -776,6 +727,55 @@ Object(processor["a" /* startProcessor */])(compress, null, events["d" /* COMPRE
 
 /***/ }),
 
+/***/ 6:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
+/* unused harmony export ZERO */
+/* unused harmony export EIGHT */
+/* unused harmony export MASK */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return iteratorToArray; });
+/* unused harmony export IDENTITY_FUNCTION */
+const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+function setImmediateInterval(f, ms) {
+    setImmediate(f);
+    return setInterval(f, ms);
+}
+const STR_ONE = "1";
+const ZERO = BigInt(0);
+const EIGHT = BigInt(8);
+const MASK = BigInt(0xFF);
+function bytesToBigInt(bytes) {
+    if (!bytes)
+        return bytes;
+    let result = ZERO;
+    for (const byte of bytes)
+        result = (result << EIGHT) | BigInt(byte);
+    return result;
+}
+function writeBigUInt96BE(n, buffer, offset) {
+    for (let i = 0; i <= 11; ++i) {
+        const byte = (n & MASK);
+        buffer[offset + 11 - i] = Number(byte);
+        n >>= EIGHT;
+    }
+}
+function iteratorToArray(itr) {
+    const arr = [];
+    for (const item of itr)
+        arr.push(item);
+    return arr;
+}
+const IDENTITY_FUNCTION = (r) => r;
+
+
+/***/ }),
+
 /***/ 7:
 /***/ (function(module, exports) {
 
@@ -784,6 +784,13 @@ module.exports = require("path");
 /***/ }),
 
 /***/ 8:
+/***/ (function(module, exports) {
+
+module.exports = require("node-fetch");
+
+/***/ }),
+
+/***/ 9:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -820,13 +827,6 @@ const SYNC_LOCK = "sync-lock";
 const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 const INSERT_CACHE = "inserted";
 
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, exports) {
-
-module.exports = require("node-fetch");
 
 /***/ })
 

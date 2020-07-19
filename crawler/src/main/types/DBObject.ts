@@ -1,9 +1,14 @@
 import { defaultHash } from "common/hashing";
 import { bytesToBigInt } from "common/util";
-import { log } from "common/logging";
+import sql from "sql";
 import { INSERT_CACHE } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
+
+const ESCAPE = "ESCAPED BY '\\'";
+const ENCLOSE = `ENCLOSED BY '"'`;
+const FIELD_TERM = "FIELDS TERMINATED BY ','";
+const LINE_TERM = "LINES TERMINATED BY '\n'";
 
 export abstract class DBObject<T extends DBObject<T>> {
     abstract getInsertParams(): any[];
@@ -39,9 +44,11 @@ export abstract class DBObject<T extends DBObject<T>> {
     async singularInsert(options = { recursive: false }) {
         const promises: Promise<any>[] = [];
         // No circular dependencies allowed.
-        if (options.recursive)
-            for (const promise of this.getDeps().map(dep => dep.singularInsert(options)))
-                promises.push(promise);
+        if (options.recursive) {
+            const deps = this.getDeps();
+            for (const insert of deps.map(dep => dep.singularInsert(options)))
+                promises.push(insert);
+        }
         const query = this.getInsertStatement();
         const params = this.getSingularInsertParams();
         promises.push(SQL.query(query, params).then(() => {
@@ -53,14 +60,12 @@ export abstract class DBObject<T extends DBObject<T>> {
 
         await Promise.all(promises);
     }
-    async bulkInsert(params: any[][]) {
-        if (!params) return;
-        const insertCols = this.insertCols().length;
-        params = params.filter(paramRow => paramRow.length === insertCols);
-        if (params.length === 0) return;
-        const query = this.getInsertStatement();
-        log(`inserting ${params.length} rows with SQL: ${query}`);
-        await SQL.query(query, [params]);
+    async bulkInsert(csvFile: string) {
+        if (!csvFile) return;
+        const cols = this.insertCols().map(col => `\`${col}\``).join(",");
+        const table = this.table();
+        const query = `LOAD DATA INFILE ? IGNORE INTO TABLE \`${table}\` ${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
+        await SQL.query(query, [csvFile]);
     }
     static stringifyBigIntsInPlace(obj: object) {
         if (typeof obj === "object") {
@@ -72,15 +77,16 @@ export abstract class DBObject<T extends DBObject<T>> {
             }
         }
     }
+    asCSVRow() {
+        return SQL.csvRow(this.getInsertParams());
+    }
     async enqueueInsert(options = { recursive: false }) {
         const promises = [];
         // No circular dependencies allowed.
         if (options.recursive)
             for (const dep of this.getDeps())
                 promises.push(dep.enqueueInsert(options));
-        const insertParams = this.getInsertParams();
-        DBObject.stringifyBigIntsInPlace(insertParams);
-        const payload = JSON.stringify(insertParams);
+        const payload = this.asCSVRow();
         const id = this.getID();
         promises.push(new Promise<void>(async res => {
             let key: string;

@@ -1,4 +1,6 @@
 export default {
+	// /home/sean/newsreduce/sql/BULK_INSERT.sql
+	BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
 	// /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
 	DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
 	// /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
@@ -63,4 +65,6 @@ export default {
 	SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
 	// /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
 	SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
+	// /home/sean/newsreduce/sql/SELECT_WIKI_CATEGORIES_NOT_FETCHED.sql
+	SELECT_WIKI_CATEGORIES_NOT_FETCHED: "select r.ssl, h.name as host, r.port, p.value as path, q.value as query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.resource = r.id inner join ResourceURLPath p on p.id = r.path inner join ResourceURLQuery q on q.id = r.query where f.resource is null limit 100",
 };

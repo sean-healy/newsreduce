@@ -90,4 +90,21 @@ export class SQL {
     static async destroy() {
         (await SQL.db()).destroy();
     }
+    static csvField(param: any) {
+        let stringified: string;
+        if (param === null || param === undefined) stringified = "NULL";
+        else if (typeof param === "boolean") {
+            const paramAsTinyint = param ? 1 : 0;
+            stringified = `"${paramAsTinyint}"`
+        } else {
+            const paramAsString = param.toString();
+            const escapedParam = paramAsString.replace(/"/g, '\\"');
+            stringified = `"${escapedParam}"`
+        }
+
+        return stringified;
+    }
+    static csvRow(params: any[]) {
+        return params.map(SQL.csvField).join(",");
+    }
 }
