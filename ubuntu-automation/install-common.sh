@@ -5,10 +5,11 @@ if [ $USER != root ]; then
 fi
 if [ ! -d /opt/newsreduce ]; then
     git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
+    chown -R newsreduce:newsreduce /opt/newsreduce
 fi
 useradd newsreduce
 chsh newsreduce -s /usr/bin/bash
-mkdir -p /var/newsreduce
+sudo -u newsreduce mkdir -p /var/newsreduce
 usermod -d /var/newsreduce newsreduce
 debs=(
     bind9-dnsutils
@@ -23,20 +24,18 @@ debs=(
     tar
     zstd
 )
-mkdir -p /var/newsreduce/blobs/host
-mkdir -p /var/newsreduce/blobs/word
-mkdir -p /var/newsreduce/blobs/resource
-mkdir -p /var/newsreduce/null
-mkdir -p /var/newsreduce/.ssh
-touch /var/newsreduce/safety
+sudo -u newsreduce mkdir -p /var/newsreduce/blobs/host
+sudo -u newsreduce mkdir -p /var/newsreduce/blobs/word
+sudo -u newsreduce mkdir -p /var/newsreduce/blobs/resource
+sudo -u newsreduce mkdir -p /var/newsreduce/null
+sudo -u newsreduce mkdir -p /var/newsreduce/.ssh
+sudo -u newsreduce touch /var/newsreduce/safety
+echo 0 > /var/newsreduce/safety
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 if [ ! -f /var/newsreduce/.ssh/id_rsa ]; then
     sudo -u newsreduce ssh-keygen -q -t rsa -N '' -f /var/newsreduce/.ssh/id_rsa <<<y 2>&1 >/dev/null
 fi
 apt-get install -y ${debs[*]}
-
-chown -R newsreduce:newsreduce /var/newsreduce
-chown -R newsreduce:newsreduce /opt/newsreduce
 
 bash "$(dirname $0)/firewall.sh"
 
