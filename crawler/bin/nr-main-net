@@ -132,11 +132,14 @@ class DNS {
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
 
 
+const TOGGLE = false;
 async function log(...args) {
-    const now = Date.now();
-    const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
-    const logFile = `${varDir}/log`;
-    fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
+    if (TOGGLE) {
+        const now = Date.now();
+        const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
+        const logFile = `${varDir}/log`;
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
+    }
 }
 
 
