@@ -60,12 +60,6 @@ export class SQL {
             } catch (err) {
                 log("error on attempt", attempt.toString());
                 log(err);
-                for (const key in err) {
-                    const value = err[key];
-                    if (value && typeof value === "string" && value.length > 1000) {
-                        err[key] = value.substr(0, 1000);
-                    }
-                }
                 console.debug("error on attempt", attempt.toString());
                 console.debug(err);
                 const oldClient = DB_CLIENT;

@@ -12,7 +12,7 @@ async function genericSQLPromise<From, To>(
     mapper?: (v: From) => To
 ): Promise<To> {
     let response: From | To = await SQL.query<From>(query, params);
-    if (mapper) response = mapper(response);
+    if (mapper && response) response = mapper(response);
     return response as To;
 }
 

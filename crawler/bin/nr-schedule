@@ -954,12 +954,6 @@ class SQL {
             catch (err) {
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                for (const key in err) {
-                    const value = err[key];
-                    if (value && typeof value === "string" && value.length > 1000) {
-                        err[key] = value.substr(0, 1000);
-                    }
-                }
                 console.debug("error on attempt", attempt.toString());
                 console.debug(err);
                 const oldClient = DB_CLIENT;
@@ -2217,7 +2211,7 @@ var SQL = __webpack_require__(11);
 
 async function genericSQLPromise(query, params = [], mapper) {
     let response = await SQL["a" /* SQL */].query(query, params);
-    if (mapper)
+    if (mapper && response)
         response = mapper(response);
     return response;
 }
