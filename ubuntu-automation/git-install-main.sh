@@ -14,7 +14,9 @@ if [ ! -f /var/newsreduce/network ] || [ ! "$(cat /var/newsreduce/network)" ]; t
         > /var/newsreduce/network
 fi
 vi /var/newsreduce/network
-if [ ! -f /var/newsreduce/sql_password ]; then
+if [ -f /var/newsreduce/sql_password ]; then
+    sql_password="$(cat /var/newsreduce/sql_password)"
+else
     sql_password="$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64 | tr '/' '_' | tr '+' ',')"
     echo "$sql_password" > /var/newsreduce/sql_password
 fi
