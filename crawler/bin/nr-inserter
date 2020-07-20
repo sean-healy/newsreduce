@@ -2215,7 +2215,7 @@ var SQL = __webpack_require__(11);
 
 
 
-const BATCH_SIZE = 500000;
+const BATCH_SIZE = 50000;
 const KEY_LOCK = new Set();
 const stages = {};
 function printStages() {

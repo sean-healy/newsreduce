@@ -6,7 +6,7 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 import { INSERT_CACHE } from "common/events";
 
-const BATCH_SIZE = 500000;
+const BATCH_SIZE = 50000;
 
 const KEY_LOCK = new Set<string>();
 
