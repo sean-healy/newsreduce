@@ -1,4 +1,4 @@
 #* * * * * /usr/bin/sudo /usr/bin/nr-update
-*/10 * * * * /opt/newsreduce/crawler/src/main/bash/cleanup-empty-dirs.sh
+*/10 * * * * /opt/newsreduce/crawler/src/main/bash/cleanup-fs.sh
 */5 * * * * /opt/newsreduce/crawler/src/main/bash/pull-remote-files.sh
 
