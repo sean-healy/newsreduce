@@ -861,6 +861,7 @@ var FileFormat;
     FileFormat[FileFormat["RAW_HEADERS"] = 1] = "RAW_HEADERS";
     FileFormat[FileFormat["RAW_TXT"] = 2] = "RAW_TXT";
     FileFormat[FileFormat["HITS"] = 3] = "HITS";
+    FileFormat[FileFormat["UNKNOWN"] = 4] = "UNKNOWN";
 })(FileFormat || (FileFormat = {}));
 function formatToFileName(format) {
     switch (format) {
@@ -877,7 +878,7 @@ function fileNameToFormat(fileName) {
         case "headers.txt": return FileFormat.RAW_HEADERS;
         case "raw.txt": return FileFormat.RAW_TXT;
         case "hit.bin": return FileFormat.HITS;
-        default: throw `file name not handled: ${fileName}`;
+        default: return FileFormat.UNKNOWN;
     }
 }
 

@@ -3,6 +3,7 @@ export enum FileFormat {
     RAW_HEADERS,
     RAW_TXT,
     HITS,
+    UNKNOWN,
 }
 
 export function formatToFileName(format: FileFormat) {
@@ -21,6 +22,6 @@ export function fileNameToFormat(fileName: string) {
         case "headers.txt": return FileFormat.RAW_HEADERS;
         case "raw.txt": return FileFormat.RAW_TXT;
         case "hit.bin": return FileFormat.HITS;
-        default: throw `file name not handled: ${fileName}`;
+        default: return FileFormat.UNKNOWN;
     }
 }
