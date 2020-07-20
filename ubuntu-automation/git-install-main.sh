@@ -29,9 +29,22 @@ echo "create database if not exists newsreduce;"                                
 echo "grant all privileges on newsreduce.* to 'newsreduce'@'%';flush privileges;"                                                 | mysql
 echo "set global sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';"  | mysql
 echo "set session sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';" | mysql
+echo "set session sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';" | mysql
+echo "grant file on *.* to 'newsreduce'@'%';flush privileges;"                                                                    | mysql
+
+cat > /etc/mysql/conf.d/performance-tuning.cnf << END
+[mysqld]
+secure-file-priv = ""
+innodb_doublewrite = 0
+innodb_support_xa = 0
+innodb_buffer_pool_size = 4G
+innodb_log_file_size = 1G
+innodb_flush_log_at_trx_commit = 0
+END
 
 chown -R newsreduce:newsreduce /var/newsreduce
 apt -y autoremove
+systemctl restart mysql
 nr-net-agent
 nr-inserter
 nr-schedule
