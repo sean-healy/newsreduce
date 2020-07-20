@@ -44,7 +44,7 @@ export function tabulate(data: { [key: string]: any }[]) {
     const widths = keys.map(key => key.length);
     for (let i = 0; i < keys.length; ++i) {
         const key = keys[i];
-        printData[0][key] = key;
+        printData[0][key] = key.toUpperCase();
         for (let j = 0; j < data.length; ++j) {
             const value = `${data[j][key]}`;
             const prevPrintData = printData[j + 1];
@@ -77,10 +77,15 @@ export function tabulate(data: { [key: string]: any }[]) {
         const length = line.length;
         if (maxLineLength < length) {
             maxLineLength = length;
-        } else {
-            line = line.padEnd(maxLineLength, " ")
+            process.stdout.write(line);
+        } else
+            process.stdout.write(line.padEnd(maxLineLength, " "));
+        if (i === 0) {
+            process.stdout.write("\n");
+            const sep = line.replace(/[^|]/g, "-").replace(/\|/g, "+").padEnd(maxLineLength, " ");
+            process.stdout.write(sep);
+            ++currentTableLine;
         }
-        process.stdout.write(line);
         process.stdout.write("\n");
         ++currentTableLine;
     }
