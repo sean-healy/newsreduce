@@ -1,5 +1,5 @@
 import "./setup.ts";
-import { writeBigUInt96BE, bytesToBigInt, CMP_BIG_INT } from "common/util"
+import { writeBigUInt96BE, bytesToBigInt, CMP_BIG_INT, tabulate } from "common/util"
 
 test("12 bytes big int can be converted to buffer", () => {
     let buff = Buffer.alloc(12);
@@ -23,4 +23,27 @@ test("bigint comparison works", () => {
     expect(CMP_BIG_INT(1n, 2n) < 0).toBe(true);
     expect(CMP_BIG_INT(2n, 1n) > 0).toBe(true);
     expect(CMP_BIG_INT(2n, 2n) === 0).toBe(true);
+});
+
+test("tabulate should work", () => {
+    tabulate([
+        {
+            foo: 1,
+            bar: 2,
+        },
+        {
+            foo: 242493249,
+            bar: 9232424,
+        },
+    ]);
+    tabulate([
+        {
+            first: "sean",
+            last: "healy",
+        },
+        {
+            first: "ongo",
+            last: "gablogian",
+        },
+    ]);
 });

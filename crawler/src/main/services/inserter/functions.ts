@@ -5,6 +5,7 @@ import { DBObject } from "types/DBObject";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 import { INSERT_CACHE } from "common/events";
+import { tabulate } from "common/util";
 
 const BATCH_SIZE = 50000;
 
@@ -13,13 +14,16 @@ const KEY_LOCK = new Set<string>();
 const stages: { [key: string]: [string, number] } = {};
 
 function printStages() {
-    const tmpStages = {};
+    const tmpStages: { [key: string]: any }[] = [];
     for (const key in stages) {
-        const [value, time] = stages[key];
-        tmpStages[key] = [value, Date.now() - time];
+        const [stage, time] = stages[key];
+        tmpStages.push({
+            table: key,
+            stage,
+            elapsed: Date.now() - time,
+        });
     }
-    console.clear();
-    console.table(tmpStages);
+    tabulate(tmpStages);
 }
 
 function setStage(key: string, value: string) {
@@ -53,7 +57,8 @@ export async function insertForKey(key: string) {
             fs.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
             await Promise.all([
-                generalClient.sadd(INSERT_CACHE, rows.map(row => DBObject.generateInsertedKey(table.table(), row))),
+                generalClient.sadd(INSERT_CACHE,
+                    rows.map(row => DBObject.generateInsertedKey(table.table(), row))),
                 insertsClient.srem(key, list),
             ]);
         }
