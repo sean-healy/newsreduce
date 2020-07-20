@@ -5,7 +5,6 @@ if [ $USER != root ]; then
 fi
 mkdir -p /var/newsreduce
 curl http://newsreduce.org:9999/net > /var/newsreduce/network
-echo 0 > /var/newsreduce/is_main
 export env=worker
 bash "$(dirname $0)/install-common.sh"
 access_key="$(curl http://newsreduce.org:9999/public-key)"
@@ -28,5 +27,7 @@ debs=(
 apt-get update
 apt-get -y install ${debs[*]}
 apt -y autoremove
-chown -R newsreduce:newsreduce /var/newsreduce
 nr-net-agent
+chown newsreduce:newsreduce /var/newsreduce
+chown newsreduce:newsreduce /var/newsreduce/network
+chown -R newsreduce:newsreduce /var/newsreduce/.ssh

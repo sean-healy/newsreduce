@@ -5,11 +5,10 @@ if [ $USER != root ]; then
 fi
 if [ ! -d /opt/newsreduce ]; then
     git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
-    chown -R newsreduce:newsreduce /opt/newsreduce
 fi
 useradd newsreduce
 chsh newsreduce -s /usr/bin/bash
-sudo -u newsreduce mkdir -p /var/newsreduce
+mkdir -p /var/newsreduce
 usermod -d /var/newsreduce newsreduce
 debs=(
     bind9-dnsutils
@@ -24,12 +23,11 @@ debs=(
     tar
     zstd
 )
-sudo -u newsreduce mkdir -p /var/newsreduce/blobs/host
-sudo -u newsreduce mkdir -p /var/newsreduce/blobs/word
-sudo -u newsreduce mkdir -p /var/newsreduce/blobs/resource
-sudo -u newsreduce mkdir -p /var/newsreduce/null
-sudo -u newsreduce mkdir -p /var/newsreduce/.ssh
-sudo -u newsreduce touch /var/newsreduce/safety
+mkdir -p /var/newsreduce/blobs/host
+mkdir -p /var/newsreduce/blobs/word
+mkdir -p /var/newsreduce/blobs/resource
+mkdir -p /var/newsreduce/null
+mkdir -p /var/newsreduce/.ssh
 echo 0 > /var/newsreduce/safety
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 if [ ! -f /var/newsreduce/.ssh/id_rsa ]; then
@@ -79,3 +77,11 @@ mk-daemon-script schedule
 mk-daemon-script html-process
 mk-daemon-script compressor
 ln -sf /opt/newsreduce/ubuntu-automation/install-$env.sh /usr/bin/nr-update
+chown newsreduce:newsreduce /var/newsreduce
+chown -R newsreduce:newsreduce /opt/newsreduce
+chown newsreduce:newsreduce /var/newsreduce/blobs
+chown newsreduce:newsreduce /var/newsreduce/blobs/host
+chown newsreduce:newsreduce /var/newsreduce/blobs/word
+chown newsreduce:newsreduce /var/newsreduce/blobs/resource
+chown newsreduce:newsreduce /var/newsreduce/null
+chown newsreduce:newsreduce /var/newsreduce/safety
