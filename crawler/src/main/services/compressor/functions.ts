@@ -86,6 +86,10 @@ export async function compress() {
         const entityIDs = fs.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         for (const entityID of entityIDs) {
             if (await isEntityLocked(entityID)) continue;
+            const stat = fs.statSync(path.join(entitiesDir, entityID));
+            const mtime = stat.mtime.getTime();
+            const secondsSinceLastModified = Date.now() - mtime;
+            if (secondsSinceLastModified < 10) continue;
             const entityDir = path.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`
             const arc = `${entityDir}.tar`

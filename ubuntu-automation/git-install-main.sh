@@ -34,10 +34,9 @@ echo "grant file on *.* to 'newsreduce'@'%';flush privileges;"                  
 
 cat > /etc/mysql/conf.d/performance-tuning.cnf << END
 [mysqld]
-secure-file-priv = ""
+secure-file-priv = "/tmp"
 innodb_doublewrite = 0
-innodb_support_xa = 0
-innodb_buffer_pool_size = 4G
+innodb_buffer_pool_size = 20G
 innodb_log_file_size = 1G
 innodb_flush_log_at_trx_commit = 0
 END

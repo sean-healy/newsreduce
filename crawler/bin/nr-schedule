@@ -203,14 +203,10 @@ class DBObject_DBObject {
             for (const dep of this.getDeps())
                 promises.push(dep.enqueueInsert(options));
         const payload = this.asCSVRow();
-        const id = this.getID();
         promises.push(new Promise(async (res) => {
-            let key;
-            if (id)
-                key = id.toString();
-            else
-                key = `${this.table()}:${payload}`;
-            const isMember = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sismember(events["k" /* INSERT_CACHE */], key);
+            const isMember = await Redis["b" /* Redis */]
+                .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
+                .sismember(events["k" /* INSERT_CACHE */], DBObject_DBObject.generateInsertedKey(this.table(), payload));
             if (!isMember)
                 await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
             res();
@@ -246,6 +242,9 @@ class DBObject_DBObject {
     static forTable(table) {
         const DBObjectT = __webpack_require__(47)(`./${table}`)[table];
         return new DBObjectT();
+    }
+    static generateInsertedKey(table, csvRow) {
+        return `"${table}",${csvRow}`;
     }
 }
 

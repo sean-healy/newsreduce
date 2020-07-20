@@ -203,14 +203,10 @@ class DBObject_DBObject {
             for (const dep of this.getDeps())
                 promises.push(dep.enqueueInsert(options));
         const payload = this.asCSVRow();
-        const id = this.getID();
         promises.push(new Promise(async (res) => {
-            let key;
-            if (id)
-                key = id.toString();
-            else
-                key = `${this.table()}:${payload}`;
-            const isMember = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sismember(events["k" /* INSERT_CACHE */], key);
+            const isMember = await Redis["b" /* Redis */]
+                .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
+                .sismember(events["k" /* INSERT_CACHE */], DBObject_DBObject.generateInsertedKey(this.table(), payload));
             if (!isMember)
                 await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
             res();
@@ -246,6 +242,9 @@ class DBObject_DBObject {
     static forTable(table) {
         const DBObjectT = __webpack_require__(47)(`./${table}`)[table];
         return new DBObjectT();
+    }
+    static generateInsertedKey(table, csvRow) {
+        return `"${table}",${csvRow}`;
     }
 }
 
@@ -2212,7 +2211,7 @@ var SQL = __webpack_require__(11);
 
 
 
-const BATCH_SIZE = 5000;
+const BATCH_SIZE = 100000;
 const KEY_LOCK = new Set();
 const stages = {};
 function printStages() {
@@ -2247,14 +2246,15 @@ async function insertForKey(key) {
         let list = await insertsClient.srandmember(key, BATCH_SIZE);
         setStage(key, "LISTED");
         if (list && list.length !== 0) {
+            let rows = list;
             if (!NEW_SADD_FEATURE)
-                list = list.map(row => row.charAt(0) === "[" ? SQL["a" /* SQL */].csvRow(JSON.parse(row)) : row);
+                rows = rows.map(row => row.charAt(0) === "[" ? SQL["a" /* SQL */].csvRow(JSON.parse(row)) : row);
             setStage(key, `INSERTING (${list.length})`);
-            external_fs_default.a.writeFileSync(loadFile, list.join("\n"));
+            external_fs_default.a.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
             setStage(key, "CLEANUP");
             await Promise.all([
-                generalClient.sadd(events["k" /* INSERT_CACHE */], list),
+                generalClient.sadd(events["k" /* INSERT_CACHE */], rows.map(row => DBObject["a" /* DBObject */].generateInsertedKey(table.table(), row))),
                 insertsClient.srem(key, list),
             ]);
         }

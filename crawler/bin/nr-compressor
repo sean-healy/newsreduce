@@ -684,6 +684,11 @@ async function compress() {
         for (const entityID of entityIDs) {
             if (await isEntityLocked(entityID))
                 continue;
+            const stat = external_fs_default.a.statSync(external_path_default.a.join(entitiesDir, entityID));
+            const mtime = stat.mtime.getTime();
+            const secondsSinceLastModified = Date.now() - mtime;
+            if (secondsSinceLastModified < 10)
+                continue;
             const entityDir = external_path_default.a.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
             const arc = `${entityDir}.tar`;

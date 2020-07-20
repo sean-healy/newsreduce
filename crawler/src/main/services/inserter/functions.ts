@@ -6,7 +6,7 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 import { INSERT_CACHE } from "common/events";
 
-const BATCH_SIZE = 5000;
+const BATCH_SIZE = 100000;
 
 const KEY_LOCK = new Set<string>();
 
@@ -47,14 +47,15 @@ export async function insertForKey(key: string) {
         let list = await insertsClient.srandmember(key, BATCH_SIZE);
         setStage(key, "LISTED");
         if (list && list.length !== 0) {
+            let rows = list;
             if (!NEW_SADD_FEATURE)
-                list = list.map(row => row.charAt(0) === "[" ? SQL.csvRow(JSON.parse(row)) : row);
+                rows = rows.map(row => row.charAt(0) === "[" ? SQL.csvRow(JSON.parse(row)) : row);
             setStage(key, `INSERTING (${list.length})`);
-            fs.writeFileSync(loadFile, list.join("\n"));
+            fs.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
             setStage(key, "CLEANUP");
             await Promise.all([
-                generalClient.sadd(INSERT_CACHE, list),
+                generalClient.sadd(INSERT_CACHE, rows.map(row => DBObject.generateInsertedKey(table.table(), row))),
                 insertsClient.srem(key, list),
             ]);
         }

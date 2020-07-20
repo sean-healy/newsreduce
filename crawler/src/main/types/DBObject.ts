@@ -86,12 +86,10 @@ export abstract class DBObject<T extends DBObject<T>> {
             for (const dep of this.getDeps())
                 promises.push(dep.enqueueInsert(options));
         const payload = this.asCSVRow();
-        const id = this.getID();
         promises.push(new Promise<void>(async res => {
-            let key: string;
-            if (id) key = id.toString();
-            else key = `${this.table()}:${payload}`;
-            const isMember = await Redis.renewRedis(REDIS_PARAMS.general).sismember(INSERT_CACHE, key);
+            const isMember = await Redis
+                .renewRedis(REDIS_PARAMS.general)
+                .sismember(INSERT_CACHE, DBObject.generateInsertedKey(this.table(), payload));
             if (!isMember) await Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload);
             res();
         }));
@@ -126,5 +124,8 @@ export abstract class DBObject<T extends DBObject<T>> {
         const DBObjectT = require(`types/objects/${table}`)[table];
 
         return new DBObjectT()
+    }
+    static generateInsertedKey(table: string, csvRow: string) {
+        return `"${table}",${csvRow}`;
     }
 }
