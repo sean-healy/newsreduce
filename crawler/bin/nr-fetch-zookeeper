@@ -637,10 +637,11 @@ function tabulate(data) {
                 widths[i] = nextWidth;
         }
     }
+    let toWrite = "";
     if (currentTableLine !== 0) {
         const ESC = Buffer.of(0o033).toString();
         const UP = ESC + '[s' + ESC + '[' + currentTableLine + 'A';
-        process.stdout.write(UP);
+        toWrite += UP;
     }
     currentTableLine = 0;
     for (let i = 0; i < printData.length; ++i) {
@@ -655,19 +656,19 @@ function tabulate(data) {
         const length = line.length;
         if (maxLineLength < length) {
             maxLineLength = length;
-            process.stdout.write(line);
+            toWrite += line;
         }
         else
-            process.stdout.write(line.padEnd(maxLineLength, " "));
+            toWrite += line.padEnd(maxLineLength, " ");
         if (i === 0) {
-            process.stdout.write("\n");
-            const sep = line.replace(/[^|]/g, "-").replace(/\|/g, "+").padEnd(maxLineLength, " ");
-            process.stdout.write(sep);
+            toWrite += "\n";
+            toWrite += line.replace(/[^|]/g, "-").replace(/\|/g, "+").padEnd(maxLineLength, " ");
             ++currentTableLine;
         }
-        process.stdout.write("\n");
+        toWrite += "\n";
         ++currentTableLine;
     }
+    process.stdout.write(toWrite);
 }
 const IDENTITY_FUNCTION = (r) => r;
 
