@@ -45,15 +45,13 @@ export async function insertForKey(key: string) {
         const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
         const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
         let list = await insertsClient.srandmember(key, BATCH_SIZE);
-        setStage(key, "LISTED");
         if (list && list.length !== 0) {
             let rows = list;
             if (!NEW_SADD_FEATURE)
                 rows = rows.map(row => row.charAt(0) === "[" ? SQL.csvRow(JSON.parse(row)) : row);
-            setStage(key, `INSERTING (${list.length})`);
+            setStage(key, `INSERTING (${list.length} ${path.basename(loadFile).substr(0, 4)})`);
             fs.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
-            setStage(key, "CLEANUP");
             await Promise.all([
                 generalClient.sadd(INSERT_CACHE, rows.map(row => DBObject.generateInsertedKey(table.table(), row))),
                 insertsClient.srem(key, list),
@@ -77,7 +75,6 @@ export async function asyncBulkInsert() {
     for (const key of keys) {
         if (KEY_LOCK.has(key)) continue;
         KEY_LOCK.add(key);
-        setStage(key, "LOCKED");
         insertForKey(key);
     }
 }

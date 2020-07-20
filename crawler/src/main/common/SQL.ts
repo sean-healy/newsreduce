@@ -12,6 +12,7 @@ export const SQL_PARAMS = {
 };
 
 let DB_CLIENT: Connection = null;
+let SQL_PASSWORD: string = null;
 export class SQL {
     static async db() {
         if (DB_CLIENT === null) {
@@ -19,10 +20,10 @@ export class SQL {
             const myIP = await DNS.whoami();
             if (ip === myIP) ip = LOCALHOST;
             log("Fetching SQL config.");
-            const params = await fetch(NET_AGENT_ENDPOINT).then(res => res.json());
-            const password = params.sql
+            const params = await fetch(NET_AGENT_ENDPOINT).then(res => res.json()).catch(_ => null);
+            if (params) SQL_PASSWORD = params.sql
             log("Fetched SQL config.");
-            const sqlParams = { ...SQL_PARAMS, password, host: ip };
+            const sqlParams = { ...SQL_PARAMS, password: SQL_PASSWORD, host: ip };
             let newClient = createConnection(sqlParams);
             newClient.on("error", async error => {
                 const oldDB = DB_CLIENT;

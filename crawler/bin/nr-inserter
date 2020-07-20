@@ -909,6 +909,7 @@ const SQL_PARAMS = {
     supportBigNumbers: true,
 };
 let DB_CLIENT = null;
+let SQL_PASSWORD = null;
 class SQL {
     static async db() {
         if (DB_CLIENT === null) {
@@ -917,10 +918,11 @@ class SQL {
             if (ip === myIP)
                 ip = common_config__WEBPACK_IMPORTED_MODULE_2__[/* LOCALHOST */ "b"];
             Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetching SQL config.");
-            const params = await node_fetch__WEBPACK_IMPORTED_MODULE_4___default()(common_config__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_ENDPOINT */ "d"]).then(res => res.json());
-            const password = params.sql;
+            const params = await node_fetch__WEBPACK_IMPORTED_MODULE_4___default()(common_config__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_ENDPOINT */ "d"]).then(res => res.json()).catch(_ => null);
+            if (params)
+                SQL_PASSWORD = params.sql;
             Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetched SQL config.");
-            const sqlParams = { ...SQL_PARAMS, password, host: ip };
+            const sqlParams = { ...SQL_PARAMS, password: SQL_PASSWORD, host: ip };
             let newClient = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
             newClient.on("error", async (error) => {
                 const oldDB = DB_CLIENT;
@@ -2248,15 +2250,13 @@ async function insertForKey(key) {
         const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
         const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
         let list = await insertsClient.srandmember(key, BATCH_SIZE);
-        setStage(key, "LISTED");
         if (list && list.length !== 0) {
             let rows = list;
             if (!NEW_SADD_FEATURE)
                 rows = rows.map(row => row.charAt(0) === "[" ? SQL["a" /* SQL */].csvRow(JSON.parse(row)) : row);
-            setStage(key, `INSERTING (${list.length})`);
+            setStage(key, `INSERTING (${list.length} ${external_path_default.a.basename(loadFile).substr(0, 4)})`);
             external_fs_default.a.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
-            setStage(key, "CLEANUP");
             await Promise.all([
                 generalClient.sadd(events["k" /* INSERT_CACHE */], rows.map(row => DBObject["a" /* DBObject */].generateInsertedKey(table.table(), row))),
                 insertsClient.srem(key, list),
@@ -2281,7 +2281,6 @@ async function asyncBulkInsert() {
         if (KEY_LOCK.has(key))
             continue;
         KEY_LOCK.add(key);
-        setStage(key, "LOCKED");
         insertForKey(key);
     }
 }

@@ -63,7 +63,7 @@ fi
 if [ "\$TMUX" ]; then
     (cd /opt/newsreduce/crawler && git pull && npm i && npx node bin/nr-$node_script)
 else
-    [[ "\$(tmux list-sessions | cut -d: -f1 | grep -Fo $daemon_script)" ]] || tmux new -d -s $daemon_script \$0 \$@
+    [[ "\$(tmux list-sessions | cut -d: -f1 | grep -Fo $daemon_script)" ]] || tmux new -d -s $daemon_script "\$0 \$@; read"
 fi
 END
 chmod 755 /usr/bin/nr-$daemon_script
