@@ -629,33 +629,40 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             super();
         else if (typeof arg === "string") {
             const groups = arg.match(URL);
-            if (groups) {
-                const ssl = !!groups[1];
-                const portStr = groups[3];
-                const port = portStr ?
-                    parseInt(portStr.substr(1)) : ssl ? 443 : 80;
-                if (!port) {
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy", arg);
-                    common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general)
-                        .zincrby(common_events__WEBPACK_IMPORTED_MODULE_9__[/* FAILURE_CACHE */ "g"], 1, "port parse issue " + arg);
-                }
-                const path = groups[4] ? groups[4] : "";
-                const query = groups[5] ? groups[5].substr(1) : "";
-                super({
-                    ssl,
-                    host: new types_objects_Host__WEBPACK_IMPORTED_MODULE_3__["Host"]({ name: groups[2] }),
-                    port,
-                    path: new types_objects_ResourceURLPath__WEBPACK_IMPORTED_MODULE_2__["ResourceURLPath"]({ value: path }),
-                    query: new types_objects_ResourceURLQuery__WEBPACK_IMPORTED_MODULE_1__["ResourceURLQuery"]({ value: query }),
-                });
-            }
-            else {
+            if (!groups)
                 throw new Error(`invalid url: ${arg}`);
-            }
+            const ssl = !!groups[1];
+            const portStr = groups[3];
+            const port = portStr ?
+                parseInt(portStr.substr(1)) : ssl ? 443 : 80;
+            const path = groups[4] ? groups[4] : "";
+            const query = groups[5] ? groups[5].substr(1) : "";
+            const host = groups[2];
+            if (!host)
+                throw new Error(`invalid url (no host): ${arg}`);
+            if (!port)
+                throw new Error(`invalid url (no port): ${arg}`);
+            if (!path)
+                throw new Error(`invalid url (no path): ${arg}`);
+            if (!query)
+                throw new Error(`invalid url (no query): ${arg}`);
+            super({
+                ssl,
+                host: new types_objects_Host__WEBPACK_IMPORTED_MODULE_3__["Host"]({ name: host }),
+                port,
+                path: new types_objects_ResourceURLPath__WEBPACK_IMPORTED_MODULE_2__["ResourceURLPath"]({ value: path }),
+                query: new types_objects_ResourceURLQuery__WEBPACK_IMPORTED_MODULE_1__["ResourceURLQuery"]({ value: query }),
+            });
         }
         else {
+            if (!arg.host)
+                throw new Error(`invalid url (no host): ${JSON.stringify(arg)}`);
             if (!arg.port)
-                Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy", JSON.stringify(arg));
+                throw new Error(`invalid url (no port): ${JSON.stringify(arg)}`);
+            if (!arg.path)
+                throw new Error(`invalid url (no path): ${JSON.stringify(arg)}`);
+            if (!arg.query)
+                throw new Error(`invalid url (no query): ${JSON.stringify(arg)}`);
             super({
                 ssl: !!arg.ssl,
                 host: new types_objects_Host__WEBPACK_IMPORTED_MODULE_3__["Host"]({ name: arg.host }),
@@ -864,11 +871,14 @@ function tabulate(data) {
     process.stdout.write(toWrite);
 }
 const IGNORE_AFTER = [
-    "repl",
     "Module.<anonymous>",
     "Object.<anonymous>",
+    "RedisClient.<anonymous>",
+    "__webpack_require__",
+    "functions_process",
+    "processTicksAndRejections",
+    "repl",
     "runMicrotasks",
-    "processTicksAndRejections"
 ];
 function fancyLog(what) {
     const when = new Date().toISOString().split("T", 2)[1];
@@ -2508,6 +2518,7 @@ var ResourceHeader = __webpack_require__(31);
 
 
 
+
 function buildOnFetch(url) {
     return async (response) => {
         const resourceURL = new ResourceURL["ResourceURL"](url);
@@ -2560,10 +2571,11 @@ async function pollAndFetch(lo, hi) {
                 if (allowed) {
                     const resourceURL = await ResourceURL["ResourceURL"].popForFetching(hostname);
                     if (resourceURL) {
+                        Object(util["d" /* fancyLog */])(JSON.stringify(resourceURL));
                         const url = resourceURL.toURL();
                         Object(data["e" /* throttle */])(hostname, throttles[hostname]);
                         await fetchAndWrite(url);
-                        console.log(url);
+                        Object(util["d" /* fancyLog */])(url);
                         Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd("html", url);
                         fetched.add(url);
                     }

@@ -93,11 +93,14 @@ export function tabulate(data: { [key: string]: any }[]) {
 }
 
 const IGNORE_AFTER = [
-    "repl",
     "Module.<anonymous>",
     "Object.<anonymous>",
+    "RedisClient.<anonymous>",
+    "__webpack_require__",
+    "functions_process",
+    "processTicksAndRejections",
+    "repl",
     "runMicrotasks",
-    "processTicksAndRejections"
 ];
 
 export function fancyLog(what: string) {

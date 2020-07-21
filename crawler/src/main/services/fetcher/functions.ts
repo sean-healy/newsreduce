@@ -11,6 +11,7 @@ import { milliTimestamp } from "common/time";
 import { Host } from "types/objects/Host";
 import { ResourceHeader } from "types/objects/ResourceHeader";
 import { Redis, REDIS_PARAMS } from "common/Redis";
+import { fancyLog } from "common/util";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
@@ -74,10 +75,11 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
                     const resourceURL =
                         await ResourceURL.popForFetching(hostname);
                     if (resourceURL) {
+                        fancyLog(JSON.stringify(resourceURL));
                         const url = resourceURL.toURL();
                         throttle(hostname, throttles[hostname]);
                         await fetchAndWrite(url);
-                        console.log(url);
+                        fancyLog(url);
                         Redis.renewRedis(REDIS_PARAMS.general).sadd("html", url)
                         fetched.add(url);
                     }

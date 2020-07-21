@@ -28,31 +28,30 @@ export class ResourceURL extends DBObject<ResourceURL> {
         if (!arg) super();
         else if (typeof arg === "string") {
             const groups = arg.match(URL);
-            if (groups) {
-                const ssl = !!groups[1];
-                const portStr = groups[3];
-                const port = portStr ?
-                    parseInt(portStr.substr(1)) : ssl ? 443 : 80;
-                if (!port) {
-                    log("error", "port should be truthy", arg);
-                    Redis.renewRedis(REDIS_PARAMS.general)
-                        .zincrby(FAILURE_CACHE, 1, "port parse issue " + arg);
-                }
-                const path = groups[4] ? groups[4] : "";
-                const query = groups[5] ? groups[5].substr(1) : "";
-                super({
-                    ssl,
-                    host: new Host({ name: groups[2] }),
-                    port,
-                    path: new ResourceURLPath({ value: path }),
-                    query: new ResourceURLQuery({ value: query }),
-                });
-            } else {
-                throw new Error(`invalid url: ${arg}`);
-            }
+            if (!groups) throw new Error(`invalid url: ${arg}`);
+            const ssl = !!groups[1];
+            const portStr = groups[3];
+            const port = portStr ?
+                parseInt(portStr.substr(1)) : ssl ? 443 : 80;
+            const path = groups[4] ? groups[4] : "";
+            const query = groups[5] ? groups[5].substr(1) : "";
+            const host = groups[2];
+            if (!host) throw new Error(`invalid url (no host): ${arg}`);
+            if (!port) throw new Error(`invalid url (no port): ${arg}`);
+            if (!path) throw new Error(`invalid url (no path): ${arg}`);
+            if (!query) throw new Error(`invalid url (no query): ${arg}`);
+            super({
+                ssl,
+                host: new Host({ name: host }),
+                port,
+                path: new ResourceURLPath({ value: path }),
+                query: new ResourceURLQuery({ value: query }),
+            });
         } else {
-            if (!arg.port)
-                log("error", "port should be truthy", JSON.stringify(arg));
+            if (!arg.host) throw new Error(`invalid url (no host): ${JSON.stringify(arg)}`);
+            if (!arg.port) throw new Error(`invalid url (no port): ${JSON.stringify(arg)}`);
+            if (!arg.path) throw new Error(`invalid url (no path): ${JSON.stringify(arg)}`);
+            if (!arg.query) throw new Error(`invalid url (no query): ${JSON.stringify(arg)}`);
             super({
                 ssl: !!arg.ssl,
                 host: new Host({ name: arg.host as any }),
