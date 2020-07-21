@@ -18,6 +18,7 @@ import { ResourceVersionType } from "types/objects/ResourceVersionType";
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
         const resource = new ResourceURL(url);
+        fancyLog(JSON.stringify(resource));
         let type: string;
         const time = milliTimestamp();
         let promises = [];
@@ -44,6 +45,8 @@ export function buildOnFetch(url: string) {
         }
         promises.push(resource.writeVersion(
             time, FileFormat.RAW_HEADERS, headerContent).then(async () => {
+                fancyLog(JSON.stringify(resource));
+                fancyLog(JSON.stringify(resource.getID()));
                 await new ResourceVersion({
                     resource, time, type: ResourceVersionType.RAW_HTML,
                 }).enqueueInsert({ recursive: true });

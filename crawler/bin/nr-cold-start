@@ -1533,7 +1533,8 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
         return ["resource", "time", "type"];
     }
     getInsertParams() {
-        const params = [this.resource.getID(), this.time, this.type.getID()];
+        const id = this.resource.getID();
+        const params = [, this.time, this.type.getID()];
         return params;
     }
     table() {

@@ -1533,7 +1533,8 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
         return ["resource", "time", "type"];
     }
     getInsertParams() {
-        const params = [this.resource.getID(), this.time, this.type.getID()];
+        const id = this.resource.getID();
+        const params = [, this.time, this.type.getID()];
         return params;
     }
     table() {
@@ -2570,6 +2571,7 @@ var ResourceVersionType = __webpack_require__(29);
 function buildOnFetch(url) {
     return async (response) => {
         const resource = new ResourceURL["ResourceURL"](url);
+        Object(util["d" /* fancyLog */])(JSON.stringify(resource));
         let type;
         const time = Object(common_time["a" /* milliTimestamp */])();
         let promises = [];
@@ -2592,6 +2594,8 @@ function buildOnFetch(url) {
             Object(logging["a" /* log */])(JSON.stringify(headers));
         }
         promises.push(resource.writeVersion(time, FileFormat["a" /* FileFormat */].RAW_HEADERS, headerContent).then(async () => {
+            Object(util["d" /* fancyLog */])(JSON.stringify(resource));
+            Object(util["d" /* fancyLog */])(JSON.stringify(resource.getID()));
             await new ResourceVersion["ResourceVersion"]({
                 resource, time, type: ResourceVersionType["ResourceVersionType"].RAW_HTML,
             }).enqueueInsert({ recursive: true });

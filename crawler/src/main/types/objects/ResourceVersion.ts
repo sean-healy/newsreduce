@@ -11,7 +11,8 @@ export class ResourceVersion extends DBObject<ResourceVersion> {
         return ["resource", "time", "type"];
     }
     getInsertParams(): any[] {
-        const params = [this.resource.getID(), this.time, this.type.getID()];
+        const id = this.resource.getID();
+        const params = [, this.time, this.type.getID()];
 
         return params;
     }
