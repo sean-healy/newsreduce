@@ -638,13 +638,13 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             const path = groups[4] ? groups[4] : "";
             const query = groups[5] ? groups[5].substr(1) : "";
             const host = groups[2];
-            if (!host)
+            if (host === null || host === undefined)
                 throw new Error(`invalid url (no host): ${arg}`);
-            if (!port)
+            if (port === null || port === undefined)
                 throw new Error(`invalid url (no port): ${arg}`);
-            if (!path)
+            if (path === null || path === undefined)
                 throw new Error(`invalid url (no path): ${arg}`);
-            if (!query)
+            if (query === null || query === undefined)
                 throw new Error(`invalid url (no query): ${arg}`);
             super({
                 ssl,
@@ -655,13 +655,13 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             });
         }
         else {
-            if (!arg.host)
+            if (arg.host === null || arg.host === undefined)
                 throw new Error(`invalid url (no host): ${JSON.stringify(arg)}`);
-            if (!arg.port)
+            if (arg.port === null || arg.port === undefined)
                 throw new Error(`invalid url (no port): ${JSON.stringify(arg)}`);
-            if (!arg.path)
+            if (arg.path === null || arg.path === undefined)
                 throw new Error(`invalid url (no path): ${JSON.stringify(arg)}`);
-            if (!arg.query)
+            if (arg.query === null || arg.query === undefined)
                 throw new Error(`invalid url (no query): ${JSON.stringify(arg)}`);
             super({
                 ssl: !!arg.ssl,

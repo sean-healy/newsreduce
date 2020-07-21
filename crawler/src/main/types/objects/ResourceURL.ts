@@ -36,10 +36,10 @@ export class ResourceURL extends DBObject<ResourceURL> {
             const path = groups[4] ? groups[4] : "";
             const query = groups[5] ? groups[5].substr(1) : "";
             const host = groups[2];
-            if (!host) throw new Error(`invalid url (no host): ${arg}`);
-            if (!port) throw new Error(`invalid url (no port): ${arg}`);
-            if (!path) throw new Error(`invalid url (no path): ${arg}`);
-            if (!query) throw new Error(`invalid url (no query): ${arg}`);
+            if (host === null || host === undefined) throw new Error(`invalid url (no host): ${arg}`);
+            if (port === null || port === undefined) throw new Error(`invalid url (no port): ${arg}`);
+            if (path === null || path === undefined) throw new Error(`invalid url (no path): ${arg}`);
+            if (query === null || query === undefined) throw new Error(`invalid url (no query): ${arg}`);
             super({
                 ssl,
                 host: new Host({ name: host }),
@@ -48,10 +48,14 @@ export class ResourceURL extends DBObject<ResourceURL> {
                 query: new ResourceURLQuery({ value: query }),
             });
         } else {
-            if (!arg.host) throw new Error(`invalid url (no host): ${JSON.stringify(arg)}`);
-            if (!arg.port) throw new Error(`invalid url (no port): ${JSON.stringify(arg)}`);
-            if (!arg.path) throw new Error(`invalid url (no path): ${JSON.stringify(arg)}`);
-            if (!arg.query) throw new Error(`invalid url (no query): ${JSON.stringify(arg)}`);
+            if (arg.host === null || arg.host === undefined)
+                throw new Error(`invalid url (no host): ${JSON.stringify(arg)}`);
+            if (arg.port === null || arg.port === undefined)
+                throw new Error(`invalid url (no port): ${JSON.stringify(arg)}`);
+            if (arg.path === null || arg.path === undefined)
+                throw new Error(`invalid url (no path): ${JSON.stringify(arg)}`);
+            if (arg.query === null || arg.query === undefined)
+                throw new Error(`invalid url (no query): ${JSON.stringify(arg)}`);
             super({
                 ssl: !!arg.ssl,
                 host: new Host({ name: arg.host as any }),
