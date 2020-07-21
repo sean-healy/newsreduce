@@ -3,4 +3,4 @@ nr-net-agent
 nr-inserter
 nr-compressor
 nr-schedule
-nr-html-parse
+nr-html-process
