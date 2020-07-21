@@ -18,7 +18,7 @@ export async function processURL(url: string) {
     const version = await findLatestVersion(Entity.RESOURCE, resourceURL.getID(), FileFormat.RAW_HTML);
     if (version !== -1) {
         const content = await read(Entity.RESOURCE, resourceURL.getID(), version, FileFormat.RAW_HTML)
-        if (content)
+        if (content && false)
             for (const process of PROCESSORS)
                 promises.push(process(new JSDOM(content, { url }).window, version));
     }
