@@ -2985,7 +2985,7 @@ async function processURL(url) {
     const version = await Object(file["a" /* findLatestVersion */])(Entity["a" /* Entity */].RESOURCE, resourceURL.getID(), FileFormat["a" /* FileFormat */].RAW_HTML);
     if (version !== -1) {
         const content = await Object(file["b" /* read */])(Entity["a" /* Entity */].RESOURCE, resourceURL.getID(), version, FileFormat["a" /* FileFormat */].RAW_HTML);
-        if (content && false)
+        if (content)
             for (const process of PROCESSORS)
                 promises.push(process(new external_jsdom_["JSDOM"](content, { url }).window, version));
     }
