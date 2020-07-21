@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+nr-net-agent
+nr-inserter
+nr-compressor
+nr-schedule
+nr-html-parse
