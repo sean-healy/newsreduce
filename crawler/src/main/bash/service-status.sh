@@ -6,7 +6,6 @@ processes="$(ps -aux\
     | awk '{print $1" "$5" "$7" "$8" "$11" "$12}'\
     | uniq\
     | wc -l)"
-echo "$processesLog" > /tmp/foobar
 if [ "$processes" -ge 2 ]; then
     echo "Service status already running."
     exit
