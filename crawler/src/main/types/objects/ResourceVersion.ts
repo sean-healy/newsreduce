@@ -11,11 +11,14 @@ export class ResourceVersion extends DBObject<ResourceVersion> {
         return ["resource", "time", "type"];
     }
     getInsertParams(): any[] {
-        const params = [this.getID(), this.time, this.type.getID()];
+        const params = [this.resource.getID(), this.time, this.type.getID()];
 
         return params;
     }
     table(): string {
         return "ResourceVersion";
+    }
+    getDeps() {
+        return [this.resource, this.type];
     }
 }
