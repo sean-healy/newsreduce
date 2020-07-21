@@ -672,11 +672,11 @@ async function compress() {
     const redis = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local);
     const locked = await redis.eq(events["c" /* COMPRESSOR_LOCK */]);
     if (locked) {
-        console.log("Compressor locked while syncing.");
+        Object(util["d" /* fancyLog */])("Compressor locked while syncing.");
         return;
     }
     redis.setex(events["m" /* SYNC_LOCK */], 3600);
-    console.log("Placed sync lock.");
+    Object(util["d" /* fancyLog */])("Placed sync lock.");
     const tmpDir = await Object(config["j" /* tmpDirPromise */])();
     const entities = external_fs_default.a.readdirSync(tmpDir);
     const promises = [];
@@ -719,9 +719,9 @@ async function compress() {
     }
     await Promise.all(promises);
     redis.del(events["m" /* SYNC_LOCK */]);
-    console.log("Released sync lock");
-    console.log(`${newArcs} archives created.`);
-    console.log(`${oldArcs} archives updated.`);
+    Object(util["d" /* fancyLog */])("Released sync lock");
+    Object(util["d" /* fancyLog */])(`${newArcs} archives created.`);
+    Object(util["d" /* fancyLog */])(`${oldArcs} archives updated.`);
 }
 
 // EXTERNAL MODULE: ./dist/main/common/processor.js

@@ -72,11 +72,11 @@ export async function compress() {
     const redis = Redis.renewRedis(REDIS_PARAMS.local);
     const locked = await redis.eq(COMPRESSOR_LOCK);
     if (locked) {
-        console.log("Compressor locked while syncing.");
+        fancyLog("Compressor locked while syncing.");
         return;
     }
     redis.setex(SYNC_LOCK, 3600);
-    console.log("Placed sync lock.");
+    fancyLog("Placed sync lock.");
     const tmpDir = await tmpDirPromise();
     const entities = fs.readdirSync(tmpDir);
     const promises: Promise<void>[] = [];
@@ -117,7 +117,7 @@ export async function compress() {
 
     await Promise.all(promises);
     redis.del(SYNC_LOCK);
-    console.log("Released sync lock");
-    console.log(`${newArcs} archives created.`);
-    console.log(`${oldArcs} archives updated.`);
+    fancyLog("Released sync lock");
+    fancyLog(`${newArcs} archives created.`);
+    fancyLog(`${oldArcs} archives updated.`);
 }
