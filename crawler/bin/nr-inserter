@@ -747,6 +747,21 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     setFetchLock() {
         common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL());
     }
+    isInvalid() {
+        return this.ssl === null
+            || this.ssl === undefined
+            || this.host === null
+            || this.host === undefined
+            || this.port === null
+            || this.port === undefined
+            || this.path === null
+            || this.path === undefined
+            || this.query === null
+            || this.query === undefined;
+    }
+    isValid() {
+        return !this.isInvalid();
+    }
     static async popForFetching(host) {
         const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax(host, 1);
         if (url)

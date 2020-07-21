@@ -74,7 +74,7 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
                 if (allowed) {
                     const resourceURL =
                         await ResourceURL.popForFetching(hostname);
-                    if (resourceURL) {
+                    if (resourceURL && resourceURL.isValid()) {
                         fancyLog(JSON.stringify(resourceURL));
                         const url = resourceURL.toURL();
                         throttle(hostname, throttles[hostname]);

@@ -142,6 +142,21 @@ export class ResourceURL extends DBObject<ResourceURL> {
     setFetchLock() {
         Redis.renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL());
     }
+    isInvalid() {
+        return this.ssl === null
+            || this.ssl === undefined
+            || this.host === null
+            || this.host === undefined
+            || this.port === null
+            || this.port === undefined
+            || this.path === null
+            || this.path === undefined
+            || this.query === null
+            || this.query === undefined
+    }
+    isValid() {
+        return !this.isInvalid();
+    }
     static async popForFetching(host: string) {
         const url = await Redis.renewRedis(REDIS_PARAMS.fetchSchedule).zpopmax(host, 1);
         if (url) new ResourceURL(url).setFetchLock();
