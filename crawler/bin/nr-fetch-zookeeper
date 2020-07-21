@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 54);
+/******/ 	return __webpack_require__(__webpack_require__.s = 56);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -93,11 +93,11 @@
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return REDIS_PARAMS; });
 /* unused harmony export STATIC_CONNECTIONS */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
-/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
+/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
-/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
+/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
 
 
 
@@ -323,9 +323,9 @@ Redis.defaultHostParams = (host) => ({
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(20);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
 /* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
 
 
@@ -355,217 +355,6 @@ class DNS {
 /***/ }),
 
 /***/ 2:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return log; });
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-
-
-const TOGGLE = false;
-async function log(...args) {
-    if (TOGGLE) {
-        const now = Date.now();
-        const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
-        const logFile = `${varDir}/log`;
-        fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
-    }
-}
-
-
-/***/ }),
-
-/***/ 20:
-/***/ (function(module, exports) {
-
-module.exports = require("dns");
-
-/***/ }),
-
-/***/ 25:
-/***/ (function(module, exports) {
-
-module.exports = require("redis");
-
-/***/ }),
-
-/***/ 3:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return LOCALHOST; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return MAIN_HOSTNAME; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NET_AGENT_ENDPOINT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
-/* unused harmony export FIND */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return varDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safetyFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return safeMkdir; });
-/* unused harmony export varDirChildPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return tmpDirPromise; });
-/* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return nullFilePromise; });
-/* unused harmony export myIP */
-/* unused harmony export getParams */
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
-let ENV = ["prod"];
-
-
-
-
-const LOCALHOST = common_DNS__WEBPACK_IMPORTED_MODULE_3__[/* DNS */ "a"].ipv4AsIpv6("127.0.0.1");
-const MAIN_HOSTNAME = "newsreduce.org";
-const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
-const TAR = "tar";
-const FIND = "find";
-async function varDirPromise() {
-    const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
-    await safeMkdir(varDir);
-    return varDir;
-}
-async function safetyFilePromise() {
-    const safetyFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), "safety");
-    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(safetyFile);
-    if (!exists)
-        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(safetyFile, "0");
-    return safetyFile;
-}
-async function safeMkdir(dir) {
-    return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
-}
-async function varDirChildPromise(child) {
-    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
-    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
-    if (!exists)
-        await safeMkdir(dir);
-    return dir;
-}
-function tmpDirPromise() {
-    return varDirChildPromise("tmp");
-}
-function nullDirPromise() {
-    return varDirChildPromise("null");
-}
-function blobDirPromise() {
-    return varDirChildPromise("blobs");
-}
-async function nullFilePromise(path) {
-    const safePath = path.replace(/[\/.]/g, "_");
-    return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
-}
-async function myIP() {
-    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://newsreduce.org:9999/ip").then(response => response.text());
-    return ip;
-}
-let params = null;
-async function getParams() {
-    if (!params)
-        params = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(NET_AGENT_ENDPOINT).then(res => res.json());
-    return params;
-}
-
-
-/***/ }),
-
-/***/ 4:
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
-
-/***/ 54:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-// ESM COMPAT FLAG
-__webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(1);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(6);
-
-// CONCATENATED MODULE: ./dist/main/common/zookeeper.js
-
-
-const ZERO = BigInt(0);
-const ONE = BigInt(1);
-function start(birthLog, deathLog, idBytes) {
-    const MAX_ID = (ONE << BigInt(12 * idBytes));
-    let dob = new Map();
-    function sourceWorker(id) {
-        const old = dob.has(id);
-        dob.set(id, Date.now());
-        if (!old)
-            Object(util["d" /* fancyLog */])(`new worker: ${id}`);
-        reAssemble();
-    }
-    function retireWorker(id) {
-        Object(util["d" /* fancyLog */])(`retire worker ${id}`);
-        dob.delete(id);
-        reAssemble();
-    }
-    function retireWorkers(ids) {
-        Object(util["d" /* fancyLog */])(`retire workers: ${JSON.stringify(ids)}`);
-        for (const id of ids)
-            dob.delete(id);
-        reAssemble();
-    }
-    function reAssemble() {
-        if (dob.size === 0)
-            return;
-        const idsPerWorker = MAX_ID / BigInt(dob.size);
-        let lo = ZERO;
-        for (const [id,] of dob) {
-            let hi = lo + idsPerWorker;
-            if (hi + idsPerWorker > MAX_ID)
-                hi = MAX_ID;
-            Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local).publish(id, `${lo} ${hi}`);
-            lo += idsPerWorker;
-        }
-    }
-    const birthsSub = Redis["b" /* Redis */].newRedis(Redis["a" /* REDIS_PARAMS */].local);
-    birthsSub.client.subscribe(birthLog);
-    birthsSub.client.on("message", (_, id) => sourceWorker(id));
-    const deathsSub = Redis["b" /* Redis */].newRedis(Redis["a" /* REDIS_PARAMS */].local);
-    deathsSub.client.subscribe(deathLog);
-    deathsSub.client.on("message", (_, id) => retireWorker(id));
-    setInterval(() => {
-        const now = Date.now();
-        const toRetire = [];
-        for (const [id, lastCheckup] of dob)
-            if (now - lastCheckup > 1000)
-                toRetire.push(id);
-        if (toRetire.length !== 0)
-            retireWorkers(toRetire);
-    }, 1000);
-    Object(util["d" /* fancyLog */])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
-}
-
-// EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(9);
-
-// CONCATENATED MODULE: ./dist/main/services/fetcher/zookeeper.js
-
-
-start(events["h" /* FETCHER_BIRTH_LOG */], events["i" /* FETCHER_DEATH_LOG */], 8);
-
-
-/***/ }),
-
-/***/ 6:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -694,6 +483,217 @@ const IDENTITY_FUNCTION = (r) => r;
 
 /***/ }),
 
+/***/ 22:
+/***/ (function(module, exports) {
+
+module.exports = require("dns");
+
+/***/ }),
+
+/***/ 26:
+/***/ (function(module, exports) {
+
+module.exports = require("redis");
+
+/***/ }),
+
+/***/ 3:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return log; });
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+
+
+const TOGGLE = false;
+async function log(...args) {
+    if (TOGGLE) {
+        const now = Date.now();
+        const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
+        const logFile = `${varDir}/log`;
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
+    }
+}
+
+
+/***/ }),
+
+/***/ 4:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return LOCALHOST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return MAIN_HOSTNAME; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NET_AGENT_ENDPOINT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
+/* unused harmony export FIND */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return varDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safetyFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return safeMkdir; });
+/* unused harmony export varDirChildPromise */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return tmpDirPromise; });
+/* unused harmony export nullDirPromise */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return nullFilePromise; });
+/* unused harmony export myIP */
+/* unused harmony export getParams */
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
+let ENV = ["prod"];
+
+
+
+
+const LOCALHOST = common_DNS__WEBPACK_IMPORTED_MODULE_3__[/* DNS */ "a"].ipv4AsIpv6("127.0.0.1");
+const MAIN_HOSTNAME = "newsreduce.org";
+const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
+const TAR = "tar";
+const FIND = "find";
+async function varDirPromise() {
+    const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
+    await safeMkdir(varDir);
+    return varDir;
+}
+async function safetyFilePromise() {
+    const safetyFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), "safety");
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(safetyFile);
+    if (!exists)
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(safetyFile, "0");
+    return safetyFile;
+}
+async function safeMkdir(dir) {
+    return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
+}
+async function varDirChildPromise(child) {
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
+    if (!exists)
+        await safeMkdir(dir);
+    return dir;
+}
+function tmpDirPromise() {
+    return varDirChildPromise("tmp");
+}
+function nullDirPromise() {
+    return varDirChildPromise("null");
+}
+function blobDirPromise() {
+    return varDirChildPromise("blobs");
+}
+async function nullFilePromise(path) {
+    const safePath = path.replace(/[\/.]/g, "_");
+    return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
+}
+async function myIP() {
+    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://newsreduce.org:9999/ip").then(response => response.text());
+    return ip;
+}
+let params = null;
+async function getParams() {
+    if (!params)
+        params = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(NET_AGENT_ENDPOINT).then(res => res.json());
+    return params;
+}
+
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ 56:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(1);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(2);
+
+// CONCATENATED MODULE: ./dist/main/common/zookeeper.js
+
+
+const ZERO = BigInt(0);
+const ONE = BigInt(1);
+function start(birthLog, deathLog, idBytes) {
+    const MAX_ID = (ONE << BigInt(12 * idBytes));
+    let dob = new Map();
+    function sourceWorker(id) {
+        const old = dob.has(id);
+        dob.set(id, Date.now());
+        if (!old)
+            Object(util["d" /* fancyLog */])(`new worker: ${id}`);
+        reAssemble();
+    }
+    function retireWorker(id) {
+        Object(util["d" /* fancyLog */])(`retire worker ${id}`);
+        dob.delete(id);
+        reAssemble();
+    }
+    function retireWorkers(ids) {
+        Object(util["d" /* fancyLog */])(`retire workers: ${JSON.stringify(ids)}`);
+        for (const id of ids)
+            dob.delete(id);
+        reAssemble();
+    }
+    function reAssemble() {
+        if (dob.size === 0)
+            return;
+        const idsPerWorker = MAX_ID / BigInt(dob.size);
+        let lo = ZERO;
+        for (const [id,] of dob) {
+            let hi = lo + idsPerWorker;
+            if (hi + idsPerWorker > MAX_ID)
+                hi = MAX_ID;
+            Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local).publish(id, `${lo} ${hi}`);
+            lo += idsPerWorker;
+        }
+    }
+    const birthsSub = Redis["b" /* Redis */].newRedis(Redis["a" /* REDIS_PARAMS */].local);
+    birthsSub.client.subscribe(birthLog);
+    birthsSub.client.on("message", (_, id) => sourceWorker(id));
+    const deathsSub = Redis["b" /* Redis */].newRedis(Redis["a" /* REDIS_PARAMS */].local);
+    deathsSub.client.subscribe(deathLog);
+    deathsSub.client.on("message", (_, id) => retireWorker(id));
+    setInterval(() => {
+        const now = Date.now();
+        const toRetire = [];
+        for (const [id, lastCheckup] of dob)
+            if (now - lastCheckup > 1000)
+                toRetire.push(id);
+        if (toRetire.length !== 0)
+            retireWorkers(toRetire);
+    }, 1000);
+    Object(util["d" /* fancyLog */])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
+}
+
+// EXTERNAL MODULE: ./dist/main/common/events.js
+var events = __webpack_require__(8);
+
+// CONCATENATED MODULE: ./dist/main/services/fetcher/zookeeper.js
+
+
+start(events["h" /* FETCHER_BIRTH_LOG */], events["i" /* FETCHER_DEATH_LOG */], 8);
+
+
+/***/ }),
+
 /***/ 7:
 /***/ (function(module, exports) {
 
@@ -702,13 +702,6 @@ module.exports = require("path");
 /***/ }),
 
 /***/ 8:
-/***/ (function(module, exports) {
-
-module.exports = require("node-fetch");
-
-/***/ }),
-
-/***/ 9:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -747,6 +740,13 @@ const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 const INSERT_CACHE = "inserted";
 const FAILURE_CACHE = "failures";
 
+
+/***/ }),
+
+/***/ 9:
+/***/ (function(module, exports) {
+
+module.exports = require("node-fetch");
 
 /***/ })
 

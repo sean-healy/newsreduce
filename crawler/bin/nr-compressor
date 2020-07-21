@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 58);
+/******/ 	return __webpack_require__(__webpack_require__.s = 60);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -93,11 +93,11 @@
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return REDIS_PARAMS; });
 /* unused harmony export STATIC_CONNECTIONS */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
-/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
+/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
-/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
+/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
 
 
 
@@ -323,9 +323,9 @@ Redis.defaultHostParams = (host) => ({
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(20);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
 /* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
 
 
@@ -362,381 +362,6 @@ module.exports = require("crypto");
 /***/ }),
 
 /***/ 2:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return log; });
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-
-
-const TOGGLE = false;
-async function log(...args) {
-    if (TOGGLE) {
-        const now = Date.now();
-        const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
-        const logFile = `${varDir}/log`;
-        fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
-    }
-}
-
-
-/***/ }),
-
-/***/ 20:
-/***/ (function(module, exports) {
-
-module.exports = require("dns");
-
-/***/ }),
-
-/***/ 25:
-/***/ (function(module, exports) {
-
-module.exports = require("redis");
-
-/***/ }),
-
-/***/ 26:
-/***/ (function(module, exports) {
-
-module.exports = require("child_process");
-
-/***/ }),
-
-/***/ 3:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return LOCALHOST; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return MAIN_HOSTNAME; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NET_AGENT_ENDPOINT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
-/* unused harmony export FIND */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return varDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safetyFilePromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return safeMkdir; });
-/* unused harmony export varDirChildPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return tmpDirPromise; });
-/* unused harmony export nullDirPromise */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return nullFilePromise; });
-/* unused harmony export myIP */
-/* unused harmony export getParams */
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
-let ENV = ["prod"];
-
-
-
-
-const LOCALHOST = common_DNS__WEBPACK_IMPORTED_MODULE_3__[/* DNS */ "a"].ipv4AsIpv6("127.0.0.1");
-const MAIN_HOSTNAME = "newsreduce.org";
-const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
-const TAR = "tar";
-const FIND = "find";
-async function varDirPromise() {
-    const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
-    await safeMkdir(varDir);
-    return varDir;
-}
-async function safetyFilePromise() {
-    const safetyFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), "safety");
-    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(safetyFile);
-    if (!exists)
-        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(safetyFile, "0");
-    return safetyFile;
-}
-async function safeMkdir(dir) {
-    return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
-}
-async function varDirChildPromise(child) {
-    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
-    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
-    if (!exists)
-        await safeMkdir(dir);
-    return dir;
-}
-function tmpDirPromise() {
-    return varDirChildPromise("tmp");
-}
-function nullDirPromise() {
-    return varDirChildPromise("null");
-}
-function blobDirPromise() {
-    return varDirChildPromise("blobs");
-}
-async function nullFilePromise(path) {
-    const safePath = path.replace(/[\/.]/g, "_");
-    return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
-}
-async function myIP() {
-    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://newsreduce.org:9999/ip").then(response => response.text());
-    return ip;
-}
-let params = null;
-async function getParams() {
-    if (!params)
-        params = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(NET_AGENT_ENDPOINT).then(res => res.json());
-    return params;
-}
-
-
-/***/ }),
-
-/***/ 4:
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
-
-/***/ 43:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return startProcessor; });
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6);
-/* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
-
-
-
-
-
-
-let locks = {};
-async function synchronised(name, f, postcondition) {
-    if (name in locks)
-        return;
-    locks[name] = true;
-    f().then(() => {
-        delete locks[name];
-        _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
-    });
-}
-function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
-    let safelyExit = false;
-    const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
-    let interval = undefined;
-    if (options.interval || options.interval === undefined)
-        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
-            if (!safelyExit)
-                synchronised(name, f, postcondition);
-        }, options.period ? options.period : 2000);
-    let events;
-    if (preconditions && preconditions.size > 0) {
-        events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
-        events.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"]);
-        events.client.on("message", (_, msg) => {
-            if (preconditions.has(msg))
-                synchronised(name, f, postcondition);
-        });
-    }
-    else
-        events = null;
-    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
-        const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
-        if (content.match(/1/)) {
-            safelyExit = true;
-            clearInterval(interval);
-            clearInterval(safetyInterval);
-            if (events)
-                events.client.quit();
-            Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
-            process.exit();
-        }
-    }, 1000);
-    return { interval, events };
-}
-
-
-/***/ }),
-
-/***/ 58:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-// ESM COMPAT FLAG
-__webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __webpack_require__(4);
-var external_fs_default = /*#__PURE__*/__webpack_require__.n(external_fs_);
-
-// EXTERNAL MODULE: external "path"
-var external_path_ = __webpack_require__(7);
-var external_path_default = /*#__PURE__*/__webpack_require__.n(external_path_);
-
-// EXTERNAL MODULE: ./dist/main/common/config.js
-var config = __webpack_require__(3);
-
-// EXTERNAL MODULE: external "child_process"
-var external_child_process_ = __webpack_require__(26);
-
-// EXTERNAL MODULE: ./dist/main/common/logging.js
-var logging = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(9);
-
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(1);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(6);
-
-// CONCATENATED MODULE: ./dist/main/services/compressor/functions.js
-
-
-
-
-
-
-
-
-async function tryLoop(spawner) {
-    for (let attempt = 0; attempt < 10; attempt++) {
-        try {
-            const content = await new Promise((res, rej) => {
-                const process = spawner();
-                process.on("error", err => rej(err));
-                process.stdout.on("error", err => rej(err));
-                process.stderr.on("error", err => {
-                    Object(util["d" /* fancyLog */])("stderr error");
-                    Object(util["d" /* fancyLog */])(JSON.stringify(err));
-                });
-                const stdout = [];
-                const stderr = [];
-                process.stdout.on("data", (data) => stdout.push(data));
-                process.stderr.on("data", (data) => stderr.push(data));
-                process.on("close", code => {
-                    if (code === 0) {
-                        const content = Buffer.concat(stdout).toString();
-                        res(content);
-                    }
-                    else {
-                        const content = Buffer.concat(stderr).toString();
-                        rej(content);
-                    }
-                });
-            });
-            return content;
-        }
-        catch (err) {
-            Object(util["d" /* fancyLog */])("Caught error during attempt " + attempt);
-            Object(util["d" /* fancyLog */])(JSON.stringify(err));
-            await new Promise(res => setTimeout(res, 100));
-        }
-    }
-}
-const ZSTD = "zstd";
-const MV = "mv";
-async function spawnSeq(sequence) {
-    if (sequence.length === 0)
-        return;
-    else {
-        const [head, ...tail] = sequence;
-        Object(logging["a" /* log */])(JSON.stringify(head));
-        const [command, cwd, args] = head;
-        let promise;
-        if (cwd)
-            promise = tryLoop(() => Object(external_child_process_["spawn"])(command, args, { cwd }));
-        else
-            promise = tryLoop(() => Object(external_child_process_["spawn"])(command, args));
-        const stdout = await promise;
-        if (stdout) {
-            Object(logging["a" /* log */])(JSON.stringify(head));
-            Object(logging["a" /* log */])("STDOUT:");
-            Object(logging["a" /* log */])(stdout);
-        }
-        await spawnSeq(tail);
-    }
-}
-function isEntityLocked(entityID) {
-    return Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fileLock).eq(entityID);
-}
-async function compress() {
-    const redis = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local);
-    const locked = await redis.eq(events["c" /* COMPRESSOR_LOCK */]);
-    if (locked) {
-        Object(util["d" /* fancyLog */])("Compressor locked while syncing.");
-        return;
-    }
-    redis.setex(events["n" /* SYNC_LOCK */], 3600);
-    Object(util["d" /* fancyLog */])("Placed sync lock.");
-    const tmpDir = await Object(config["j" /* tmpDirPromise */])();
-    const entities = external_fs_default.a.readdirSync(tmpDir);
-    const promises = [];
-    let newArcs = 0;
-    let oldArcs = 0;
-    for (const entity of entities) {
-        const entitiesDir = external_path_default.a.join(tmpDir, entity);
-        const entityIDs = external_fs_default.a.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
-        for (const entityID of entityIDs) {
-            if (await isEntityLocked(entityID))
-                continue;
-            const stat = external_fs_default.a.statSync(external_path_default.a.join(entitiesDir, entityID));
-            const mtime = stat.mtime.getTime();
-            const secondsSinceLastModified = Date.now() - mtime;
-            if (secondsSinceLastModified < 10)
-                continue;
-            const entityDir = external_path_default.a.join(entitiesDir, entityID);
-            const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
-            const arc = `${entityDir}.tar`;
-            const compressedArcExists = external_fs_default.a.existsSync(compressedArc);
-            if (compressedArcExists) {
-                promises.push(spawnSeq([
-                    [ZSTD, undefined, ["-df", compressedArc, "-o", arc]],
-                    [config["e" /* TAR */], entitiesDir, ["-uvf", arc, entityID]],
-                    [ZSTD, undefined, ["-f", arc, "-o", compressedArc]],
-                    [MV, undefined, [arc, await Object(config["g" /* nullFilePromise */])(arc)]],
-                    [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
-                ]));
-                ++oldArcs;
-            }
-            else {
-                await Object(config["h" /* safeMkdir */])(external_path_default.a.dirname(compressedArc));
-                promises.push(spawnSeq([
-                    [config["e" /* TAR */], entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
-                    [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
-                ]));
-                ++newArcs;
-            }
-        }
-    }
-    await Promise.all(promises);
-    redis.del(events["n" /* SYNC_LOCK */]);
-    Object(util["d" /* fancyLog */])("Released sync lock");
-    Object(util["d" /* fancyLog */])(`${newArcs} archives created.`);
-    Object(util["d" /* fancyLog */])(`${oldArcs} archives updated.`);
-}
-
-// EXTERNAL MODULE: ./dist/main/common/processor.js
-var processor = __webpack_require__(43);
-
-// CONCATENATED MODULE: ./dist/main/services/compressor/main.js
-
-
-
-Object(processor["a" /* startProcessor */])(compress, null, events["d" /* COMPRESS_COMPLETE */]);
-
-
-/***/ }),
-
-/***/ 6:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -865,6 +490,381 @@ const IDENTITY_FUNCTION = (r) => r;
 
 /***/ }),
 
+/***/ 22:
+/***/ (function(module, exports) {
+
+module.exports = require("dns");
+
+/***/ }),
+
+/***/ 26:
+/***/ (function(module, exports) {
+
+module.exports = require("redis");
+
+/***/ }),
+
+/***/ 27:
+/***/ (function(module, exports) {
+
+module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 3:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return log; });
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+
+
+const TOGGLE = false;
+async function log(...args) {
+    if (TOGGLE) {
+        const now = Date.now();
+        const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
+        const logFile = `${varDir}/log`;
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
+    }
+}
+
+
+/***/ }),
+
+/***/ 4:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ENV; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return LOCALHOST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return MAIN_HOSTNAME; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return NET_AGENT_ENDPOINT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return TAR; });
+/* unused harmony export FIND */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return varDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return safetyFilePromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return safeMkdir; });
+/* unused harmony export varDirChildPromise */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return tmpDirPromise; });
+/* unused harmony export nullDirPromise */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return blobDirPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return nullFilePromise; });
+/* unused harmony export myIP */
+/* unused harmony export getParams */
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
+let ENV = ["prod"];
+
+
+
+
+const LOCALHOST = common_DNS__WEBPACK_IMPORTED_MODULE_3__[/* DNS */ "a"].ipv4AsIpv6("127.0.0.1");
+const MAIN_HOSTNAME = "newsreduce.org";
+const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
+const TAR = "tar";
+const FIND = "find";
+async function varDirPromise() {
+    const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
+    await safeMkdir(varDir);
+    return varDir;
+}
+async function safetyFilePromise() {
+    const safetyFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), "safety");
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(safetyFile);
+    if (!exists)
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(safetyFile, "0");
+    return safetyFile;
+}
+async function safeMkdir(dir) {
+    return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
+}
+async function varDirChildPromise(child) {
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
+    if (!exists)
+        await safeMkdir(dir);
+    return dir;
+}
+function tmpDirPromise() {
+    return varDirChildPromise("tmp");
+}
+function nullDirPromise() {
+    return varDirChildPromise("null");
+}
+function blobDirPromise() {
+    return varDirChildPromise("blobs");
+}
+async function nullFilePromise(path) {
+    const safePath = path.replace(/[\/.]/g, "_");
+    return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
+}
+async function myIP() {
+    const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()("http://newsreduce.org:9999/ip").then(response => response.text());
+    return ip;
+}
+let params = null;
+async function getParams() {
+    if (!params)
+        params = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(NET_AGENT_ENDPOINT).then(res => res.json());
+    return params;
+}
+
+
+/***/ }),
+
+/***/ 45:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return startProcessor; });
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(2);
+/* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
+
+
+
+
+
+
+let locks = {};
+async function synchronised(name, f, postcondition) {
+    if (name in locks)
+        return;
+    locks[name] = true;
+    f().then(() => {
+        delete locks[name];
+        _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
+    });
+}
+function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
+    let safelyExit = false;
+    const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
+    let interval = undefined;
+    if (options.interval || options.interval === undefined)
+        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
+            if (!safelyExit)
+                synchronised(name, f, postcondition);
+        }, options.period ? options.period : 2000);
+    let events;
+    if (preconditions && preconditions.size > 0) {
+        events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
+        events.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"]);
+        events.client.on("message", (_, msg) => {
+            if (preconditions.has(msg))
+                synchronised(name, f, postcondition);
+        });
+    }
+    else
+        events = null;
+    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
+        const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
+        if (content.match(/1/)) {
+            safelyExit = true;
+            clearInterval(interval);
+            clearInterval(safetyInterval);
+            if (events)
+                events.client.quit();
+            Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
+            process.exit();
+        }
+    }, 1000);
+    return { interval, events };
+}
+
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ 60:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __webpack_require__(5);
+var external_fs_default = /*#__PURE__*/__webpack_require__.n(external_fs_);
+
+// EXTERNAL MODULE: external "path"
+var external_path_ = __webpack_require__(7);
+var external_path_default = /*#__PURE__*/__webpack_require__.n(external_path_);
+
+// EXTERNAL MODULE: ./dist/main/common/config.js
+var config = __webpack_require__(4);
+
+// EXTERNAL MODULE: external "child_process"
+var external_child_process_ = __webpack_require__(27);
+
+// EXTERNAL MODULE: ./dist/main/common/logging.js
+var logging = __webpack_require__(3);
+
+// EXTERNAL MODULE: ./dist/main/common/events.js
+var events = __webpack_require__(8);
+
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(1);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(2);
+
+// CONCATENATED MODULE: ./dist/main/services/compressor/functions.js
+
+
+
+
+
+
+
+
+async function tryLoop(spawner) {
+    for (let attempt = 0; attempt < 10; attempt++) {
+        try {
+            const content = await new Promise((res, rej) => {
+                const process = spawner();
+                process.on("error", err => rej(err));
+                process.stdout.on("error", err => rej(err));
+                process.stderr.on("error", err => {
+                    Object(util["d" /* fancyLog */])("stderr error");
+                    Object(util["d" /* fancyLog */])(JSON.stringify(err));
+                });
+                const stdout = [];
+                const stderr = [];
+                process.stdout.on("data", (data) => stdout.push(data));
+                process.stderr.on("data", (data) => stderr.push(data));
+                process.on("close", code => {
+                    if (code === 0) {
+                        const content = Buffer.concat(stdout).toString();
+                        res(content);
+                    }
+                    else {
+                        const content = Buffer.concat(stderr).toString();
+                        rej(content);
+                    }
+                });
+            });
+            return content;
+        }
+        catch (err) {
+            Object(util["d" /* fancyLog */])("Caught error during attempt " + attempt);
+            Object(util["d" /* fancyLog */])(JSON.stringify(err));
+            await new Promise(res => setTimeout(res, 100));
+        }
+    }
+}
+const ZSTD = "zstd";
+const MV = "mv";
+async function spawnSeq(sequence) {
+    if (sequence.length === 0)
+        return;
+    else {
+        const [head, ...tail] = sequence;
+        Object(logging["a" /* log */])(JSON.stringify(head));
+        const [command, cwd, args] = head;
+        let promise;
+        if (cwd)
+            promise = tryLoop(() => Object(external_child_process_["spawn"])(command, args, { cwd }));
+        else
+            promise = tryLoop(() => Object(external_child_process_["spawn"])(command, args));
+        const stdout = await promise;
+        if (stdout) {
+            Object(logging["a" /* log */])(JSON.stringify(head));
+            Object(logging["a" /* log */])("STDOUT:");
+            Object(logging["a" /* log */])(stdout);
+        }
+        await spawnSeq(tail);
+    }
+}
+function isEntityLocked(entityID) {
+    return Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fileLock).eq(entityID);
+}
+async function compress() {
+    const redis = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local);
+    const locked = await redis.eq(events["c" /* COMPRESSOR_LOCK */]);
+    if (locked) {
+        Object(util["d" /* fancyLog */])("Compressor locked while syncing.");
+        return;
+    }
+    redis.setex(events["n" /* SYNC_LOCK */], 3600);
+    Object(util["d" /* fancyLog */])("Placed sync lock.");
+    const tmpDir = await Object(config["j" /* tmpDirPromise */])();
+    const entities = external_fs_default.a.readdirSync(tmpDir);
+    const promises = [];
+    let newArcs = 0;
+    let oldArcs = 0;
+    for (const entity of entities) {
+        const entitiesDir = external_path_default.a.join(tmpDir, entity);
+        const entityIDs = external_fs_default.a.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
+        for (const entityID of entityIDs) {
+            if (await isEntityLocked(entityID))
+                continue;
+            const stat = external_fs_default.a.statSync(external_path_default.a.join(entitiesDir, entityID));
+            const mtime = stat.mtime.getTime();
+            const secondsSinceLastModified = Date.now() - mtime;
+            if (secondsSinceLastModified < 10)
+                continue;
+            const entityDir = external_path_default.a.join(entitiesDir, entityID);
+            const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
+            const arc = `${entityDir}.tar`;
+            const compressedArcExists = external_fs_default.a.existsSync(compressedArc);
+            if (compressedArcExists) {
+                promises.push(spawnSeq([
+                    [ZSTD, undefined, ["-df", compressedArc, "-o", arc]],
+                    [config["e" /* TAR */], entitiesDir, ["-uvf", arc, entityID]],
+                    [ZSTD, undefined, ["-f", arc, "-o", compressedArc]],
+                    [MV, undefined, [arc, await Object(config["g" /* nullFilePromise */])(arc)]],
+                    [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
+                ]));
+                ++oldArcs;
+            }
+            else {
+                await Object(config["h" /* safeMkdir */])(external_path_default.a.dirname(compressedArc));
+                promises.push(spawnSeq([
+                    [config["e" /* TAR */], entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
+                    [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
+                ]));
+                ++newArcs;
+            }
+        }
+    }
+    await Promise.all(promises);
+    redis.del(events["n" /* SYNC_LOCK */]);
+    Object(util["d" /* fancyLog */])("Released sync lock");
+    Object(util["d" /* fancyLog */])(`${newArcs} archives created.`);
+    Object(util["d" /* fancyLog */])(`${oldArcs} archives updated.`);
+}
+
+// EXTERNAL MODULE: ./dist/main/common/processor.js
+var processor = __webpack_require__(45);
+
+// CONCATENATED MODULE: ./dist/main/services/compressor/main.js
+
+
+
+Object(processor["a" /* startProcessor */])(compress, null, events["d" /* COMPRESS_COMPLETE */]);
+
+
+/***/ }),
+
 /***/ 7:
 /***/ (function(module, exports) {
 
@@ -873,13 +873,6 @@ module.exports = require("path");
 /***/ }),
 
 /***/ 8:
-/***/ (function(module, exports) {
-
-module.exports = require("node-fetch");
-
-/***/ }),
-
-/***/ 9:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -918,6 +911,13 @@ const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 const INSERT_CACHE = "inserted";
 const FAILURE_CACHE = "failures";
 
+
+/***/ }),
+
+/***/ 9:
+/***/ (function(module, exports) {
+
+module.exports = require("node-fetch");
 
 /***/ })
 
