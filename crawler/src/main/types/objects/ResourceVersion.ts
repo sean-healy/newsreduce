@@ -8,7 +8,7 @@ export class ResourceVersion extends DBObject<ResourceVersion> {
     readonly type: ResourceVersionType;
 
     insertCols(): string[] {
-        return ["resource", "timestamp", "type"];
+        return ["resource", "time", "type"];
     }
     getInsertParams(): any[] {
         const params = [this.getID(), this.time, this.type.getID()];

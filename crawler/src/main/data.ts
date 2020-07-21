@@ -36,8 +36,7 @@ export async function schedule(urls: string[]) {
             ++scheduled;
         }
     }
-
-    fancyLog(`Scheduled ${scheduled} URLs.`);
+    if (scheduled) fancyLog(`Scheduled ${scheduled} URLs.`);
 
     await Promise.all(promises);
 }

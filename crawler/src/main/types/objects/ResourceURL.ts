@@ -137,7 +137,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
         return Redis.renewRedis(REDIS_PARAMS.fetchLock).eq(this.toURL());
     }
     setFetchLock() {
-        Redis.renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL());
+        Redis.renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL(), 300);
     }
     isInvalid() {
         return this.ssl === null
