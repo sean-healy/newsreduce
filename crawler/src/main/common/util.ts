@@ -92,7 +92,13 @@ export function tabulate(data: { [key: string]: any }[]) {
     process.stdout.write(toWrite);
 }
 
-const IGNORE_AFTER = ["repl", "Module.<anonymous>", "Object.<anonymous>", "runMicrotasks"];
+const IGNORE_AFTER = [
+    "repl",
+    "Module.<anonymous>",
+    "Object.<anonymous>",
+    "runMicrotasks",
+    "processTicksAndRejections"
+];
 
 export function fancyLog(what: string) {
     const when = new Date().toISOString().split("T", 2)[1];

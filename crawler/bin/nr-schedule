@@ -170,7 +170,7 @@ class DBObject_DBObject {
             if (id)
                 Redis["b" /* Redis */]
                     .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                    .sadd(events["k" /* INSERT_CACHE */], id.toString());
+                    .sadd(events["l" /* INSERT_CACHE */], id.toString());
         }));
         await Promise.all(promises);
     }
@@ -206,7 +206,7 @@ class DBObject_DBObject {
         promises.push(new Promise(async (res) => {
             const isMember = await Redis["b" /* Redis */]
                 .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                .sismember(events["k" /* INSERT_CACHE */], DBObject_DBObject.generateInsertedKey(this.table(), payload));
+                .sismember(events["l" /* INSERT_CACHE */], DBObject_DBObject.generateInsertedKey(this.table(), payload));
             if (!isMember)
                 await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
             res();
@@ -609,6 +609,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(10);
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
 /* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(1);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(9);
+
 
 
 
@@ -632,8 +634,11 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
                 const portStr = groups[3];
                 const port = portStr ?
                     parseInt(portStr.substr(1)) : ssl ? 443 : 80;
-                if (!port)
+                if (!port) {
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy", arg);
+                    common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general)
+                        .zincrby(common_events__WEBPACK_IMPORTED_MODULE_9__[/* FAILURE_CACHE */ "g"], 1, "port parse issue " + arg);
+                }
                 const path = groups[4] ? groups[4] : "";
                 const query = groups[5] ? groups[5].substr(1) : "";
                 super({
@@ -674,8 +679,13 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             if (this.ssl)
                 portString = "80";
         }
-        else
+        else if (this.port) {
             portString = this.port.toString(PORT_BASE);
+        }
+        else {
+            common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general)
+                .zincrby(common_events__WEBPACK_IMPORTED_MODULE_9__[/* FAILURE_CACHE */ "g"], 1, "port gen issue " + JSON.stringify(this));
+        }
         length += portString ? 1 : 0;
         length += Buffer.byteLength(portString, URL_ENCODING);
         length += Buffer.byteLength(this.host.name, URL_ENCODING);
@@ -853,7 +863,13 @@ function tabulate(data) {
     }
     process.stdout.write(toWrite);
 }
-const IGNORE_AFTER = ["repl", "Module.<anonymous>", "Object.<anonymous>", "runMicrotasks"];
+const IGNORE_AFTER = [
+    "repl",
+    "Module.<anonymous>",
+    "Object.<anonymous>",
+    "runMicrotasks",
+    "processTicksAndRejections"
+];
 function fancyLog(what) {
     const when = new Date().toISOString().split("T", 2)[1];
     const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""));
@@ -882,21 +898,22 @@ module.exports = require("node-fetch");
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FETCHER_BIRTH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_DEATH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
 /* unused harmony export NET_AGENT_LOG */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SCHEDULE_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return HTML_PROCESS_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
 /* unused harmony export WIKI_PROCESS_COMPLETE */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCH_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return FETCH_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return COMPRESS_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
 /* unused harmony export UNLOCK_FILE */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SYNC_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return SYNC_LOCK; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return INSERT_CACHE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return INSERT_CACHE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
 const EVENT_LOG = "event-log";
 const FETCHER_BIRTH_LOG = "fetcher-birth-log";
 const FETCHER_DEATH_LOG = "fetcher-death-log";
@@ -913,6 +930,7 @@ const COMPRESSOR_LOCK = "compressor-lock";
 const SYNC_LOCK = "sync-lock";
 const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 const INSERT_CACHE = "inserted";
+const FAILURE_CACHE = "failures";
 
 
 /***/ }),
@@ -2423,7 +2441,7 @@ async function findAndSchedule() {
     const urls = await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* selectPreSchedule */ "d"])();
     await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* schedule */ "b"])(urls);
 }
-Object(common_processor__WEBPACK_IMPORTED_MODULE_2__[/* startProcessor */ "a"])(findAndSchedule, new Set([common_events__WEBPACK_IMPORTED_MODULE_1__[/* COLD_START_COMPLETE */ "b"]]), common_events__WEBPACK_IMPORTED_MODULE_1__[/* SCHEDULE_COMPLETE */ "l"]);
+Object(common_processor__WEBPACK_IMPORTED_MODULE_2__[/* startProcessor */ "a"])(findAndSchedule, new Set([common_events__WEBPACK_IMPORTED_MODULE_1__[/* COLD_START_COMPLETE */ "b"]]), common_events__WEBPACK_IMPORTED_MODULE_1__[/* SCHEDULE_COMPLETE */ "m"]);
 
 
 /***/ })

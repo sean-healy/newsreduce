@@ -456,7 +456,13 @@ function tabulate(data) {
     }
     process.stdout.write(toWrite);
 }
-const IGNORE_AFTER = ["repl", "Module.<anonymous>", "Object.<anonymous>", "runMicrotasks"];
+const IGNORE_AFTER = [
+    "repl",
+    "Module.<anonymous>",
+    "Object.<anonymous>",
+    "runMicrotasks",
+    "processTicksAndRejections"
+];
 function fancyLog(what) {
     const when = new Date().toISOString().split("T", 2)[1];
     const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""));

@@ -7,6 +7,7 @@ import { Entity } from "types/Entity";
 import { FileFormat } from "types/FileFormat";
 import { log } from "common/logging";
 import { Redis, REDIS_PARAMS } from "common/Redis";
+import { FAILURE_CACHE } from "common/events";
 
 const URL_ENCODING = "utf8";
 const PORT_BASE = 10;
@@ -32,7 +33,11 @@ export class ResourceURL extends DBObject<ResourceURL> {
                 const portStr = groups[3];
                 const port = portStr ?
                     parseInt(portStr.substr(1)) : ssl ? 443 : 80;
-                if (!port) log("error", "port should be truthy", arg);
+                if (!port) {
+                    log("error", "port should be truthy", arg);
+                    Redis.renewRedis(REDIS_PARAMS.general)
+                        .zincrby(FAILURE_CACHE, 1, "port parse issue " + arg);
+                }
                 const path = groups[4] ? groups[4] : "";
                 const query = groups[5] ? groups[5].substr(1) : "";
                 super({
@@ -69,8 +74,12 @@ export class ResourceURL extends DBObject<ResourceURL> {
             if (!this.ssl) portString = "443";
         } else if (this.port === 80) {
             if (this.ssl) portString = "80";
-        } else
+        } else if (this.port) {
             portString = this.port.toString(PORT_BASE);
+        } else {
+            Redis.renewRedis(REDIS_PARAMS.general)
+                .zincrby(FAILURE_CACHE, 1, "port gen issue " + JSON.stringify(this));
+        }
         length += portString ? 1 : 0;
         length += Buffer.byteLength(portString, URL_ENCODING);
         length += Buffer.byteLength(this.host.name, URL_ENCODING);
