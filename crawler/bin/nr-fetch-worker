@@ -2611,7 +2611,6 @@ function buildOnFetch(url) {
         }
         promises.push(resource.writeVersion(time, FileFormat["a" /* FileFormat */].RAW_HEADERS, headerContent).then(async () => {
             Object(util["d" /* fancyLog */])(JSON.stringify(resource));
-            Object(util["d" /* fancyLog */])(JSON.stringify(resource.getID()));
             await new ResourceVersion["ResourceVersion"]({
                 resource, time, type: ResourceVersionType["ResourceVersionType"].RAW_HTML,
             }).enqueueInsert({ recursive: true });
