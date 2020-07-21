@@ -1,3 +1,4 @@
 * * * * * /usr/bin/sudo /usr/bin/nr-update
 * * * * * /opt/newsreduce/crawler/src/main/bash/cleanup-fs.sh
+*/3 * * * * /opt/newsreduce/crawler/src/main/bash/service-status.sh
 

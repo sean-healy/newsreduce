@@ -55,6 +55,11 @@ export const REDIS_PARAMS = {
         port: DEFAULT_REDIS_PORT,
         db: 6,
     } as RedisParamsValueType,
+    services: {
+        host: MAIN_HOST,
+        port: DEFAULT_REDIS_PORT,
+        db: 7,
+    } as RedisParamsValueType,
 };
 for (const key in REDIS_PARAMS) REDIS_PARAMS[key].name = key;
 
