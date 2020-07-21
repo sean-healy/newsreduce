@@ -1087,7 +1087,7 @@ class SQL {
                 await SQL.db();
             }
         }
-        return null;
+        return [];
     }
     static async query(template, params) {
         return this.tryLoop((res, rej) => {

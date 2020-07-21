@@ -67,7 +67,7 @@ export class SQL {
             }
         }
 
-        return null;
+        return [];
     }
     static async query<T>(template: string, params: any[]) {
         return this.tryLoop<T>((res, rej) => {
