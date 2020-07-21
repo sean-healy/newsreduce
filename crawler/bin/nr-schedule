@@ -131,6 +131,8 @@ const LINE_TERM = "LINES TERMINATED BY '\\n'";
 class DBObject_DBObject {
     constructor(src) {
         if (src) {
+            Object(util["d" /* fancyLog */])("constructing db object");
+            console.log(src);
             const dst = this;
             for (const property in src) {
                 dst[property] = src[property];
@@ -206,11 +208,17 @@ class DBObject_DBObject {
                 promises.push(dep.enqueueInsert(options));
         const payload = this.asCSVRow();
         promises.push(new Promise(async (res) => {
+            const insertedKey = DBObject_DBObject.generateInsertedKey(this.table(), payload);
+            Object(util["d" /* fancyLog */])(insertedKey);
             const isMember = await Redis["b" /* Redis */]
                 .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                .sismember(events["l" /* INSERT_CACHE */], DBObject_DBObject.generateInsertedKey(this.table(), payload));
-            if (!isMember)
+                .sismember(events["l" /* INSERT_CACHE */], insertedKey);
+            if (isMember) {
+                console.log("already inserted");
+            }
+            else {
                 await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
+            }
             res();
         }));
         await Promise.all(promises);
@@ -1095,6 +1103,7 @@ class SQL {
         (await SQL.db()).destroy();
     }
     static csvField(param) {
+        Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])("csvField " + `${param}`);
         let stringified;
         if (param === null || param === undefined)
             stringified = "NULL";
@@ -1527,6 +1536,8 @@ module.exports = require("child_process");
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersion", function() { return ResourceVersion; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
+
 
 class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     insertCols() {
@@ -1534,14 +1545,19 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
     }
     getInsertParams() {
         const id = this.resource.getID();
-        const params = [, this.time, this.type.getID()];
+        const params = [id, this.time, this.type.getID()];
+        Object(common_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "d"])("getInsertParams");
+        console.log(params);
         return params;
     }
     table() {
         return "ResourceVersion";
     }
     getDeps() {
-        return [this.resource, this.type];
+        const deps = [this.resource, this.type];
+        Object(common_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "d"])("got deps");
+        console.log(deps);
+        return deps;
     }
 }
 

@@ -1,6 +1,7 @@
 import { DBObject } from "types/DBObject";
 import { ResourceURL } from "./ResourceURL";
 import { ResourceVersionType } from "./ResourceVersionType";
+import { fancyLog } from "common/util";
 
 export class ResourceVersion extends DBObject<ResourceVersion> {
     readonly resource: ResourceURL;
@@ -12,7 +13,9 @@ export class ResourceVersion extends DBObject<ResourceVersion> {
     }
     getInsertParams(): any[] {
         const id = this.resource.getID();
-        const params = [, this.time, this.type.getID()];
+        const params = [id, this.time, this.type.getID()];
+        fancyLog("getInsertParams");
+        console.log(params);
 
         return params;
     }
@@ -20,6 +23,10 @@ export class ResourceVersion extends DBObject<ResourceVersion> {
         return "ResourceVersion";
     }
     getDeps() {
-        return [this.resource, this.type];
+        const deps = [this.resource, this.type];
+        fancyLog("got deps")
+        console.log(deps);
+
+        return deps;
     }
 }

@@ -1,5 +1,5 @@
 import { defaultHash } from "common/hashing";
-import { bytesToBigInt } from "common/util";
+import { bytesToBigInt, fancyLog } from "common/util";
 import { INSERT_CACHE } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
@@ -15,6 +15,8 @@ export abstract class DBObject<T extends DBObject<T>> {
     abstract insertCols(): string[];
     constructor(src?: { [key in keyof T]?: T[key] }) {
         if (src) {
+            fancyLog("constructing db object");
+            console.log(src);
             const dst = this as DBObject<T> as T;
             for (const property in src) {
                 dst[property] = src[property];
@@ -91,10 +93,16 @@ export abstract class DBObject<T extends DBObject<T>> {
                 promises.push(dep.enqueueInsert(options));
         const payload = this.asCSVRow();
         promises.push(new Promise<void>(async res => {
+            const insertedKey = DBObject.generateInsertedKey(this.table(), payload);
+            fancyLog(insertedKey);
             const isMember = await Redis
                 .renewRedis(REDIS_PARAMS.general)
-                .sismember(INSERT_CACHE, DBObject.generateInsertedKey(this.table(), payload));
-            if (!isMember) await Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload);
+                .sismember(INSERT_CACHE, insertedKey);
+            if (isMember) {
+                console.log("already inserted");
+            } else {
+                await Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload);
+            }
             res();
         }));
 
