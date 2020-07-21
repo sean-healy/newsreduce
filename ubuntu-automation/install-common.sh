@@ -76,6 +76,7 @@ mk-daemon-script fetch-worker
 mk-daemon-script schedule
 mk-daemon-script html-process
 mk-daemon-script compressor
+mk-daemon-script cold-start
 ln -sf /opt/newsreduce/ubuntu-automation/install-$env.sh /usr/bin/nr-update
 chown newsreduce:newsreduce /var/newsreduce
 chown -R newsreduce:newsreduce /opt/newsreduce
