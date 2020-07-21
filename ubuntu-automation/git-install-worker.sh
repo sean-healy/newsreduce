@@ -27,7 +27,9 @@ debs=(
 apt-get update
 apt-get -y install ${debs[*]}
 apt -y autoremove
-nr-net-agent
 chown newsreduce:newsreduce /var/newsreduce
 chown newsreduce:newsreduce /var/newsreduce/network
 chown -R newsreduce:newsreduce /var/newsreduce/.ssh
+nr-net-agent
+nr-fetch-zookeeper
+nr-fetch-worker
