@@ -177,6 +177,7 @@ class DBObject_DBObject {
         await Promise.all(promises);
     }
     async bulkInsert(csvFile) {
+        Object(util["d" /* fancyLog */])(csvFile);
         if (!csvFile)
             return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
@@ -184,6 +185,7 @@ class DBObject_DBObject {
         const query = `LOAD DATA INFILE ? ` +
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
+        Object(util["d" /* fancyLog */])(query);
         await SQL["a" /* SQL */].query(query, [csvFile]);
     }
     static stringifyBigIntsInPlace(obj) {
@@ -504,9 +506,9 @@ Redis.defaultHostParams = (host) => ({
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
+/* unused harmony export tabulate */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
@@ -2747,7 +2749,7 @@ class Hits_Hits {
         const fileData = Buffer.alloc(bytes);
         let offset = 0;
         for (const wordID of wordIDs.sort(util["a" /* CMP_BIG_INT */])) {
-            Object(util["h" /* writeBigUInt96BE */])(wordID, fileData, offset);
+            Object(util["g" /* writeBigUInt96BE */])(wordID, fileData, offset);
             offset += 12;
             const wordHits = this.wordHits.get(wordID).sort().slice(0, (1 << 16) - 1)
                 .map(hit => hit.toByte());

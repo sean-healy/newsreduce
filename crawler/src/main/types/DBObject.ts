@@ -63,6 +63,7 @@ export abstract class DBObject<T extends DBObject<T>> {
         await Promise.all(promises);
     }
     async bulkInsert(csvFile: string) {
+        fancyLog(csvFile);
         if (!csvFile) return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
         const table = this.table();
@@ -70,6 +71,7 @@ export abstract class DBObject<T extends DBObject<T>> {
             `LOAD DATA INFILE ? ` +
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
+        fancyLog(query);
         await SQL.query(query, [csvFile])
     }
     static stringifyBigIntsInPlace(obj: object) {

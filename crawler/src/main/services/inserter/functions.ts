@@ -23,7 +23,7 @@ function printStages() {
             elapsed: Date.now() - time,
         });
     }
-    tabulate(tmpStages);
+    //tabulate(tmpStages);
 }
 
 function setStage(key: string, value: string) {
@@ -45,6 +45,7 @@ const NEW_SADD_FEATURE = false;
 export async function insertForKey(key: string) {
     const loadFile: string = randomTmpFile();
     const table = DBObject.forTable(key);
+    fancyLog(JSON.stringify(table));
     try {
         const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
         const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
@@ -54,6 +55,7 @@ export async function insertForKey(key: string) {
             if (!NEW_SADD_FEATURE)
                 rows = rows.map(row => row.charAt(0) === "[" ? SQL.csvRow(JSON.parse(row)) : row);
             setStage(key, `INSERTING (${list.length} ${path.basename(loadFile).substr(0, 4)})`);
+            fancyLog(rows.join("\n"));
             fs.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
             await Promise.all([

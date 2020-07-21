@@ -177,6 +177,7 @@ class DBObject_DBObject {
         await Promise.all(promises);
     }
     async bulkInsert(csvFile) {
+        Object(util["d" /* fancyLog */])(csvFile);
         if (!csvFile)
             return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
@@ -184,6 +185,7 @@ class DBObject_DBObject {
         const query = `LOAD DATA INFILE ? ` +
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
+        Object(util["d" /* fancyLog */])(query);
         await SQL["a" /* SQL */].query(query, [csvFile]);
     }
     static stringifyBigIntsInPlace(obj) {
@@ -504,9 +506,9 @@ Redis.defaultHostParams = (host) => ({
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
+/* unused harmony export tabulate */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
@@ -2384,7 +2386,7 @@ function printStages() {
             elapsed: Date.now() - time,
         });
     }
-    Object(util["g" /* tabulate */])(tmpStages);
+    //tabulate(tmpStages);
 }
 function setStage(key, value) {
     const prev = stages[key];
@@ -2403,6 +2405,7 @@ const NEW_SADD_FEATURE = false;
 async function insertForKey(key) {
     const loadFile = randomTmpFile();
     const table = DBObject["a" /* DBObject */].forTable(key);
+    Object(util["d" /* fancyLog */])(JSON.stringify(table));
     try {
         const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
         const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
@@ -2412,6 +2415,7 @@ async function insertForKey(key) {
             if (!NEW_SADD_FEATURE)
                 rows = rows.map(row => row.charAt(0) === "[" ? SQL["a" /* SQL */].csvRow(JSON.parse(row)) : row);
             setStage(key, `INSERTING (${list.length} ${external_path_default.a.basename(loadFile).substr(0, 4)})`);
+            Object(util["d" /* fancyLog */])(rows.join("\n"));
             external_fs_default.a.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
             await Promise.all([
