@@ -169,7 +169,7 @@ class Redis {
             catch (err) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                console.debug(err);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(err));
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
                 delete STATIC_CONNECTIONS[this.params.name];
                 oldClient.quit();
@@ -298,11 +298,11 @@ class Redis {
         client.on("error", (error, msg) => {
             if (msg) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
-                console.debug(msg);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(msg);
             }
             if (error) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
-                console.debug(error);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(error));
             }
         });
         return new Redis(params, client);
@@ -457,15 +457,12 @@ async function safetyFilePromise() {
 async function safeMkdir(dir) {
     return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
 }
-function varDirChildPromise(child) {
-    return new Promise(async (res, rej) => {
-        const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
-        const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
-        if (exists)
-            res(dir);
-        else
-            fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdir(dir, err => err ? rej(err) : res(dir));
-    });
+async function varDirChildPromise(child) {
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
+    if (!exists)
+        await safeMkdir(dir);
+    return dir;
 }
 function tmpDirPromise() {
     return varDirChildPromise("tmp");
@@ -535,7 +532,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
     let interval = undefined;
     if (options.interval || options.interval === undefined)
-        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "e"])(() => {
+        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
             if (!safelyExit)
                 synchronised(name, f, postcondition);
         }, options.period ? options.period : 2000);
@@ -550,7 +547,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     }
     else
         events = null;
-    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "e"])(async () => {
+    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
         const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
         if (content.match(/1/)) {
             safelyExit = true;
@@ -558,7 +555,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
             clearInterval(safetyInterval);
             if (events)
                 events.client.quit();
-            console.log("Safety procedure activated. Exiting.");
+            Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
             process.exit();
         }
     }, 1000);
@@ -598,7 +595,11 @@ var events = __webpack_require__(9);
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(1);
 
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(6);
+
 // CONCATENATED MODULE: ./dist/main/services/compressor/functions.js
+
 
 
 
@@ -613,9 +614,9 @@ async function tryLoop(spawner) {
                 const process = spawner();
                 process.on("error", err => rej(err));
                 process.stdout.on("error", err => rej(err));
-                process.stderr.on("error", (err) => {
-                    console.log("stderr error");
-                    console.log(err);
+                process.stderr.on("error", err => {
+                    Object(util["d" /* fancyLog */])("stderr error");
+                    Object(util["d" /* fancyLog */])(JSON.stringify(err));
                 });
                 const stdout = [];
                 const stderr = [];
@@ -635,8 +636,8 @@ async function tryLoop(spawner) {
             return content;
         }
         catch (err) {
-            console.debug("Caught error during attempt", attempt);
-            console.debug(err);
+            Object(util["d" /* fancyLog */])("Caught error during attempt " + attempt);
+            Object(util["d" /* fancyLog */])(JSON.stringify(err));
             await new Promise(res => setTimeout(res, 100));
         }
     }
@@ -740,15 +741,16 @@ Object(processor["a" /* startProcessor */])(compress, null, events["d" /* COMPRE
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
 /* unused harmony export ZERO */
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function setImmediateInterval(f, ms) {
@@ -782,6 +784,7 @@ function iteratorToArray(itr) {
 }
 let currentTableLine = 0;
 let maxLineLength = 0;
+const ESC = Buffer.of(0o033).toString();
 function tabulate(data) {
     if (currentTableLine === 0)
         console.clear();
@@ -810,7 +813,6 @@ function tabulate(data) {
     }
     let toWrite = "";
     if (currentTableLine !== 0) {
-        const ESC = Buffer.of(0o033).toString();
         const UP = ESC + '[s' + ESC + '[' + currentTableLine + 'A';
         toWrite += UP;
     }
@@ -840,6 +842,14 @@ function tabulate(data) {
         ++currentTableLine;
     }
     process.stdout.write(toWrite);
+}
+const IGNORE_AFTER = ["repl", "Module.<anonymous>", "Object.<anonymous>", "runMicrotasks"];
+function fancyLog(what) {
+    const when = new Date().toISOString().split("T", 2)[1];
+    const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""));
+    const hi = Math.min(...IGNORE_AFTER.map(name => stack.indexOf(name)).filter(index => index >= 0));
+    const where = stack.slice(1, hi).join("() > ");
+    console.log(`${ESC}[97m${when} : ${ESC}[32m${where}()\n${ESC}[39m${what}`);
 }
 const IDENTITY_FUNCTION = (r) => r;
 

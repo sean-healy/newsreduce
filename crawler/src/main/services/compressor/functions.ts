@@ -5,6 +5,7 @@ import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { log } from "common/logging";
 import { COMPRESSOR_LOCK, SYNC_LOCK } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
+import { fancyLog } from "common/util";
 
 async function tryLoop(spawner: () => ChildProcessWithoutNullStreams) {
     for (let attempt = 0; attempt < 10; attempt++) {
@@ -13,9 +14,9 @@ async function tryLoop(spawner: () => ChildProcessWithoutNullStreams) {
                 const process = spawner();
                 process.on("error", err => rej(err));
                 process.stdout.on("error", err => rej(err));
-                process.stderr.on("error", (err) => {
-                    console.log("stderr error");
-                    console.log(err);
+                process.stderr.on("error", err => {
+                    fancyLog("stderr error");
+                    fancyLog(JSON.stringify(err));
                 });
                 const stdout = [];
                 const stderr = [];
@@ -34,8 +35,8 @@ async function tryLoop(spawner: () => ChildProcessWithoutNullStreams) {
 
             return content;
         } catch (err) {
-            console.debug("Caught error during attempt", attempt);
-            console.debug(err);
+            fancyLog("Caught error during attempt " + attempt);
+            fancyLog(JSON.stringify(err));
             await new Promise(res => setTimeout(res, 100));
         }
     }

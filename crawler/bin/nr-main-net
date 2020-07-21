@@ -204,15 +204,12 @@ async function safetyFilePromise() {
 async function safeMkdir(dir) {
     return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
 }
-function varDirChildPromise(child) {
-    return new Promise(async (res, rej) => {
-        const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
-        const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
-        if (exists)
-            res(dir);
-        else
-            fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdir(dir, err => err ? rej(err) : res(dir));
-    });
+async function varDirChildPromise(child) {
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
+    if (!exists)
+        await safeMkdir(dir);
+    return dir;
 }
 function tmpDirPromise() {
     return varDirChildPromise("tmp");
@@ -277,7 +274,11 @@ var external_dns_default = /*#__PURE__*/__webpack_require__.n(external_dns_);
 var external_express_ = __webpack_require__(49);
 var external_express_default = /*#__PURE__*/__webpack_require__.n(external_express_);
 
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(6);
+
 // CONCATENATED MODULE: ./dist/main/services/net-agent/functions.js
+
 
 
 
@@ -286,7 +287,7 @@ async function getGuestlist() {
     const hosts = hostsContent.toString().split(/\n/g).filter(host => host).concat(["127.0.0.1"]);
     const guestlist = new Set(await Promise.all(hosts.map(host => new Promise((res, rej) => external_dns_default.a.lookup(host, (err, address, family) => {
         if (err) {
-            console.debug(err);
+            Object(util["d" /* fancyLog */])(JSON.stringify(err));
             rej(err);
         }
         else {
@@ -319,6 +320,7 @@ async function newFilteredServer() {
 
 
 
+
 const PORT = 9999;
 async function serve() {
     const app = await newFilteredServer();
@@ -340,9 +342,129 @@ async function serve() {
         Object(logging["a" /* log */])(`Request SSH public key info for ${req.ip}.`);
         res.send(external_fs_default.a.readFileSync("/var/newsreduce/.ssh/id_rsa.pub"));
     });
-    app.listen(PORT, () => console.log(`Main net agent running on port ${PORT} `));
+    app.listen(PORT, () => Object(util["d" /* fancyLog */])(`Main net agent running on port ${PORT} `));
 }
 serve();
+
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
+/* unused harmony export ZERO */
+/* unused harmony export EIGHT */
+/* unused harmony export MASK */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
+/* unused harmony export IDENTITY_FUNCTION */
+const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+function setImmediateInterval(f, ms) {
+    setImmediate(f);
+    return setInterval(f, ms);
+}
+const STR_ONE = "1";
+const ZERO = BigInt(0);
+const EIGHT = BigInt(8);
+const MASK = BigInt(0xFF);
+function bytesToBigInt(bytes) {
+    if (!bytes)
+        return bytes;
+    let result = ZERO;
+    for (const byte of bytes)
+        result = (result << EIGHT) | BigInt(byte);
+    return result;
+}
+function writeBigUInt96BE(n, buffer, offset) {
+    for (let i = 0; i <= 11; ++i) {
+        const byte = (n & MASK);
+        buffer[offset + 11 - i] = Number(byte);
+        n >>= EIGHT;
+    }
+}
+function iteratorToArray(itr) {
+    const arr = [];
+    for (const item of itr)
+        arr.push(item);
+    return arr;
+}
+let currentTableLine = 0;
+let maxLineLength = 0;
+const ESC = Buffer.of(0o033).toString();
+function tabulate(data) {
+    if (currentTableLine === 0)
+        console.clear();
+    const keys = Object.keys(data[0]);
+    const printData = new Array(data.length + 1);
+    printData[0] = {};
+    const widths = keys.map(key => key.length);
+    for (let i = 0; i < keys.length; ++i) {
+        const key = keys[i];
+        printData[0][key] = key.toUpperCase();
+        for (let j = 0; j < data.length; ++j) {
+            const value = `${data[j][key]}`;
+            const prevPrintData = printData[j + 1];
+            if (prevPrintData)
+                prevPrintData[key] = value;
+            else {
+                const dictionary = {};
+                dictionary[key] = value;
+                printData[j + 1] = dictionary;
+            }
+            const prevWidth = widths[i];
+            const nextWidth = value.length;
+            if (prevWidth < nextWidth)
+                widths[i] = nextWidth;
+        }
+    }
+    let toWrite = "";
+    if (currentTableLine !== 0) {
+        const UP = ESC + '[s' + ESC + '[' + currentTableLine + 'A';
+        toWrite += UP;
+    }
+    currentTableLine = 0;
+    for (let i = 0; i < printData.length; ++i) {
+        const row = printData[i];
+        let line = "";
+        for (let j = 0; j < keys.length; ++j) {
+            const key = keys[j];
+            const padLength = widths[j];
+            line += `| ${row[key].padEnd(padLength, " ")} `;
+        }
+        line += '|';
+        const length = line.length;
+        if (maxLineLength < length) {
+            maxLineLength = length;
+            toWrite += line;
+        }
+        else
+            toWrite += line.padEnd(maxLineLength, " ");
+        if (i === 0) {
+            toWrite += "\n";
+            toWrite += line.replace(/[^|]/g, "-").replace(/\|/g, "+").padEnd(maxLineLength, " ");
+            ++currentTableLine;
+        }
+        toWrite += "\n";
+        ++currentTableLine;
+    }
+    process.stdout.write(toWrite);
+}
+const IGNORE_AFTER = ["repl", "Module.<anonymous>", "Object.<anonymous>", "runMicrotasks"];
+function fancyLog(what) {
+    const when = new Date().toISOString().split("T", 2)[1];
+    const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""));
+    const hi = Math.min(...IGNORE_AFTER.map(name => stack.indexOf(name)).filter(index => index >= 0));
+    const where = stack.slice(1, hi).join("() > ");
+    console.log(`${ESC}[97m${when} : ${ESC}[32m${where}()\n${ESC}[39m${what}`);
+}
+const IDENTITY_FUNCTION = (r) => r;
 
 
 /***/ }),

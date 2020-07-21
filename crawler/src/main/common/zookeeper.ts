@@ -1,5 +1,5 @@
 import { Redis, REDIS_PARAMS } from "./Redis";
-import { log } from "./logging";
+import { fancyLog } from "./util";
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1)
@@ -11,16 +11,16 @@ export function start(birthLog: string, deathLog: string, idBytes: number) {
     function sourceWorker(id: string) {
         const old = dob.has(id);
         dob.set(id, Date.now());
-        if (!old) console.log(`new worker: ${id}`);
+        if (!old) fancyLog(`new worker: ${id}`);
         reAssemble();
     }
     function retireWorker(id: string) {
-        console.log(`retire worker ${id}`);
+        fancyLog(`retire worker ${id}`);
         dob.delete(id);
         reAssemble();
     }
     function retireWorkers(ids: string[]) {
-        console.log(`retire workers: ${JSON.stringify(ids)}`);
+        fancyLog(`retire workers: ${JSON.stringify(ids)}`);
         for (const id of ids) dob.delete(id);
         reAssemble();
     }
@@ -50,5 +50,5 @@ export function start(birthLog: string, deathLog: string, idBytes: number) {
         if (toRetire.length !== 0)
             retireWorkers(toRetire);
     }, 1000);
-    console.log(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
+    fancyLog(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
 }

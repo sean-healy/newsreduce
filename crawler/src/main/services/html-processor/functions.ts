@@ -8,10 +8,11 @@ import { process as process2 } from "services/html-processor/extract-raw-text";
 import { process as process3 } from "services/html-processor/extract-wiki-tree";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { selectFetchedURLs } from "data";
+import { fancyLog } from "common/util";
 const PROCESSORS = [process0, process1, process2, process3];
 
 export async function processURL(url: string) {
-    console.log(url);
+    fancyLog(url);
     const resourceURL = new ResourceURL(url);
     const promises: Promise<any>[] = [];
     const version = await findLatestVersion(Entity.RESOURCE, resourceURL.getID(), FileFormat.RAW_HTML);

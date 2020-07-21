@@ -333,7 +333,7 @@ class Redis {
             catch (err) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                console.debug(err);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(err));
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
                 delete STATIC_CONNECTIONS[this.params.name];
                 oldClient.quit();
@@ -462,11 +462,11 @@ class Redis {
         client.on("error", (error, msg) => {
             if (msg) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
-                console.debug(msg);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(msg);
             }
             if (error) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
-                console.debug(error);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(error));
             }
         });
         return new Redis(params, client);
@@ -555,15 +555,12 @@ async function safetyFilePromise() {
 async function safeMkdir(dir) {
     return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
 }
-function varDirChildPromise(child) {
-    return new Promise(async (res, rej) => {
-        const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
-        const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
-        if (exists)
-            res(dir);
-        else
-            fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdir(dir, err => err ? rej(err) : res(dir));
-    });
+async function varDirChildPromise(child) {
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
+    if (!exists)
+        await safeMkdir(dir);
+    return dir;
 }
 function tmpDirPromise() {
     return varDirChildPromise("tmp");
@@ -754,15 +751,16 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
 /* unused harmony export ZERO */
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function setImmediateInterval(f, ms) {
@@ -796,6 +794,7 @@ function iteratorToArray(itr) {
 }
 let currentTableLine = 0;
 let maxLineLength = 0;
+const ESC = Buffer.of(0o033).toString();
 function tabulate(data) {
     if (currentTableLine === 0)
         console.clear();
@@ -824,7 +823,6 @@ function tabulate(data) {
     }
     let toWrite = "";
     if (currentTableLine !== 0) {
-        const ESC = Buffer.of(0o033).toString();
         const UP = ESC + '[s' + ESC + '[' + currentTableLine + 'A';
         toWrite += UP;
     }
@@ -854,6 +852,14 @@ function tabulate(data) {
         ++currentTableLine;
     }
     process.stdout.write(toWrite);
+}
+const IGNORE_AFTER = ["repl", "Module.<anonymous>", "Object.<anonymous>", "runMicrotasks"];
+function fancyLog(what) {
+    const when = new Date().toISOString().split("T", 2)[1];
+    const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""));
+    const hi = Math.min(...IGNORE_AFTER.map(name => stack.indexOf(name)).filter(index => index >= 0));
+    const where = stack.slice(1, hi).join("() > ");
+    console.log(`${ESC}[97m${when} : ${ESC}[32m${where}()\n${ESC}[39m${what}`);
 }
 const IDENTITY_FUNCTION = (r) => r;
 
@@ -959,6 +965,8 @@ function fileNameToFormat(fileName) {
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(8);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(6);
+
 
 
 
@@ -997,11 +1005,7 @@ class SQL {
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.message);
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.name);
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.sqlMessage);
-                    console.debug(error.errno);
-                    console.debug(error.code);
-                    console.debug(error.message);
-                    console.debug(error.name);
-                    console.debug(error.sqlMessage);
+                    Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(error));
                 }
             });
             // Be careful for concurrency bugs creating multiple connections.
@@ -1021,8 +1025,8 @@ class SQL {
             catch (err) {
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                console.debug("error on attempt", attempt.toString());
-                console.debug(err);
+                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])("error on attempt " + attempt.toString());
+                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(err));
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();
@@ -2190,7 +2194,11 @@ var ResourceURL = __webpack_require__(5);
 // EXTERNAL MODULE: ./dist/main/types/objects/ClientHeader.js
 var ClientHeader = __webpack_require__(27);
 
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(6);
+
 // CONCATENATED MODULE: ./dist/main/services/cold-start/functions.js
+
 
 
 
@@ -2201,25 +2209,47 @@ function getObjectsToInsert() {
         parent: url,
         child: url,
     });
-    const clientName = "ubuntu-mozilla";
-    const client = new Client["Client"]({
-        name: clientName,
+    const client0 = new Client["Client"]({
+        name: "ubuntu-mozilla",
+        httpVersion: "1.1",
+    });
+    const client1 = new Client["Client"]({
+        name: "mac-chrome",
+        httpVersion: "1.1",
+    });
+    const client2 = new Client["Client"]({
+        name: "mac-safari",
         httpVersion: "1.1",
     });
     const clientHeaders = [
-        new ClientHeader["ClientHeader"](clientName, "User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0"),
-        new ClientHeader["ClientHeader"](clientName, "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"),
-        new ClientHeader["ClientHeader"](clientName, "Accept-Language", "en-US,en;q=0.5"),
-        new ClientHeader["ClientHeader"](clientName, "Accept-Encoding", "gzip, deflate, br"),
-        new ClientHeader["ClientHeader"](clientName, "Connection", "keep-alive"),
-        new ClientHeader["ClientHeader"](clientName, "Upgrade-Insecure-Requests", "1"),
+        new ClientHeader["ClientHeader"](client0.name, "user-agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0"),
+        new ClientHeader["ClientHeader"](client0.name, "accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"),
+        new ClientHeader["ClientHeader"](client0.name, "accept-language", "en-US,en;q=0.5"),
+        new ClientHeader["ClientHeader"](client0.name, "accept-encoding", "gzip, deflate, br"),
+        new ClientHeader["ClientHeader"](client0.name, "connection", "keep-alive"),
+        new ClientHeader["ClientHeader"](client0.name, "upgrade-insecure-requests", "1"),
+        new ClientHeader["ClientHeader"](client1.name, "dnt", "1"),
+        new ClientHeader["ClientHeader"](client1.name, "upgrade-insecure-requests", "1"),
+        new ClientHeader["ClientHeader"](client1.name, "user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"),
+        new ClientHeader["ClientHeader"](client1.name, "accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9"),
+        new ClientHeader["ClientHeader"](client1.name, "sec-fetch-site", "none"),
+        new ClientHeader["ClientHeader"](client1.name, "sec-fetch-mode", "navigate"),
+        new ClientHeader["ClientHeader"](client1.name, "sec-fetch-user", "?1"),
+        new ClientHeader["ClientHeader"](client1.name, "sec-fetch-dest", "document"),
+        new ClientHeader["ClientHeader"](client1.name, "accept-language", "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7"),
+        new ClientHeader["ClientHeader"](client2.name, "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,/;q=0.8"),
+        new ClientHeader["ClientHeader"](client2.name, "Accept-Encoding", "gzip, deflate"),
+        new ClientHeader["ClientHeader"](client2.name, "Accept-Language", "en-us"),
+        new ClientHeader["ClientHeader"](client2.name, "Connection", "keep-alive"),
+        new ClientHeader["ClientHeader"](client2.name, "Upgrade-Insecure-Requests", "1"),
+        new ClientHeader["ClientHeader"](client2.name, "User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
-    return [wikiCategory, client, ...clientHeaders];
+    return [wikiCategory, client0, client1, client2, ...clientHeaders];
 }
 async function insertColdStartObjects() {
     const promises = [];
     for (const obj of getObjectsToInsert()) {
-        console.log(obj);
+        Object(util["d" /* fancyLog */])(JSON.stringify(obj));
         promises.push(obj.singularInsert({ recursive: true }));
     }
     await Promise.all(promises);
@@ -2231,8 +2261,9 @@ var SQL = __webpack_require__(11);
 // CONCATENATED MODULE: ./dist/main/services/cold-start/main.js
 
 
+
 insertColdStartObjects().then(async () => {
-    console.log("Done.");
+    Object(util["d" /* fancyLog */])("Done.");
     SQL["a" /* SQL */].destroy();
     process.exit(0);
 });

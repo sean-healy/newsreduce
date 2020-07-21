@@ -2,7 +2,7 @@ import fs from "fs";
 import crypto from "crypto";
 import { EVENT_LOG } from "common/events";
 import { safetyFilePromise } from "common/config";
-import { setImmediateInterval } from "common/util";
+import { setImmediateInterval, fancyLog } from "common/util";
 import { Redis, REDIS_PARAMS } from "./Redis";
 
 let locks = {};
@@ -47,7 +47,7 @@ export function startProcessor(
             clearInterval(interval);
             clearInterval(safetyInterval);
             if (events) events.client.quit();
-            console.log("Safety procedure activated. Exiting.");
+            fancyLog("Safety procedure activated. Exiting.");
             process.exit();
         }
     }, 1000);

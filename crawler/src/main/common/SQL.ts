@@ -4,6 +4,7 @@ import { NET_AGENT_ENDPOINT } from "common/config";
 import { log } from "common/logging";
 import { MAIN_HOSTNAME, LOCALHOST } from "common/config";
 import fetch from "node-fetch";
+import { fancyLog } from "./util";
 
 export const SQL_PARAMS = {
     user: "newsreduce",
@@ -36,11 +37,7 @@ export class SQL {
                     log(error.message);
                     log(error.name);
                     log(error.sqlMessage);
-                    console.debug(error.errno);
-                    console.debug(error.code);
-                    console.debug(error.message);
-                    console.debug(error.name);
-                    console.debug(error.sqlMessage);
+                    fancyLog(JSON.stringify(error));
                 }
             });
             // Be careful for concurrency bugs creating multiple connections.
@@ -61,8 +58,8 @@ export class SQL {
             } catch (err) {
                 log("error on attempt", attempt.toString());
                 log(err);
-                console.debug("error on attempt", attempt.toString());
-                console.debug(err);
+                fancyLog("error on attempt " + attempt.toString());
+                fancyLog(JSON.stringify(err));
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();

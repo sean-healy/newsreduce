@@ -2,7 +2,7 @@ import sql from "sql";
 import { milliTimestamp } from "common/time";
 import { thenDebug } from "common/functional";
 import { ResourceURL } from "types/objects/ResourceURL";
-import { STR_ONE } from "common/util";
+import { STR_ONE, fancyLog } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 
@@ -25,7 +25,7 @@ export function selectPreSchedule() {
         rows.map(row => new ResourceURL(row).toURL()));
 }
 export async function schedule(urls: string[]) {
-    console.log(`Attempting to schedule ${urls.length} URLs.`);
+    fancyLog(`Attempting to schedule ${urls.length} URLs.`);
     const promises = [];
     let scheduled = 0;
     for (const url of urls) {
@@ -37,7 +37,7 @@ export async function schedule(urls: string[]) {
         }
     }
 
-    console.log(`Scheduled ${scheduled} URLs.`);
+    fancyLog(`Scheduled ${scheduled} URLs.`);
 
     await Promise.all(promises);
 }

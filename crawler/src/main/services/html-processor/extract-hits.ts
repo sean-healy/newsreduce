@@ -1,7 +1,5 @@
 import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProcessor"
-import { write } from "file";
 import { FileFormat } from "types/FileFormat";
-import { Entity } from "types/Entity";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { DOMWindow } from "jsdom";
 import { HitType, nodeToHitType } from "types/HitType";

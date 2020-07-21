@@ -169,7 +169,7 @@ class Redis {
             catch (err) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                console.debug(err);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(err));
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
                 delete STATIC_CONNECTIONS[this.params.name];
                 oldClient.quit();
@@ -298,11 +298,11 @@ class Redis {
         client.on("error", (error, msg) => {
             if (msg) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
-                console.debug(msg);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(msg);
             }
             if (error) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
-                console.debug(error);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(error));
             }
         });
         return new Redis(params, client);
@@ -443,15 +443,12 @@ async function safetyFilePromise() {
 async function safeMkdir(dir) {
     return fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdirSync(dir, { recursive: true, mode: 0o700 });
 }
-function varDirChildPromise(child) {
-    return new Promise(async (res, rej) => {
-        const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
-        const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
-        if (exists)
-            res(dir);
-        else
-            fs__WEBPACK_IMPORTED_MODULE_0___default.a.mkdir(dir, err => err ? rej(err) : res(dir));
-    });
+async function varDirChildPromise(child) {
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await varDirPromise(), child);
+    const exists = fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(dir);
+    if (!exists)
+        await safeMkdir(dir);
+    return dir;
 }
 function tmpDirPromise() {
     return varDirChildPromise("tmp");
@@ -497,7 +494,11 @@ __webpack_require__.r(__webpack_exports__);
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(1);
 
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(6);
+
 // CONCATENATED MODULE: ./dist/main/common/zookeeper.js
+
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1);
@@ -508,16 +509,16 @@ function start(birthLog, deathLog, idBytes) {
         const old = dob.has(id);
         dob.set(id, Date.now());
         if (!old)
-            console.log(`new worker: ${id}`);
+            Object(util["d" /* fancyLog */])(`new worker: ${id}`);
         reAssemble();
     }
     function retireWorker(id) {
-        console.log(`retire worker ${id}`);
+        Object(util["d" /* fancyLog */])(`retire worker ${id}`);
         dob.delete(id);
         reAssemble();
     }
     function retireWorkers(ids) {
-        console.log(`retire workers: ${JSON.stringify(ids)}`);
+        Object(util["d" /* fancyLog */])(`retire workers: ${JSON.stringify(ids)}`);
         for (const id of ids)
             dob.delete(id);
         reAssemble();
@@ -550,7 +551,7 @@ function start(birthLog, deathLog, idBytes) {
         if (toRetire.length !== 0)
             retireWorkers(toRetire);
     }, 1000);
-    console.log(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
+    Object(util["d" /* fancyLog */])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
 }
 
 // EXTERNAL MODULE: ./dist/main/common/events.js
@@ -569,15 +570,16 @@ start(events["g" /* FETCHER_BIRTH_LOG */], events["h" /* FETCHER_DEATH_LOG */], 
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
 /* unused harmony export ZERO */
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function setImmediateInterval(f, ms) {
@@ -611,6 +613,7 @@ function iteratorToArray(itr) {
 }
 let currentTableLine = 0;
 let maxLineLength = 0;
+const ESC = Buffer.of(0o033).toString();
 function tabulate(data) {
     if (currentTableLine === 0)
         console.clear();
@@ -639,7 +642,6 @@ function tabulate(data) {
     }
     let toWrite = "";
     if (currentTableLine !== 0) {
-        const ESC = Buffer.of(0o033).toString();
         const UP = ESC + '[s' + ESC + '[' + currentTableLine + 'A';
         toWrite += UP;
     }
@@ -669,6 +671,14 @@ function tabulate(data) {
         ++currentTableLine;
     }
     process.stdout.write(toWrite);
+}
+const IGNORE_AFTER = ["repl", "Module.<anonymous>", "Object.<anonymous>", "runMicrotasks"];
+function fancyLog(what) {
+    const when = new Date().toISOString().split("T", 2)[1];
+    const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""));
+    const hi = Math.min(...IGNORE_AFTER.map(name => stack.indexOf(name)).filter(index => index >= 0));
+    const where = stack.slice(1, hi).join("() > ");
+    console.log(`${ESC}[97m${when} : ${ESC}[32m${where}()\n${ESC}[39m${what}`);
 }
 const IDENTITY_FUNCTION = (r) => r;
 

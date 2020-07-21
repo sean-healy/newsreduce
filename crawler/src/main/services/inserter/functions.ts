@@ -5,7 +5,7 @@ import { DBObject } from "types/DBObject";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 import { INSERT_CACHE } from "common/events";
-import { tabulate } from "common/util";
+import { tabulate, fancyLog } from "common/util";
 
 const BATCH_SIZE = 50000;
 
@@ -32,7 +32,7 @@ function setStage(key: string, value: string) {
         stages[key] = [value, Date.now()];
         printStages();
     }
-    else console.log("stage re-entered:", value);
+    else fancyLog("stage re-entered: " + value);
 }
 
 function randomTmpFile() {

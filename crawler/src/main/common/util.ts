@@ -36,6 +36,7 @@ export function iteratorToArray<T>(itr: IterableIterator<T>) {
 
 let currentTableLine = 0;
 let maxLineLength = 0;
+const ESC = Buffer.of(0o033).toString();
 export function tabulate(data: { [key: string]: any }[]) {
     if (currentTableLine === 0) console.clear();
     const keys = Object.keys(data[0]);
@@ -61,7 +62,6 @@ export function tabulate(data: { [key: string]: any }[]) {
     }
     let toWrite = "";
     if (currentTableLine !== 0) {
-        const ESC = Buffer.of(0o033).toString();
         const UP = ESC + '[s' + ESC + '[' + currentTableLine + 'A';
         toWrite += UP;
     }
@@ -90,6 +90,18 @@ export function tabulate(data: { [key: string]: any }[]) {
         ++currentTableLine;
     }
     process.stdout.write(toWrite);
+}
+
+const IGNORE_AFTER = ["repl", "Module.<anonymous>", "Object.<anonymous>", "runMicrotasks"];
+
+export function fancyLog(what: string) {
+    const when = new Date().toISOString().split("T", 2)[1];
+    const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""))
+    const hi = Math.min(...IGNORE_AFTER.map(name => stack.indexOf(name)).filter(index => index >= 0));
+
+    const where = stack.slice(1, hi).join("() > ");
+
+    console.log(`${ESC}[97m${when} : ${ESC}[32m${where}()\n${ESC}[39m${what}`);
 }
 
 export const IDENTITY_FUNCTION = <T>(r: T) => r

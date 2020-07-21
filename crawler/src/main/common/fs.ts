@@ -1,6 +1,7 @@
 import fs from "fs";
 import { checksum } from "./hashing";
 import { log } from "./logging";
+import { fancyLog } from "./util";
 
 export function deleteIfChecksumMatches(path: string, expectedChecksum: string) {
     const exists = fs.existsSync(path);
@@ -9,7 +10,12 @@ export function deleteIfChecksumMatches(path: string, expectedChecksum: string) 
         const actualChecksum = checksum(content).toString();
         if (expectedChecksum === actualChecksum)
             fs.unlinkSync(path);
-        else
-            log(`attempted to delete ${path}, but checksum ${actualChecksum} did not match ${expectedChecksum}`);
+        else {
+            const msg =
+                `attempted to delete ${path}, ` +
+                `but checksum ${actualChecksum} did not match ${expectedChecksum}`;
+            log(msg);
+            fancyLog(msg);
+        }
     }
 }

@@ -1,6 +1,7 @@
 import fs from "fs";
 import dns from "dns";
 import express from "express";
+import { fancyLog } from "common/util";
 
 export async function getGuestlist() {
     const hostsContent = fs.readFileSync("/var/newsreduce/network");
@@ -8,7 +9,7 @@ export async function getGuestlist() {
     const guestlist = new Set(await Promise.all(hosts.map(host => new Promise<string>((res, rej) =>
         dns.lookup(host, (err, address, family) => {
             if (err) {
-                console.debug(err);
+                fancyLog(JSON.stringify(err));
                 rej(err);
             } else {
                 if (family === 4) address = `::ffff:${address}`;

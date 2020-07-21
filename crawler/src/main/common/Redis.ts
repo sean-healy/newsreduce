@@ -1,6 +1,6 @@
 import redis, { RedisClient } from "redis";
 import { ENV } from "common/config";
-import { STR_ONE } from "./util";
+import { STR_ONE, fancyLog } from "./util";
 import { log } from "./logging";
 
 const MAIN_HOST = "newsreduce.org";
@@ -92,7 +92,7 @@ export class Redis {
             } catch (err) {
                 log("error on attempt", attempt.toString());
                 log(err);
-                console.debug(err);
+                fancyLog(JSON.stringify(err));
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
                 delete STATIC_CONNECTIONS[this.params.name];
                 oldClient.quit();
@@ -315,11 +315,11 @@ export class Redis {
         client.on("error", (error, msg) => {
             if (msg) {
                 log(msg);
-                console.debug(msg);
+                fancyLog(msg);
             }
             if (error) {
                 log(error);
-                console.debug(error);
+                fancyLog(JSON.stringify(error));
             }
         });
 

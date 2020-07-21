@@ -31,13 +31,12 @@ export async function safeMkdir(dir: string) {
     return fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
 }
 
-export function varDirChildPromise(child: string) {
-    return new Promise<string>(async (res, rej) => {
-        const dir = path.join(await varDirPromise(), child);
-        const exists = fs.existsSync(dir);
-        if (exists) res(dir);
-        else fs.mkdir(dir, err => err ? rej(err) : res(dir));
-    });
+export async function varDirChildPromise(child: string) {
+    const dir = path.join(await varDirPromise(), child);
+    const exists = fs.existsSync(dir);
+    if (!exists) await safeMkdir(dir);
+
+    return dir;
 }
 export function tmpDirPromise() {
     return varDirChildPromise("tmp");

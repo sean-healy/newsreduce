@@ -2,7 +2,6 @@ import { setImmediateInterval } from "./util";
 import { startProcessor } from "./processor";
 import { randomBytes } from "crypto";
 import { Redis, REDIS_PARAMS } from "./Redis";
-import { log } from "./logging";
 
 export function start(
     f: (lo: () => bigint, hi: () => bigint) => void,

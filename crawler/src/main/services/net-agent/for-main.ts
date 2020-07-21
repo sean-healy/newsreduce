@@ -1,6 +1,7 @@
 import fs from "fs";
 import { log } from "common/logging";
 import { newFilteredServer } from "./functions";
+import { fancyLog } from "common/util";
 
 const PORT = 9999;
 
@@ -25,7 +26,7 @@ async function serve() {
         res.send(fs.readFileSync("/var/newsreduce/.ssh/id_rsa.pub"));
     });
 
-    app.listen(PORT, () => console.log(`Main net agent running on port ${PORT} `));
+    app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT} `));
 }
 
 serve();
