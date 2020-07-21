@@ -7,9 +7,6 @@ export class Word extends DBObject<Word> {
         if (value) super({ value });
     }
 
-    hashPrefix(): string {
-        return "word";
-    }
     hashSuffix(): string {
         return this.value;
     }

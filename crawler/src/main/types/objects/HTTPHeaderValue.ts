@@ -14,9 +14,6 @@ export class HTTPHeaderValue extends DBObject<HTTPHeaderValue> {
         }
     }
 
-    hashPrefix(): string {
-        return "http-header-value";
-    }
     hashSuffix(): string {
         return this.value;
     }

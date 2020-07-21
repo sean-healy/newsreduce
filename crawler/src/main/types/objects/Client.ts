@@ -4,9 +4,6 @@ export class Client extends DBObject<Client> {
     readonly name: string;
     readonly httpVersion: string;
 
-    hashPrefix(): string {
-        return "client";
-    }
     hashSuffix(): string {
         return this.name;
     }

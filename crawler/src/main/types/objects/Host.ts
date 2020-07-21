@@ -4,9 +4,6 @@ export class Host extends DBObject<Host> {
     readonly name: string;
     readonly throttle: number;
 
-    hashPrefix(): string {
-        return "host";
-    }
     hashSuffix(): string {
         return this.name;
     }

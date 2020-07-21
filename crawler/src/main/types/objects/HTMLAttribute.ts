@@ -6,9 +6,6 @@ export class HTMLAttribute extends DBObject<HTMLAttribute> {
     readonly name: HTMLAttributeName;
     readonly value: HTMLAttributeValue;
 
-    hashPrefix(): string {
-        return "html-attribute";
-    }
     hashSuffix(): string {
         return `${this.name.value}\0${this.value.value}`
     }

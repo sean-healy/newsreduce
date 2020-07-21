@@ -5,9 +5,6 @@ export class HTMLNode extends DBObject<HTMLNode> {
     readonly tag: HTMLTag;
     readonly attributes: { [key: string]: string };
 
-    hashPrefix(): string {
-        return "html-node";
-    }
     hashSuffix(): string {
         const attributes = Object
             .keys(this.attributes)

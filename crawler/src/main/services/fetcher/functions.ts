@@ -12,15 +12,17 @@ import { Host } from "types/objects/Host";
 import { ResourceHeader } from "types/objects/ResourceHeader";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog } from "common/util";
+import { ResourceVersion } from "types/objects/ResourceVersion";
+import { ResourceVersionType } from "types/objects/ResourceVersionType";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
-        const resourceURL = new ResourceURL(url);
+        const resource = new ResourceURL(url);
         let type: string;
-        const now = milliTimestamp();
+        const time = milliTimestamp();
         let promises = [];
-        const actualLength = await resourceURL.writeVersion(
-            now, FileFormat.RAW_HTML, response.body);
+        const actualLength = await resource.writeVersion(
+            time, FileFormat.RAW_HTML, response.body);
         let headers = [];
         response.headers.forEach(async (value, anyCaseKey) => {
             headers.push(`${anyCaseKey}: ${value}`);
@@ -40,8 +42,12 @@ export function buildOnFetch(url: string) {
             log("header issue");
             log(JSON.stringify(headers));
         }
-        promises.push(resourceURL.writeVersion(
-            now, FileFormat.RAW_HEADERS, headerContent));
+        promises.push(resource.writeVersion(
+            time, FileFormat.RAW_HEADERS, headerContent).then(async () => {
+                await new ResourceVersion({
+                    resource, time, type: ResourceVersionType.RAW_HTML,
+                }).enqueueInsert({ recursive: true });
+            }));
 
         await Promise.all(promises);
     };

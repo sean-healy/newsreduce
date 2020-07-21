@@ -3,9 +3,6 @@ import { DBObject } from "types/DBObject";
 export class HTMLAttributeName extends DBObject<HTMLAttributeName> {
     readonly value: string;
 
-    hashPrefix(): string {
-        return "html-attribute-name";
-    }
     hashSuffix(): string {
         return this.value;
     }

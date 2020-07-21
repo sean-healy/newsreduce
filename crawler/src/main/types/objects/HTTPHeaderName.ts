@@ -3,9 +3,6 @@ import { DBObject } from "types/DBObject";
 export class HTTPHeaderName extends DBObject<HTTPHeaderName> {
     readonly value: string;
 
-    hashPrefix(): string {
-        return "http-header-name";
-    }
     hashSuffix(): string {
         return this.value;
     }

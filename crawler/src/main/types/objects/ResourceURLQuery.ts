@@ -1,4 +1,4 @@
-import { DBObject } from "../../types/DBObject";
+import { DBObject } from "types/DBObject";
 
 export class ResourceURLQuery extends DBObject<ResourceURLQuery> {
     readonly value: string;
@@ -23,9 +23,6 @@ export class ResourceURLQuery extends DBObject<ResourceURLQuery> {
     }
     table(): string {
         return "ResourceURLQuery";
-    }
-    hashPrefix(): string {
-        return "resource-url-query";
     }
     hashSuffix(): string {
         return this.value;

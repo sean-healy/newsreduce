@@ -5,6 +5,8 @@ import { DOMWindow } from "jsdom";
 import { HitType, nodeToHitType } from "types/HitType";
 import { removeExcludedNodes } from "./functions";
 import { Hits } from "types/Hits";
+import { ResourceVersion } from "types/objects/ResourceVersion";
+import { ResourceVersionType } from "types/objects/ResourceVersionType";
 
 const INCLUDE_TAGS = [
     "TITLE",
@@ -82,8 +84,11 @@ export function getHits(window: DOMWindow) {
     return hits;
 }
 
-export const process: HTMLDocumentProcessor = async (window, version) => {
+export const process: HTMLDocumentProcessor = async (window, time) => {
     const resource = new ResourceURL(window.location.toString());
     const fileData = getHits(window);
-    await resource.writeVersion(version, FileFormat.HITS, fileData.toBuffer());
+    await resource.writeVersion(time, FileFormat.HITS, fileData.toBuffer());
+    await new ResourceVersion({
+        resource, time, type: ResourceVersionType.HITS,
+    }).enqueueInsert({ recursive: true });
 }

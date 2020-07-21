@@ -3,9 +3,6 @@ import { DBObject } from "types/DBObject";
 export class HTMLTag extends DBObject<HTMLTag> {
     readonly value: string;
 
-    hashPrefix(): string {
-        return "html-tag";
-    }
     hashSuffix(): string {
         return this.value;
     }

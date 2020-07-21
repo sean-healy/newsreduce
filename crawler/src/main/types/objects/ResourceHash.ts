@@ -8,9 +8,6 @@ export class ResourceHash extends DBObject<ResourceHash> {
         else super();
     }
 
-    hashPrefix(): string {
-        return "resource-hash";
-    }
     hashSuffix(): string {
         return this.value;
     }

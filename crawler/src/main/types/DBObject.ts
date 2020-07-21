@@ -22,8 +22,9 @@ export abstract class DBObject<T extends DBObject<T>> {
         }
     }
     getIDBytes() {
-        const prefix = this.hashPrefix();
-        return prefix ? defaultHash(prefix, this.hashSuffix()) : null;
+        const suffix = this.hashSuffix();
+
+        return suffix ? defaultHash(this.table(), suffix) : null;
     }
     getID() {
         const idBytes = this.getIDBytes();
@@ -63,7 +64,10 @@ export abstract class DBObject<T extends DBObject<T>> {
         if (!csvFile) return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
         const table = this.table();
-        const query = `LOAD DATA INFILE ? IGNORE INTO TABLE \`${table}\` ${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
+        const query =
+            `LOAD DATA INFILE ? ` +
+            `IGNORE INTO TABLE \`${table}\` ` +
+            `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
         await SQL.query(query, [csvFile])
     }
     static stringifyBigIntsInPlace(obj: object) {
@@ -113,9 +117,6 @@ export abstract class DBObject<T extends DBObject<T>> {
     }
     idCol(): string {
         return "id";
-    }
-    hashPrefix(): string {
-        return null;
     }
     hashSuffix(): string {
         return null;

@@ -21,9 +21,6 @@ export class HTTPHeader extends DBObject<HTTPHeader> {
     getInsertParams(): any[] {
         return [this.getID(), this.name.getID(), this.value.getID()];
     }
-    hashPrefix(): string {
-        return "http-header";
-    }
     hashSuffix(): string {
         return `${this.name.value}\0${this.value.value}`;
     }

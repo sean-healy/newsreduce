@@ -138,8 +138,8 @@ class DBObject_DBObject {
         }
     }
     getIDBytes() {
-        const prefix = this.hashPrefix();
-        return prefix ? defaultHash(prefix, this.hashSuffix()) : null;
+        const suffix = this.hashSuffix();
+        return suffix ? defaultHash(this.table(), suffix) : null;
     }
     getID() {
         const idBytes = this.getIDBytes();
@@ -179,7 +179,9 @@ class DBObject_DBObject {
             return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
         const table = this.table();
-        const query = `LOAD DATA INFILE ? IGNORE INTO TABLE \`${table}\` ${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
+        const query = `LOAD DATA INFILE ? ` +
+            `IGNORE INTO TABLE \`${table}\` ` +
+            `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
         await SQL["a" /* SQL */].query(query, [csvFile]);
     }
     static stringifyBigIntsInPlace(obj) {
@@ -232,9 +234,6 @@ class DBObject_DBObject {
     }
     idCol() {
         return "id";
-    }
-    hashPrefix() {
-        return null;
     }
     hashSuffix() {
         return null;
@@ -711,9 +710,6 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             i += url.write("?", i, URL_ENCODING);
         i += url.write(this.query.value, i, URL_ENCODING);
         return url.toString(URL_ENCODING);
-    }
-    hashPrefix() {
-        return "resource-url";
     }
     hashSuffix() {
         return this.toURL();
@@ -1206,9 +1202,6 @@ class HTTPHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject
     getInsertParams() {
         return [this.getID(), this.name.getID(), this.value.getID()];
     }
-    hashPrefix() {
-        return "http-header";
-    }
     hashSuffix() {
         return `${this.name.value}\0${this.value.value}`;
     }
@@ -1244,9 +1237,6 @@ class HTTPHeaderValue extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
                 throw new Error("value can't be falsey");
         }
     }
-    hashPrefix() {
-        return "http-header-value";
-    }
     hashSuffix() {
         return this.value;
     }
@@ -1272,9 +1262,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class Host extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "host";
-    }
     hashSuffix() {
         return this.name;
     }
@@ -1300,9 +1287,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class ResourceURLPath extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "resource-url-path";
-    }
     hashSuffix() {
         return this.value;
     }
@@ -1325,9 +1309,9 @@ class ResourceURLPath extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceURLQuery", function() { return ResourceURLQuery; });
-/* harmony import */ var _types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
-class ResourceURLQuery extends _types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+class ResourceURLQuery extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(arg) {
         if (typeof arg === "string") {
             super({
@@ -1347,9 +1331,6 @@ class ResourceURLQuery extends _types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* D
     }
     table() {
         return "ResourceURLQuery";
-    }
-    hashPrefix() {
-        return "resource-url-query";
     }
     hashSuffix() {
         return this.value;
@@ -1373,9 +1354,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class Client extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "client";
-    }
     hashSuffix() {
         return this.name;
     }
@@ -1406,9 +1384,6 @@ class ResourceHash extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
             super({ value });
         else
             super();
-    }
-    hashPrefix() {
-        return "resource-hash";
     }
     hashSuffix() {
         return this.value;
@@ -1476,9 +1451,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class HTTPHeaderName extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "http-header-name";
-    }
     hashSuffix() {
         return this.value;
     }
@@ -1891,9 +1863,6 @@ class Word extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a
         if (value)
             super({ value });
     }
-    hashPrefix() {
-        return "word";
-    }
     hashSuffix() {
         return this.value;
     }
@@ -1944,9 +1913,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class HTMLAttribute extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "html-attribute";
-    }
     hashSuffix() {
         return `${this.name.value}\0${this.value.value}`;
     }
@@ -1972,9 +1938,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class HTMLAttributeName extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "html-attribute-name";
-    }
     hashSuffix() {
         return this.value;
     }
@@ -2000,9 +1963,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class HTMLAttributeValue extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "html-attribute-value";
-    }
     hashSuffix() {
         return this.value;
     }
@@ -2028,9 +1988,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class HTMLNode extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "html-node";
-    }
     hashSuffix() {
         const attributes = Object
             .keys(this.attributes)
@@ -2083,9 +2040,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
 class HTMLTag extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashPrefix() {
-        return "html-tag";
-    }
     hashSuffix() {
         return this.value;
     }
@@ -2181,6 +2135,10 @@ var map = {
 	"./ResourceURLPath.js": 18,
 	"./ResourceURLQuery": 19,
 	"./ResourceURLQuery.js": 19,
+	"./ResourceVersion": 60,
+	"./ResourceVersion.js": 60,
+	"./ResourceVersionType": 59,
+	"./ResourceVersionType.js": 59,
 	"./WikiCategory": 28,
 	"./WikiCategory.js": 28,
 	"./WikiPage": 33,
@@ -2310,6 +2268,66 @@ insertColdStartObjects().then(async () => {
     SQL["a" /* SQL */].destroy();
     process.exit(0);
 });
+
+
+/***/ }),
+/* 57 */,
+/* 58 */,
+/* 59 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return ResourceVersionType; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
+class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    insertCols() {
+        return ["id", "filename"];
+    }
+    getInsertParams() {
+        const params = [this.getID(), this.filename];
+        return params;
+    }
+    table() {
+        return "ResourceVersionType";
+    }
+    hashSuffix() {
+        return this.filename;
+    }
+}
+ResourceVersionType.RAW_HTML = new ResourceVersionType({
+    filename: "raw.html",
+});
+ResourceVersionType.RAW_TXT = new ResourceVersionType({
+    filename: "raw.txt",
+});
+ResourceVersionType.HITS = new ResourceVersionType({
+    filename: "hits.bin",
+});
+
+
+/***/ }),
+/* 60 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersion", function() { return ResourceVersion; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
+class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    insertCols() {
+        return ["resource", "timestamp", "type"];
+    }
+    getInsertParams() {
+        const params = [this.getID(), this.time, this.type.getID()];
+        return params;
+    }
+    table() {
+        return "ResourceVersion";
+    }
+}
 
 
 /***/ })

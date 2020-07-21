@@ -102,9 +102,6 @@ export class ResourceURL extends DBObject<ResourceURL> {
         return url.toString(URL_ENCODING);
     }
 
-    hashPrefix(): string {
-        return "resource-url";
-    }
     hashSuffix(): string {
         return this.toURL();
     }
