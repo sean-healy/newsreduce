@@ -3,7 +3,6 @@ import { FileFormat } from "types/FileFormat";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { DOMWindow } from "jsdom";
 import { HitType, nodeToHitType } from "types/HitType";
-import { removeExcludedNodes } from "./functions";
 import { Hits } from "types/Hits";
 import { ResourceVersion } from "types/objects/ResourceVersion";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
@@ -57,7 +56,7 @@ interface BlockData {
 };
 
 export function getHits(window: DOMWindow) {
-    removeExcludedNodes(window);
+    HTMLDocumentProcessor.removeExcludedNodes(window);
     const queryItems = window.document.querySelectorAll(INCLUDE_TAGS.join(","));
     const blockData: BlockData[] = [];
     // Ensure no words are counted twice.
@@ -84,11 +83,13 @@ export function getHits(window: DOMWindow) {
     return hits;
 }
 
-export const process: HTMLDocumentProcessor = async (window, time) => {
-    const resource = new ResourceURL(window.location.toString());
-    const fileData = getHits(window);
-    await resource.writeVersion(time, FileFormat.HITS, fileData.toBuffer());
-    await new ResourceVersion({
-        resource, time, type: ResourceVersionType.HITS,
-    }).enqueueInsert({ recursive: true });
+export class ExtractHits extends HTMLDocumentProcessor {
+    ro() { return false; }
+    async apply(window: DOMWindow, time?: number) {
+        const resource = new ResourceURL(window.location.toString());
+        const fileData = getHits(window);
+        await resource.writeVersion(time, FileFormat.HITS, fileData.toBuffer());
+        await new ResourceVersion({ resource, time, type: ResourceVersionType.HITS })
+            .enqueueInsert({ recursive: true });
+    }
 }

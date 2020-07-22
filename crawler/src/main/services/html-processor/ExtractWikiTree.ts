@@ -51,8 +51,11 @@ export function getEntities(window: DOMWindow) {
     return relations.concat(pages);
 }
 
-export const process: HTMLDocumentProcessor = async window => {
-    const entities = getEntities(window);
-    const promises = entities.map(entity => entity.enqueueInsert({ recursive: true }));
-    await Promise.all(promises);
+export class ExtractWikiTree extends HTMLDocumentProcessor {
+    ro() { return true; }
+    async apply(window: DOMWindow) {
+        const entities = getEntities(window);
+        const promises = entities.map(entity => entity.enqueueInsert({ recursive: true }));
+        await Promise.all(promises);
+    }
 }

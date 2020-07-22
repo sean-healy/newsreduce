@@ -1,11 +1,11 @@
 import { JSDOM } from "jsdom";
 import fs from "fs";
 import path from "path";
-import { getLinks, process as processAhrefs } from "services/html-processor/extract-ahrefs";
-import { getHits } from "services/html-processor/extract-hits";
-import { toRawText } from "services/html-processor/extract-raw-text";
+import { getLinks } from "services/html-processor/ExtractAHrefs";
+import { getHits } from "services/html-processor/ExtractHits";
+import { toRawText } from "services/html-processor/ExtractRawText";
 import { Hits } from "types/Hits";
-import { resourceIsWikiCategory, getEntities } from "services/html-processor/extract-wiki-tree";
+import { resourceIsWikiCategory, getEntities } from "services/html-processor/ExtractWikiTree";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { WikiCategory } from "types/objects/WikiCategory";
 import { WikiPage } from "types/objects/WikiPage";

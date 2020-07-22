@@ -81,48 +81,12 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 57);
+/******/ 	return __webpack_require__(__webpack_require__.s = 56);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 13:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
-
-
-class DNS {
-    static lookup(hostname) {
-        return new Promise((res, rej) => {
-            dns__WEBPACK_IMPORTED_MODULE_0___default.a.lookup(hostname, (err, address, family) => {
-                if (err)
-                    rej(err);
-                else if (family === 4)
-                    res(DNS.ipv4AsIpv6(address));
-                else
-                    res(address);
-            });
-        });
-    }
-    static ipv4AsIpv6(ipv4) {
-        return `::ffff:${ipv4}`;
-    }
-    static async whoami() {
-        const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()("http://newsreduce.org:9999/ip").then(response => response.text());
-        return ip;
-    }
-}
-
-
-/***/ }),
-
-/***/ 2:
+/***/ 1:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -251,7 +215,43 @@ const IDENTITY_FUNCTION = (r) => r;
 
 /***/ }),
 
-/***/ 22:
+/***/ 13:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
+
+
+class DNS {
+    static lookup(hostname) {
+        return new Promise((res, rej) => {
+            dns__WEBPACK_IMPORTED_MODULE_0___default.a.lookup(hostname, (err, address, family) => {
+                if (err)
+                    rej(err);
+                else if (family === 4)
+                    res(DNS.ipv4AsIpv6(address));
+                else
+                    res(address);
+            });
+        });
+    }
+    static ipv4AsIpv6(ipv4) {
+        return `::ffff:${ipv4}`;
+    }
+    static async whoami() {
+        const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()("http://newsreduce.org:9999/ip").then(response => response.text());
+        return ip;
+    }
+}
+
+
+/***/ }),
+
+/***/ 21:
 /***/ (function(module, exports) {
 
 module.exports = require("dns");
@@ -303,9 +303,9 @@ async function log(...args) {
 /* unused harmony export getParams */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
 let ENV = ["prod"];
@@ -374,14 +374,14 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 51:
+/***/ 50:
 /***/ (function(module, exports) {
 
 module.exports = require("express");
 
 /***/ }),
 
-/***/ 57:
+/***/ 56:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -396,15 +396,15 @@ var external_fs_default = /*#__PURE__*/__webpack_require__.n(external_fs_);
 var logging = __webpack_require__(3);
 
 // EXTERNAL MODULE: external "dns"
-var external_dns_ = __webpack_require__(22);
+var external_dns_ = __webpack_require__(21);
 var external_dns_default = /*#__PURE__*/__webpack_require__.n(external_dns_);
 
 // EXTERNAL MODULE: external "express"
-var external_express_ = __webpack_require__(51);
+var external_express_ = __webpack_require__(50);
 var external_express_default = /*#__PURE__*/__webpack_require__.n(external_express_);
 
 // EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(2);
+var util = __webpack_require__(1);
 
 // CONCATENATED MODULE: ./dist/main/services/net-agent/functions.js
 
@@ -478,14 +478,14 @@ serve();
 
 /***/ }),
 
-/***/ 7:
+/***/ 6:
 /***/ (function(module, exports) {
 
 module.exports = require("path");
 
 /***/ }),
 
-/***/ 9:
+/***/ 8:
 /***/ (function(module, exports) {
 
 module.exports = require("node-fetch");

@@ -81,12 +81,177 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 56);
+/******/ 	return __webpack_require__(__webpack_require__.s = 55);
 /******/ })
 /************************************************************************/
 /******/ ({
 
 /***/ 1:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
+/* unused harmony export ZERO */
+/* unused harmony export EIGHT */
+/* unused harmony export MASK */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
+/* unused harmony export IDENTITY_FUNCTION */
+const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+function setImmediateInterval(f, ms) {
+    setImmediate(f);
+    return setInterval(f, ms);
+}
+const STR_ONE = "1";
+const ZERO = BigInt(0);
+const EIGHT = BigInt(8);
+const MASK = BigInt(0xFF);
+function bytesToBigInt(bytes) {
+    if (!bytes)
+        return bytes;
+    let result = ZERO;
+    for (const byte of bytes)
+        result = (result << EIGHT) | BigInt(byte);
+    return result;
+}
+function writeBigUInt96BE(n, buffer, offset) {
+    for (let i = 0; i <= 11; ++i) {
+        const byte = (n & MASK);
+        buffer[offset + 11 - i] = Number(byte);
+        n >>= EIGHT;
+    }
+}
+function iteratorToArray(itr) {
+    const arr = [];
+    for (const item of itr)
+        arr.push(item);
+    return arr;
+}
+let currentTableLine = 0;
+let maxLineLength = 0;
+const ESC = Buffer.of(0o033).toString();
+function tabulate(data) {
+    if (currentTableLine === 0)
+        console.clear();
+    const keys = Object.keys(data[0]);
+    const printData = new Array(data.length + 1);
+    printData[0] = {};
+    const widths = keys.map(key => key.length);
+    for (let i = 0; i < keys.length; ++i) {
+        const key = keys[i];
+        printData[0][key] = key.toUpperCase();
+        for (let j = 0; j < data.length; ++j) {
+            const value = `${data[j][key]}`;
+            const prevPrintData = printData[j + 1];
+            if (prevPrintData)
+                prevPrintData[key] = value;
+            else {
+                const dictionary = {};
+                dictionary[key] = value;
+                printData[j + 1] = dictionary;
+            }
+            const prevWidth = widths[i];
+            const nextWidth = value.length;
+            if (prevWidth < nextWidth)
+                widths[i] = nextWidth;
+        }
+    }
+    let toWrite = "";
+    if (currentTableLine !== 0) {
+        const UP = ESC + '[s' + ESC + '[' + currentTableLine + 'A';
+        toWrite += UP;
+    }
+    currentTableLine = 0;
+    for (let i = 0; i < printData.length; ++i) {
+        const row = printData[i];
+        let line = "";
+        for (let j = 0; j < keys.length; ++j) {
+            const key = keys[j];
+            const padLength = widths[j];
+            line += `| ${row[key].padEnd(padLength, " ")} `;
+        }
+        line += '|';
+        const length = line.length;
+        if (maxLineLength < length) {
+            maxLineLength = length;
+            toWrite += line;
+        }
+        else
+            toWrite += line.padEnd(maxLineLength, " ");
+        if (i === 0) {
+            toWrite += "\n";
+            toWrite += line.replace(/[^|]/g, "-").replace(/\|/g, "+").padEnd(maxLineLength, " ");
+            ++currentTableLine;
+        }
+        toWrite += "\n";
+        ++currentTableLine;
+    }
+    process.stdout.write(toWrite);
+}
+const IGNORE_AFTER = [
+    "Module.<anonymous>",
+    "Object.<anonymous>",
+    "RedisClient.<anonymous>",
+    "__webpack_require__",
+    "functions_process",
+    "processTicksAndRejections",
+    "repl",
+    "runMicrotasks",
+];
+function fancyLog(what) {
+    const when = new Date().toISOString().split("T", 2)[1];
+    const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""));
+    const hi = Math.min(...IGNORE_AFTER.map(name => stack.indexOf(name)).filter(index => index >= 0));
+    const where = stack.slice(1, hi).join("() > ");
+    console.log(`${ESC}[97m${when} : ${ESC}[32m${where}()\n${ESC}[39m${what}`);
+}
+const IDENTITY_FUNCTION = (r) => r;
+
+
+/***/ }),
+
+/***/ 13:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
+
+
+class DNS {
+    static lookup(hostname) {
+        return new Promise((res, rej) => {
+            dns__WEBPACK_IMPORTED_MODULE_0___default.a.lookup(hostname, (err, address, family) => {
+                if (err)
+                    rej(err);
+                else if (family === 4)
+                    res(DNS.ipv4AsIpv6(address));
+                else
+                    res(address);
+            });
+        });
+    }
+    static ipv4AsIpv6(ipv4) {
+        return `::ffff:${ipv4}`;
+    }
+    static async whoami() {
+        const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()("http://newsreduce.org:9999/ip").then(response => response.text());
+        return ip;
+    }
+}
+
+
+/***/ }),
+
+/***/ 2:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -96,7 +261,7 @@
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1);
 /* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
 
 
@@ -323,172 +488,7 @@ Redis.defaultHostParams = (host) => ({
 
 /***/ }),
 
-/***/ 13:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
-
-
-class DNS {
-    static lookup(hostname) {
-        return new Promise((res, rej) => {
-            dns__WEBPACK_IMPORTED_MODULE_0___default.a.lookup(hostname, (err, address, family) => {
-                if (err)
-                    rej(err);
-                else if (family === 4)
-                    res(DNS.ipv4AsIpv6(address));
-                else
-                    res(address);
-            });
-        });
-    }
-    static ipv4AsIpv6(ipv4) {
-        return `::ffff:${ipv4}`;
-    }
-    static async whoami() {
-        const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()("http://newsreduce.org:9999/ip").then(response => response.text());
-        return ip;
-    }
-}
-
-
-/***/ }),
-
-/***/ 2:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
-/* unused harmony export ZERO */
-/* unused harmony export EIGHT */
-/* unused harmony export MASK */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
-/* unused harmony export IDENTITY_FUNCTION */
-const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
-function setImmediateInterval(f, ms) {
-    setImmediate(f);
-    return setInterval(f, ms);
-}
-const STR_ONE = "1";
-const ZERO = BigInt(0);
-const EIGHT = BigInt(8);
-const MASK = BigInt(0xFF);
-function bytesToBigInt(bytes) {
-    if (!bytes)
-        return bytes;
-    let result = ZERO;
-    for (const byte of bytes)
-        result = (result << EIGHT) | BigInt(byte);
-    return result;
-}
-function writeBigUInt96BE(n, buffer, offset) {
-    for (let i = 0; i <= 11; ++i) {
-        const byte = (n & MASK);
-        buffer[offset + 11 - i] = Number(byte);
-        n >>= EIGHT;
-    }
-}
-function iteratorToArray(itr) {
-    const arr = [];
-    for (const item of itr)
-        arr.push(item);
-    return arr;
-}
-let currentTableLine = 0;
-let maxLineLength = 0;
-const ESC = Buffer.of(0o033).toString();
-function tabulate(data) {
-    if (currentTableLine === 0)
-        console.clear();
-    const keys = Object.keys(data[0]);
-    const printData = new Array(data.length + 1);
-    printData[0] = {};
-    const widths = keys.map(key => key.length);
-    for (let i = 0; i < keys.length; ++i) {
-        const key = keys[i];
-        printData[0][key] = key.toUpperCase();
-        for (let j = 0; j < data.length; ++j) {
-            const value = `${data[j][key]}`;
-            const prevPrintData = printData[j + 1];
-            if (prevPrintData)
-                prevPrintData[key] = value;
-            else {
-                const dictionary = {};
-                dictionary[key] = value;
-                printData[j + 1] = dictionary;
-            }
-            const prevWidth = widths[i];
-            const nextWidth = value.length;
-            if (prevWidth < nextWidth)
-                widths[i] = nextWidth;
-        }
-    }
-    let toWrite = "";
-    if (currentTableLine !== 0) {
-        const UP = ESC + '[s' + ESC + '[' + currentTableLine + 'A';
-        toWrite += UP;
-    }
-    currentTableLine = 0;
-    for (let i = 0; i < printData.length; ++i) {
-        const row = printData[i];
-        let line = "";
-        for (let j = 0; j < keys.length; ++j) {
-            const key = keys[j];
-            const padLength = widths[j];
-            line += `| ${row[key].padEnd(padLength, " ")} `;
-        }
-        line += '|';
-        const length = line.length;
-        if (maxLineLength < length) {
-            maxLineLength = length;
-            toWrite += line;
-        }
-        else
-            toWrite += line.padEnd(maxLineLength, " ");
-        if (i === 0) {
-            toWrite += "\n";
-            toWrite += line.replace(/[^|]/g, "-").replace(/\|/g, "+").padEnd(maxLineLength, " ");
-            ++currentTableLine;
-        }
-        toWrite += "\n";
-        ++currentTableLine;
-    }
-    process.stdout.write(toWrite);
-}
-const IGNORE_AFTER = [
-    "Module.<anonymous>",
-    "Object.<anonymous>",
-    "RedisClient.<anonymous>",
-    "__webpack_require__",
-    "functions_process",
-    "processTicksAndRejections",
-    "repl",
-    "runMicrotasks",
-];
-function fancyLog(what) {
-    const when = new Date().toISOString().split("T", 2)[1];
-    const stack = new Error().stack.match(/    at ([^ :]+)/g).map(row => row.replace("    at ", ""));
-    const hi = Math.min(...IGNORE_AFTER.map(name => stack.indexOf(name)).filter(index => index >= 0));
-    const where = stack.slice(1, hi).join("() > ");
-    console.log(`${ESC}[97m${when} : ${ESC}[32m${where}()\n${ESC}[39m${what}`);
-}
-const IDENTITY_FUNCTION = (r) => r;
-
-
-/***/ }),
-
-/***/ 22:
+/***/ 21:
 /***/ (function(module, exports) {
 
 module.exports = require("dns");
@@ -547,9 +547,9 @@ async function log(...args) {
 /* unused harmony export getParams */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
 let ENV = ["prod"];
@@ -618,7 +618,7 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 56:
+/***/ 55:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -626,10 +626,10 @@ module.exports = require("fs");
 __webpack_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(1);
+var Redis = __webpack_require__(2);
 
 // EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(2);
+var util = __webpack_require__(1);
 
 // CONCATENATED MODULE: ./dist/main/common/zookeeper.js
 
@@ -689,7 +689,7 @@ function start(birthLog, deathLog, idBytes) {
 }
 
 // EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(8);
+var events = __webpack_require__(9);
 
 // CONCATENATED MODULE: ./dist/main/services/fetcher/zookeeper.js
 
@@ -699,7 +699,7 @@ start(events["h" /* FETCHER_BIRTH_LOG */], events["i" /* FETCHER_DEATH_LOG */], 
 
 /***/ }),
 
-/***/ 7:
+/***/ 6:
 /***/ (function(module, exports) {
 
 module.exports = require("path");
@@ -707,6 +707,13 @@ module.exports = require("path");
 /***/ }),
 
 /***/ 8:
+/***/ (function(module, exports) {
+
+module.exports = require("node-fetch");
+
+/***/ }),
+
+/***/ 9:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -743,13 +750,6 @@ const SYNC_LOCK = "sync-lock";
 const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 const FAILURE_CACHE = "failures";
 
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, exports) {
-
-module.exports = require("node-fetch");
 
 /***/ })
 

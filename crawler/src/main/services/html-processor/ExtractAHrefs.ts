@@ -35,11 +35,14 @@ export function getLinks(window: DOMWindow) {
     return links;
 }
 
-export const process: HTMLDocumentProcessor = doc => {
-    const links = getLinks(doc);
-    const promises = new Array(links.length);
-    let i = 0;
-    for (const link of links) promises[i++] = link.enqueueInsert({ recursive: true });
+export class ExtractAHrefs extends HTMLDocumentProcessor {
+    ro() { return true; }
+    async apply(window: DOMWindow) {
+        const links = getLinks(window);
+        const promises = new Array(links.length);
+        let i = 0;
+        for (const link of links) promises[i++] = link.enqueueInsert({ recursive: true });
 
-    return Promise.all(promises) as any;
+        await Promise.all(promises);
+    }
 }
