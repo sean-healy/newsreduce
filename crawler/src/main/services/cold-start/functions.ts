@@ -3,9 +3,12 @@ import { WikiCategory } from "types/objects/WikiCategory";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { ClientHeader } from "types/objects/ClientHeader";
 import { fancyLog } from "common/util";
+import { ResourceThrottle } from "types/objects/ResourceThrottle";
 
 export function getObjectsToInsert() {
-    const url = new ResourceURL("https://en.wikipedia.org/wiki/Category:News_media");
+    const origin = "https://en.wikipedia.org/wiki/Category:News_media";
+    const url = new ResourceURL(origin);
+    const urlThrottle = new ResourceThrottle(origin, 7 * 24 * 60 * 60 * 1000);
     const wikiCategory = new WikiCategory({
         parent: url,
         child: url,
@@ -53,7 +56,7 @@ export function getObjectsToInsert() {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
 
-    return [wikiCategory, client0, client1, client2, ...clientHeaders];
+    return [wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders];
 }
 
 export async function insertColdStartObjects() {

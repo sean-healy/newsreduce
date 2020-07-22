@@ -2250,14 +2250,20 @@ var ClientHeader = __webpack_require__(15);
 // EXTERNAL MODULE: ./dist/main/common/util.js
 var util = __webpack_require__(1);
 
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceThrottle.js
+var ResourceThrottle = __webpack_require__(44);
+
 // CONCATENATED MODULE: ./dist/main/services/cold-start/functions.js
 
 
 
 
 
+
 function getObjectsToInsert() {
-    const url = new ResourceURL["ResourceURL"]("https://en.wikipedia.org/wiki/Category:News_media");
+    const origin = "https://en.wikipedia.org/wiki/Category:News_media";
+    const url = new ResourceURL["ResourceURL"](origin);
+    const urlThrottle = new ResourceThrottle["ResourceThrottle"](origin, 7 * 24 * 60 * 60 * 1000);
     const wikiCategory = new WikiCategory["WikiCategory"]({
         parent: url,
         child: url,
@@ -2297,7 +2303,7 @@ function getObjectsToInsert() {
         new ClientHeader["ClientHeader"](client2.name, "upgrade-insecure-requests", "1"),
         new ClientHeader["ClientHeader"](client2.name, "user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
-    return [wikiCategory, client0, client1, client2, ...clientHeaders];
+    return [wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders];
 }
 async function insertColdStartObjects() {
     const promises = [];
