@@ -1517,11 +1517,7 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
         return ["resource", "time", "type", "length"];
     }
     getInsertParams() {
-        const id = this.resource.getID();
-        const params = [id, this.time, this.type.getID(), this.length];
-        Object(common_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "d"])("getInsertParams");
-        console.log(params);
-        return params;
+        return [this.resource.getID(), this.time, this.type.getID(), this.length];
     }
     table() {
         return "ResourceVersion";

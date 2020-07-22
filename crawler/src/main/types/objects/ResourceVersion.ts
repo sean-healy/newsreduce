@@ -13,12 +13,7 @@ export class ResourceVersion extends DBObject<ResourceVersion> {
         return ["resource", "time", "type", "length"];
     }
     getInsertParams(): any[] {
-        const id = this.resource.getID();
-        const params = [id, this.time, this.type.getID(), this.length];
-        fancyLog("getInsertParams");
-        console.log(params);
-
-        return params;
+        return [this.resource.getID(), this.time, this.type.getID(), this.length];
     }
     table(): string {
         return "ResourceVersion";
