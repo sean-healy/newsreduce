@@ -119,6 +119,8 @@ export async function read(entity: Entity, entityID: bigint, version: number, fo
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     const tarPath = path.join(`${entityID}`, `${version}`, formatToFileName(format));
+    // Ignore files that are not written yet, or that have been written too recently.
+    if (!fs.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000)) return null;
     return await new Promise<Buffer>((res, rej) => {
         const tarCat =
             spawn(TAR, [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);

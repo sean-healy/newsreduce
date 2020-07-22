@@ -9,15 +9,30 @@ import { ExtractWikiTree } from "services/html-processor/ExtractWikiTree";
 import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProcessor";
 import { selectResourcesNotProcessed } from "data";
 import { fancyLog } from "common/util";
+import { SAFELY_EXIT } from "common/processor";
 const PROCESSORS: HTMLDocumentProcessor[] =
     [new ExtractAHrefs(), new ExtractWikiTree(), new ExtractRawText(), new ExtractHits()];
 
 export async function processURL(resource: bigint, url: string, time: number) {
     const promises: Promise<any>[] = [];
-    const formats = await findFormats(Entity.RESOURCE, resource, time);
+    let formats: FileFormat[];
+    try {
+        formats = await findFormats(Entity.RESOURCE, resource, time);
+    } catch (e) {
+        fancyLog("error while listing formats");
+        fancyLog(JSON.stringify(e));
+        SAFELY_EXIT[0] = true;
+    }
     for (const format of formats) {
         if (format === FileFormat.RAW_HTML) {
-            const content = await read(Entity.RESOURCE, resource, time, FileFormat.RAW_HTML);
+            let content: Buffer;
+            try {
+                content = await read(Entity.RESOURCE, resource, time, FileFormat.RAW_HTML);
+            } catch (e) {
+                fancyLog("error while reading file");
+                fancyLog(JSON.stringify(e));
+                SAFELY_EXIT[0] = true;
+            }
             if (content) {
                 fancyLog(`${time} ${url}`);
                 let window: DOMWindow;

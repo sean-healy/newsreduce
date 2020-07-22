@@ -1734,6 +1734,9 @@ async function read(entity, entityID, version, format) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}`, Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format));
+    // Ignore files that are not written yet, or that have been written too recently.
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000))
+        return null;
     return await new Promise((res, rej) => {
         const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
         const allData = [];
@@ -2151,7 +2154,8 @@ class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return startProcessor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SAFELY_EXIT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return startProcessor; });
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
@@ -2168,7 +2172,7 @@ class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 
 
 
-function safelyExit() {
+function dangerouslyExit() {
     Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
     for (const connection of Object.values(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* STATIC_CONNECTIONS */ "c"]))
         if (connection && connection.connected)
@@ -2187,26 +2191,23 @@ let LOCKS = {};
 async function synchronised(name, f, postcondition) {
     if (name in LOCKS)
         return;
-    if (SAFELY_EXIT)
-        safelyExit();
+    if (SAFELY_EXIT[0])
+        dangerouslyExit();
     LOCKS[name] = true;
     f().then(() => {
         delete LOCKS[name];
         _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
-        if (SAFELY_EXIT)
-            safelyExit();
+        if (SAFELY_EXIT[0])
+            dangerouslyExit();
     });
 }
 let INTERVAL = undefined;
 let SAFETY_INTERVAL = undefined;
-let SAFELY_EXIT = false;
+let SAFELY_EXIT = [false];
 function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
     const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
     if (options.interval || options.interval === undefined)
-        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
-            if (!SAFELY_EXIT)
-                synchronised(name, f, postcondition);
-        }, options.period ? options.period : 2000);
+        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => synchronised(name, f, postcondition), options.period ? options.period : 2000);
     let events;
     if (preconditions && preconditions.size > 0) {
         events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
@@ -2221,7 +2222,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     SAFETY_INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
         const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
         if (content.match(/1/))
-            SAFELY_EXIT = true;
+            SAFELY_EXIT[0] = true;
     }, 1000);
     return { INTERVAL, events };
 }
@@ -2933,13 +2934,30 @@ var data = __webpack_require__(47);
 
 
 
+
 const PROCESSORS = [new ExtractAHrefs_ExtractAHrefs(), new ExtractWikiTree_ExtractWikiTree(), new ExtractRawText_ExtractRawText(), new ExtractHits_ExtractHits()];
 async function processURL(resource, url, time) {
     const promises = [];
-    const formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
+    let formats;
+    try {
+        formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
+    }
+    catch (e) {
+        Object(util["d" /* fancyLog */])("error while listing formats");
+        Object(util["d" /* fancyLog */])(JSON.stringify(e));
+        common_processor["a" /* SAFELY_EXIT */][0] = true;
+    }
     for (const format of formats) {
         if (format === FileFormat["a" /* FileFormat */].RAW_HTML) {
-            const content = await Object(file["b" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, FileFormat["a" /* FileFormat */].RAW_HTML);
+            let content;
+            try {
+                content = await Object(file["b" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, FileFormat["a" /* FileFormat */].RAW_HTML);
+            }
+            catch (e) {
+                Object(util["d" /* fancyLog */])("error while reading file");
+                Object(util["d" /* fancyLog */])(JSON.stringify(e));
+                common_processor["a" /* SAFELY_EXIT */][0] = true;
+            }
             if (content) {
                 Object(util["d" /* fancyLog */])(`${time} ${url}`);
                 let window;
@@ -2964,7 +2982,7 @@ async function process() {
 
 
 
-Object(common_processor["a" /* startProcessor */])(process, new Set([events["j" /* FETCH_COMPLETE */]]), events["k" /* HTML_PROCESS_COMPLETE */]);
+Object(common_processor["b" /* startProcessor */])(process, new Set([events["j" /* FETCH_COMPLETE */]]), events["k" /* HTML_PROCESS_COMPLETE */]);
 
 
 /***/ })

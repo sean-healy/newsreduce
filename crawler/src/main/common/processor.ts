@@ -6,7 +6,7 @@ import { setImmediateInterval, fancyLog } from "common/util";
 import { Redis, REDIS_PARAMS, STATIC_CONNECTIONS, SUB_CONNECTIONS } from "./Redis";
 import { DB_CLIENT } from "common/SQL";
 
-function safelyExit() {
+function dangerouslyExit() {
     fancyLog("Safety procedure activated. Exiting.");
     for (const connection of Object.values(STATIC_CONNECTIONS))
         if (connection && connection.connected)
@@ -22,18 +22,18 @@ function safelyExit() {
 let LOCKS = {};
 async function synchronised(name: string, f: () => Promise<any>, postcondition: string) {
     if (name in LOCKS) return;
-    if (SAFELY_EXIT) safelyExit()
+    if (SAFELY_EXIT[0]) dangerouslyExit()
     LOCKS[name] = true;
     f().then(() => {
         delete LOCKS[name];
         Redis.renewRedis(REDIS_PARAMS.events).publish(EVENT_LOG, postcondition);
-        if (SAFELY_EXIT) safelyExit()
+        if (SAFELY_EXIT[0]) dangerouslyExit()
     });
 }
 
 let INTERVAL: NodeJS.Timeout = undefined;
 let SAFETY_INTERVAL: NodeJS.Timeout = undefined;
-let SAFELY_EXIT = false;
+export let SAFELY_EXIT = [false];
 
 export function startProcessor(
     f: () => Promise<any>,
@@ -46,9 +46,8 @@ export function startProcessor(
 ) {
     const name = crypto.randomBytes(30).toString("base64");
     if (options.interval || options.interval === undefined)
-        INTERVAL = setImmediateInterval(() => {
-            if (!SAFELY_EXIT) synchronised(name, f, postcondition);
-        }, options.period ? options.period : 2000);
+        INTERVAL = setImmediateInterval(() => synchronised(name, f, postcondition),
+            options.period ? options.period : 2000);
     let events: Redis;
     if (preconditions && preconditions.size > 0) {
         events = Redis.newSub(REDIS_PARAMS.events);
@@ -60,7 +59,7 @@ export function startProcessor(
     } else events = null;
     SAFETY_INTERVAL = setImmediateInterval(async () => {
         const content = fs.readFileSync(await safetyFilePromise()).toString();
-        if (content.match(/1/)) SAFELY_EXIT = true;
+        if (content.match(/1/)) SAFELY_EXIT[0] = true;
     }, 1000);
     return { INTERVAL, events };
 }

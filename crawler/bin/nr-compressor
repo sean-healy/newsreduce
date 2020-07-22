@@ -760,7 +760,8 @@ async function getParams() {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return startProcessor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SAFELY_EXIT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return startProcessor; });
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
@@ -777,7 +778,7 @@ async function getParams() {
 
 
 
-function safelyExit() {
+function dangerouslyExit() {
     Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
     for (const connection of Object.values(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* STATIC_CONNECTIONS */ "c"]))
         if (connection && connection.connected)
@@ -796,26 +797,23 @@ let LOCKS = {};
 async function synchronised(name, f, postcondition) {
     if (name in LOCKS)
         return;
-    if (SAFELY_EXIT)
-        safelyExit();
+    if (SAFELY_EXIT[0])
+        dangerouslyExit();
     LOCKS[name] = true;
     f().then(() => {
         delete LOCKS[name];
         _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
-        if (SAFELY_EXIT)
-            safelyExit();
+        if (SAFELY_EXIT[0])
+            dangerouslyExit();
     });
 }
 let INTERVAL = undefined;
 let SAFETY_INTERVAL = undefined;
-let SAFELY_EXIT = false;
+let SAFELY_EXIT = [false];
 function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
     const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
     if (options.interval || options.interval === undefined)
-        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
-            if (!SAFELY_EXIT)
-                synchronised(name, f, postcondition);
-        }, options.period ? options.period : 2000);
+        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => synchronised(name, f, postcondition), options.period ? options.period : 2000);
     let events;
     if (preconditions && preconditions.size > 0) {
         events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
@@ -830,7 +828,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     SAFETY_INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
         const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
         if (content.match(/1/))
-            SAFELY_EXIT = true;
+            SAFELY_EXIT[0] = true;
     }, 1000);
     return { INTERVAL, events };
 }
@@ -1018,7 +1016,7 @@ var processor = __webpack_require__(45);
 
 
 
-Object(processor["a" /* startProcessor */])(compress, null, events["d" /* COMPRESS_COMPLETE */]);
+Object(processor["b" /* startProcessor */])(compress, null, events["d" /* COMPRESS_COMPLETE */]);
 
 
 /***/ }),
