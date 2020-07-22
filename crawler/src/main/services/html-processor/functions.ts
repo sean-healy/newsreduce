@@ -13,13 +13,13 @@ const PROCESSORS: HTMLDocumentProcessor[] =
     [new ExtractAHrefs(), new ExtractWikiTree(), new ExtractRawText(), new ExtractHits()];
 
 export async function processURL(resource: bigint, url: string, time: number) {
-    fancyLog(url);
     const promises: Promise<any>[] = [];
     const formats = await findFormats(Entity.RESOURCE, resource, time);
     for (const format of formats) {
         if (format === FileFormat.RAW_HTML) {
             const content = await read(Entity.RESOURCE, resource, time, FileFormat.RAW_HTML);
             if (content) {
+                fancyLog(`${time} ${url}`);
                 let window: DOMWindow;
                 let reDOM = true;
                 for (const processor of PROCESSORS) {

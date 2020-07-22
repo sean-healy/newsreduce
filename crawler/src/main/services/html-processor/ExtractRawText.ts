@@ -17,13 +17,10 @@ export function toRawText(window: DOMWindow) {
 export class ExtractRawText extends HTMLDocumentProcessor {
     ro() { return true; }
     async apply(window: DOMWindow, time?: number) {
-        const promises: Promise<unknown>[] = [];
         const rawText = toRawText(window);
         const resource = new ResourceURL(window.location.toString());
-        promises.push(resource.writeVersion(time, FileFormat.RAW_TXT, rawText)
-            .then(() => new ResourceVersion({ resource, time, type: ResourceVersionType.RAW_TXT })
-                .enqueueInsert({ recursive: true })));
-
-        await Promise.all(promises) as any;
+        const length = await resource.writeVersion(time, FileFormat.RAW_TXT, rawText);
+        await new ResourceVersion({ resource, time, type: ResourceVersionType.RAW_TXT, length })
+            .enqueueInsert({ recursive: true });
     }
 }

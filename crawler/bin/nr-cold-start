@@ -1684,10 +1684,14 @@ const sortVersions = (versions) => versions.sort((v1, v2) => {
     const vFormat2 = v2[1];
     return vFormat1 - vFormat2;
 });
+function lastModifiedOver(path, ms) {
+    const stat = fs__WEBPACK_IMPORTED_MODULE_0___default.a.statSync(path);
+    return stat.mtimeMs + ms < Date.now();
+}
 async function findVersions(entity, entityID) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
-    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) && lastModifiedOver(compressedArc, 3000))
         return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];

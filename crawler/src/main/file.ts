@@ -69,10 +69,14 @@ export const sortVersions = (versions: [number, FileFormat][]) => versions.sort(
     const vFormat2 = v2[1];
     return vFormat1 - vFormat2;
 });
+function lastModifiedOver(path: string, ms: number) {
+    const stat = fs.statSync(path);
+    return stat.mtimeMs + ms < Date.now();
+}
 export async function findVersions(entity: Entity, entityID: bigint) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
-    if (!fs.existsSync(compressedArc)) return [];
+    if (!fs.existsSync(compressedArc) && lastModifiedOver(compressedArc, 3000)) return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];
     const err = [];

@@ -1684,10 +1684,14 @@ const sortVersions = (versions) => versions.sort((v1, v2) => {
     const vFormat2 = v2[1];
     return vFormat1 - vFormat2;
 });
+function lastModifiedOver(path, ms) {
+    const stat = fs__WEBPACK_IMPORTED_MODULE_0___default.a.statSync(path);
+    return stat.mtimeMs + ms < Date.now();
+}
 async function findVersions(entity, entityID) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
-    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) && lastModifiedOver(compressedArc, 3000))
         return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];
@@ -2739,8 +2743,8 @@ class ExtractHits_ExtractHits extends HTMLDocumentProcessor {
     async apply(window, time) {
         const resource = new ResourceURL["ResourceURL"](window.location.toString());
         const fileData = getHits(window);
-        await resource.writeVersion(time, FileFormat["a" /* FileFormat */].HITS, fileData.toBuffer());
-        await new ResourceVersion["ResourceVersion"]({ resource, time, type: ResourceVersionType["ResourceVersionType"].HITS })
+        const length = await resource.writeVersion(time, FileFormat["a" /* FileFormat */].HITS, fileData.toBuffer());
+        await new ResourceVersion["ResourceVersion"]({ resource, time, type: ResourceVersionType["ResourceVersionType"].HITS, length })
             .enqueueInsert({ recursive: true });
     }
 }
@@ -2816,13 +2820,11 @@ function toRawText(window) {
 class ExtractRawText_ExtractRawText extends HTMLDocumentProcessor {
     ro() { return true; }
     async apply(window, time) {
-        const promises = [];
         const rawText = toRawText(window);
         const resource = new ResourceURL["ResourceURL"](window.location.toString());
-        promises.push(resource.writeVersion(time, FileFormat["a" /* FileFormat */].RAW_TXT, rawText)
-            .then(() => new ResourceVersion["ResourceVersion"]({ resource, time, type: ResourceVersionType["ResourceVersionType"].RAW_TXT })
-            .enqueueInsert({ recursive: true })));
-        await Promise.all(promises);
+        const length = await resource.writeVersion(time, FileFormat["a" /* FileFormat */].RAW_TXT, rawText);
+        await new ResourceVersion["ResourceVersion"]({ resource, time, type: ResourceVersionType["ResourceVersionType"].RAW_TXT, length })
+            .enqueueInsert({ recursive: true });
     }
 }
 
@@ -2906,13 +2908,13 @@ var data = __webpack_require__(47);
 
 const PROCESSORS = [new ExtractAHrefs_ExtractAHrefs(), new ExtractWikiTree_ExtractWikiTree(), new ExtractRawText_ExtractRawText(), new ExtractHits_ExtractHits()];
 async function processURL(resource, url, time) {
-    Object(util["d" /* fancyLog */])(url);
     const promises = [];
     const formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
     for (const format of formats) {
         if (format === FileFormat["a" /* FileFormat */].RAW_HTML) {
             const content = await Object(file["b" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, FileFormat["a" /* FileFormat */].RAW_HTML);
             if (content) {
+                Object(util["d" /* fancyLog */])(`${time} ${url}`);
                 let window;
                 let reDOM = true;
                 for (const processor of PROCESSORS) {
