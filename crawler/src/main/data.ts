@@ -51,17 +51,14 @@ export async function crawlAllowed(host: string) {
     return !(await Redis.renewRedis(REDIS_PARAMS.throttle).eq(host));
 }
 
+export async function selectResourcesNotProcessed() {
+    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
+    return genericSQLPromise<{ [key: string]: any }[], { [key: string]: any }[]>(query);
+}
+
 export function throttle(host: string, ms: number) {
     Redis
         .renewRedis(REDIS_PARAMS.throttle)
         .setpx(host, ms, STR_ONE)
         .catch(thenDebug);
-}
-
-type Type = { [key: string]: string }[]
-const ROW_MAPPER = (rows: Type) => rows.map(row => Object.values(row)[0]);
-export function selectFetchedURLs(after: number) {
-    const query = sql.SELECT_FETCHED_URLS;
-    const params = [after];
-    return genericSQLPromise<Type, string[]>(query, params, ROW_MAPPER);
 }

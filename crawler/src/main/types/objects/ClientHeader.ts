@@ -9,9 +9,8 @@ export class ClientHeader extends DBObject<ClientHeader> {
     constructor(clientName?: string, headerName?: string, value?: string) {
         if (clientName && headerName && value) super({
             client: new Client({ name: clientName }),
-            header: new HTTPHeader(headerName, value),
+            header: new HTTPHeader(headerName.toLowerCase(), value),
         });
-
     }
 
     insertCols(): string[] {

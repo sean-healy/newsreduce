@@ -5,7 +5,6 @@ import {
 } from "data";
 import { FileFormat } from "types/FileFormat";
 import { log } from "common/logging";
-import { FetchedResource } from "types/objects/FetchedResource";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { milliTimestamp } from "common/time";
 import { Host } from "types/objects/Host";
@@ -14,28 +13,29 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog } from "common/util";
 import { ResourceVersion } from "types/objects/ResourceVersion";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { DBObject } from "types/DBObject";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
         const resource = new ResourceURL(url);
         fancyLog(JSON.stringify(resource));
-        let type: string;
         const time = milliTimestamp();
-        let promises = [];
-        const actualLength = await resource.writeVersion(
-            time, FileFormat.RAW_HTML, response.body);
+        const bodyLength = await resource.writeVersion(time, FileFormat.RAW_HTML, response.body);
         let headers = [];
+        let objects: DBObject<any>[] = [];
         response.headers.forEach(async (value, anyCaseKey) => {
             headers.push(`${anyCaseKey}: ${value}`);
             const key = anyCaseKey.toLowerCase();
-            const resourceHeader = new ResourceHeader(url, key, value)
-            promises.push(resourceHeader.enqueueInsert({ recursive: true }));
+            objects.push(new ResourceHeader(url, key, value));
             if (key === "content-type") {
-                type = value.toLowerCase();
-                const fetchedResource =
-                    new FetchedResource(url, actualLength, type);
-                promises.push(
-                    fetchedResource.enqueueInsert({ recursive: true }));
+                const type = value.toLowerCase();
+                if (type.match(/^text\/html/))
+                    objects.push(new ResourceVersion({
+                        resource,
+                        time,
+                        type: ResourceVersionType.RAW_HTML,
+                        length: bodyLength,
+                    }));
             }
         });
         const headerContent = headers.join("\n");
@@ -43,15 +43,15 @@ export function buildOnFetch(url: string) {
             log("header issue");
             log(JSON.stringify(headers));
         }
-        promises.push(resource.writeVersion(
-            time, FileFormat.RAW_HEADERS, headerContent).then(async () => {
-                fancyLog(JSON.stringify(resource));
-                await new ResourceVersion({
-                    resource, time, type: ResourceVersionType.RAW_HTML,
-                }).enqueueInsert({ recursive: true });
-            }));
+        const headersLength = await resource.writeVersion(time, FileFormat.RAW_HEADERS, headerContent)
+        objects.push(new ResourceVersion({
+            resource,
+            time,
+            type: ResourceVersionType.HEADERS,
+            length: headersLength,
+        }));
 
-        await Promise.all(promises);
+        await Promise.all(objects.map(obj => obj.enqueueInsert({ recursive: true })));
     };
 }
 

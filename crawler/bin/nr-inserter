@@ -506,9 +506,9 @@ Redis.defaultHostParams = (host) => ({
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* unused harmony export tabulate */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
@@ -1207,7 +1207,7 @@ class ClientHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
         if (clientName && headerName && value)
             super({
                 client: new types_objects_Client__WEBPACK_IMPORTED_MODULE_1__["Client"]({ name: clientName }),
-                header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](headerName, value),
+                header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](headerName.toLowerCase(), value),
             });
     }
     insertCols() {
@@ -1543,11 +1543,11 @@ __webpack_require__.r(__webpack_exports__);
 
 class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     insertCols() {
-        return ["resource", "time", "type"];
+        return ["resource", "time", "type", "length"];
     }
     getInsertParams() {
         const id = this.resource.getID();
-        const params = [id, this.time, this.type.getID()];
+        const params = [id, this.time, this.type.getID(), this.length];
         Object(common_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "d"])("getInsertParams");
         console.log(params);
         return params;
@@ -1597,6 +1597,9 @@ ResourceVersionType.RAW_TXT = new ResourceVersionType({
 ResourceVersionType.HITS = new ResourceVersionType({
     filename: "hits.bin",
 });
+ResourceVersionType.HEADERS = new ResourceVersionType({
+    filename: "headers.txt",
+});
 
 
 /***/ }),
@@ -1632,9 +1635,10 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return write; });
 /* unused harmony export sortVersions */
-/* unused harmony export getVersions */
+/* unused harmony export findVersions */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return read; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findLatestVersion; });
+/* unused harmony export findLatestVersion */
 /* unused harmony export readLatestVersion */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
@@ -1675,7 +1679,7 @@ async function entityIDs(entity) {
  * @return number of bytes written
  */
 async function write(entity, entityID, version, format, src) {
-    const versions = await getVersions(entity, entityID);
+    const versions = await findVersions(entity, entityID);
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
     if (found)
         return -1;
@@ -1687,17 +1691,7 @@ async function write(entity, entityID, version, format, src) {
     let bytesWritten;
     if (typeof src === "string" || src instanceof Buffer) {
         Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing string to file", src, tmpFile);
-        await new Promise((res, rej) => {
-            fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFile(tmpFile, src, err => {
-                if (err) {
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("error writing file", tmpFile);
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])(err);
-                    rej(err);
-                }
-                else
-                    res();
-            });
-        });
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(tmpFile, src);
         bytesWritten = src.length;
     }
     else {
@@ -1719,7 +1713,7 @@ const sortVersions = (versions) => versions.sort((v1, v2) => {
     const vFormat2 = v2[1];
     return vFormat1 - vFormat2;
 });
-async function getVersions(entity, entityID) {
+async function findVersions(entity, entityID) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
@@ -1744,6 +1738,11 @@ async function getVersions(entity, entityID) {
         tarLS.on("close", code => code === 0 ? res(sortVersions(versions)) : rej(err.join("\n")));
     });
 }
+async function findFormats(entity, entityID, version) {
+    return (await findVersions(entity, entityID))
+        .filter(([time,]) => time === version)
+        .map(([, format]) => format);
+}
 async function read(entity, entityID, version, format) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
@@ -1758,7 +1757,7 @@ async function read(entity, entityID, version, format) {
     });
 }
 async function findLatestVersion(entity, entityID, format) {
-    const versions = await getVersions(entity, entityID);
+    const versions = await findVersions(entity, entityID);
     const sorted = versions.filter(version => version[1] === format).sort((a, b) => {
         const cmp = a[0] - b[0];
         if (cmp === 0)
@@ -1807,10 +1806,10 @@ class FetchedResource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
             super();
     }
     insertCols() {
-        return ["resource", "length", "type", "modified"];
+        return ["resource", "length", "type"];
     }
     getInsertParams() {
-        return [this.resource.getID(), this.length, this.type.getID(), this.modified ? this.modified : Date.now()];
+        return [this.resource.getID(), this.length, this.type.getID()];
     }
     table() {
         return "FetchedResource";
@@ -2386,7 +2385,7 @@ function printStages() {
             elapsed: Date.now() - time,
         });
     }
-    //tabulate(tmpStages);
+    Object(util["g" /* tabulate */])(tmpStages);
 }
 function setStage(key, value) {
     const prev = stages[key];
@@ -2405,7 +2404,7 @@ const NEW_SADD_FEATURE = false;
 async function insertForKey(key) {
     const loadFile = randomTmpFile();
     const table = DBObject["a" /* DBObject */].forTable(key);
-    Object(util["d" /* fancyLog */])(JSON.stringify(table));
+    //fancyLog(JSON.stringify(table));
     try {
         const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
         const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
@@ -2415,7 +2414,7 @@ async function insertForKey(key) {
             if (!NEW_SADD_FEATURE)
                 rows = rows.map(row => row.charAt(0) === "[" ? SQL["a" /* SQL */].csvRow(JSON.parse(row)) : row);
             setStage(key, `INSERTING (${list.length} ${external_path_default.a.basename(loadFile).substr(0, 4)})`);
-            Object(util["d" /* fancyLog */])(rows.join("\n"));
+            //fancyLog(rows.join("\n"));
             external_fs_default.a.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
             await Promise.all([

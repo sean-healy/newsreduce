@@ -506,9 +506,9 @@ Redis.defaultHostParams = (host) => ({
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* unused harmony export tabulate */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
@@ -1207,7 +1207,7 @@ class ClientHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
         if (clientName && headerName && value)
             super({
                 client: new types_objects_Client__WEBPACK_IMPORTED_MODULE_1__["Client"]({ name: clientName }),
-                header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](headerName, value),
+                header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](headerName.toLowerCase(), value),
             });
     }
     insertCols() {
@@ -1543,11 +1543,11 @@ __webpack_require__.r(__webpack_exports__);
 
 class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     insertCols() {
-        return ["resource", "time", "type"];
+        return ["resource", "time", "type", "length"];
     }
     getInsertParams() {
         const id = this.resource.getID();
-        const params = [id, this.time, this.type.getID()];
+        const params = [id, this.time, this.type.getID(), this.length];
         Object(common_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "d"])("getInsertParams");
         console.log(params);
         return params;
@@ -1597,6 +1597,9 @@ ResourceVersionType.RAW_TXT = new ResourceVersionType({
 ResourceVersionType.HITS = new ResourceVersionType({
     filename: "hits.bin",
 });
+ResourceVersionType.HEADERS = new ResourceVersionType({
+    filename: "headers.txt",
+});
 
 
 /***/ }),
@@ -1632,9 +1635,10 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return write; });
 /* unused harmony export sortVersions */
-/* unused harmony export getVersions */
+/* unused harmony export findVersions */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return read; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findLatestVersion; });
+/* unused harmony export findLatestVersion */
 /* unused harmony export readLatestVersion */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
@@ -1675,7 +1679,7 @@ async function entityIDs(entity) {
  * @return number of bytes written
  */
 async function write(entity, entityID, version, format, src) {
-    const versions = await getVersions(entity, entityID);
+    const versions = await findVersions(entity, entityID);
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
     if (found)
         return -1;
@@ -1687,17 +1691,7 @@ async function write(entity, entityID, version, format, src) {
     let bytesWritten;
     if (typeof src === "string" || src instanceof Buffer) {
         Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing string to file", src, tmpFile);
-        await new Promise((res, rej) => {
-            fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFile(tmpFile, src, err => {
-                if (err) {
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("error writing file", tmpFile);
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])(err);
-                    rej(err);
-                }
-                else
-                    res();
-            });
-        });
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(tmpFile, src);
         bytesWritten = src.length;
     }
     else {
@@ -1719,7 +1713,7 @@ const sortVersions = (versions) => versions.sort((v1, v2) => {
     const vFormat2 = v2[1];
     return vFormat1 - vFormat2;
 });
-async function getVersions(entity, entityID) {
+async function findVersions(entity, entityID) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
@@ -1744,6 +1738,11 @@ async function getVersions(entity, entityID) {
         tarLS.on("close", code => code === 0 ? res(sortVersions(versions)) : rej(err.join("\n")));
     });
 }
+async function findFormats(entity, entityID, version) {
+    return (await findVersions(entity, entityID))
+        .filter(([time,]) => time === version)
+        .map(([, format]) => format);
+}
 async function read(entity, entityID, version, format) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
@@ -1758,7 +1757,7 @@ async function read(entity, entityID, version, format) {
     });
 }
 async function findLatestVersion(entity, entityID, format) {
-    const versions = await getVersions(entity, entityID);
+    const versions = await findVersions(entity, entityID);
     const sorted = versions.filter(version => version[1] === format).sort((a, b) => {
         const cmp = a[0] - b[0];
         if (cmp === 0)
@@ -1807,10 +1806,10 @@ class FetchedResource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
             super();
     }
     insertCols() {
-        return ["resource", "length", "type", "modified"];
+        return ["resource", "length", "type"];
     }
     getInsertParams() {
-        return [this.resource.getID(), this.length, this.type.getID(), this.modified ? this.modified : Date.now()];
+        return [this.resource.getID(), this.length, this.type.getID()];
     }
     table() {
         return "FetchedResource";
@@ -2252,11 +2251,11 @@ function milliTimestamp() {
 "use strict";
 
 // EXPORTS
-__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectPreSchedule; });
+__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectPreSchedule; });
 __webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ schedule; });
 __webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ crawlAllowed; });
+__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectResourcesNotProcessed; });
 __webpack_require__.d(__webpack_exports__, "e", function() { return /* binding */ throttle; });
-__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectFetchedURLs; });
 
 // UNUSED EXPORTS: processResourceLinks
 
@@ -2320,6 +2319,8 @@ __webpack_require__.d(__webpack_exports__, "c", function() { return /* binding *
     SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
     // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
     SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
+    SELECT_RESOURCES_NOT_PROCESSED: "select resource, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts where formats <= 2;",
     // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY.sql
     SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY: "select t.ssl, t.host, t.port, p.value as path, q.value as query from ( select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) union select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory c on c.child = r.id inner join WikiPage p on p.resource = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) ) t inner join ResourceURLPath p on p.id = t.path inner join ResourceURLQuery q on q.id = t.query",
     // /home/sean/newsreduce/sql/SELECT_RESOURCE.sql
@@ -2397,17 +2398,15 @@ function processResourceLinks(parentPositionChild) {
 async function crawlAllowed(host) {
     return !(await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].throttle).eq(host));
 }
+async function selectResourcesNotProcessed() {
+    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
+    return genericSQLPromise(query);
+}
 function throttle(host, ms) {
     Redis["b" /* Redis */]
         .renewRedis(Redis["a" /* REDIS_PARAMS */].throttle)
         .setpx(host, ms, util["b" /* STR_ONE */])
         .catch(thenDebug);
-}
-const ROW_MAPPER = (rows) => rows.map(row => Object.values(row)[0]);
-function selectFetchedURLs(after) {
-    const query = sql.SELECT_FETCHED_URLS;
-    const params = [after];
-    return genericSQLPromise(query, params, ROW_MAPPER);
 }
 
 
@@ -2749,7 +2748,7 @@ class Hits_Hits {
         const fileData = Buffer.alloc(bytes);
         let offset = 0;
         for (const wordID of wordIDs.sort(util["a" /* CMP_BIG_INT */])) {
-            Object(util["g" /* writeBigUInt96BE */])(wordID, fileData, offset);
+            Object(util["h" /* writeBigUInt96BE */])(wordID, fileData, offset);
             offset += 12;
             const wordHits = this.wordHits.get(wordID).sort().slice(0, (1 << 16) - 1)
                 .map(hit => hit.toByte());
@@ -2976,29 +2975,24 @@ var data = __webpack_require__(48);
 
 
 
-
 const PROCESSORS = [extract_ahrefs_process, extract_hits_process, extract_raw_text_process, extract_wiki_tree_process];
-async function processURL(url) {
+async function processURL(resource, url, time) {
     Object(util["d" /* fancyLog */])(url);
-    const resourceURL = new ResourceURL["ResourceURL"](url);
     const promises = [];
-    const version = await Object(file["a" /* findLatestVersion */])(Entity["a" /* Entity */].RESOURCE, resourceURL.getID(), FileFormat["a" /* FileFormat */].RAW_HTML);
-    if (version !== -1) {
-        const content = await Object(file["b" /* read */])(Entity["a" /* Entity */].RESOURCE, resourceURL.getID(), version, FileFormat["a" /* FileFormat */].RAW_HTML);
-        if (content)
-            for (const process of PROCESSORS)
-                promises.push(process(new external_jsdom_["JSDOM"](content, { url }).window, version));
+    const formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
+    for (const format of formats) {
+        if (format === FileFormat["a" /* FileFormat */].RAW_HTML) {
+            const content = await Object(file["b" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, FileFormat["a" /* FileFormat */].RAW_HTML);
+            if (content)
+                for (const process of PROCESSORS)
+                    promises.push(process(new external_jsdom_["JSDOM"](content, { url }).window, time));
+        }
     }
     await Promise.all(promises);
 }
-let LAST_CALLED = 0;
 async function functions_process() {
-    const called = Date.now();
-    for (let url = await ResourceURL["ResourceURL"].popForProcessing(); url; url = await ResourceURL["ResourceURL"].popForProcessing())
-        await processURL(url.toURL());
-    for (const url of await Object(data["c" /* selectFetchedURLs */])(LAST_CALLED))
-        await processURL(url);
-    LAST_CALLED = called;
+    for (const row of await Object(data["d" /* selectResourcesNotProcessed */])())
+        await processURL(row.resource, row.url, row.time);
 }
 const EXCLUDE = [
     "NOSCRIPT",

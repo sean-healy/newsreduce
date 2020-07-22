@@ -1,39 +1,32 @@
 import { JSDOM, DOMWindow } from "jsdom";
-import { findLatestVersion, read } from "file";
+import { read, findFormats } from "file";
 import { FileFormat } from "types/FileFormat";
 import { Entity } from "types/Entity";
 import { process as process0 } from "services/html-processor/extract-ahrefs";
 import { process as process1 } from "services/html-processor/extract-hits";
 import { process as process2 } from "services/html-processor/extract-raw-text";
 import { process as process3 } from "services/html-processor/extract-wiki-tree";
-import { ResourceURL } from "types/objects/ResourceURL";
-import { selectFetchedURLs } from "data";
+import { selectResourcesNotProcessed } from "data";
 import { fancyLog } from "common/util";
 const PROCESSORS = [process0, process1, process2, process3];
 
-export async function processURL(url: string) {
+export async function processURL(resource: bigint, url: string, time: number) {
     fancyLog(url);
-    const resourceURL = new ResourceURL(url);
     const promises: Promise<any>[] = [];
-    const version = await findLatestVersion(Entity.RESOURCE, resourceURL.getID(), FileFormat.RAW_HTML);
-    if (version !== -1) {
-        const content = await read(Entity.RESOURCE, resourceURL.getID(), version, FileFormat.RAW_HTML)
-        if (content)
-            for (const process of PROCESSORS)
-                promises.push(process(new JSDOM(content, { url }).window, version));
+    const formats = await findFormats(Entity.RESOURCE, resource, time);
+    for (const format of formats) {
+        if (format === FileFormat.RAW_HTML) {
+            const content = await read(Entity.RESOURCE, resource, time, FileFormat.RAW_HTML);
+            if (content) for (const process of PROCESSORS)
+                promises.push(process(new JSDOM(content, { url }).window, time));
+        }
     }
     await Promise.all(promises);
 }
 
-let LAST_CALLED = 0;
-
 export async function process() {
-    const called = Date.now();
-    for (let url = await ResourceURL.popForProcessing(); url; url = await ResourceURL.popForProcessing())
-        await processURL(url.toURL());
-    for (const url of await selectFetchedURLs(LAST_CALLED))
-        await processURL(url);
-    LAST_CALLED = called;
+    for (const row of await selectResourcesNotProcessed())
+        await processURL(row.resource, row.url, row.time);
 }
 
 const EXCLUDE = [

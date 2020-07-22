@@ -1,6 +1,6 @@
 import "./setup.ts";
 import { compress } from "services/compressor/functions";
-import { write, getVersions, readLatestVersion } from "file";
+import { write, findVersions, readLatestVersion } from "file";
 import fs from "fs";
 import { Entity } from "types/Entity";
 import { FileFormat } from "types/FileFormat";
@@ -27,7 +27,7 @@ test("compress should work", async () => {
     expect(htmlBytes).toBe(-1);
     expect(headerBytes).toBe(-1);
     expect(fs.existsSync(tzst)).toBe(true);
-    const versions = await getVersions(Entity.RESOURCE, BigInt(123));
+    const versions = await findVersions(Entity.RESOURCE, BigInt(123));
     expect(versions).toStrictEqual([
         [456, FileFormat.RAW_HTML],
         [456, FileFormat.RAW_HEADERS],

@@ -45,11 +45,11 @@ export function getObjectsToInsert() {
         new ClientHeader(client1.name, "accept-language", "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7"),
 
         new ClientHeader(client2.name, "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,/;q=0.8"),
-        new ClientHeader(client2.name, "Accept-Encoding", "gzip, deflate"),
-        new ClientHeader(client2.name, "Accept-Language", "en-us"),
-        new ClientHeader(client2.name, "Connection", "keep-alive"),
-        new ClientHeader(client2.name, "Upgrade-Insecure-Requests", "1"),
-        new ClientHeader(client2.name, "User-Agent",
+        new ClientHeader(client2.name, "accept-encoding", "gzip, deflate"),
+        new ClientHeader(client2.name, "accept-language", "en-us"),
+        new ClientHeader(client2.name, "connection", "keep-alive"),
+        new ClientHeader(client2.name, "upgrade-insecure-requests", "1"),
+        new ClientHeader(client2.name, "user-agent",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
 

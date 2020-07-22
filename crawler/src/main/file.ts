@@ -36,7 +36,7 @@ export async function write(
     format: FileFormat,
     src: NodeJS.ReadableStream | string | Buffer
 ) {
-    const versions = await getVersions(entity, entityID);
+    const versions = await findVersions(entity, entityID);
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
     if (found) return -1;
     const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`, `${version}`);
@@ -47,17 +47,7 @@ export async function write(
     let bytesWritten: number;
     if (typeof src === "string" || src instanceof Buffer) {
         log("Writing string to file", src, tmpFile);
-        await new Promise<void>((res, rej) => {
-            fs.writeFile(tmpFile, src, err => {
-                if (err) {
-                    log("error writing file", tmpFile);
-                    log(err);
-                    rej(err);
-                }
-                else res();
-            });
-        });
-
+        fs.writeFileSync(tmpFile, src);
         bytesWritten = src.length;
     } else {
         bytesWritten = await new Promise<number>(async (res, rej) => {
@@ -79,7 +69,7 @@ export const sortVersions = (versions: [number, FileFormat][]) => versions.sort(
     const vFormat2 = v2[1];
     return vFormat1 - vFormat2;
 });
-export async function getVersions(entity: Entity, entityID: bigint) {
+export async function findVersions(entity: Entity, entityID: bigint) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     if (!fs.existsSync(compressedArc)) return [];
@@ -103,6 +93,11 @@ export async function getVersions(entity: Entity, entityID: bigint) {
         tarLS.on("close", code => code === 0 ? res(sortVersions(versions)) : rej(err.join("\n")));
     });
 }
+export async function findFormats(entity: Entity, entityID: bigint, version: number) {
+    return (await findVersions(entity, entityID))
+        .filter(([time,]) => time === version)
+        .map(([, format]) => format);
+}
 
 export async function read(entity: Entity, entityID: bigint, version: number, format: FileFormat) {
     const blobDir = await blobDirPromise();
@@ -119,7 +114,7 @@ export async function read(entity: Entity, entityID: bigint, version: number, fo
     });
 }
 export async function findLatestVersion(entity: Entity, entityID: bigint, format: FileFormat) {
-    const versions = await getVersions(entity, entityID);
+    const versions = await findVersions(entity, entityID);
     const sorted = versions.filter(version => version[1] === format).sort((a, b) => {
         const cmp = a[0] - b[0];
         if (cmp === 0) return a[1] - b[1];

@@ -27,4 +27,7 @@ export class ResourceVersionType extends DBObject<ResourceVersionType> {
     static HITS = new ResourceVersionType({
         filename: "hits.bin",
     });
+    static HEADERS = new ResourceVersionType({
+        filename: "headers.txt",
+    });
 }

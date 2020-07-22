@@ -57,6 +57,8 @@ export default {
 	SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
 	// /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
 	SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
+	// /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
+	SELECT_RESOURCES_NOT_PROCESSED: "select resource, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts where formats <= 2;",
 	// /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY.sql
 	SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY: "select t.ssl, t.host, t.port, p.value as path, q.value as query from ( select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) union select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory c on c.child = r.id inner join WikiPage p on p.resource = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) ) t inner join ResourceURLPath p on p.id = t.path inner join ResourceURLQuery q on q.id = t.query",
 	// /home/sean/newsreduce/sql/SELECT_RESOURCE.sql
