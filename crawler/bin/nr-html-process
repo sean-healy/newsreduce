@@ -866,7 +866,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         // Wait 15 seconds before attempting to compress the outer dir.
         common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fileLock).setex(id.toString(), 15);
         Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("Writing", types_FileFormat__WEBPACK_IMPORTED_MODULE_6__[/* FileFormat */ "a"][format]);
-        return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "c"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
+        return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "d"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
     }
     isFetchLocked() {
         return common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).eq(this.toURL());
@@ -1604,11 +1604,13 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 
 "use strict";
 /* unused harmony export entityIDs */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return write; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return write; });
 /* unused harmony export sortVersions */
+/* unused harmony export lastModifiedBefore */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedAfter; });
 /* unused harmony export findVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return read; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return read; });
 /* unused harmony export findLatestVersion */
 /* unused harmony export readLatestVersion */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
@@ -1655,9 +1657,9 @@ async function write(entity, entityID, version, format, src) {
     if (found)
         return -1;
     const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`, `${version}`);
-    await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "h"])(dir);
     const tmpFile = `${dir}/${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`;
     Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing to", tmpFile);
+    await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "h"])(dir);
     const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
     let bytesWritten;
     if (typeof src === "string" || src instanceof Buffer) {
@@ -2951,7 +2953,7 @@ async function processURL(resource, url, time) {
         if (format === FileFormat["a" /* FileFormat */].RAW_HTML) {
             let content;
             try {
-                content = await Object(file["b" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, FileFormat["a" /* FileFormat */].RAW_HTML);
+                content = await Object(file["c" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, FileFormat["a" /* FileFormat */].RAW_HTML);
             }
             catch (e) {
                 Object(util["d" /* fancyLog */])("error while reading file");

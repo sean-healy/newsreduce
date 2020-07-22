@@ -84,9 +84,9 @@
 /******/ 	return __webpack_require__(__webpack_require__.s = 59);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 1:
+/******/ ([
+/* 0 */,
+/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -214,174 +214,7 @@ const IDENTITY_FUNCTION = (r) => r;
 
 
 /***/ }),
-
-/***/ 11:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* unused harmony export SQL_PARAMS */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DB_CLIENT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return SQL; });
-/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(13);
-/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(46);
-/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
-/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(8);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
-
-
-
-
-
-
-
-const SQL_PARAMS = {
-    user: "newsreduce",
-    database: "newsreduce",
-    supportBigNumbers: true,
-};
-let DB_CLIENT = null;
-let SQL_PASSWORD = null;
-class SQL {
-    static async db() {
-        if (DB_CLIENT === null) {
-            let ip = await common_DNS__WEBPACK_IMPORTED_MODULE_0__[/* DNS */ "a"].lookup(common_config__WEBPACK_IMPORTED_MODULE_2__[/* MAIN_HOSTNAME */ "c"]);
-            const myIP = await common_DNS__WEBPACK_IMPORTED_MODULE_0__[/* DNS */ "a"].whoami();
-            if (ip === myIP)
-                ip = common_config__WEBPACK_IMPORTED_MODULE_2__[/* LOCALHOST */ "b"];
-            Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetching SQL config.");
-            const params = await node_fetch__WEBPACK_IMPORTED_MODULE_4___default()(common_config__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_ENDPOINT */ "d"]).then(res => res.json()).catch(_ => null);
-            if (params)
-                SQL_PASSWORD = params.sql;
-            Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetched SQL config.");
-            const sqlParams = { ...SQL_PARAMS, password: SQL_PASSWORD, host: ip };
-            let newClient = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
-            newClient.on("error", async (error) => {
-                const oldDB = DB_CLIENT;
-                DB_CLIENT = null;
-                oldDB.destroy();
-                await SQL.db();
-                if (error) {
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`${error.errno}`);
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.code);
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.message);
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.name);
-                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.sqlMessage);
-                    Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(error));
-                }
-            });
-            // Be careful for concurrency bugs creating multiple connections.
-            if (DB_CLIENT === null)
-                DB_CLIENT = newClient;
-            else
-                newClient.destroy();
-        }
-        return DB_CLIENT;
-    }
-    static async tryLoop(cb) {
-        for (let attempt = 0; attempt < 10; ++attempt) {
-            try {
-                const response = await new Promise(cb);
-                return response;
-            }
-            catch (err) {
-                Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
-                Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])("error on attempt " + attempt.toString());
-                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(err));
-                const oldClient = DB_CLIENT;
-                DB_CLIENT = null;
-                oldClient.destroy();
-                await SQL.db();
-            }
-        }
-        return [];
-    }
-    static async query(template, params) {
-        return this.tryLoop((res, rej) => {
-            SQL.db().then(db => {
-                db.query(template, params, (err, results) => {
-                    if (err)
-                        rej(err);
-                    else
-                        res(results);
-                });
-            });
-        });
-    }
-    static async destroy() {
-        (await SQL.db()).destroy();
-    }
-    static csvField(param) {
-        //fancyLog("csvField " + `${param}`);
-        let stringified;
-        if (param === null || param === undefined)
-            stringified = "NULL";
-        else if (typeof param === "boolean") {
-            const paramAsTinyint = param ? 1 : 0;
-            stringified = `"${paramAsTinyint}"`;
-        }
-        else {
-            const paramAsString = param.toString();
-            const escapedParam = paramAsString.replace(/"/g, '\\"');
-            stringified = `"${escapedParam}"`;
-        }
-        return stringified;
-    }
-    static csvRow(params) {
-        return params.map(SQL.csvField).join(",");
-    }
-}
-
-
-/***/ }),
-
-/***/ 13:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
-
-
-class DNS {
-    static lookup(hostname) {
-        return new Promise((res, rej) => {
-            dns__WEBPACK_IMPORTED_MODULE_0___default.a.lookup(hostname, (err, address, family) => {
-                if (err)
-                    rej(err);
-                else if (family === 4)
-                    res(DNS.ipv4AsIpv6(address));
-                else
-                    res(address);
-            });
-        });
-    }
-    static ipv4AsIpv6(ipv4) {
-        return `::ffff:${ipv4}`;
-    }
-    static async whoami() {
-        const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()("http://newsreduce.org:9999/ip").then(response => response.text());
-        return ip;
-    }
-}
-
-
-/***/ }),
-
-/***/ 14:
-/***/ (function(module, exports) {
-
-module.exports = require("crypto");
-
-/***/ }),
-
-/***/ 2:
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -625,29 +458,7 @@ Redis.defaultHostParams = (host) => ({
 
 
 /***/ }),
-
-/***/ 21:
-/***/ (function(module, exports) {
-
-module.exports = require("dns");
-
-/***/ }),
-
-/***/ 26:
-/***/ (function(module, exports) {
-
-module.exports = require("redis");
-
-/***/ }),
-
-/***/ 27:
-/***/ (function(module, exports) {
-
-module.exports = require("child_process");
-
-/***/ }),
-
-/***/ 3:
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -669,8 +480,7 @@ async function log(...args) {
 
 
 /***/ }),
-
-/***/ 4:
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -755,8 +565,503 @@ async function getParams() {
 
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports) {
 
-/***/ 45:
+module.exports = require("fs");
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = require("path");
+
+/***/ }),
+/* 7 */,
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = require("node-fetch");
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
+/* unused harmony export NET_AGENT_LOG */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
+/* unused harmony export WIKI_PROCESS_COMPLETE */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return FETCH_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return COMPRESS_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
+/* unused harmony export UNLOCK_FILE */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SYNC_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
+const EVENT_LOG = "event-log";
+const FETCHER_BIRTH_LOG = "fetcher-birth-log";
+const FETCHER_DEATH_LOG = "fetcher-death-log";
+const NET_AGENT_LOG = "net-agent-log";
+const SCHEDULE_COMPLETE = "schedule-complete";
+const COLD_START_COMPLETE = "cold-start-complete";
+const HTML_PROCESS_COMPLETE = "html-process-complete";
+const WIKI_PROCESS_COMPLETE = "wiki-process-complete";
+const FETCH_COMPLETE = "fetch-complete";
+const COMPRESS_COMPLETE = "compress-complete";
+const DELETE_FILES = "delete-files";
+const UNLOCK_FILE = "unlock-file";
+const COMPRESSOR_LOCK = "compressor-lock";
+const SYNC_LOCK = "sync-lock";
+const BULK_INSERT_COMPLETE = "bulk-insert-complete";
+const FAILURE_CACHE = "failures";
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FileFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return formatToFileName; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return fileNameToFormat; });
+var FileFormat;
+(function (FileFormat) {
+    FileFormat[FileFormat["RAW_HTML"] = 0] = "RAW_HTML";
+    FileFormat[FileFormat["RAW_HEADERS"] = 1] = "RAW_HEADERS";
+    FileFormat[FileFormat["RAW_TXT"] = 2] = "RAW_TXT";
+    FileFormat[FileFormat["HITS"] = 3] = "HITS";
+    FileFormat[FileFormat["UNKNOWN"] = 4] = "UNKNOWN";
+})(FileFormat || (FileFormat = {}));
+function formatToFileName(format) {
+    switch (format) {
+        case FileFormat.RAW_HTML: return "raw.html";
+        case FileFormat.RAW_HEADERS: return "headers.txt";
+        case FileFormat.RAW_TXT: return "raw.txt";
+        case FileFormat.HITS: return "hit.bin";
+        default: throw `format not handled: ${format}`;
+    }
+}
+function fileNameToFormat(fileName) {
+    switch (fileName) {
+        case "raw.html": return FileFormat.RAW_HTML;
+        case "headers.txt": return FileFormat.RAW_HEADERS;
+        case "raw.txt": return FileFormat.RAW_TXT;
+        case "hit.bin": return FileFormat.HITS;
+        default: return FileFormat.UNKNOWN;
+    }
+}
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export SQL_PARAMS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DB_CLIENT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return SQL; });
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(13);
+/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(46);
+/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
+/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
+
+
+
+
+
+
+
+const SQL_PARAMS = {
+    user: "newsreduce",
+    database: "newsreduce",
+    supportBigNumbers: true,
+};
+let DB_CLIENT = null;
+let SQL_PASSWORD = null;
+class SQL {
+    static async db() {
+        if (DB_CLIENT === null) {
+            let ip = await common_DNS__WEBPACK_IMPORTED_MODULE_0__[/* DNS */ "a"].lookup(common_config__WEBPACK_IMPORTED_MODULE_2__[/* MAIN_HOSTNAME */ "c"]);
+            const myIP = await common_DNS__WEBPACK_IMPORTED_MODULE_0__[/* DNS */ "a"].whoami();
+            if (ip === myIP)
+                ip = common_config__WEBPACK_IMPORTED_MODULE_2__[/* LOCALHOST */ "b"];
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetching SQL config.");
+            const params = await node_fetch__WEBPACK_IMPORTED_MODULE_4___default()(common_config__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_ENDPOINT */ "d"]).then(res => res.json()).catch(_ => null);
+            if (params)
+                SQL_PASSWORD = params.sql;
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetched SQL config.");
+            const sqlParams = { ...SQL_PARAMS, password: SQL_PASSWORD, host: ip };
+            let newClient = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
+            newClient.on("error", async (error) => {
+                const oldDB = DB_CLIENT;
+                DB_CLIENT = null;
+                oldDB.destroy();
+                await SQL.db();
+                if (error) {
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`${error.errno}`);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.code);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.message);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.name);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.sqlMessage);
+                    Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(error));
+                }
+            });
+            // Be careful for concurrency bugs creating multiple connections.
+            if (DB_CLIENT === null)
+                DB_CLIENT = newClient;
+            else
+                newClient.destroy();
+        }
+        return DB_CLIENT;
+    }
+    static async tryLoop(cb) {
+        for (let attempt = 0; attempt < 10; ++attempt) {
+            try {
+                const response = await new Promise(cb);
+                return response;
+            }
+            catch (err) {
+                Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
+                Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
+                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])("error on attempt " + attempt.toString());
+                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(err));
+                const oldClient = DB_CLIENT;
+                DB_CLIENT = null;
+                oldClient.destroy();
+                await SQL.db();
+            }
+        }
+        return [];
+    }
+    static async query(template, params) {
+        return this.tryLoop((res, rej) => {
+            SQL.db().then(db => {
+                db.query(template, params, (err, results) => {
+                    if (err)
+                        rej(err);
+                    else
+                        res(results);
+                });
+            });
+        });
+    }
+    static async destroy() {
+        (await SQL.db()).destroy();
+    }
+    static csvField(param) {
+        //fancyLog("csvField " + `${param}`);
+        let stringified;
+        if (param === null || param === undefined)
+            stringified = "NULL";
+        else if (typeof param === "boolean") {
+            const paramAsTinyint = param ? 1 : 0;
+            stringified = `"${paramAsTinyint}"`;
+        }
+        else {
+            const paramAsString = param.toString();
+            const escapedParam = paramAsString.replace(/"/g, '\\"');
+            stringified = `"${escapedParam}"`;
+        }
+        return stringified;
+    }
+    static csvRow(params) {
+        return params.map(SQL.csvField).join(",");
+    }
+}
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Entity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return entityName; });
+var Entity;
+(function (Entity) {
+    Entity[Entity["RESOURCE"] = 0] = "RESOURCE";
+    Entity[Entity["HOST"] = 1] = "HOST";
+    Entity[Entity["WORD"] = 2] = "WORD";
+})(Entity || (Entity = {}));
+function entityName(entity) {
+    switch (entity) {
+        case Entity.RESOURCE: return "resource";
+        case Entity.HOST: return "host";
+        case Entity.WORD: return "word";
+    }
+}
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
+
+
+class DNS {
+    static lookup(hostname) {
+        return new Promise((res, rej) => {
+            dns__WEBPACK_IMPORTED_MODULE_0___default.a.lookup(hostname, (err, address, family) => {
+                if (err)
+                    rej(err);
+                else if (family === 4)
+                    res(DNS.ipv4AsIpv6(address));
+                else
+                    res(address);
+            });
+        });
+    }
+    static ipv4AsIpv6(ipv4) {
+        return `::ffff:${ipv4}`;
+    }
+    static async whoami() {
+        const ip = await node_fetch__WEBPACK_IMPORTED_MODULE_1___default()("http://newsreduce.org:9999/ip").then(response => response.text());
+        return ip;
+    }
+}
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+module.exports = require("crypto");
+
+/***/ }),
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */,
+/* 19 */,
+/* 20 */,
+/* 21 */
+/***/ (function(module, exports) {
+
+module.exports = require("dns");
+
+/***/ }),
+/* 22 */,
+/* 23 */,
+/* 24 */,
+/* 25 */,
+/* 26 */
+/***/ (function(module, exports) {
+
+module.exports = require("redis");
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+module.exports = require("child_process");
+
+/***/ }),
+/* 28 */,
+/* 29 */,
+/* 30 */,
+/* 31 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export entityIDs */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return write; });
+/* unused harmony export sortVersions */
+/* unused harmony export lastModifiedBefore */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedAfter; });
+/* unused harmony export findVersions */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return read; });
+/* unused harmony export findLatestVersion */
+/* unused harmony export readLatestVersion */
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(27);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
+/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
+/* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
+/* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(12);
+
+
+
+
+
+
+
+const FINISH = "finish";
+const ERROR = "error";
+const TAR_LS_PARAMS = "-atf";
+const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
+const TAR_CAT_PARAMS_AFTER_FILE = "-O";
+async function entityIDs(entity) {
+    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity));
+    const files = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readdirSync(entityDir);
+    return files
+        .map(file => file.match(/^([0-9]+)\.tzst$/))
+        .filter(match => match)
+        .map(match => match[1])
+        .map(BigInt);
+}
+/**
+ * @param entityID the ID of the resource to be saved (a hash of the URL)
+ * @param version    the version of the resource to be saved (milliseconds since 1970-01-01 00:00:00)
+ * @param src        the source of data to be saved, either as a string of the raw data or an input stream
+ *
+ * @return number of bytes written
+ */
+async function write(entity, entityID, version, format, src) {
+    const versions = await findVersions(entity, entityID);
+    const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
+    if (found)
+        return -1;
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`, `${version}`);
+    const tmpFile = `${dir}/${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`;
+    Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing to", tmpFile);
+    await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "h"])(dir);
+    const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
+    let bytesWritten;
+    if (typeof src === "string" || src instanceof Buffer) {
+        Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing string to file", src, tmpFile);
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(tmpFile, src);
+        bytesWritten = src.length;
+    }
+    else {
+        bytesWritten = await new Promise(async (res, rej) => {
+            dst.on(ERROR, err => rej(err));
+            dst.on(FINISH, () => res(dst.bytesWritten));
+            src.pipe(dst);
+        });
+    }
+    return bytesWritten;
+}
+const sortVersions = (versions) => versions.sort((v1, v2) => {
+    const vID1 = v1[0];
+    const vID2 = v2[0];
+    const cmp = vID1 - vID2;
+    if (cmp !== 0)
+        return cmp;
+    const vFormat1 = v1[1];
+    const vFormat2 = v2[1];
+    return vFormat1 - vFormat2;
+});
+/*
+ * Returns true if the path has been modified before 'ms'
+ * milliseconds ago (exclusive).
+ */
+function lastModifiedBefore(path, ms) {
+    const stat = fs__WEBPACK_IMPORTED_MODULE_0___default.a.statSync(path);
+    return stat.mtimeMs + ms < Date.now();
+}
+/*
+ * Returns true if the path has been modified after 'ms'
+ * milliseconds ago (inclusive).
+ */
+function lastModifiedAfter(path, ms) {
+    return !lastModifiedBefore(path, ms);
+}
+async function findVersions(entity, entityID) {
+    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
+    const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
+    // Ignore files that are not written yet, or that have been written too recently.
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000))
+        return [];
+    const params = [TAR_LS_PARAMS, compressedArc];
+    const versions = [];
+    const err = [];
+    return await new Promise(async (res, rej) => {
+        const tarLS = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], params);
+        tarLS.on("error", err => rej(err));
+        tarLS.stdout.on("data", (data) => {
+            for (const version of data
+                .toString()
+                .split("\n")
+                .map(line => line.replace(/^[0-9]+\//, ""))
+                .filter(line => line.match(/^[0-9]+\/./))
+                .map(line => line.split("/", 2))
+                .map(arr => [parseInt(arr[0]), Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* fileNameToFormat */ "b"])(arr[1])]))
+                versions.push(version);
+        });
+        tarLS.stderr.on("data", (data) => err.push(data));
+        tarLS.on("close", code => code === 0 ? res(sortVersions(versions)) : rej(err.join("\n")));
+    });
+}
+async function findFormats(entity, entityID, version) {
+    return (await findVersions(entity, entityID))
+        .filter(([time,]) => time === version)
+        .map(([, format]) => format);
+}
+async function read(entity, entityID, version, format) {
+    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
+    const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
+    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}`, Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format));
+    // Ignore files that are not written yet, or that have been written too recently.
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000))
+        return null;
+    return await new Promise((res, rej) => {
+        const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
+        const allData = [];
+        tarCat.stdout.on("data", (data) => allData.push(data));
+        const errData = [];
+        tarCat.stderr.on("data", (data) => errData.push(data));
+        tarCat.on("close", code => code === 0 ? res(Buffer.concat(allData)) : rej(Buffer.concat(errData)));
+    });
+}
+async function findLatestVersion(entity, entityID, format) {
+    const versions = await findVersions(entity, entityID);
+    const sorted = versions.filter(version => version[1] === format).sort((a, b) => {
+        const cmp = a[0] - b[0];
+        if (cmp === 0)
+            return a[1] - b[1];
+        return cmp;
+    });
+    if (!sorted || !sorted.length)
+        return -1;
+    else {
+        const [time,] = sorted[sorted.length - 1];
+        return time;
+    }
+}
+async function readLatestVersion(entity, entityID, format) {
+    const latestVersion = await findLatestVersion(entity, entityID, format);
+    if (latestVersion === -1)
+        return null;
+    return await read(entity, entityID, latestVersion, format);
+}
+
+
+/***/ }),
+/* 32 */,
+/* 33 */,
+/* 34 */,
+/* 35 */,
+/* 36 */,
+/* 37 */,
+/* 38 */,
+/* 39 */,
+/* 40 */,
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -835,22 +1140,25 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
 
 
 /***/ }),
-
-/***/ 46:
+/* 46 */
 /***/ (function(module, exports) {
 
 module.exports = require("mysql");
 
 /***/ }),
-
-/***/ 5:
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
-
-/***/ 59:
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -883,7 +1191,11 @@ var Redis = __webpack_require__(2);
 // EXTERNAL MODULE: ./dist/main/common/util.js
 var util = __webpack_require__(1);
 
+// EXTERNAL MODULE: ./dist/main/file.js
+var file = __webpack_require__(31);
+
 // CONCATENATED MODULE: ./dist/main/services/compressor/functions.js
+
 
 
 
@@ -973,14 +1285,12 @@ async function compress() {
         for (const entityID of entityIDs) {
             if (await isEntityLocked(entityID))
                 continue;
-            const stat = external_fs_default.a.statSync(external_path_default.a.join(entitiesDir, entityID));
-            const mtime = stat.mtime.getTime();
-            const secondsSinceLastModified = Date.now() - mtime;
-            if (secondsSinceLastModified < 10)
-                continue;
             const entityDir = external_path_default.a.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
             const arc = `${entityDir}.tar`;
+            // Only compress files not touched in past 5s.
+            if (Object(file["b" /* lastModifiedAfter */])(entityDir, 5000))
+                continue;
             const compressedArcExists = external_fs_default.a.existsSync(compressedArc);
             if (compressedArcExists) {
                 promises.push(spawnSeq([
@@ -1019,60 +1329,5 @@ var processor = __webpack_require__(45);
 Object(processor["b" /* startProcessor */])(compress, null, events["d" /* COMPRESS_COMPLETE */]);
 
 
-/***/ }),
-
-/***/ 6:
-/***/ (function(module, exports) {
-
-module.exports = require("path");
-
-/***/ }),
-
-/***/ 8:
-/***/ (function(module, exports) {
-
-module.exports = require("node-fetch");
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
-/* unused harmony export NET_AGENT_LOG */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
-/* unused harmony export WIKI_PROCESS_COMPLETE */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return FETCH_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return COMPRESS_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
-/* unused harmony export UNLOCK_FILE */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SYNC_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
-const EVENT_LOG = "event-log";
-const FETCHER_BIRTH_LOG = "fetcher-birth-log";
-const FETCHER_DEATH_LOG = "fetcher-death-log";
-const NET_AGENT_LOG = "net-agent-log";
-const SCHEDULE_COMPLETE = "schedule-complete";
-const COLD_START_COMPLETE = "cold-start-complete";
-const HTML_PROCESS_COMPLETE = "html-process-complete";
-const WIKI_PROCESS_COMPLETE = "wiki-process-complete";
-const FETCH_COMPLETE = "fetch-complete";
-const COMPRESS_COMPLETE = "compress-complete";
-const DELETE_FILES = "delete-files";
-const UNLOCK_FILE = "unlock-file";
-const COMPRESSOR_LOCK = "compressor-lock";
-const SYNC_LOCK = "sync-lock";
-const BULK_INSERT_COMPLETE = "bulk-insert-complete";
-const FAILURE_CACHE = "failures";
-
-
 /***/ })
-
-/******/ });
+/******/ ]);

@@ -40,9 +40,9 @@ export async function write(
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
     if (found) return -1;
     const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`, `${version}`);
-    await safeMkdir(dir);
     const tmpFile = `${dir}/${formatToFileName(format)}`;
     log("Writing to", tmpFile);
+    await safeMkdir(dir);
     const dst = fs.createWriteStream(tmpFile);
     let bytesWritten: number;
     if (typeof src === "string" || src instanceof Buffer) {
@@ -73,7 +73,7 @@ export const sortVersions = (versions: [number, FileFormat][]) => versions.sort(
  * Returns true if the path has been modified before 'ms'
  * milliseconds ago (exclusive).
  */
-function lastModifiedBefore(path: string, ms: number) {
+export function lastModifiedBefore(path: string, ms: number) {
     const stat = fs.statSync(path);
     return stat.mtimeMs + ms < Date.now();
 }
@@ -81,7 +81,7 @@ function lastModifiedBefore(path: string, ms: number) {
  * Returns true if the path has been modified after 'ms'
  * milliseconds ago (inclusive).
  */
-function lastModifiedAfter(path: string, ms: number) {
+export function lastModifiedAfter(path: string, ms: number) {
     return !lastModifiedBefore(path, ms);
 }
 export async function findVersions(entity: Entity, entityID: bigint) {
