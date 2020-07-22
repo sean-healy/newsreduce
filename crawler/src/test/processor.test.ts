@@ -12,7 +12,7 @@ const PRE = new Set<string>();
 PRE.add(BEFORE_EVENT);
 test("standard processor should work as expected", async () => {
     const success = await new Promise(res => {
-        const redisCLI = Redis.newRedis(REDIS_PARAMS.events);
+        const redisCLI = Redis.newSub(REDIS_PARAMS.events);
         redisCLI.client.subscribe(EVENT_LOG);
         redisCLI.client.on("message", (_, msg) => {
             if (msg === AFTER_EVENT) {

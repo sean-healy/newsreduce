@@ -12,7 +12,7 @@ export const SQL_PARAMS = {
     supportBigNumbers: true,
 };
 
-let DB_CLIENT: Connection = null;
+export let DB_CLIENT: Connection = null;
 let SQL_PASSWORD: string = null;
 export class SQL {
     static async db() {

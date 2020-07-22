@@ -263,7 +263,8 @@ module.exports = require("crypto");
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return REDIS_PARAMS; });
-/* unused harmony export STATIC_CONNECTIONS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return STATIC_CONNECTIONS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return SUB_CONNECTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
@@ -328,6 +329,7 @@ const REDIS_PARAMS = {
 for (const key in REDIS_PARAMS)
     REDIS_PARAMS[key].name = key;
 const STATIC_CONNECTIONS = {};
+const SUB_CONNECTIONS = [];
 /*
  * A proxy for the redis client, which survives all sorts of
  * errors from client resets.
@@ -483,6 +485,12 @@ class Redis {
             }
         });
         return new Redis(params, client);
+    }
+    static newSub(paramsOrHost) {
+        const params = this.computeParams(paramsOrHost);
+        const redis = this.newRedis(params);
+        SUB_CONNECTIONS.push(redis.client);
+        return redis;
     }
 }
 Redis.defaultHostParams = (host) => ({
@@ -648,7 +656,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 async function watch() {
-    const client = common_Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newRedis(common_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].local);
+    const client = common_Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newSub(common_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].local);
     client.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_3__[/* DELETE_FILES */ "e"]);
     Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "d"])("Subscribed to channel: " + common_events__WEBPACK_IMPORTED_MODULE_3__[/* DELETE_FILES */ "e"]);
     client.client.on("message", async (_, msg) => {

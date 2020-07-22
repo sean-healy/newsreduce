@@ -15,7 +15,7 @@ export function start(
     let hi: bigint;
 
     setImmediateInterval(() => Redis.renewRedis(REDIS_PARAMS.local).publish(birthLog, workerID), 400);
-    const listen = Redis.newRedis(REDIS_PARAMS.local);
+    const listen = Redis.newSub(REDIS_PARAMS.local);
     listen.client.subscribe(workerID);
     listen.client.on("message", (_, msg) => {
         [lo, hi] = msg.split(" ", 2).map(BigInt);

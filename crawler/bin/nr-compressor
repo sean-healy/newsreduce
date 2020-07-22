@@ -215,6 +215,129 @@ const IDENTITY_FUNCTION = (r) => r;
 
 /***/ }),
 
+/***/ 11:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export SQL_PARAMS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DB_CLIENT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return SQL; });
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(13);
+/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(46);
+/* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
+/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
+
+
+
+
+
+
+
+const SQL_PARAMS = {
+    user: "newsreduce",
+    database: "newsreduce",
+    supportBigNumbers: true,
+};
+let DB_CLIENT = null;
+let SQL_PASSWORD = null;
+class SQL {
+    static async db() {
+        if (DB_CLIENT === null) {
+            let ip = await common_DNS__WEBPACK_IMPORTED_MODULE_0__[/* DNS */ "a"].lookup(common_config__WEBPACK_IMPORTED_MODULE_2__[/* MAIN_HOSTNAME */ "c"]);
+            const myIP = await common_DNS__WEBPACK_IMPORTED_MODULE_0__[/* DNS */ "a"].whoami();
+            if (ip === myIP)
+                ip = common_config__WEBPACK_IMPORTED_MODULE_2__[/* LOCALHOST */ "b"];
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetching SQL config.");
+            const params = await node_fetch__WEBPACK_IMPORTED_MODULE_4___default()(common_config__WEBPACK_IMPORTED_MODULE_2__[/* NET_AGENT_ENDPOINT */ "d"]).then(res => res.json()).catch(_ => null);
+            if (params)
+                SQL_PASSWORD = params.sql;
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("Fetched SQL config.");
+            const sqlParams = { ...SQL_PARAMS, password: SQL_PASSWORD, host: ip };
+            let newClient = Object(mysql__WEBPACK_IMPORTED_MODULE_1__["createConnection"])(sqlParams);
+            newClient.on("error", async (error) => {
+                const oldDB = DB_CLIENT;
+                DB_CLIENT = null;
+                oldDB.destroy();
+                await SQL.db();
+                if (error) {
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(`${error.errno}`);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.code);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.message);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.name);
+                    Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.sqlMessage);
+                    Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(error));
+                }
+            });
+            // Be careful for concurrency bugs creating multiple connections.
+            if (DB_CLIENT === null)
+                DB_CLIENT = newClient;
+            else
+                newClient.destroy();
+        }
+        return DB_CLIENT;
+    }
+    static async tryLoop(cb) {
+        for (let attempt = 0; attempt < 10; ++attempt) {
+            try {
+                const response = await new Promise(cb);
+                return response;
+            }
+            catch (err) {
+                Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
+                Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
+                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])("error on attempt " + attempt.toString());
+                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(err));
+                const oldClient = DB_CLIENT;
+                DB_CLIENT = null;
+                oldClient.destroy();
+                await SQL.db();
+            }
+        }
+        return [];
+    }
+    static async query(template, params) {
+        return this.tryLoop((res, rej) => {
+            SQL.db().then(db => {
+                db.query(template, params, (err, results) => {
+                    if (err)
+                        rej(err);
+                    else
+                        res(results);
+                });
+            });
+        });
+    }
+    static async destroy() {
+        (await SQL.db()).destroy();
+    }
+    static csvField(param) {
+        //fancyLog("csvField " + `${param}`);
+        let stringified;
+        if (param === null || param === undefined)
+            stringified = "NULL";
+        else if (typeof param === "boolean") {
+            const paramAsTinyint = param ? 1 : 0;
+            stringified = `"${paramAsTinyint}"`;
+        }
+        else {
+            const paramAsString = param.toString();
+            const escapedParam = paramAsString.replace(/"/g, '\\"');
+            stringified = `"${escapedParam}"`;
+        }
+        return stringified;
+    }
+    static csvRow(params) {
+        return params.map(SQL.csvField).join(",");
+    }
+}
+
+
+/***/ }),
+
 /***/ 13:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -263,7 +386,8 @@ module.exports = require("crypto");
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return REDIS_PARAMS; });
-/* unused harmony export STATIC_CONNECTIONS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return STATIC_CONNECTIONS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return SUB_CONNECTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
@@ -328,6 +452,7 @@ const REDIS_PARAMS = {
 for (const key in REDIS_PARAMS)
     REDIS_PARAMS[key].name = key;
 const STATIC_CONNECTIONS = {};
+const SUB_CONNECTIONS = [];
 /*
  * A proxy for the redis client, which survives all sorts of
  * errors from client resets.
@@ -484,6 +609,12 @@ class Redis {
         });
         return new Redis(params, client);
     }
+    static newSub(paramsOrHost) {
+        const params = this.computeParams(paramsOrHost);
+        const redis = this.newRedis(params);
+        SUB_CONNECTIONS.push(redis.client);
+        return redis;
+    }
 }
 Redis.defaultHostParams = (host) => ({
     host,
@@ -638,34 +769,56 @@ async function getParams() {
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(1);
 /* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(2);
+/* harmony import */ var common_SQL__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(11);
 
 
 
 
 
 
-let locks = {};
+
+function safelyExit() {
+    Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
+    for (const connection of Object.values(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* STATIC_CONNECTIONS */ "c"]))
+        if (connection && connection.connected)
+            connection.quit();
+    for (const connection of _Redis__WEBPACK_IMPORTED_MODULE_5__[/* SUB_CONNECTIONS */ "d"])
+        if (connection && connection.connected)
+            connection.quit();
+    if (common_SQL__WEBPACK_IMPORTED_MODULE_6__[/* DB_CLIENT */ "a"])
+        common_SQL__WEBPACK_IMPORTED_MODULE_6__[/* DB_CLIENT */ "a"].destroy();
+    if (INTERVAL)
+        clearInterval(INTERVAL);
+    if (SAFETY_INTERVAL)
+        clearInterval(SAFETY_INTERVAL);
+}
+let LOCKS = {};
 async function synchronised(name, f, postcondition) {
-    if (name in locks)
+    if (name in LOCKS)
         return;
-    locks[name] = true;
+    if (SAFELY_EXIT)
+        safelyExit();
+    LOCKS[name] = true;
     f().then(() => {
-        delete locks[name];
+        delete LOCKS[name];
         _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
+        if (SAFELY_EXIT)
+            safelyExit();
     });
 }
+let INTERVAL = undefined;
+let SAFETY_INTERVAL = undefined;
+let SAFELY_EXIT = false;
 function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
-    let safelyExit = false;
     const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
-    let interval = undefined;
     if (options.interval || options.interval === undefined)
-        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
-            if (!safelyExit)
+        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
+            if (!SAFELY_EXIT)
                 synchronised(name, f, postcondition);
         }, options.period ? options.period : 2000);
     let events;
     if (preconditions && preconditions.size > 0) {
-        events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
+        events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
         events.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"]);
         events.client.on("message", (_, msg) => {
             if (preconditions.has(msg))
@@ -674,21 +827,21 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     }
     else
         events = null;
-    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
+    SAFETY_INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
         const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
-        if (content.match(/1/)) {
-            safelyExit = true;
-            clearInterval(interval);
-            clearInterval(safetyInterval);
-            if (events)
-                events.client.quit();
-            Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
-            process.exit();
-        }
+        if (content.match(/1/))
+            SAFELY_EXIT = true;
     }, 1000);
-    return { interval, events };
+    return { INTERVAL, events };
 }
 
+
+/***/ }),
+
+/***/ 46:
+/***/ (function(module, exports) {
+
+module.exports = require("mysql");
 
 /***/ }),
 

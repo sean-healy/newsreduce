@@ -163,7 +163,7 @@ class DBObject_DBObject {
         }
         const query = this.getInsertStatement();
         const params = this.getSingularInsertParams();
-        promises.push(SQL["a" /* SQL */].query(query, params));
+        promises.push(SQL["b" /* SQL */].query(query, params));
         await Promise.all(promises);
     }
     async bulkInsert(csvFile) {
@@ -176,7 +176,7 @@ class DBObject_DBObject {
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
         //fancyLog(query);
-        await SQL["a" /* SQL */].query(query, [csvFile]);
+        await SQL["b" /* SQL */].query(query, [csvFile]);
     }
     static stringifyBigIntsInPlace(obj) {
         if (typeof obj === "object") {
@@ -190,7 +190,7 @@ class DBObject_DBObject {
         }
     }
     asCSVRow() {
-        return SQL["a" /* SQL */].csvRow(this.getInsertParams());
+        return SQL["b" /* SQL */].csvRow(this.getInsertParams());
     }
     async enqueueInsert(options = { recursive: false }) {
         const promises = [];
@@ -209,14 +209,14 @@ class DBObject_DBObject {
         else
             cols = "*";
         const query = `select ${cols} from ${this.table()} where ${this.idCol()} = ?`;
-        return await SQL["a" /* SQL */].query(query, [this.getID()])[0];
+        return await SQL["b" /* SQL */].query(query, [this.getID()])[0];
     }
     async bulkSelect(ids, columns) {
         if (!ids || ids.length === 0)
             return [];
         const idCol = this.idCol();
         const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
-        const response = await SQL["a" /* SQL */].query(query, [[ids]]);
+        const response = await SQL["b" /* SQL */].query(query, [[ids]]);
         return response;
     }
     idCol() {
@@ -366,7 +366,8 @@ const IDENTITY_FUNCTION = (r) => r;
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return REDIS_PARAMS; });
-/* unused harmony export STATIC_CONNECTIONS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return STATIC_CONNECTIONS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return SUB_CONNECTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
@@ -431,6 +432,7 @@ const REDIS_PARAMS = {
 for (const key in REDIS_PARAMS)
     REDIS_PARAMS[key].name = key;
 const STATIC_CONNECTIONS = {};
+const SUB_CONNECTIONS = [];
 /*
  * A proxy for the redis client, which survives all sorts of
  * errors from client resets.
@@ -586,6 +588,12 @@ class Redis {
             }
         });
         return new Redis(params, client);
+    }
+    static newSub(paramsOrHost) {
+        const params = this.computeParams(paramsOrHost);
+        const redis = this.newRedis(params);
+        SUB_CONNECTIONS.push(redis.client);
+        return redis;
     }
 }
 Redis.defaultHostParams = (host) => ({
@@ -983,7 +991,8 @@ function fileNameToFormat(fileName) {
 
 "use strict";
 /* unused harmony export SQL_PARAMS */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SQL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DB_CLIENT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return SQL; });
 /* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(13);
 /* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(46);
 /* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_1__);
@@ -2318,7 +2327,7 @@ var SQL = __webpack_require__(11);
 
 insertColdStartObjects().then(async () => {
     Object(util["d" /* fancyLog */])("Done.");
-    SQL["a" /* SQL */].destroy();
+    SQL["b" /* SQL */].destroy();
     process.exit(0);
 });
 

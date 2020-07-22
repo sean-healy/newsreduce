@@ -69,6 +69,7 @@ export interface ExtendedRedisClient extends RedisClient {
 }
 
 export const STATIC_CONNECTIONS: { [key: string]: ExtendedRedisClient } = {};
+export const SUB_CONNECTIONS: ExtendedRedisClient[] = [];
 
 /*
  * A proxy for the redis client, which survives all sorts of
@@ -303,7 +304,6 @@ export class Redis {
 
         return redis;
     }
-
     static defaultHostParams = (host: string) => ({
         host,
         name: host,
@@ -329,5 +329,12 @@ export class Redis {
         });
 
         return new Redis(params, client);
+    }
+    static newSub(paramsOrHost: RedisParamsValueType | string) {
+        const params = this.computeParams(paramsOrHost);
+        const redis = this.newRedis(params);
+        SUB_CONNECTIONS.push(redis.client);
+
+        return redis;
     }
 }

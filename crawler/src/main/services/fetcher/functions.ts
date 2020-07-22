@@ -18,7 +18,7 @@ import { DBObject } from "types/DBObject";
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
         const resource = new ResourceURL(url);
-        fancyLog(JSON.stringify(resource));
+        //fancyLog(JSON.stringify(resource));
         const time = milliTimestamp();
         const bodyLength = await resource.writeVersion(time, FileFormat.RAW_HTML, response.body);
         let headers = [];
@@ -83,7 +83,6 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
                     const resourceURL =
                         await ResourceURL.popForFetching(hostname);
                     if (resourceURL && resourceURL.isValid()) {
-                        fancyLog(JSON.stringify(resourceURL));
                         const url = resourceURL.toURL();
                         throttle(hostname, throttles[hostname]);
                         await fetchAndWrite(url);

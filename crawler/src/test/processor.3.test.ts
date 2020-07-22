@@ -18,8 +18,8 @@ const AFTER_EVENT = "test-after3";
 const PRE = new Set<string>();
 PRE.add(BEFORE_EVENT);
 test("standard processor should lock", async () => {
-    const trigger = Redis.newRedis(REDIS_PARAMS.events);
-    const redisCLI = Redis.newRedis(REDIS_PARAMS.events);
+    const trigger = Redis.renewRedis(REDIS_PARAMS.events);
+    const redisCLI = Redis.newSub(REDIS_PARAMS.events);
     await new Promise(res => {
         redisCLI.client.subscribe(EVENT_LOG);
         redisCLI.client.on("message", (_, msg) => {

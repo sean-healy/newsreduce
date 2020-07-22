@@ -3,17 +3,37 @@ import crypto from "crypto";
 import { EVENT_LOG } from "common/events";
 import { safetyFilePromise } from "common/config";
 import { setImmediateInterval, fancyLog } from "common/util";
-import { Redis, REDIS_PARAMS } from "./Redis";
+import { Redis, REDIS_PARAMS, STATIC_CONNECTIONS, SUB_CONNECTIONS } from "./Redis";
+import { DB_CLIENT } from "common/SQL";
 
-let locks = {};
+function safelyExit() {
+    fancyLog("Safety procedure activated. Exiting.");
+    for (const connection of Object.values(STATIC_CONNECTIONS))
+        if (connection && connection.connected)
+            connection.quit();
+    for (const connection of SUB_CONNECTIONS)
+        if (connection && connection.connected)
+            connection.quit();
+    if (DB_CLIENT) DB_CLIENT.destroy();
+    if (INTERVAL) clearInterval(INTERVAL);
+    if (SAFETY_INTERVAL) clearInterval(SAFETY_INTERVAL);
+}
+
+let LOCKS = {};
 async function synchronised(name: string, f: () => Promise<any>, postcondition: string) {
-    if (name in locks) return;
-    locks[name] = true;
+    if (name in LOCKS) return;
+    if (SAFELY_EXIT) safelyExit()
+    LOCKS[name] = true;
     f().then(() => {
-        delete locks[name];
+        delete LOCKS[name];
         Redis.renewRedis(REDIS_PARAMS.events).publish(EVENT_LOG, postcondition);
+        if (SAFELY_EXIT) safelyExit()
     });
 }
+
+let INTERVAL: NodeJS.Timeout = undefined;
+let SAFETY_INTERVAL: NodeJS.Timeout = undefined;
+let SAFELY_EXIT = false;
 
 export function startProcessor(
     f: () => Promise<any>,
@@ -24,33 +44,24 @@ export function startProcessor(
         period?: number;
     } = { interval: true, period: 2000 }
 ) {
-    let safelyExit = false;
     const name = crypto.randomBytes(30).toString("base64");
-    let interval: NodeJS.Timeout = undefined;
     if (options.interval || options.interval === undefined)
-        interval = setImmediateInterval(() => {
-            if (!safelyExit) synchronised(name, f, postcondition);
+        INTERVAL = setImmediateInterval(() => {
+            if (!SAFELY_EXIT) synchronised(name, f, postcondition);
         }, options.period ? options.period : 2000);
     let events: Redis;
     if (preconditions && preconditions.size > 0) {
-        events = Redis.newRedis(REDIS_PARAMS.events);
+        events = Redis.newSub(REDIS_PARAMS.events);
         events.client.subscribe(EVENT_LOG);
         events.client.on("message", (_, msg) => {
             if (preconditions.has(msg))
                 synchronised(name, f, postcondition);
         });
     } else events = null;
-    const safetyInterval = setImmediateInterval(async () => {
+    SAFETY_INTERVAL = setImmediateInterval(async () => {
         const content = fs.readFileSync(await safetyFilePromise()).toString();
-        if (content.match(/1/)) {
-            safelyExit = true;
-            clearInterval(interval);
-            clearInterval(safetyInterval);
-            if (events) events.client.quit();
-            fancyLog("Safety procedure activated. Exiting.");
-            process.exit();
-        }
+        if (content.match(/1/)) SAFELY_EXIT = true;
     }, 1000);
-    return { interval, events };
+    return { INTERVAL, events };
 }
 

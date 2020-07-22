@@ -18,7 +18,7 @@ test("DB functioning", async () => {
 });
 
 test("creating redis connections for var IP should work", async () => {
-    const client = Redis.newRedis("127.0.0.1");
+    const client = Redis.renewRedis("127.0.0.1");
     expect(REDIS_PARAMS["127.0.0.1"]).toStrictEqual({
         host: "127.0.0.1",
         port: 6379,

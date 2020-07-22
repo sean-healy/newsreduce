@@ -7,7 +7,7 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog } from "common/util";
 
 async function watch() {
-    const client = Redis.newRedis(REDIS_PARAMS.local);
+    const client = Redis.newSub(REDIS_PARAMS.local);
     client.client.subscribe(DELETE_FILES);
     fancyLog("Subscribed to channel: " + DELETE_FILES);
     client.client.on("message", async (_, msg: string) => {

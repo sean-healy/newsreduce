@@ -163,7 +163,7 @@ class DBObject_DBObject {
         }
         const query = this.getInsertStatement();
         const params = this.getSingularInsertParams();
-        promises.push(SQL["a" /* SQL */].query(query, params));
+        promises.push(SQL["b" /* SQL */].query(query, params));
         await Promise.all(promises);
     }
     async bulkInsert(csvFile) {
@@ -176,7 +176,7 @@ class DBObject_DBObject {
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
         //fancyLog(query);
-        await SQL["a" /* SQL */].query(query, [csvFile]);
+        await SQL["b" /* SQL */].query(query, [csvFile]);
     }
     static stringifyBigIntsInPlace(obj) {
         if (typeof obj === "object") {
@@ -190,7 +190,7 @@ class DBObject_DBObject {
         }
     }
     asCSVRow() {
-        return SQL["a" /* SQL */].csvRow(this.getInsertParams());
+        return SQL["b" /* SQL */].csvRow(this.getInsertParams());
     }
     async enqueueInsert(options = { recursive: false }) {
         const promises = [];
@@ -209,14 +209,14 @@ class DBObject_DBObject {
         else
             cols = "*";
         const query = `select ${cols} from ${this.table()} where ${this.idCol()} = ?`;
-        return await SQL["a" /* SQL */].query(query, [this.getID()])[0];
+        return await SQL["b" /* SQL */].query(query, [this.getID()])[0];
     }
     async bulkSelect(ids, columns) {
         if (!ids || ids.length === 0)
             return [];
         const idCol = this.idCol();
         const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
-        const response = await SQL["a" /* SQL */].query(query, [[ids]]);
+        const response = await SQL["b" /* SQL */].query(query, [[ids]]);
         return response;
     }
     idCol() {
@@ -366,7 +366,8 @@ const IDENTITY_FUNCTION = (r) => r;
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return REDIS_PARAMS; });
-/* unused harmony export STATIC_CONNECTIONS */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return STATIC_CONNECTIONS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return SUB_CONNECTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
@@ -431,6 +432,7 @@ const REDIS_PARAMS = {
 for (const key in REDIS_PARAMS)
     REDIS_PARAMS[key].name = key;
 const STATIC_CONNECTIONS = {};
+const SUB_CONNECTIONS = [];
 /*
  * A proxy for the redis client, which survives all sorts of
  * errors from client resets.
@@ -586,6 +588,12 @@ class Redis {
             }
         });
         return new Redis(params, client);
+    }
+    static newSub(paramsOrHost) {
+        const params = this.computeParams(paramsOrHost);
+        const redis = this.newRedis(params);
+        SUB_CONNECTIONS.push(redis.client);
+        return redis;
     }
 }
 Redis.defaultHostParams = (host) => ({
@@ -983,7 +991,8 @@ function fileNameToFormat(fileName) {
 
 "use strict";
 /* unused harmony export SQL_PARAMS */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SQL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DB_CLIENT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return SQL; });
 /* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(13);
 /* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(46);
 /* harmony import */ var mysql__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(mysql__WEBPACK_IMPORTED_MODULE_1__);
@@ -2139,34 +2148,56 @@ class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(1);
 /* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(2);
+/* harmony import */ var common_SQL__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(11);
 
 
 
 
 
 
-let locks = {};
+
+function safelyExit() {
+    Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
+    for (const connection of Object.values(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* STATIC_CONNECTIONS */ "c"]))
+        if (connection && connection.connected)
+            connection.quit();
+    for (const connection of _Redis__WEBPACK_IMPORTED_MODULE_5__[/* SUB_CONNECTIONS */ "d"])
+        if (connection && connection.connected)
+            connection.quit();
+    if (common_SQL__WEBPACK_IMPORTED_MODULE_6__[/* DB_CLIENT */ "a"])
+        common_SQL__WEBPACK_IMPORTED_MODULE_6__[/* DB_CLIENT */ "a"].destroy();
+    if (INTERVAL)
+        clearInterval(INTERVAL);
+    if (SAFETY_INTERVAL)
+        clearInterval(SAFETY_INTERVAL);
+}
+let LOCKS = {};
 async function synchronised(name, f, postcondition) {
-    if (name in locks)
+    if (name in LOCKS)
         return;
-    locks[name] = true;
+    if (SAFELY_EXIT)
+        safelyExit();
+    LOCKS[name] = true;
     f().then(() => {
-        delete locks[name];
+        delete LOCKS[name];
         _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
+        if (SAFELY_EXIT)
+            safelyExit();
     });
 }
+let INTERVAL = undefined;
+let SAFETY_INTERVAL = undefined;
+let SAFELY_EXIT = false;
 function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
-    let safelyExit = false;
     const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
-    let interval = undefined;
     if (options.interval || options.interval === undefined)
-        interval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
-            if (!safelyExit)
+        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => {
+            if (!SAFELY_EXIT)
                 synchronised(name, f, postcondition);
         }, options.period ? options.period : 2000);
     let events;
     if (preconditions && preconditions.size > 0) {
-        events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
+        events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
         events.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"]);
         events.client.on("message", (_, msg) => {
             if (preconditions.has(msg))
@@ -2175,19 +2206,12 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     }
     else
         events = null;
-    const safetyInterval = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
+    SAFETY_INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
         const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
-        if (content.match(/1/)) {
-            safelyExit = true;
-            clearInterval(interval);
-            clearInterval(safetyInterval);
-            if (events)
-                events.client.quit();
-            Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
-            process.exit();
-        }
+        if (content.match(/1/))
+            SAFELY_EXIT = true;
     }, 1000);
-    return { interval, events };
+    return { INTERVAL, events };
 }
 
 
@@ -2373,7 +2397,7 @@ async function insertForKey(key) {
         if (list && list.length !== 0) {
             let rows = list;
             if (!NEW_SADD_FEATURE)
-                rows = rows.map(row => row.charAt(0) === "[" ? SQL["a" /* SQL */].csvRow(JSON.parse(row)) : row);
+                rows = rows.map(row => row.charAt(0) === "[" ? SQL["b" /* SQL */].csvRow(JSON.parse(row)) : row);
             setStage(key, `INSERTING (${list.length} ${external_path_default.a.basename(loadFile).substr(0, 4)})`);
             //fancyLog(rows.join("\n"));
             external_fs_default.a.writeFileSync(loadFile, rows.join("\n"));
