@@ -1691,7 +1691,7 @@ function lastModifiedOver(path, ms) {
 async function findVersions(entity, entityID) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
-    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) && lastModifiedOver(compressedArc, 3000))
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedOver(compressedArc, 3000))
         return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];

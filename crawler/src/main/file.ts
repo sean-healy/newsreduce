@@ -76,7 +76,7 @@ function lastModifiedOver(path: string, ms: number) {
 export async function findVersions(entity: Entity, entityID: bigint) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
-    if (!fs.existsSync(compressedArc) && lastModifiedOver(compressedArc, 3000)) return [];
+    if (!fs.existsSync(compressedArc) || lastModifiedOver(compressedArc, 3000)) return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];
     const err = [];
