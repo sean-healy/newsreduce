@@ -1765,13 +1765,13 @@ __webpack_require__.r(__webpack_exports__);
 
 class ResourceHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(url, name, value) {
-        if (!url)
-            super();
-        else
+        if (url)
             super({
                 resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
                 header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](name, value),
             });
+        else
+            super();
     }
     insertCols() {
         return ["resource", "header"];
@@ -2099,8 +2099,19 @@ class ResourceHTMLHead extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceThrottle", function() { return ResourceThrottle; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+
 
 class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(url, throttle) {
+        if (url)
+            super({
+                resource: new _ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
+                throttle,
+            });
+        else
+            super();
+    }
     insertCols() {
         return ["resource", "throttle"];
     }
@@ -2785,11 +2796,7 @@ class ExtractAHrefs_ExtractAHrefs extends HTMLDocumentProcessor {
     ro() { return true; }
     async apply(window) {
         const links = getLinks(window);
-        const promises = new Array(links.length);
-        let i = 0;
-        for (const link of links)
-            promises[i++] = link.enqueueInsert({ recursive: true });
-        await Promise.all(promises);
+        await Promise.all(links.map(link => link.enqueueInsert({ recursive: true })));
     }
 }
 
@@ -2825,7 +2832,11 @@ var WikiCategory = __webpack_require__(30);
 // EXTERNAL MODULE: ./dist/main/types/objects/WikiPage.js
 var WikiPage = __webpack_require__(34);
 
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceThrottle.js
+var ResourceThrottle = __webpack_require__(44);
+
 // CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractWikiTree.js
+
 
 
 
@@ -2867,7 +2878,8 @@ function getEntities(window) {
         .map(child => new WikiCategory["WikiCategory"]({ parent, child }));
     const pages = subWikiPageURLs
         .map(url => new WikiPage["WikiPage"](url));
-    return relations.concat(pages);
+    const throttles = children.map(url => new ResourceThrottle["ResourceThrottle"](url, 7 * 24 * 60 * 60 * 1000));
+    return relations.concat(pages).concat(throttles);
 }
 class ExtractWikiTree_ExtractWikiTree extends HTMLDocumentProcessor {
     ro() { return true; }

@@ -4,6 +4,7 @@ import { DOMWindow } from "jsdom";
 import { WikiCategory } from "types/objects/WikiCategory";
 import { WikiPage } from "types/objects/WikiPage";
 import { DBObject } from "types/DBObject";
+import { ResourceThrottle } from "types/objects/ResourceThrottle";
 
 const SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
 const CATEGORY_PAGE_SELECT = "#mw-pages .mw-category .mw-category-group li>a";
@@ -47,8 +48,9 @@ export function getEntities(window: DOMWindow) {
         .map(child => new WikiCategory({ parent, child }));
     const pages: DBObject<any>[] = subWikiPageURLs
         .map(url => new WikiPage(url));
+    const throttles = children.map(url => new ResourceThrottle(url, 7 * 24 * 60 * 60 * 1000));
 
-    return relations.concat(pages);
+    return relations.concat(pages).concat(throttles);
 }
 
 export class ExtractWikiTree extends HTMLDocumentProcessor {

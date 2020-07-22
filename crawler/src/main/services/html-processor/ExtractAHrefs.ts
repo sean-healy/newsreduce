@@ -39,10 +39,6 @@ export class ExtractAHrefs extends HTMLDocumentProcessor {
     ro() { return true; }
     async apply(window: DOMWindow) {
         const links = getLinks(window);
-        const promises = new Array(links.length);
-        let i = 0;
-        for (const link of links) promises[i++] = link.enqueueInsert({ recursive: true });
-
-        await Promise.all(promises);
+        await Promise.all(links.map(link => link.enqueueInsert({ recursive: true })));
     }
 }

@@ -7,11 +7,11 @@ export class ResourceHeader extends DBObject<ResourceHeader> {
     readonly header: HTTPHeader;
 
     constructor(url?: string, name?: string, value?: string) {
-        if (!url) super();
-        else super({
+        if (url) super({
             resource: new ResourceURL(url),
             header: new HTTPHeader(name, value),
         });
+        else super();
     }
 
     insertCols(): string[] {

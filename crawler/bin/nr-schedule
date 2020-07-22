@@ -1765,13 +1765,13 @@ __webpack_require__.r(__webpack_exports__);
 
 class ResourceHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(url, name, value) {
-        if (!url)
-            super();
-        else
+        if (url)
             super({
                 resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
                 header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](name, value),
             });
+        else
+            super();
     }
     insertCols() {
         return ["resource", "header"];
@@ -2099,8 +2099,19 @@ class ResourceHTMLHead extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceThrottle", function() { return ResourceThrottle; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+
 
 class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(url, throttle) {
+        if (url)
+            super({
+                resource: new _ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
+                throttle,
+            });
+        else
+            super();
+    }
     insertCols() {
         return ["resource", "throttle"];
     }
