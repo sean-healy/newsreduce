@@ -6,7 +6,7 @@ import { log } from "common/logging";
 import { COMPRESSOR_LOCK, SYNC_LOCK } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog } from "common/util";
-import { lastModifiedAfter } from "file";
+import { lastModifiedBefore } from "file";
 
 async function tryLoop(spawner: () => ChildProcessWithoutNullStreams) {
     for (let attempt = 0; attempt < 10; attempt++) {
@@ -87,10 +87,7 @@ export async function compress() {
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`
             const arc = `${entityDir}.tar`
             // Only compress files not touched in past 5s.
-            if (lastModifiedAfter(entityDir, 5000)) {
-                fancyLog("skip");
-                continue;
-            }
+            if (lastModifiedBefore(entityDir, 5000)) continue;
             const compressedArcExists = fs.existsSync(compressedArc);
             if (compressedArcExists) {
                 promises.push(spawnSeq([

@@ -1600,8 +1600,8 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return write; });
 /* unused harmony export sortVersions */
-/* unused harmony export lastModifiedBefore */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedAfter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedBefore; });
+/* unused harmony export lastModifiedAfter */
 /* unused harmony export findVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return read; });

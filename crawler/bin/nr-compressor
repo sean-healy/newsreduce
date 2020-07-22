@@ -877,8 +877,8 @@ module.exports = require("child_process");
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return write; });
 /* unused harmony export sortVersions */
-/* unused harmony export lastModifiedBefore */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedAfter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedBefore; });
+/* unused harmony export lastModifiedAfter */
 /* unused harmony export findVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return read; });
@@ -1283,10 +1283,8 @@ async function compress() {
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
             const arc = `${entityDir}.tar`;
             // Only compress files not touched in past 5s.
-            if (Object(file["b" /* lastModifiedAfter */])(entityDir, 5000)) {
-                Object(util["d" /* fancyLog */])("skip");
+            if (Object(file["b" /* lastModifiedBefore */])(entityDir, 5000))
                 continue;
-            }
             const compressedArcExists = external_fs_default.a.existsSync(compressedArc);
             if (compressedArcExists) {
                 promises.push(spawnSeq([
