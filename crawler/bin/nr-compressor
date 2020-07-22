@@ -877,8 +877,8 @@ module.exports = require("child_process");
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return write; });
 /* unused harmony export sortVersions */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedBefore; });
-/* unused harmony export lastModifiedAfter */
+/* unused harmony export lastModifiedBefore */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedAfter; });
 /* unused harmony export findVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return read; });
@@ -1274,12 +1274,13 @@ async function compress() {
     for (const entity of entities) {
         const entitiesDir = external_path_default.a.join(tmpDir, entity);
         const entityIDs = external_fs_default.a.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
+        console.log(`compressing ${entityIDs.length} entities.`);
         for (const entityID of entityIDs) {
             const entityDir = external_path_default.a.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
             const arc = `${entityDir}.tar`;
             // Only compress files not touched in past 5s.
-            if (Object(file["b" /* lastModifiedBefore */])(entityDir, 5000))
+            if (Object(file["b" /* lastModifiedAfter */])(entityDir, 5000))
                 continue;
             const compressedArcExists = external_fs_default.a.existsSync(compressedArc);
             if (compressedArcExists) {
