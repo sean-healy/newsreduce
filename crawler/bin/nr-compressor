@@ -1279,8 +1279,10 @@ async function compress() {
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
             const arc = `${entityDir}.tar`;
             // Only compress files not touched in past 5s.
-            if (Object(file["b" /* lastModifiedAfter */])(entityDir, 5000))
+            if (Object(file["b" /* lastModifiedAfter */])(entityDir, 5000)) {
+                Object(util["d" /* fancyLog */])("skip");
                 continue;
+            }
             const compressedArcExists = external_fs_default.a.existsSync(compressedArc);
             if (compressedArcExists) {
                 promises.push(spawnSeq([
