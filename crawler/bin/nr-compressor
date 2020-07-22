@@ -894,8 +894,6 @@ module.exports = require("child_process");
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
 /* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(12);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(1);
-
 
 
 
@@ -965,8 +963,6 @@ const sortVersions = (versions) => versions.sort((v1, v2) => {
  */
 function lastModifiedBefore(path, ms) {
     const stat = fs__WEBPACK_IMPORTED_MODULE_0___default.a.statSync(path);
-    Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(`mod: ${stat.mtimeMs}`);
-    Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(`now: ${Date.now()}`);
     return stat.mtimeMs + ms < Date.now();
 }
 /*

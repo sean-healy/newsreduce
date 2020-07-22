@@ -76,8 +76,6 @@ export const sortVersions = (versions: [number, FileFormat][]) => versions.sort(
  */
 export function lastModifiedBefore(path: string, ms: number) {
     const stat = fs.statSync(path);
-    fancyLog(`mod: ${stat.mtimeMs}`);
-    fancyLog(`now: ${Date.now()}`);
     return stat.mtimeMs + ms < Date.now();
 }
 /*
