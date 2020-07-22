@@ -69,14 +69,26 @@ export const sortVersions = (versions: [number, FileFormat][]) => versions.sort(
     const vFormat2 = v2[1];
     return vFormat1 - vFormat2;
 });
-function lastModifiedOver(path: string, ms: number) {
+/*
+ * Returns true if the path has been modified before 'ms'
+ * milliseconds ago (exclusive).
+ */
+function lastModifiedBefore(path: string, ms: number) {
     const stat = fs.statSync(path);
     return stat.mtimeMs + ms < Date.now();
+}
+/*
+ * Returns true if the path has been modified after 'ms'
+ * milliseconds ago (inclusive).
+ */
+function lastModifiedAfter(path: string, ms: number) {
+    return !lastModifiedBefore(path, ms);
 }
 export async function findVersions(entity: Entity, entityID: bigint) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
-    if (!fs.existsSync(compressedArc) || lastModifiedOver(compressedArc, 3000)) return [];
+    // Ignore files that are not written yet, or that have been written too recently.
+    if (!fs.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000)) return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];
     const err = [];
