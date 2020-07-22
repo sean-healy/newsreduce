@@ -45,11 +45,6 @@ export const REDIS_PARAMS = {
         port: DEFAULT_REDIS_PORT,
         db: 4,
     } as RedisParamsValueType,
-    fileLock: {
-        host: LOCALHOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 5,
-    } as RedisParamsValueType,
     fetchLock: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,

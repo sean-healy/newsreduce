@@ -303,11 +303,6 @@ const REDIS_PARAMS = {
         port: DEFAULT_REDIS_PORT,
         db: 4,
     },
-    fileLock: {
-        host: LOCALHOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 5,
-    },
     fetchLock: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,

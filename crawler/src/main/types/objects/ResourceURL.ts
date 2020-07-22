@@ -128,7 +128,6 @@ export class ResourceURL extends DBObject<ResourceURL> {
     ) {
         const id = this.getID();
         // Wait 15 seconds before attempting to compress the outer dir.
-        Redis.renewRedis(REDIS_PARAMS.fileLock).setex(id.toString(), 15);
         log("Writing", FileFormat[format]);
 
         return write(Entity.RESOURCE, id, version, format, input);

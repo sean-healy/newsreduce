@@ -61,6 +61,6 @@ export function startProcessor(
         const content = fs.readFileSync(await safetyFilePromise()).toString();
         if (content.match(/1/)) SAFELY_EXIT[0] = true;
     }, 1000);
-    return { INTERVAL, events };
+    return { interval: INTERVAL, events };
 }
 

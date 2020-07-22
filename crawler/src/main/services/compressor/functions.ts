@@ -65,10 +65,6 @@ async function spawnSeq(sequence: [string, string, string[]][]) {
     }
 }
 
-export function isEntityLocked(entityID: string) {
-    return Redis.renewRedis(REDIS_PARAMS.fileLock).eq(entityID);
-}
-
 export async function compress() {
     const redis = Redis.renewRedis(REDIS_PARAMS.local);
     const locked = await redis.eq(COMPRESSOR_LOCK);
@@ -87,7 +83,6 @@ export async function compress() {
         const entitiesDir = path.join(tmpDir, entity);
         const entityIDs = fs.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         for (const entityID of entityIDs) {
-            if (await isEntityLocked(entityID)) continue;
             const entityDir = path.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`
             const arc = `${entityDir}.tar`

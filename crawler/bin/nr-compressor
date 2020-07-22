@@ -266,11 +266,6 @@ const REDIS_PARAMS = {
         port: DEFAULT_REDIS_PORT,
         db: 4,
     },
-    fileLock: {
-        host: LOCALHOST,
-        port: DEFAULT_REDIS_PORT,
-        db: 5,
-    },
     fetchLock: {
         host: MAIN_HOST,
         port: DEFAULT_REDIS_PORT,
@@ -932,8 +927,8 @@ async function write(entity, entityID, version, format, src) {
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
     if (found)
         return -1;
-    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`, `${version}`);
-    const tmpFile = `${dir}/${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`;
+    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`);
+    const tmpFile = `${dir}/${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`;
     Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing to", tmpFile);
     await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "h"])(dir);
     const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
@@ -981,7 +976,7 @@ async function findVersions(entity, entityID) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000))
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 3000))
         return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];
@@ -992,11 +987,11 @@ async function findVersions(entity, entityID) {
         tarLS.stdout.on("data", (data) => {
             for (const version of data
                 .toString()
-                .split("\n")
-                .map(line => line.replace(/^[0-9]+\//, ""))
-                .filter(line => line.match(/^[0-9]+\/./))
-                .map(line => line.split("/", 2))
-                .map(arr => [parseInt(arr[0]), Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* fileNameToFormat */ "b"])(arr[1])]))
+                .split("\n") // Separate out lines.
+                .map(line => line.replace(/^[0-9]+\//, "")) // Remove redundant entity ID.
+                .filter(line => line.match(/^[0-9]+_/)) // Ensure this addresses a file.
+                .map(line => line.split(/[/_]/, 2)) // Split on spaces and underscore.
+                .map(arr => [parseInt(arr[0]), Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* fileNameToFormat */ "b"])(arr[1])])) // parse time and format pieces.
                 versions.push(version);
         });
         tarLS.stderr.on("data", (data) => err.push(data));
@@ -1011,7 +1006,7 @@ async function findFormats(entity, entityID, version) {
 async function read(entity, entityID, version, format) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
-    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}`, Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format));
+    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000))
         return null;
@@ -1135,7 +1130,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
         if (content.match(/1/))
             SAFELY_EXIT[0] = true;
     }, 1000);
-    return { INTERVAL, events };
+    return { interval: INTERVAL, events };
 }
 
 
@@ -1262,9 +1257,6 @@ async function spawnSeq(sequence) {
         await spawnSeq(tail);
     }
 }
-function isEntityLocked(entityID) {
-    return Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fileLock).eq(entityID);
-}
 async function compress() {
     const redis = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local);
     const locked = await redis.eq(events["c" /* COMPRESSOR_LOCK */]);
@@ -1283,8 +1275,6 @@ async function compress() {
         const entitiesDir = external_path_default.a.join(tmpDir, entity);
         const entityIDs = external_fs_default.a.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         for (const entityID of entityIDs) {
-            if (await isEntityLocked(entityID))
-                continue;
             const entityDir = external_path_default.a.join(entitiesDir, entityID);
             const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
             const arc = `${entityDir}.tar`;

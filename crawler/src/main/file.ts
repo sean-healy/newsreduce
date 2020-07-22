@@ -39,8 +39,8 @@ export async function write(
     const versions = await findVersions(entity, entityID);
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
     if (found) return -1;
-    const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`, `${version}`);
-    const tmpFile = `${dir}/${formatToFileName(format)}`;
+    const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
+    const tmpFile = `${dir}/${version}_${formatToFileName(format)}`;
     log("Writing to", tmpFile);
     await safeMkdir(dir);
     const dst = fs.createWriteStream(tmpFile);
@@ -88,7 +88,7 @@ export async function findVersions(entity: Entity, entityID: bigint) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000)) return [];
+    if (!fs.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 3000)) return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];
     const err = [];
@@ -98,11 +98,11 @@ export async function findVersions(entity: Entity, entityID: bigint) {
         tarLS.stdout.on("data", (data: Buffer) => {
             for (const version of data
                 .toString()
-                .split("\n")
-                .map(line => line.replace(/^[0-9]+\//, ""))
-                .filter(line => line.match(/^[0-9]+\/./))
-                .map(line => line.split("/", 2))
-                .map(arr => [parseInt(arr[0]), fileNameToFormat(arr[1])]))
+                .split("\n")                                               // Separate out lines.
+                .map(line => line.replace(/^[0-9]+\//, ""))                // Remove redundant entity ID.
+                .filter(line => line.match(/^[0-9]+_/))                    // Ensure this addresses a file.
+                .map(line => line.split(/[/_]/, 2))                        // Split on spaces and underscore.
+                .map(arr => [parseInt(arr[0]), fileNameToFormat(arr[1])])) // parse time and format pieces.
                 versions.push(version);
         });
         tarLS.stderr.on("data", (data: Buffer) => err.push(data));
@@ -118,7 +118,7 @@ export async function findFormats(entity: Entity, entityID: bigint, version: num
 export async function read(entity: Entity, entityID: bigint, version: number, format: FileFormat) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
-    const tarPath = path.join(`${entityID}`, `${version}`, formatToFileName(format));
+    const tarPath = path.join(`${entityID}`, `${version}_${formatToFileName(format)}`);
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000)) return null;
     return await new Promise<Buffer>((res, rej) => {
