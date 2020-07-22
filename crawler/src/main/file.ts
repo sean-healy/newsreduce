@@ -5,6 +5,7 @@ import { blobDirPromise, tmpDirPromise, TAR, safeMkdir } from "common/config";
 import { log } from "common/logging";
 import { FileFormat, formatToFileName, fileNameToFormat } from "types/FileFormat";
 import { Entity, entityName } from "types/Entity";
+import { fancyLog } from "common/util";
 
 const FINISH = "finish";
 const ERROR = "error";
@@ -75,6 +76,8 @@ export const sortVersions = (versions: [number, FileFormat][]) => versions.sort(
  */
 export function lastModifiedBefore(path: string, ms: number) {
     const stat = fs.statSync(path);
+    fancyLog(`mod: ${stat.mtimeMs}`);
+    fancyLog(`now: ${Date.now()}`);
     return stat.mtimeMs + ms < Date.now();
 }
 /*
