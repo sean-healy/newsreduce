@@ -1,7 +1,6 @@
 import { DBObject } from "types/DBObject";
 import { ResourceURL } from "./ResourceURL";
 import { ResourceVersionType } from "./ResourceVersionType";
-import { fancyLog } from "common/util";
 
 export class ResourceVersion extends DBObject<ResourceVersion> {
     readonly resource: ResourceURL;
@@ -19,10 +18,6 @@ export class ResourceVersion extends DBObject<ResourceVersion> {
         return "ResourceVersion";
     }
     getDeps() {
-        const deps = [this.resource, this.type];
-        fancyLog("got deps")
-        console.log(deps);
-
-        return deps;
+        return [this.resource, this.type];
     }
 }

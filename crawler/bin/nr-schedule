@@ -1509,8 +1509,6 @@ module.exports = require("child_process");
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersion", function() { return ResourceVersion; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1);
-
 
 class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     insertCols() {
@@ -1523,10 +1521,7 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
         return "ResourceVersion";
     }
     getDeps() {
-        const deps = [this.resource, this.type];
-        Object(common_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "d"])("got deps");
-        console.log(deps);
-        return deps;
+        return [this.resource, this.type];
     }
 }
 
