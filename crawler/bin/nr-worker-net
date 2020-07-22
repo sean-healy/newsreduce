@@ -695,7 +695,7 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
 /* unused harmony export NET_AGENT_LOG */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SCHEDULE_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
 /* unused harmony export WIKI_PROCESS_COMPLETE */
@@ -704,9 +704,8 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
 /* unused harmony export UNLOCK_FILE */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return SYNC_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SYNC_LOCK; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return INSERT_CACHE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
 const EVENT_LOG = "event-log";
 const FETCHER_BIRTH_LOG = "fetcher-birth-log";
@@ -723,7 +722,6 @@ const UNLOCK_FILE = "unlock-file";
 const COMPRESSOR_LOCK = "compressor-lock";
 const SYNC_LOCK = "sync-lock";
 const BULK_INSERT_COMPLETE = "bulk-insert-complete";
-const INSERT_CACHE = "inserted";
 const FAILURE_CACHE = "failures";
 
 

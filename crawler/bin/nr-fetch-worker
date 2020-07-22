@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 55);
+/******/ 	return __webpack_require__(__webpack_require__.s = 47);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -109,9 +109,6 @@ function defaultHash(prefix, str) {
 // EXTERNAL MODULE: ./dist/main/common/util.js
 var util = __webpack_require__(2);
 
-// EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(8);
-
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(1);
 
@@ -123,7 +120,6 @@ var SQL = __webpack_require__(11);
 
 
 
-
 const ESCAPE = "ESCAPED BY '\\\\'";
 const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
@@ -131,8 +127,8 @@ const LINE_TERM = "LINES TERMINATED BY '\\n'";
 class DBObject_DBObject {
     constructor(src) {
         if (src) {
-            Object(util["d" /* fancyLog */])("constructing db object");
-            console.log(src);
+            //fancyLog("constructing db object");
+            //console.log(src);
             const dst = this;
             for (const property in src) {
                 dst[property] = src[property];
@@ -141,7 +137,7 @@ class DBObject_DBObject {
     }
     getIDBytes() {
         const suffix = this.hashSuffix();
-        return suffix ? defaultHash(this.table(), suffix) : null;
+        return suffix === null ? null : defaultHash(this.table(), suffix);
     }
     getID() {
         const idBytes = this.getIDBytes();
@@ -167,17 +163,11 @@ class DBObject_DBObject {
         }
         const query = this.getInsertStatement();
         const params = this.getSingularInsertParams();
-        promises.push(SQL["a" /* SQL */].query(query, params).then(() => {
-            const id = this.getID();
-            if (id)
-                Redis["b" /* Redis */]
-                    .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                    .sadd(events["l" /* INSERT_CACHE */], id.toString());
-        }));
+        promises.push(SQL["a" /* SQL */].query(query, params));
         await Promise.all(promises);
     }
     async bulkInsert(csvFile) {
-        Object(util["d" /* fancyLog */])(csvFile);
+        //fancyLog(csvFile);
         if (!csvFile)
             return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
@@ -185,7 +175,7 @@ class DBObject_DBObject {
         const query = `LOAD DATA INFILE ? ` +
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
-        Object(util["d" /* fancyLog */])(query);
+        //fancyLog(query);
         await SQL["a" /* SQL */].query(query, [csvFile]);
     }
     static stringifyBigIntsInPlace(obj) {
@@ -209,20 +199,7 @@ class DBObject_DBObject {
             for (const dep of this.getDeps())
                 promises.push(dep.enqueueInsert(options));
         const payload = this.asCSVRow();
-        promises.push(new Promise(async (res) => {
-            const insertedKey = DBObject_DBObject.generateInsertedKey(this.table(), payload);
-            Object(util["d" /* fancyLog */])(insertedKey);
-            const isMember = await Redis["b" /* Redis */]
-                .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                .sismember(events["l" /* INSERT_CACHE */], insertedKey);
-            if (isMember) {
-                console.log("already inserted");
-            }
-            else {
-                await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
-            }
-            res();
-        }));
+        promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload));
         await Promise.all(promises);
     }
     async singularSelect(columns) {
@@ -251,9 +228,6 @@ class DBObject_DBObject {
     static forTable(table) {
         const DBObjectT = __webpack_require__(49)(`./${table}`)[table];
         return new DBObjectT();
-    }
-    static generateInsertedKey(table, csvRow) {
-        return `"${table}",${csvRow}`;
     }
 }
 
@@ -931,7 +905,7 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
 /* unused harmony export NET_AGENT_LOG */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SCHEDULE_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
 /* unused harmony export WIKI_PROCESS_COMPLETE */
@@ -940,9 +914,8 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
 /* unused harmony export UNLOCK_FILE */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return SYNC_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SYNC_LOCK; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return INSERT_CACHE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
 const EVENT_LOG = "event-log";
 const FETCHER_BIRTH_LOG = "fetcher-birth-log";
@@ -959,7 +932,6 @@ const UNLOCK_FILE = "unlock-file";
 const COMPRESSOR_LOCK = "compressor-lock";
 const SYNC_LOCK = "sync-lock";
 const BULK_INSERT_COMPLETE = "bulk-insert-complete";
-const INSERT_CACHE = "inserted";
 const FAILURE_CACHE = "failures";
 
 
@@ -1105,7 +1077,7 @@ class SQL {
         (await SQL.db()).destroy();
     }
     static csvField(param) {
-        Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])("csvField " + `${param}`);
+        //fancyLog("csvField " + `${param}`);
         let stringified;
         if (param === null || param === undefined)
             stringified = "NULL";
@@ -1374,18 +1346,17 @@ class ResourceURLQuery extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
             super(arg);
         }
     }
+    hashSuffix() {
+        return this.value;
+    }
     insertCols() {
         return ["id", "value"];
     }
     getInsertParams() {
-        const params = [this.getID(), this.value];
-        return params;
+        return [this.getID(), this.value];
     }
     table() {
         return "ResourceURLQuery";
-    }
-    hashSuffix() {
-        return this.value;
     }
 }
 
@@ -2238,269 +2209,6 @@ module.exports = require("mysql");
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return milliTimestamp; });
-function milliTimestamp() {
-    return Date.now();
-}
-
-
-/***/ }),
-/* 48 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectPreSchedule; });
-__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ schedule; });
-__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ crawlAllowed; });
-__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectResourcesNotProcessed; });
-__webpack_require__.d(__webpack_exports__, "e", function() { return /* binding */ throttle; });
-
-// UNUSED EXPORTS: processResourceLinks
-
-// CONCATENATED MODULE: ./dist/main/sql.js
-/* harmony default export */ var sql = ({
-    // /home/sean/newsreduce/sql/BULK_INSERT.sql
-    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
-    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
-    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
-    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
-    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
-    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
-    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
-    // /home/sean/newsreduce/sql/INSERT_CLIENT_HEADER_IF_ABSENT.sql
-    INSERT_CLIENT_HEADER_IF_ABSENT: "insert ignore into ClientHeader(client, header) values ?",
-    // /home/sean/newsreduce/sql/INSERT_CLIENT_IF_ABSENT.sql
-    INSERT_CLIENT_IF_ABSENT: "insert ignore into Client(id, name, httpVersion) values ?",
-    // /home/sean/newsreduce/sql/INSERT_CLIENT.sql
-    INSERT_CLIENT: "insert into Client(id, httpVersion, userAgent, accept, acceptLanguage, acceptEncoding, connection, marketShare, upgradeInsecureRequests, utcHourOffset) values ($id, $httpVersion, $userAgent, $accept, $acceptLanguage, $acceptEncoding, $connection, $marketShare, $upgradeInsecureRequests, $utcHourOffset)",
-    // /home/sean/newsreduce/sql/INSERT_FILE_ROW.sql
-    INSERT_FILE_ROW: "insert ignore into File(id, path) values ($id, $path)",
-    // /home/sean/newsreduce/sql/INSERT_FILE.sql
-    INSERT_FILE: "insert ignore into File(id, created) values ($id, $now);",
-    // /home/sean/newsreduce/sql/INSERT_HOSTS_IF_ABSENT.sql
-    INSERT_HOSTS_IF_ABSENT: "insert ignore into Host(id, name, throttle) values ?",
-    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_IF_ABSENT.sql
-    INSERT_HTTP_HEADER_IF_ABSENT: "insert ignore into HTTPHeader(id, name, value) values ?",
-    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_NAMES_IF_ABSENT.sql
-    INSERT_HTTP_HEADER_NAMES_IF_ABSENT: "insert ignore into HTTPHeaderName(id, value) values ?",
-    // /home/sean/newsreduce/sql/INSERT_HTTP_HEADER_VALUES_IF_ABSENT.sql
-    INSERT_HTTP_HEADER_VALUES_IF_ABSENT: "insert ignore into HTTPHeaderValue(id, value) values ?",
-    // /home/sean/newsreduce/sql/INSERT_HTTP_HOST.sql
-    INSERT_HTTP_HOST: "insert into HTTPHost(id, name, throttle) values ($id, $name, $throttle)",
-    // /home/sean/newsreduce/sql/INSERT_IP_HOST.sql
-    INSERT_IP_HOST: "insert into IPHost(id, ip, isIPV6) values ($id, $ip, $isIPV6);",
-    // /home/sean/newsreduce/sql/INSERT_OR_UPDATE_FETCHED_RESOURCE.sql
-    INSERT_OR_UPDATE_FETCHED_RESOURCE: "insert into FetchedResource(id, `count`, mean, status, `length`, `type`) values (?, 1, ?, ?, ?, ?) on duplicate key update mean = (mean * `count` + ?) / (`count` + 1), `count` = `count` + 1, status = ?, `length` = ?, `type` = ?",
-    // /home/sean/newsreduce/sql/INSERT_PROCESSED_HTMLS_IF_ABSENT.sql
-    INSERT_PROCESSED_HTMLS_IF_ABSENT: "insert ignore into ProcessedHTML(resource) values ?",
-    // /home/sean/newsreduce/sql/INSERT_PROCESSED_WIKIS_IF_ABSENT.sql
-    INSERT_PROCESSED_WIKIS_IF_ABSENT: "insert ignore into ProcessedWiki(resource) values ?",
-    // /home/sean/newsreduce/sql/INSERT_PROCESSED_WIKI.sql
-    INSERT_PROCESSED_WIKI: "insert into ProcessedWiki(resource) values ($resource)",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_HEADER_IF_ABSENT.sql
-    INSERT_RESOURCE_HEADER_IF_ABSENT: "insert ignore into ResourceHeader(resource, header) values ?",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_LINK_IF_ABSENT.sql
-    INSERT_RESOURCE_LINK_IF_ABSENT: "insert ignore into ResourceLink(parent, position, child) values ?",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_LINK.sql
-    INSERT_RESOURCE_LINK: "insert ignore into ResourceLink(parent, child, hash) values ($parent, $child, $hash)",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE.sql
-    INSERT_RESOURCE: "insert into Resource(id, created, `ssl`, host, port, path, query, referer, seenByClient) values ?",
-    // /home/sean/newsreduce/sql/INSERT_RESOURCE_URLS_IF_ABSENT.sql
-    INSERT_RESOURCE_URLS_IF_ABSENT: "insert ignore into ResourceURL(id, `ssl`, host, port, path, query) values ?",
-    // /home/sean/newsreduce/sql/INSERT_WIKI_CATEGORIES_IF_ABSENT.sql
-    INSERT_WIKI_CATEGORIES_IF_ABSENT: "insert ignore into WikiCategory(parent, child) values ?",
-    // /home/sean/newsreduce/sql/INSERT_WIKI_PAGES_IF_ABSENT.sql
-    INSERT_WIKI_PAGES_IF_ABSENT: "insert ignore into WikiPage(resource) values ?",
-    // /home/sean/newsreduce/sql/SELECT_FETCHED_URLS.sql
-    SELECT_FETCHED_URLS: "select concat(if(`ssl`, 'https://', 'http://'), h.name, p.value, if(q.value, concat(char(63), q.value), '')) from ResourceURL u inner join FetchedResource f on f.resource = u.id inner join ResourceURLPath p on p.id = u.path inner join ResourceURLQuery q on q.id = u.query inner join Host h on h.id = u.host where f.modified >= ?",
-    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
-    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
-    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
-    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
-    SELECT_RESOURCES_NOT_PROCESSED: "select resource, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts where formats <= 2;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY.sql
-    SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY: "select t.ssl, t.host, t.port, p.value as path, q.value as query from ( select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) union select r.id, r.ssl, h.name as host, r.port, r.path, r.query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory c on c.child = r.id inner join WikiPage p on p.resource = r.id left outer join FetchedResource f on f.resource = r.id where (f.resource is null) ) t inner join ResourceURLPath p on p.id = t.path inner join ResourceURLQuery q on q.id = t.query",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCE.sql
-    SELECT_RESOURCE: "select r.*, h.throttle, h.name as hostname from ResourceURL r inner join Host h on h.id = r.host where r.id = ?",
-    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
-    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
-    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
-    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
-    // /home/sean/newsreduce/sql/SELECT_WIKI_CATEGORIES_NOT_FETCHED.sql
-    SELECT_WIKI_CATEGORIES_NOT_FETCHED: "select r.ssl, h.name as host, r.port, p.value as path, q.value as query from ResourceURL r inner join Host h on h.id = r.host inner join WikiCategory w on w.child = r.id left outer join FetchedResource f on f.resource = r.id inner join ResourceURLPath p on p.id = r.path inner join ResourceURLQuery q on q.id = r.query where f.resource is null limit 100",
-});
-
-// EXTERNAL MODULE: ./dist/main/common/time.js
-var common_time = __webpack_require__(47);
-
-// CONCATENATED MODULE: ./dist/main/common/functional.js
-const thenLog = (msg) => () => console.log(msg);
-const thenDebug = (err) => {
-    if (err)
-        console.debug(err);
-};
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
-var ResourceURL = __webpack_require__(6);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(1);
-
-// EXTERNAL MODULE: ./dist/main/common/SQL.js
-var SQL = __webpack_require__(11);
-
-// CONCATENATED MODULE: ./dist/main/data.js
-
-
-
-
-
-
-
-async function genericSQLPromise(query, params = [], mapper) {
-    let response = await SQL["a" /* SQL */].query(query, params);
-    if (mapper && response)
-        response = mapper(response);
-    return response;
-}
-function selectPreSchedule() {
-    const time = Object(common_time["a" /* milliTimestamp */])();
-    const query = sql.SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY;
-    const params = [time, time];
-    return genericSQLPromise(query, params, (rows) => rows.map(row => new ResourceURL["ResourceURL"](row).toURL()));
-}
-async function schedule(urls) {
-    Object(util["d" /* fancyLog */])(`Attempting to schedule ${urls.length} URLs.`);
-    const promises = [];
-    let scheduled = 0;
-    for (const url of urls) {
-        const resourceURL = new ResourceURL["ResourceURL"](url);
-        if (!await resourceURL.isFetchLocked()) {
-            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
-                .zincrby(resourceURL.host.name, 1, url));
-            ++scheduled;
-        }
-    }
-    if (scheduled)
-        Object(util["d" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
-    await Promise.all(promises);
-}
-function processResourceLinks(parentPositionChild) {
-    const query = sql.INSERT_RESOURCE_LINK_IF_ABSENT;
-    return genericSQLPromise(query, [parentPositionChild]);
-}
-async function crawlAllowed(host) {
-    return !(await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].throttle).eq(host));
-}
-async function selectResourcesNotProcessed() {
-    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
-    return genericSQLPromise(query);
-}
-function throttle(host, ms) {
-    Redis["b" /* Redis */]
-        .renewRedis(Redis["a" /* REDIS_PARAMS */].throttle)
-        .setpx(host, ms, util["b" /* STR_ONE */])
-        .catch(thenDebug);
-}
-
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var map = {
-	"./Client": 21,
-	"./Client.js": 21,
-	"./ClientCookie": 37,
-	"./ClientCookie.js": 37,
-	"./ClientHeader": 15,
-	"./ClientHeader.js": 15,
-	"./FetchedResource": 32,
-	"./FetchedResource.js": 32,
-	"./HTMLAttribute": 38,
-	"./HTMLAttribute.js": 38,
-	"./HTMLAttributeName": 39,
-	"./HTMLAttributeName.js": 39,
-	"./HTMLAttributeValue": 40,
-	"./HTMLAttributeValue.js": 40,
-	"./HTMLNode": 41,
-	"./HTMLNode.js": 41,
-	"./HTMLNodeAttribute": 42,
-	"./HTMLNodeAttribute.js": 42,
-	"./HTMLTag": 43,
-	"./HTMLTag.js": 43,
-	"./HTTPHeader": 16,
-	"./HTTPHeader.js": 16,
-	"./HTTPHeaderName": 25,
-	"./HTTPHeaderName.js": 25,
-	"./HTTPHeaderValue": 17,
-	"./HTTPHeaderValue.js": 17,
-	"./Host": 18,
-	"./Host.js": 18,
-	"./ResourceHTMLHead": 44,
-	"./ResourceHTMLHead.js": 44,
-	"./ResourceHash": 23,
-	"./ResourceHash.js": 23,
-	"./ResourceHeader": 33,
-	"./ResourceHeader.js": 33,
-	"./ResourceLink": 24,
-	"./ResourceLink.js": 24,
-	"./ResourceLinkHash": 34,
-	"./ResourceLinkHash.js": 34,
-	"./ResourceURL": 6,
-	"./ResourceURL.js": 6,
-	"./ResourceURLPath": 19,
-	"./ResourceURLPath.js": 19,
-	"./ResourceURLQuery": 20,
-	"./ResourceURLQuery.js": 20,
-	"./ResourceVersion": 28,
-	"./ResourceVersion.js": 28,
-	"./ResourceVersionType": 29,
-	"./ResourceVersionType.js": 29,
-	"./WikiCategory": 30,
-	"./WikiCategory.js": 30,
-	"./WikiPage": 35,
-	"./WikiPage.js": 35,
-	"./Word": 36,
-	"./Word.js": 36
-};
-
-
-function webpackContext(req) {
-	var id = webpackContextResolve(req);
-	return __webpack_require__(id);
-}
-function webpackContextResolve(req) {
-	if(!__webpack_require__.o(map, req)) {
-		var e = new Error("Cannot find module '" + req + "'");
-		e.code = 'MODULE_NOT_FOUND';
-		throw e;
-	}
-	return map[req];
-}
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 49;
-
-/***/ }),
-/* 50 */,
-/* 51 */,
-/* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
@@ -2553,8 +2261,10 @@ var logging = __webpack_require__(3);
 // EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
 var ResourceURL = __webpack_require__(6);
 
-// EXTERNAL MODULE: ./dist/main/common/time.js
-var common_time = __webpack_require__(47);
+// CONCATENATED MODULE: ./dist/main/common/time.js
+function milliTimestamp() {
+    return Date.now();
+}
 
 // EXTERNAL MODULE: ./dist/main/types/objects/Host.js
 var Host = __webpack_require__(18);
@@ -2585,7 +2295,7 @@ function buildOnFetch(url) {
     return async (response) => {
         const resource = new ResourceURL["ResourceURL"](url);
         Object(util["d" /* fancyLog */])(JSON.stringify(resource));
-        const time = Object(common_time["a" /* milliTimestamp */])();
+        const time = milliTimestamp();
         const bodyLength = await resource.writeVersion(time, FileFormat["a" /* FileFormat */].RAW_HTML, response.body);
         let headers = [];
         let objects = [];
@@ -2663,7 +2373,240 @@ async function pollAndFetch(lo, hi) {
 
 
 
-start(pollAndFetch, events["h" /* FETCHER_BIRTH_LOG */], events["i" /* FETCHER_DEATH_LOG */], new Set(events["m" /* SCHEDULE_COMPLETE */]), events["j" /* FETCH_COMPLETE */]);
+start(pollAndFetch, events["h" /* FETCHER_BIRTH_LOG */], events["i" /* FETCHER_DEATH_LOG */], new Set(events["l" /* SCHEDULE_COMPLETE */]), events["j" /* FETCH_COMPLETE */]);
+
+
+/***/ }),
+/* 48 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectPreSchedule; });
+__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ schedule; });
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ crawlAllowed; });
+__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectResourcesNotProcessed; });
+__webpack_require__.d(__webpack_exports__, "e", function() { return /* binding */ throttle; });
+
+// CONCATENATED MODULE: ./dist/main/sql.js
+/* harmony default export */ var sql = ({
+    // /home/sean/newsreduce/sql/BULK_INSERT.sql
+    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
+    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
+    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
+    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
+    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
+    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
+    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
+    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
+    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
+    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
+    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
+    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
+    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
+    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
+    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
+    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
+    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
+});
+
+// CONCATENATED MODULE: ./dist/main/common/functional.js
+const thenLog = (msg) => () => console.log(msg);
+const thenDebug = (err) => {
+    if (err)
+        console.debug(err);
+};
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
+var ResourceURL = __webpack_require__(6);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(2);
+
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(1);
+
+// EXTERNAL MODULE: ./dist/main/common/SQL.js
+var SQL = __webpack_require__(11);
+
+// CONCATENATED MODULE: ./dist/main/data.js
+
+
+
+
+
+
+async function genericSQLPromise(query, params = [], mapper) {
+    let response = await SQL["a" /* SQL */].query(query, params);
+    if (mapper && response)
+        response = mapper(response);
+    return response;
+}
+function selectPreSchedule() {
+    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
+}
+async function schedule(items) {
+    Object(util["d" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
+    const promises = [];
+    let scheduled = 0;
+    for (const item of items) {
+        const resourceURL = new ResourceURL["ResourceURL"](item.url);
+        if (!await resourceURL.isFetchLocked()) {
+            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
+                .zincrby(resourceURL.host.name, 1, item.url));
+            ++scheduled;
+        }
+    }
+    if (scheduled)
+        Object(util["d" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
+    await Promise.all(promises);
+}
+async function crawlAllowed(host) {
+    return !(await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].throttle).eq(host));
+}
+async function selectResourcesNotProcessed() {
+    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
+    return genericSQLPromise(query);
+}
+function throttle(host, ms) {
+    Redis["b" /* Redis */]
+        .renewRedis(Redis["a" /* REDIS_PARAMS */].throttle)
+        .setpx(host, ms, util["b" /* STR_ONE */])
+        .catch(thenDebug);
+}
+
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var map = {
+	"./Client": 21,
+	"./Client.js": 21,
+	"./ClientCookie": 37,
+	"./ClientCookie.js": 37,
+	"./ClientHeader": 15,
+	"./ClientHeader.js": 15,
+	"./FetchedResource": 32,
+	"./FetchedResource.js": 32,
+	"./HTMLAttribute": 38,
+	"./HTMLAttribute.js": 38,
+	"./HTMLAttributeName": 39,
+	"./HTMLAttributeName.js": 39,
+	"./HTMLAttributeValue": 40,
+	"./HTMLAttributeValue.js": 40,
+	"./HTMLNode": 41,
+	"./HTMLNode.js": 41,
+	"./HTMLNodeAttribute": 42,
+	"./HTMLNodeAttribute.js": 42,
+	"./HTMLTag": 43,
+	"./HTMLTag.js": 43,
+	"./HTTPHeader": 16,
+	"./HTTPHeader.js": 16,
+	"./HTTPHeaderName": 25,
+	"./HTTPHeaderName.js": 25,
+	"./HTTPHeaderValue": 17,
+	"./HTTPHeaderValue.js": 17,
+	"./Host": 18,
+	"./Host.js": 18,
+	"./ResourceActivity": 61,
+	"./ResourceActivity.js": 61,
+	"./ResourceHTMLHead": 44,
+	"./ResourceHTMLHead.js": 44,
+	"./ResourceHash": 23,
+	"./ResourceHash.js": 23,
+	"./ResourceHeader": 33,
+	"./ResourceHeader.js": 33,
+	"./ResourceLink": 24,
+	"./ResourceLink.js": 24,
+	"./ResourceLinkHash": 34,
+	"./ResourceLinkHash.js": 34,
+	"./ResourceThrottle": 62,
+	"./ResourceThrottle.js": 62,
+	"./ResourceURL": 6,
+	"./ResourceURL.js": 6,
+	"./ResourceURLPath": 19,
+	"./ResourceURLPath.js": 19,
+	"./ResourceURLQuery": 20,
+	"./ResourceURLQuery.js": 20,
+	"./ResourceVersion": 28,
+	"./ResourceVersion.js": 28,
+	"./ResourceVersionType": 29,
+	"./ResourceVersionType.js": 29,
+	"./WikiCategory": 30,
+	"./WikiCategory.js": 30,
+	"./WikiPage": 35,
+	"./WikiPage.js": 35,
+	"./Word": 36,
+	"./Word.js": 36
+};
+
+
+function webpackContext(req) {
+	var id = webpackContextResolve(req);
+	return __webpack_require__(id);
+}
+function webpackContextResolve(req) {
+	if(!__webpack_require__.o(map, req)) {
+		var e = new Error("Cannot find module '" + req + "'");
+		e.code = 'MODULE_NOT_FOUND';
+		throw e;
+	}
+	return map[req];
+}
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 49;
+
+/***/ }),
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+/* 62 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceThrottle", function() { return ResourceThrottle; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
+class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    insertCols() {
+        return ["resource", "throttle"];
+    }
+    getInsertParams() {
+        return [this.resource.getID(), this.throttle];
+    }
+    table() {
+        return "ResourceThrottle";
+    }
+    idCol() {
+        return "resource";
+    }
+    getDeps() {
+        return [this.resource];
+    }
+}
 
 
 /***/ })

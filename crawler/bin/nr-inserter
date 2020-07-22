@@ -109,9 +109,6 @@ function defaultHash(prefix, str) {
 // EXTERNAL MODULE: ./dist/main/common/util.js
 var util = __webpack_require__(2);
 
-// EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(8);
-
 // EXTERNAL MODULE: ./dist/main/common/Redis.js
 var Redis = __webpack_require__(1);
 
@@ -123,7 +120,6 @@ var SQL = __webpack_require__(11);
 
 
 
-
 const ESCAPE = "ESCAPED BY '\\\\'";
 const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
@@ -131,8 +127,8 @@ const LINE_TERM = "LINES TERMINATED BY '\\n'";
 class DBObject_DBObject {
     constructor(src) {
         if (src) {
-            Object(util["d" /* fancyLog */])("constructing db object");
-            console.log(src);
+            //fancyLog("constructing db object");
+            //console.log(src);
             const dst = this;
             for (const property in src) {
                 dst[property] = src[property];
@@ -141,7 +137,7 @@ class DBObject_DBObject {
     }
     getIDBytes() {
         const suffix = this.hashSuffix();
-        return suffix ? defaultHash(this.table(), suffix) : null;
+        return suffix === null ? null : defaultHash(this.table(), suffix);
     }
     getID() {
         const idBytes = this.getIDBytes();
@@ -167,17 +163,11 @@ class DBObject_DBObject {
         }
         const query = this.getInsertStatement();
         const params = this.getSingularInsertParams();
-        promises.push(SQL["a" /* SQL */].query(query, params).then(() => {
-            const id = this.getID();
-            if (id)
-                Redis["b" /* Redis */]
-                    .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                    .sadd(events["l" /* INSERT_CACHE */], id.toString());
-        }));
+        promises.push(SQL["a" /* SQL */].query(query, params));
         await Promise.all(promises);
     }
     async bulkInsert(csvFile) {
-        Object(util["d" /* fancyLog */])(csvFile);
+        //fancyLog(csvFile);
         if (!csvFile)
             return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
@@ -185,7 +175,7 @@ class DBObject_DBObject {
         const query = `LOAD DATA INFILE ? ` +
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
-        Object(util["d" /* fancyLog */])(query);
+        //fancyLog(query);
         await SQL["a" /* SQL */].query(query, [csvFile]);
     }
     static stringifyBigIntsInPlace(obj) {
@@ -209,20 +199,7 @@ class DBObject_DBObject {
             for (const dep of this.getDeps())
                 promises.push(dep.enqueueInsert(options));
         const payload = this.asCSVRow();
-        promises.push(new Promise(async (res) => {
-            const insertedKey = DBObject_DBObject.generateInsertedKey(this.table(), payload);
-            Object(util["d" /* fancyLog */])(insertedKey);
-            const isMember = await Redis["b" /* Redis */]
-                .renewRedis(Redis["a" /* REDIS_PARAMS */].general)
-                .sismember(events["l" /* INSERT_CACHE */], insertedKey);
-            if (isMember) {
-                console.log("already inserted");
-            }
-            else {
-                await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload);
-            }
-            res();
-        }));
+        promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts).sadd(this.table(), payload));
         await Promise.all(promises);
     }
     async singularSelect(columns) {
@@ -251,9 +228,6 @@ class DBObject_DBObject {
     static forTable(table) {
         const DBObjectT = __webpack_require__(49)(`./${table}`)[table];
         return new DBObjectT();
-    }
-    static generateInsertedKey(table, csvRow) {
-        return `"${table}",${csvRow}`;
     }
 }
 
@@ -931,7 +905,7 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
 /* unused harmony export NET_AGENT_LOG */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SCHEDULE_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
 /* unused harmony export WIKI_PROCESS_COMPLETE */
@@ -940,9 +914,8 @@ module.exports = require("path");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
 /* unused harmony export UNLOCK_FILE */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return SYNC_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SYNC_LOCK; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return INSERT_CACHE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
 const EVENT_LOG = "event-log";
 const FETCHER_BIRTH_LOG = "fetcher-birth-log";
@@ -959,7 +932,6 @@ const UNLOCK_FILE = "unlock-file";
 const COMPRESSOR_LOCK = "compressor-lock";
 const SYNC_LOCK = "sync-lock";
 const BULK_INSERT_COMPLETE = "bulk-insert-complete";
-const INSERT_CACHE = "inserted";
 const FAILURE_CACHE = "failures";
 
 
@@ -1105,7 +1077,7 @@ class SQL {
         (await SQL.db()).destroy();
     }
     static csvField(param) {
-        Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])("csvField " + `${param}`);
+        //fancyLog("csvField " + `${param}`);
         let stringified;
         if (param === null || param === undefined)
             stringified = "NULL";
@@ -1374,18 +1346,17 @@ class ResourceURLQuery extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
             super(arg);
         }
     }
+    hashSuffix() {
+        return this.value;
+    }
     insertCols() {
         return ["id", "value"];
     }
     getInsertParams() {
-        const params = [this.getID(), this.value];
-        return params;
+        return [this.getID(), this.value];
     }
     table() {
         return "ResourceURLQuery";
-    }
-    hashSuffix() {
-        return this.value;
     }
 }
 
@@ -2268,6 +2239,8 @@ var map = {
 	"./HTTPHeaderValue.js": 17,
 	"./Host": 18,
 	"./Host.js": 18,
+	"./ResourceActivity": 61,
+	"./ResourceActivity.js": 61,
 	"./ResourceHTMLHead": 44,
 	"./ResourceHTMLHead.js": 44,
 	"./ResourceHash": 23,
@@ -2278,6 +2251,8 @@ var map = {
 	"./ResourceLink.js": 24,
 	"./ResourceLinkHash": 34,
 	"./ResourceLinkHash.js": 34,
+	"./ResourceThrottle": 62,
+	"./ResourceThrottle.js": 62,
 	"./ResourceURL": 6,
 	"./ResourceURL.js": 6,
 	"./ResourceURLPath": 19,
@@ -2371,7 +2346,6 @@ var util = __webpack_require__(2);
 
 
 
-
 const BATCH_SIZE = 50000;
 const KEY_LOCK = new Set();
 const stages = {};
@@ -2407,7 +2381,6 @@ async function insertForKey(key) {
     //fancyLog(JSON.stringify(table));
     try {
         const insertsClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].inserts);
-        const generalClient = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general);
         let list = await insertsClient.srandmember(key, BATCH_SIZE);
         if (list && list.length !== 0) {
             let rows = list;
@@ -2417,10 +2390,7 @@ async function insertForKey(key) {
             //fancyLog(rows.join("\n"));
             external_fs_default.a.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
-            await Promise.all([
-                generalClient.sadd(events["l" /* INSERT_CACHE */], rows.map(row => DBObject["a" /* DBObject */].generateInsertedKey(table.table(), row))),
-                insertsClient.srem(key, list),
-            ]);
+            await insertsClient.srem(key, list);
         }
         external_fs_default.a.unlinkSync(loadFile);
         KEY_LOCK.delete(key);
@@ -2453,6 +2423,41 @@ async function bulkInsert() {
 
 
 Object(processor["a" /* startProcessor */])(bulkInsert, null, events["a" /* BULK_INSERT_COMPLETE */], { interval: true, period: 1000 });
+
+
+/***/ }),
+/* 60 */,
+/* 61 */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+/* 62 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceThrottle", function() { return ResourceThrottle; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
+class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    insertCols() {
+        return ["resource", "throttle"];
+    }
+    getInsertParams() {
+        return [this.resource.getID(), this.throttle];
+    }
+    table() {
+        return "ResourceThrottle";
+    }
+    idCol() {
+        return "resource";
+    }
+    getDeps() {
+        return [this.resource];
+    }
+}
 
 
 /***/ })

@@ -16,5 +16,4 @@ export const SYNC_LOCK = "sync-lock";
 
 export const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 
-export const INSERT_CACHE = "inserted";
 export const FAILURE_CACHE = "failures";

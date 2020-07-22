@@ -4,7 +4,6 @@ import crypto from "crypto";
 import { DBObject } from "types/DBObject";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
-import { INSERT_CACHE } from "common/events";
 import { tabulate, fancyLog } from "common/util";
 
 const BATCH_SIZE = 50000;
@@ -48,7 +47,6 @@ export async function insertForKey(key: string) {
     //fancyLog(JSON.stringify(table));
     try {
         const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
-        const generalClient = Redis.renewRedis(REDIS_PARAMS.general)
         let list = await insertsClient.srandmember(key, BATCH_SIZE);
         if (list && list.length !== 0) {
             let rows = list;
@@ -58,11 +56,7 @@ export async function insertForKey(key: string) {
             //fancyLog(rows.join("\n"));
             fs.writeFileSync(loadFile, rows.join("\n"));
             await table.bulkInsert(loadFile);
-            await Promise.all([
-                generalClient.sadd(INSERT_CACHE,
-                    rows.map(row => DBObject.generateInsertedKey(table.table(), row))),
-                insertsClient.srem(key, list),
-            ]);
+            await insertsClient.srem(key, list);
         }
         fs.unlinkSync(loadFile);
         KEY_LOCK.delete(key);

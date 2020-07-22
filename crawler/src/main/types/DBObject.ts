@@ -1,6 +1,5 @@
 import { defaultHash } from "common/hashing";
 import { bytesToBigInt, fancyLog } from "common/util";
-import { INSERT_CACHE } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 
@@ -15,8 +14,8 @@ export abstract class DBObject<T extends DBObject<T>> {
     abstract insertCols(): string[];
     constructor(src?: { [key in keyof T]?: T[key] }) {
         if (src) {
-            fancyLog("constructing db object");
-            console.log(src);
+            //fancyLog("constructing db object");
+            //console.log(src);
             const dst = this as DBObject<T> as T;
             for (const property in src) {
                 dst[property] = src[property];
@@ -25,8 +24,7 @@ export abstract class DBObject<T extends DBObject<T>> {
     }
     getIDBytes() {
         const suffix = this.hashSuffix();
-
-        return suffix ? defaultHash(this.table(), suffix) : null;
+        return suffix === null ? null : defaultHash(this.table(), suffix);
     }
     getID() {
         const idBytes = this.getIDBytes();
@@ -53,17 +51,12 @@ export abstract class DBObject<T extends DBObject<T>> {
         }
         const query = this.getInsertStatement();
         const params = this.getSingularInsertParams();
-        promises.push(SQL.query(query, params).then(() => {
-            const id = this.getID();
-            if (id) Redis
-                .renewRedis(REDIS_PARAMS.general)
-                .sadd(INSERT_CACHE, id.toString());
-        }));
+        promises.push(SQL.query(query, params));
 
         await Promise.all(promises);
     }
     async bulkInsert(csvFile: string) {
-        fancyLog(csvFile);
+        //fancyLog(csvFile);
         if (!csvFile) return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
         const table = this.table();
@@ -71,7 +64,7 @@ export abstract class DBObject<T extends DBObject<T>> {
             `LOAD DATA INFILE ? ` +
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
-        fancyLog(query);
+        //fancyLog(query);
         await SQL.query(query, [csvFile])
     }
     static stringifyBigIntsInPlace(obj: object) {
@@ -94,19 +87,7 @@ export abstract class DBObject<T extends DBObject<T>> {
             for (const dep of this.getDeps())
                 promises.push(dep.enqueueInsert(options));
         const payload = this.asCSVRow();
-        promises.push(new Promise<void>(async res => {
-            const insertedKey = DBObject.generateInsertedKey(this.table(), payload);
-            fancyLog(insertedKey);
-            const isMember = await Redis
-                .renewRedis(REDIS_PARAMS.general)
-                .sismember(INSERT_CACHE, insertedKey);
-            if (isMember) {
-                console.log("already inserted");
-            } else {
-                await Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload);
-            }
-            res();
-        }));
+        promises.push(Redis.renewRedis(REDIS_PARAMS.inserts).sadd(this.table(), payload));
 
         await Promise.all(promises);
     }
@@ -135,8 +116,5 @@ export abstract class DBObject<T extends DBObject<T>> {
         const DBObjectT = require(`types/objects/${table}`)[table];
 
         return new DBObjectT()
-    }
-    static generateInsertedKey(table: string, csvRow: string) {
-        return `"${table}",${csvRow}`;
     }
 }

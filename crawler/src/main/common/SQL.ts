@@ -83,7 +83,7 @@ export class SQL {
         (await SQL.db()).destroy();
     }
     static csvField(param: any) {
-        fancyLog("csvField " + `${param}`);
+        //fancyLog("csvField " + `${param}`);
         let stringified: string;
         if (param === null || param === undefined) stringified = "NULL";
         else if (typeof param === "boolean") {

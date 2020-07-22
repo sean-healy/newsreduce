@@ -1,5 +1,4 @@
 import sql from "sql";
-import { milliTimestamp } from "common/time";
 import { thenDebug } from "common/functional";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { STR_ONE, fancyLog } from "common/util";
@@ -16,35 +15,25 @@ async function genericSQLPromise<From, To>(
     return response as To;
 }
 
+type Schedule = { id: bigint, url: string };
 export function selectPreSchedule() {
-    const time = milliTimestamp();
-    const query = sql.SELECT_RESOURCES_NOT_SCHEDULED_RECENTLY;
-
-    const params = [time, time];
-    return genericSQLPromise(query, params, (rows: any[]) =>
-        rows.map(row => new ResourceURL(row).toURL()));
+    return genericSQLPromise<any, Schedule[]>(sql.SELECT_RESOURCES_TO_FETCH);
 }
-export async function schedule(urls: string[]) {
-    fancyLog(`Attempting to schedule ${urls.length} URLs.`);
+export async function schedule(items: Schedule[]) {
+    fancyLog(`Attempting to schedule ${items.length} URLs.`);
     const promises = [];
     let scheduled = 0;
-    for (const url of urls) {
-        const resourceURL = new ResourceURL(url);
+    for (const item of items) {
+        const resourceURL = new ResourceURL(item.url);
         if (!await resourceURL.isFetchLocked()) {
             promises.push(Redis.renewRedis(REDIS_PARAMS.fetchSchedule)
-                .zincrby(resourceURL.host.name, 1, url));
+                .zincrby(resourceURL.host.name, 1, item.url));
             ++scheduled;
         }
     }
     if (scheduled) fancyLog(`Scheduled ${scheduled} URLs.`);
 
     await Promise.all(promises);
-}
-export function processResourceLinks(
-    parentPositionChild: [bigint, number, bigint][]
-) {
-    const query = sql.INSERT_RESOURCE_LINK_IF_ABSENT;
-    return genericSQLPromise(query, [parentPositionChild]);
 }
 
 export async function crawlAllowed(host: string) {
