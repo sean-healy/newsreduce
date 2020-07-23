@@ -37,14 +37,7 @@ export async function write(
     format: FileFormat,
     src: NodeJS.ReadableStream | string | Buffer
 ) {
-    const versions = await findVersions(entity, entityID);
-    const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
-    if (found) return -1;
     const bufferFile = path.join("/tmp", crypto.randomBytes(30).toString("hex"));
-    //if (fs.existsSync(tmpFile)) {
-    //    fancyLog("file already exists: " + tmpFile);
-    //    return -1;
-    //}
     let bytesWritten: number;
     if (typeof src === "string" || src instanceof Buffer) {
         try {
@@ -74,7 +67,14 @@ export async function write(
         const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
         const tmpFile = path.join(dir, `${version}_${formatToFileName(format)}`);
         await safeMkdir(dir);
-        fs.renameSync(bufferFile, tmpFile);
+        const versions = await findVersions(entity, entityID);
+        const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
+        if (found) {
+            bytesWritten = -1;
+            if (fs.existsSync(bufferFile)) fs.unlinkSync(bufferFile);
+        }
+        else
+            fs.renameSync(bufferFile, tmpFile);
     }
     else if (fs.existsSync(bufferFile)) fs.unlinkSync(bufferFile);
 

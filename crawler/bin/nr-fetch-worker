@@ -758,9 +758,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_objects_Host__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(17);
 /* harmony import */ var file__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(12);
-/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(3);
-/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(9);
+/* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(10);
+/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(3);
+/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(2);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(9);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(1);
+
+
 
 
 
@@ -824,7 +828,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     }
     toURL() {
         if (!this.port)
-            Object(common_logging__WEBPACK_IMPORTED_MODULE_6__[/* log */ "a"])("error", "port should be truthy in toURL", JSON.stringify(this));
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy in toURL", JSON.stringify(this));
         const protocol = this.ssl ? "https://" : "http://";
         let length = protocol.length;
         let portString = "";
@@ -840,8 +844,8 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             portString = this.port.toString(PORT_BASE);
         }
         else {
-            common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].general)
-                .zincrby(common_events__WEBPACK_IMPORTED_MODULE_8__[/* FAILURE_CACHE */ "g"], 1, "port gen issue " + JSON.stringify(this));
+            common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general)
+                .zincrby(common_events__WEBPACK_IMPORTED_MODULE_9__[/* FAILURE_CACHE */ "g"], 1, "port gen issue " + JSON.stringify(this));
         }
         length += portString ? 1 : 0;
         length += Buffer.byteLength(portString, URL_ENCODING);
@@ -881,14 +885,28 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     getDeps() {
         return [this.host, this.path, this.query];
     }
-    writeVersion(version, format, input) {
-        return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), version, format, input);
+    async writeVersion(version, format, input) {
+        const id = this.getID();
+        let bytesWritten = -1;
+        if (typeof input === "string" || input instanceof Buffer) {
+            let i = 0;
+            for (i = 0; i < 10 && bytesWritten < 0; ++i)
+                bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
+            if (i > 1 && bytesWritten >= 0) {
+                Object(common_util__WEBPACK_IMPORTED_MODULE_10__[/* fancyLog */ "d"])(`wrote ${bytesWritten}b to ` +
+                    `${Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE)} ${id} ` +
+                    `(${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_6__[/* formatToFileName */ "c"])(format)}, v${version}) on attempt ${i}.`);
+            }
+        }
+        else
+            bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
+        return bytesWritten;
     }
     isFetchLocked() {
-        return common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].fetchLock).eq(this.toURL());
+        return common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).eq(this.toURL());
     }
     setFetchLock() {
-        common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL(), 300);
+        common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL(), 300);
     }
     isInvalid() {
         return this.ssl === null
@@ -906,13 +924,13 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         return !this.isInvalid();
     }
     static async popForFetching(host) {
-        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax(host, 1);
+        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax(host, 1);
         if (url)
             new ResourceURL(url).setFetchLock();
         return new ResourceURL(url);
     }
     static async popForProcessing() {
-        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].general).spop("html");
+        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general).spop("html");
         if (!url)
             return null;
         return new ResourceURL(url);
@@ -1671,15 +1689,7 @@ async function entityIDs(entity) {
  * @return number of bytes written
  */
 async function write(entity, entityID, version, format, src) {
-    const versions = await findVersions(entity, entityID);
-    const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
-    if (found)
-        return -1;
     const bufferFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join("/tmp", crypto__WEBPACK_IMPORTED_MODULE_2___default.a.randomBytes(30).toString("hex"));
-    //if (fs.existsSync(tmpFile)) {
-    //    fancyLog("file already exists: " + tmpFile);
-    //    return -1;
-    //}
     let bytesWritten;
     if (typeof src === "string" || src instanceof Buffer) {
         try {
@@ -1712,7 +1722,15 @@ async function write(entity, entityID, version, format, src) {
         const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`);
         const tmpFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(dir, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
         await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* safeMkdir */ "h"])(dir);
-        fs__WEBPACK_IMPORTED_MODULE_0___default.a.renameSync(bufferFile, tmpFile);
+        const versions = await findVersions(entity, entityID);
+        const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
+        if (found) {
+            bytesWritten = -1;
+            if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(bufferFile))
+                fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);
+        }
+        else
+            fs__WEBPACK_IMPORTED_MODULE_0___default.a.renameSync(bufferFile, tmpFile);
     }
     else if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(bufferFile))
         fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);

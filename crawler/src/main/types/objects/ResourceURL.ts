@@ -3,11 +3,12 @@ import { ResourceURLQuery } from "types/objects/ResourceURLQuery";
 import { ResourceURLPath } from "types/objects/ResourceURLPath";
 import { Host } from "types/objects/Host";
 import { write } from "file";
-import { Entity } from "types/Entity";
-import { FileFormat } from "types/FileFormat";
+import { Entity, entityName } from "types/Entity";
+import { FileFormat, formatToFileName } from "types/FileFormat";
 import { log } from "common/logging";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { FAILURE_CACHE } from "common/events";
+import { fancyLog } from "common/util";
 
 const URL_ENCODING = "utf8";
 const PORT_BASE = 10;
@@ -121,12 +122,28 @@ export class ResourceURL extends DBObject<ResourceURL> {
     getDeps() {
         return [this.host, this.path, this.query];
     }
-    writeVersion(
+    async writeVersion(
         version: number,
         format: FileFormat,
         input: string | Buffer | NodeJS.ReadableStream
     ) {
-        return write(Entity.RESOURCE, this.getID(), version, format, input);
+        const id = this.getID();
+        let bytesWritten: number = -1;
+        if (typeof input === "string" || input instanceof Buffer) {
+            let i = 0;
+            for (i = 0; i < 10 && bytesWritten < 0; ++i)
+                bytesWritten = await write(Entity.RESOURCE, id, version, format, input);
+            if (i > 1 && bytesWritten >= 0) {
+                fancyLog(
+                    `wrote ${bytesWritten}b to ` +
+                    `${entityName(Entity.RESOURCE)} ${id} ` +
+                    `(${formatToFileName(format)}, v${version}) on attempt ${i}.`
+                );
+            }
+        } else
+            bytesWritten = await write(Entity.RESOURCE, id, version, format, input);
+
+        return bytesWritten;
     }
     isFetchLocked() {
         return Redis.renewRedis(REDIS_PARAMS.fetchLock).eq(this.toURL());
