@@ -915,10 +915,11 @@ module.exports = require("child_process");
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(27);
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
-/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(27);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
 /* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(12);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(1);
@@ -936,7 +937,7 @@ const TAR_LS_PARAMS = "-atf";
 const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
 const TAR_CAT_PARAMS_AFTER_FILE = "-O";
 async function entityIDs(entity) {
-    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity));
+    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity));
     const files = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readdirSync(entityDir);
     return files
         .map(file => file.match(/^([0-9]+)\.tzst$/))
@@ -956,18 +957,15 @@ async function write(entity, entityID, version, format, src) {
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
     if (found)
         return -1;
-    const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`);
-    const tmpFile = `${dir}/${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`;
-    if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(tmpFile)) {
-        Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("file already exists: " + tmpFile);
-        return -1;
-    }
-    await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "h"])(dir);
+    const bufferFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join("/tmp", crypto__WEBPACK_IMPORTED_MODULE_2___default.a.randomBytes(30).toString("hex"));
+    //if (fs.existsSync(tmpFile)) {
+    //    fancyLog("file already exists: " + tmpFile);
+    //    return -1;
+    //}
     let bytesWritten;
     if (typeof src === "string" || src instanceof Buffer) {
-        Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing string to file", src, tmpFile);
         try {
-            fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(tmpFile, src);
+            fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(bufferFile, src);
             bytesWritten = src.length;
         }
         catch (e) {
@@ -977,8 +975,8 @@ async function write(entity, entityID, version, format, src) {
         }
     }
     else {
-        const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
         try {
+            const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(bufferFile);
             bytesWritten = await new Promise(async (res, rej) => {
                 src.on(ERROR, err => rej(err));
                 dst.on(ERROR, err => rej(err));
@@ -992,6 +990,14 @@ async function write(entity, entityID, version, format, src) {
             bytesWritten = -1;
         }
     }
+    if (bytesWritten >= 0) {
+        const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`);
+        const tmpFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(dir, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
+        await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* safeMkdir */ "h"])(dir);
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.renameSync(bufferFile, tmpFile);
+    }
+    else if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(bufferFile))
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);
     return bytesWritten;
 }
 const sortVersions = (versions) => versions.sort((v1, v2) => {
@@ -1020,12 +1026,12 @@ function lastChangedAfter(path, ms) {
     return !lastChangedBefore(path, ms);
 }
 async function findVersions(entity, entityID) {
-    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
+    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastChangedAfter(compressedArc, 3000))
         return [];
-    return (await Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* spawnPromise */ "g"])(() => Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], [TAR_LS_PARAMS, compressedArc])))
+    return (await Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* spawnPromise */ "g"])(() => Object(child_process__WEBPACK_IMPORTED_MODULE_3__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_4__[/* TAR */ "e"], [TAR_LS_PARAMS, compressedArc])))
         .split("\n") // Separate out lines.
         .map(line => line.replace(/^[0-9]+\//, "")) // Remove redundant entity ID.
         .filter(line => line.match(/^[0-9]+_/)) // Ensure this addresses a file.
@@ -1038,14 +1044,14 @@ async function findFormats(entity, entityID, version) {
         .map(([, format]) => format);
 }
 async function read(entity, entityID, version, format) {
-    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
+    const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastChangedAfter(compressedArc, 4000))
         return null;
     return await new Promise((res, rej) => {
-        const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
+        const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_3__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_4__[/* TAR */ "e"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
         const allData = [];
         tarCat.stdout.on("data", (data) => allData.push(data));
         const errData = [];

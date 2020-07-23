@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { spawn } from "child_process";
 import { blobDirPromise, tmpDirPromise, TAR, safeMkdir } from "common/config";
-import { log } from "common/logging";
 import { FileFormat, formatToFileName, fileNameToFormat } from "types/FileFormat";
 import { Entity, entityName } from "types/Entity";
 import { fancyLog, spawnPromise } from "common/util";
@@ -40,18 +40,15 @@ export async function write(
     const versions = await findVersions(entity, entityID);
     const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
     if (found) return -1;
-    const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
-    const tmpFile = `${dir}/${version}_${formatToFileName(format)}`;
-    if (fs.existsSync(tmpFile)) {
-        fancyLog("file already exists: " + tmpFile);
-        return -1;
-    }
-    await safeMkdir(dir);
+    const bufferFile = path.join("/tmp", crypto.randomBytes(30).toString("hex"));
+    //if (fs.existsSync(tmpFile)) {
+    //    fancyLog("file already exists: " + tmpFile);
+    //    return -1;
+    //}
     let bytesWritten: number;
     if (typeof src === "string" || src instanceof Buffer) {
-        log("Writing string to file", src, tmpFile);
         try {
-            fs.writeFileSync(tmpFile, src);
+            fs.writeFileSync(bufferFile, src);
             bytesWritten = src.length;
         } catch (e) {
             fancyLog("exception while writing string to file.");
@@ -59,8 +56,8 @@ export async function write(
             bytesWritten = -1;
         }
     } else {
-        const dst = fs.createWriteStream(tmpFile);
         try {
+            const dst = fs.createWriteStream(bufferFile);
             bytesWritten = await new Promise<number>(async (res, rej) => {
                 src.on(ERROR, err => rej(err));
                 dst.on(ERROR, err => rej(err));
@@ -73,6 +70,13 @@ export async function write(
             bytesWritten = -1;
         }
     }
+    if (bytesWritten >= 0) {
+        const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
+        const tmpFile = path.join(dir, `${version}_${formatToFileName(format)}`);
+        await safeMkdir(dir);
+        fs.renameSync(bufferFile, tmpFile);
+    }
+    else if (fs.existsSync(bufferFile)) fs.unlinkSync(bufferFile);
 
     return bytesWritten;
 }
