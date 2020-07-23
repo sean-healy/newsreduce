@@ -64,19 +64,42 @@ export async function write(
         }
     }
     if (bytesWritten >= 0) {
-        const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
-        const tmpFile = path.join(dir, `${version}_${formatToFileName(format)}`);
-        await safeMkdir(dir);
         const versions = await findVersions(entity, entityID);
         const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
         if (found) {
             bytesWritten = -1;
-            if (fs.existsSync(bufferFile)) fs.unlinkSync(bufferFile);
+            if (fs.existsSync(bufferFile)) {
+                try {
+                    fs.unlinkSync(bufferFile);
+                } catch (e) {
+                    fancyLog("exception while removing file.");
+                    fancyLog(JSON.stringify(e));
+                    bytesWritten = -1;
+                }
+            }
         }
-        else
-            fs.renameSync(bufferFile, tmpFile);
+        else {
+            const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
+            const tmpFile = path.join(dir, `${version}_${formatToFileName(format)}`);
+            await safeMkdir(dir);
+            try {
+                fs.renameSync(bufferFile, tmpFile);
+            } catch (e) {
+                fancyLog("exception while renaming file.");
+                fancyLog(JSON.stringify(e));
+                bytesWritten = -1;
+            }
+        }
     }
-    else if (fs.existsSync(bufferFile)) fs.unlinkSync(bufferFile);
+    else if (fs.existsSync(bufferFile)) {
+        try {
+            fs.unlinkSync(bufferFile);
+        } catch (e) {
+            fancyLog("exception while removing file.");
+            fancyLog(JSON.stringify(e));
+            bytesWritten = -1;
+        }
+    }
 
     return bytesWritten;
 }

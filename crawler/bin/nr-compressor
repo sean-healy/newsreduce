@@ -983,21 +983,45 @@ async function write(entity, entityID, version, format, src) {
         }
     }
     if (bytesWritten >= 0) {
-        const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`);
-        const tmpFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(dir, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
-        await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* safeMkdir */ "h"])(dir);
         const versions = await findVersions(entity, entityID);
         const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
         if (found) {
             bytesWritten = -1;
-            if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(bufferFile))
-                fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);
+            if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(bufferFile)) {
+                try {
+                    fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);
+                }
+                catch (e) {
+                    Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while removing file.");
+                    Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+                    bytesWritten = -1;
+                }
+            }
         }
-        else
-            fs__WEBPACK_IMPORTED_MODULE_0___default.a.renameSync(bufferFile, tmpFile);
+        else {
+            const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`);
+            const tmpFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(dir, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
+            await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* safeMkdir */ "h"])(dir);
+            try {
+                fs__WEBPACK_IMPORTED_MODULE_0___default.a.renameSync(bufferFile, tmpFile);
+            }
+            catch (e) {
+                Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while renaming file.");
+                Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+                bytesWritten = -1;
+            }
+        }
     }
-    else if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(bufferFile))
-        fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);
+    else if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(bufferFile)) {
+        try {
+            fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);
+        }
+        catch (e) {
+            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while removing file.");
+            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+            bytesWritten = -1;
+        }
+    }
     return bytesWritten;
 }
 const sortVersions = (versions) => versions.sort((v1, v2) => {
