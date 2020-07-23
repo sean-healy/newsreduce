@@ -663,6 +663,10 @@ async function watch() {
         for (const [expectedChecksum, suffix] of lines) {
             const cwd = await Object(common_config__WEBPACK_IMPORTED_MODULE_2__[/* tmpDirPromise */ "j"])();
             const file = path__WEBPACK_IMPORTED_MODULE_0___default.a.join(cwd, suffix);
+            if (!fs__WEBPACK_IMPORTED_MODULE_4___default.a.existsSync(file)) {
+                Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "d"])(`file already deleted: ${file}`);
+                continue;
+            }
             const content = fs__WEBPACK_IMPORTED_MODULE_4___default.a.readFileSync(file);
             const actualChecksum = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.createHash("md5").update(content).digest().toString("hex");
             if (expectedChecksum === actualChecksum) {

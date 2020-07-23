@@ -19,6 +19,10 @@ async function watch() {
         for (const [expectedChecksum, suffix] of lines) {
             const cwd = await tmpDirPromise();
             const file = path.join(cwd, suffix);
+            if (!fs.existsSync(file)) {
+                fancyLog(`file already deleted: ${file}`);
+                continue;
+            }
             const content = fs.readFileSync(file);
             const actualChecksum = crypto.createHash("md5").update(content).digest().toString("hex");
             if (expectedChecksum === actualChecksum) {
