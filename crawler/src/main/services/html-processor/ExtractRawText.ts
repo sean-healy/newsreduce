@@ -20,7 +20,8 @@ export class ExtractRawText extends HTMLDocumentProcessor {
         const rawText = toRawText(window);
         const resource = new ResourceURL(window.location.toString());
         const length = await resource.writeVersion(time, FileFormat.RAW_TXT, rawText);
-        await new ResourceVersion({ resource, time, type: ResourceVersionType.RAW_TXT, length })
-            .enqueueInsert({ recursive: true });
+        if (length >= 0)
+            await new ResourceVersion({ resource, time, type: ResourceVersionType.RAW_TXT, length })
+                .enqueueInsert({ recursive: true });
     }
 }

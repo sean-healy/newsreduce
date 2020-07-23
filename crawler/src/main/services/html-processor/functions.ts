@@ -14,7 +14,6 @@ const PROCESSORS: HTMLDocumentProcessor[] =
     [new ExtractAHrefs(), new ExtractWikiTree(), new ExtractRawText(), new ExtractHits()];
 
 export async function processURL(resource: bigint, url: string, time: number) {
-    const promises: Promise<any>[] = [];
     let formats: FileFormat[];
     try {
         formats = await findFormats(Entity.RESOURCE, resource, time);
@@ -37,15 +36,16 @@ export async function processURL(resource: bigint, url: string, time: number) {
                 fancyLog(`${time} ${url}`);
                 let window: DOMWindow;
                 let reDOM = true;
+                const promises: Promise<any>[] = [];
                 for (const processor of PROCESSORS) {
                     if (reDOM) window = new JSDOM(content, { url }).window;
                     promises.push(processor.apply(window, time));
                     reDOM = processor.ro();
                 }
+                await Promise.all(promises);
             }
         }
     }
-    await Promise.all(promises);
 }
 
 export async function process() {

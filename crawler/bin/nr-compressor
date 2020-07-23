@@ -960,22 +960,37 @@ async function write(entity, entityID, version, format, src) {
     const tmpFile = `${dir}/${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`;
     if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(tmpFile)) {
         Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("file already exists: " + tmpFile);
-        return;
+        return -1;
     }
     await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "h"])(dir);
-    const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
     let bytesWritten;
     if (typeof src === "string" || src instanceof Buffer) {
         Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing string to file", src, tmpFile);
-        fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(tmpFile, src);
-        bytesWritten = src.length;
+        try {
+            fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFileSync(tmpFile, src);
+            bytesWritten = src.length;
+        }
+        catch (e) {
+            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while writing string to file.");
+            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+            bytesWritten = -1;
+        }
     }
     else {
-        bytesWritten = await new Promise(async (res, rej) => {
-            dst.on(ERROR, err => rej(err));
-            dst.on(FINISH, () => res(dst.bytesWritten));
-            src.pipe(dst);
-        });
+        const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
+        try {
+            bytesWritten = await new Promise(async (res, rej) => {
+                src.on(ERROR, err => rej(err));
+                dst.on(ERROR, err => rej(err));
+                dst.on(FINISH, () => res(dst.bytesWritten));
+                src.pipe(dst);
+            });
+        }
+        catch (e) {
+            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while writing stream to file.");
+            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+            bytesWritten = -1;
+        }
     }
     return bytesWritten;
 }

@@ -44,21 +44,34 @@ export async function write(
     const tmpFile = `${dir}/${version}_${formatToFileName(format)}`;
     if (fs.existsSync(tmpFile)) {
         fancyLog("file already exists: " + tmpFile);
-        return;
+        return -1;
     }
     await safeMkdir(dir);
-    const dst = fs.createWriteStream(tmpFile);
     let bytesWritten: number;
     if (typeof src === "string" || src instanceof Buffer) {
         log("Writing string to file", src, tmpFile);
-        fs.writeFileSync(tmpFile, src);
-        bytesWritten = src.length;
+        try {
+            fs.writeFileSync(tmpFile, src);
+            bytesWritten = src.length;
+        } catch (e) {
+            fancyLog("exception while writing string to file.");
+            fancyLog(JSON.stringify(e));
+            bytesWritten = -1;
+        }
     } else {
-        bytesWritten = await new Promise<number>(async (res, rej) => {
-            dst.on(ERROR, err => rej(err));
-            dst.on(FINISH, () => res(dst.bytesWritten));
-            src.pipe(dst);
-        });
+        const dst = fs.createWriteStream(tmpFile);
+        try {
+            bytesWritten = await new Promise<number>(async (res, rej) => {
+                src.on(ERROR, err => rej(err));
+                dst.on(ERROR, err => rej(err));
+                dst.on(FINISH, () => res(dst.bytesWritten));
+                src.pipe(dst);
+            });
+        } catch (e) {
+            fancyLog("exception while writing stream to file.");
+            fancyLog(JSON.stringify(e));
+            bytesWritten = -1;
+        }
     }
 
     return bytesWritten;

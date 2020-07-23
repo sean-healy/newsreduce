@@ -89,7 +89,8 @@ export class ExtractHits extends HTMLDocumentProcessor {
         const resource = new ResourceURL(window.location.toString());
         const fileData = getHits(window);
         const length = await resource.writeVersion(time, FileFormat.HITS, fileData.toBuffer());
-        await new ResourceVersion({ resource, time, type: ResourceVersionType.HITS, length })
-            .enqueueInsert({ recursive: true });
+        if (length >= 0)
+            await new ResourceVersion({ resource, time, type: ResourceVersionType.HITS, length })
+                .enqueueInsert({ recursive: true });
     }
 }
