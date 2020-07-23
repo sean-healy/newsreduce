@@ -3033,7 +3033,7 @@ async function processURL(resource, url, time) {
                 common_processor["a" /* SAFELY_EXIT */][0] = true;
             }
             if (content) {
-                Object(util["d" /* fancyLog */])(`${time} ${url}`);
+                console.log(`${time} ${url}`);
                 let window;
                 let reDOM = true;
                 const promises = [];

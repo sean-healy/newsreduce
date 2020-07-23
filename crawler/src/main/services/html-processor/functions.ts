@@ -33,7 +33,7 @@ export async function processURL(resource: bigint, url: string, time: number) {
                 SAFELY_EXIT[0] = true;
             }
             if (content) {
-                fancyLog(`${time} ${url}`);
+                console.log(`${time} ${url}`);
                 let window: DOMWindow;
                 let reDOM = true;
                 const promises: Promise<any>[] = [];
