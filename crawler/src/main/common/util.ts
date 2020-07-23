@@ -1,3 +1,5 @@
+import { ChildProcessWithoutNullStreams } from "child_process";
+
 export const CMP_BIG_INT = (a: bigint, b: bigint) => a < b ? -1 : a > b ? 1 : 0;
 
 export function setImmediateInterval(f: () => void, ms: number) {
@@ -114,3 +116,30 @@ export function fancyLog(what: string) {
 }
 
 export const IDENTITY_FUNCTION = <T>(r: T) => r
+
+export async function spawnPromise(spawner: () => ChildProcessWithoutNullStreams) {
+    const content = await new Promise<string>((res, rej) => {
+        const process = spawner();
+        process.on("error", err => rej(err));
+        process.stdout.on("error", err => rej(err));
+        process.stderr.on("error", err => {
+            fancyLog("stderr error");
+            fancyLog(JSON.stringify(err));
+        });
+        const stdout = [];
+        const stderr = [];
+        process.stdout.on("data", (data: Buffer) => stdout.push(data));
+        process.stderr.on("data", (data: Buffer) => stderr.push(data));
+        process.on("close", code => {
+            if (code === 0) {
+                const content = Buffer.concat(stdout).toString();
+                res(content);
+            } else {
+                const content = Buffer.concat(stderr).toString();
+                rej(content);
+            }
+        });
+    });
+
+    return content;
+}

@@ -244,11 +244,12 @@ class DBObject_DBObject {
 /* unused harmony export EIGHT */
 /* unused harmony export MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return writeBigUInt96BE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return tabulate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return spawnPromise; });
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function setImmediateInterval(f, ms) {
     setImmediate(f);
@@ -358,6 +359,32 @@ function fancyLog(what) {
     console.log(`${ESC}[97m${when} : ${ESC}[32m${where}()\n${ESC}[39m${what}`);
 }
 const IDENTITY_FUNCTION = (r) => r;
+async function spawnPromise(spawner) {
+    const content = await new Promise((res, rej) => {
+        const process = spawner();
+        process.on("error", err => rej(err));
+        process.stdout.on("error", err => rej(err));
+        process.stderr.on("error", err => {
+            fancyLog("stderr error");
+            fancyLog(JSON.stringify(err));
+        });
+        const stdout = [];
+        const stderr = [];
+        process.stdout.on("data", (data) => stdout.push(data));
+        process.stderr.on("data", (data) => stderr.push(data));
+        process.on("close", code => {
+            if (code === 0) {
+                const content = Buffer.concat(stdout).toString();
+                res(content);
+            }
+            else {
+                const content = Buffer.concat(stderr).toString();
+                rej(content);
+            }
+        });
+    });
+    return content;
+}
 
 
 /***/ }),
@@ -731,11 +758,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_objects_Host__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(17);
 /* harmony import */ var file__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(12);
-/* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(10);
-/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(3);
-/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(2);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(9);
-
+/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(3);
+/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(9);
 
 
 
@@ -799,7 +824,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     }
     toURL() {
         if (!this.port)
-            Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy in toURL", JSON.stringify(this));
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_6__[/* log */ "a"])("error", "port should be truthy in toURL", JSON.stringify(this));
         const protocol = this.ssl ? "https://" : "http://";
         let length = protocol.length;
         let portString = "";
@@ -815,8 +840,8 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             portString = this.port.toString(PORT_BASE);
         }
         else {
-            common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general)
-                .zincrby(common_events__WEBPACK_IMPORTED_MODULE_9__[/* FAILURE_CACHE */ "g"], 1, "port gen issue " + JSON.stringify(this));
+            common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].general)
+                .zincrby(common_events__WEBPACK_IMPORTED_MODULE_8__[/* FAILURE_CACHE */ "g"], 1, "port gen issue " + JSON.stringify(this));
         }
         length += portString ? 1 : 0;
         length += Buffer.byteLength(portString, URL_ENCODING);
@@ -857,16 +882,13 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         return [this.host, this.path, this.query];
     }
     writeVersion(version, format, input) {
-        const id = this.getID();
-        // Wait 15 seconds before attempting to compress the outer dir.
-        Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("Writing", types_FileFormat__WEBPACK_IMPORTED_MODULE_6__[/* FileFormat */ "a"][format]);
-        return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "d"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
+        return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), version, format, input);
     }
     isFetchLocked() {
-        return common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).eq(this.toURL());
+        return common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].fetchLock).eq(this.toURL());
     }
     setFetchLock() {
-        common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL(), 300);
+        common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL(), 300);
     }
     isInvalid() {
         return this.ssl === null
@@ -884,13 +906,13 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         return !this.isInvalid();
     }
     static async popForFetching(host) {
-        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax(host, 1);
+        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax(host, 1);
         if (url)
             new ResourceURL(url).setFetchLock();
         return new ResourceURL(url);
     }
     static async popForProcessing() {
-        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general).spop("html");
+        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].general).spop("html");
         if (!url)
             return null;
         return new ResourceURL(url);
@@ -1598,13 +1620,13 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 
 "use strict";
 /* unused harmony export entityIDs */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return write; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return write; });
 /* unused harmony export sortVersions */
-/* unused harmony export lastChangedBefore */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return lastChangedBefore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastChangedAfter; });
 /* unused harmony export findVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return read; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return read; });
 /* unused harmony export findLatestVersion */
 /* unused harmony export readLatestVersion */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
@@ -1658,7 +1680,6 @@ async function write(entity, entityID, version, format, src) {
         Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("file already exists: " + tmpFile);
         return;
     }
-    Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing to", tmpFile);
     await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "h"])(dir);
     const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
     let bytesWritten;
@@ -1707,25 +1728,12 @@ async function findVersions(entity, entityID) {
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastChangedAfter(compressedArc, 3000))
         return [];
-    const params = [TAR_LS_PARAMS, compressedArc];
-    const versions = [];
-    const err = [];
-    return await new Promise(async (res, rej) => {
-        const tarLS = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], params);
-        tarLS.on("error", err => rej(err));
-        tarLS.stdout.on("data", (data) => {
-            for (const version of data
-                .toString()
-                .split("\n") // Separate out lines.
-                .map(line => line.replace(/^[0-9]+\//, "")) // Remove redundant entity ID.
-                .filter(line => line.match(/^[0-9]+_/)) // Ensure this addresses a file.
-                .map(line => line.split(/[/_]/, 2)) // Split on spaces and underscore.
-                .map(arr => [parseInt(arr[0]), Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* fileNameToFormat */ "b"])(arr[1])])) // parse time and format pieces.
-                versions.push(version);
-        });
-        tarLS.stderr.on("data", (data) => err.push(data));
-        tarLS.on("close", code => code === 0 ? res(sortVersions(versions)) : rej(err.join("\n")));
-    });
+    return (await Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* spawnPromise */ "g"])(() => Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], [TAR_LS_PARAMS, compressedArc])))
+        .split("\n") // Separate out lines.
+        .map(line => line.replace(/^[0-9]+\//, "")) // Remove redundant entity ID.
+        .filter(line => line.match(/^[0-9]+_/)) // Ensure this addresses a file.
+        .map(line => line.split(/[/_]/, 2)) // Split on spaces and underscore.
+        .map(arr => [parseInt(arr[0]), Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* fileNameToFormat */ "b"])(arr[1])]); // parse time and format pieces.
 }
 async function findFormats(entity, entityID, version) {
     return (await findVersions(entity, entityID))

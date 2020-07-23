@@ -5,7 +5,7 @@ import { blobDirPromise, tmpDirPromise, TAR, safeMkdir } from "common/config";
 import { log } from "common/logging";
 import { FileFormat, formatToFileName, fileNameToFormat } from "types/FileFormat";
 import { Entity, entityName } from "types/Entity";
-import { fancyLog } from "common/util";
+import { fancyLog, spawnPromise } from "common/util";
 
 const FINISH = "finish";
 const ERROR = "error";
@@ -46,7 +46,6 @@ export async function write(
         fancyLog("file already exists: " + tmpFile);
         return;
     }
-    log("Writing to", tmpFile);
     await safeMkdir(dir);
     const dst = fs.createWriteStream(tmpFile);
     let bytesWritten: number;
@@ -94,25 +93,13 @@ export async function findVersions(entity: Entity, entityID: bigint) {
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs.existsSync(compressedArc) || lastChangedAfter(compressedArc, 3000)) return [];
-    const params = [TAR_LS_PARAMS, compressedArc];
-    const versions = [];
-    const err = [];
-    return await new Promise<[number, FileFormat][]>(async (res, rej) => {
-        const tarLS = spawn(TAR, params);
-        tarLS.on("error", err => rej(err));
-        tarLS.stdout.on("data", (data: Buffer) => {
-            for (const version of data
-                .toString()
-                .split("\n")                                               // Separate out lines.
-                .map(line => line.replace(/^[0-9]+\//, ""))                // Remove redundant entity ID.
-                .filter(line => line.match(/^[0-9]+_/))                    // Ensure this addresses a file.
-                .map(line => line.split(/[/_]/, 2))                        // Split on spaces and underscore.
-                .map(arr => [parseInt(arr[0]), fileNameToFormat(arr[1])])) // parse time and format pieces.
-                versions.push(version);
-        });
-        tarLS.stderr.on("data", (data: Buffer) => err.push(data));
-        tarLS.on("close", code => code === 0 ? res(sortVersions(versions)) : rej(err.join("\n")));
-    });
+
+    return (await spawnPromise(() => spawn(TAR, [TAR_LS_PARAMS, compressedArc])))
+        .split("\n")                                               // Separate out lines.
+        .map(line => line.replace(/^[0-9]+\//, ""))                // Remove redundant entity ID.
+        .filter(line => line.match(/^[0-9]+_/))                    // Ensure this addresses a file.
+        .map(line => line.split(/[/_]/, 2))                        // Split on spaces and underscore.
+        .map(arr => [parseInt(arr[0]), fileNameToFormat(arr[1])]); // parse time and format pieces.
 }
 export async function findFormats(entity: Entity, entityID: bigint, version: number) {
     return (await findVersions(entity, entityID))

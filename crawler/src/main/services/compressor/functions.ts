@@ -1,42 +1,17 @@
 import fs from "fs";
 import path from "path";
 import { tmpDirPromise, TAR, nullFilePromise, safeMkdir, blobDirPromise } from "common/config";
-import { spawn, ChildProcessWithoutNullStreams } from "child_process";
+import { spawn } from "child_process";
 import { COMPRESSOR_LOCK, SYNC_LOCK } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
-import { fancyLog } from "common/util";
-import { lastChangedAfter } from "file";
+import { fancyLog, spawnPromise } from "common/util";
+import { lastChangedAfter, lastChangedBefore } from "file";
 import { PromisePool } from "common/PromisePool";
 
 const ZSTD = "zstd";
 const MK_TAR_ARGS = ["--zstd", "-cvf"];
-
-async function spawnPromise(spawner: () => ChildProcessWithoutNullStreams) {
-    const content = await new Promise<string>((res, rej) => {
-        const process = spawner();
-        process.on("error", err => rej(err));
-        process.stdout.on("error", err => rej(err));
-        process.stderr.on("error", err => {
-            fancyLog("stderr error");
-            fancyLog(JSON.stringify(err));
-        });
-        const stdout = [];
-        const stderr = [];
-        process.stdout.on("data", (data: Buffer) => stdout.push(data));
-        process.stderr.on("data", (data: Buffer) => stderr.push(data));
-        process.on("close", code => {
-            if (code === 0) {
-                const content = Buffer.concat(stdout).toString();
-                res(content);
-            } else {
-                const content = Buffer.concat(stderr).toString();
-                rej(content);
-            }
-        });
-    });
-
-    return content;
-}
+// Only compress files not touched in past 5s.
+const SAFETY_PERIOD_MS = 5000;
 
 export async function compress() {
     const redis = Redis.renewRedis(REDIS_PARAMS.local);
@@ -50,7 +25,7 @@ export async function compress() {
     const tmpDir = await tmpDirPromise();
     const blobDir = await blobDirPromise();
     const entities = fs.readdirSync(tmpDir);
-    const promises = new PromisePool(100);
+    const promises = new PromisePool(50);
     let newArcs = 0;
     let oldArcs = 0;
     for (const entity of entities) {
@@ -65,10 +40,13 @@ export async function compress() {
             const compressedSrc = `${tmpEntityDir}.tzst`
             const compressedDst = path.join(entitiesDir, `${entityID}.tzst`);
             const arc = `${tmpEntityDir}.tar`
-            // Only compress files not touched in past 5s.
-            if (lastChangedAfter(tmpEntityDir, 5000)) continue;
             const cwd = { cwd: tmpEntitiesDir };
             await promises.register(async res => {
+                if (lastChangedAfter(tmpEntityDir, SAFETY_PERIOD_MS)) {
+                    fancyLog("entity modified too recently.");
+                    res();
+                    return;
+                }
                 const compressedArcExists = fs.existsSync(compressedDst);
                 if (compressedArcExists) {
                     try {
@@ -99,13 +77,8 @@ export async function compress() {
                         res();
                         return;
                     }
-                    if (fs.existsSync(compressedSrc))
-                        fs.renameSync(compressedSrc, compressedDst);
                     if (fs.existsSync(arc))
                         fs.renameSync(arc, await nullFilePromise(arc));
-                    if (fs.existsSync(tmpEntityDir))
-                        fs.renameSync(tmpEntityDir, await nullFilePromise(tmpEntityDir));
-                    res();
                     ++oldArcs;
                 } else {
                     try {
@@ -117,13 +90,14 @@ export async function compress() {
                         res();
                         return;
                     }
-                    if (fs.existsSync(compressedSrc))
-                        fs.renameSync(compressedSrc, compressedDst);
-                    if (fs.existsSync(tmpEntityDir))
-                        fs.renameSync(tmpEntityDir, await nullFilePromise(tmpEntityDir));
-                    res();
                     ++newArcs
                 }
+                if (fs.existsSync(compressedSrc))
+                    fs.renameSync(compressedSrc, compressedDst);
+                // Recheck last changed time, in case of concurrency bugs.
+                if (fs.existsSync(tmpEntityDir) && lastChangedBefore(tmpEntityDir, SAFETY_PERIOD_MS))
+                    fs.renameSync(tmpEntityDir, await nullFilePromise(tmpEntityDir));
+                res();
             });
         }
     }

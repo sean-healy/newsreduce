@@ -126,11 +126,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
         format: FileFormat,
         input: string | Buffer | NodeJS.ReadableStream
     ) {
-        const id = this.getID();
-        // Wait 15 seconds before attempting to compress the outer dir.
-        log("Writing", FileFormat[format]);
-
-        return write(Entity.RESOURCE, id, version, format, input);
+        return write(Entity.RESOURCE, this.getID(), version, format, input);
     }
     isFetchLocked() {
         return Redis.renewRedis(REDIS_PARAMS.fetchLock).eq(this.toURL());
