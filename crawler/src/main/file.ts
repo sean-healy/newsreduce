@@ -42,6 +42,10 @@ export async function write(
     if (found) return -1;
     const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
     const tmpFile = `${dir}/${version}_${formatToFileName(format)}`;
+    if (fs.existsSync(tmpFile)) {
+        fancyLog("file already exists: " + tmpFile);
+        return;
+    }
     log("Writing to", tmpFile);
     await safeMkdir(dir);
     const dst = fs.createWriteStream(tmpFile);
@@ -74,22 +78,22 @@ export const sortVersions = (versions: [number, FileFormat][]) => versions.sort(
  * Returns true if the path has been modified before 'ms'
  * milliseconds ago (exclusive).
  */
-export function lastModifiedBefore(path: string, ms: number) {
+export function lastChangedBefore(path: string, ms: number) {
     const stat = fs.statSync(path);
-    return stat.mtimeMs + ms < Date.now();
+    return stat.ctimeMs + ms < Date.now();
 }
 /*
  * Returns true if the path has been modified after 'ms'
  * milliseconds ago (inclusive).
  */
-export function lastModifiedAfter(path: string, ms: number) {
-    return !lastModifiedBefore(path, ms);
+export function lastChangedAfter(path: string, ms: number) {
+    return !lastChangedBefore(path, ms);
 }
 export async function findVersions(entity: Entity, entityID: bigint) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 3000)) return [];
+    if (!fs.existsSync(compressedArc) || lastChangedAfter(compressedArc, 3000)) return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];
     const err = [];
@@ -121,7 +125,7 @@ export async function read(entity: Entity, entityID: bigint, version: number, fo
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     const tarPath = path.join(`${entityID}`, `${version}_${formatToFileName(format)}`);
     // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000)) return null;
+    if (!fs.existsSync(compressedArc) || lastChangedAfter(compressedArc, 4000)) return null;
     return await new Promise<Buffer>((res, rej) => {
         const tarCat =
             spawn(TAR, [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);

@@ -877,8 +877,8 @@ module.exports = require("child_process");
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return write; });
 /* unused harmony export sortVersions */
-/* unused harmony export lastModifiedBefore */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastModifiedAfter; });
+/* unused harmony export lastChangedBefore */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastChangedAfter; });
 /* unused harmony export findVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return read; });
@@ -894,6 +894,8 @@ module.exports = require("child_process");
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
 /* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(12);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(1);
+
 
 
 
@@ -929,6 +931,10 @@ async function write(entity, entityID, version, format, src) {
         return -1;
     const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`);
     const tmpFile = `${dir}/${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`;
+    if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(tmpFile)) {
+        Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("file already exists: " + tmpFile);
+        return;
+    }
     Object(common_logging__WEBPACK_IMPORTED_MODULE_4__[/* log */ "a"])("Writing to", tmpFile);
     await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safeMkdir */ "h"])(dir);
     const dst = fs__WEBPACK_IMPORTED_MODULE_0___default.a.createWriteStream(tmpFile);
@@ -961,22 +967,22 @@ const sortVersions = (versions) => versions.sort((v1, v2) => {
  * Returns true if the path has been modified before 'ms'
  * milliseconds ago (exclusive).
  */
-function lastModifiedBefore(path, ms) {
+function lastChangedBefore(path, ms) {
     const stat = fs__WEBPACK_IMPORTED_MODULE_0___default.a.statSync(path);
-    return stat.mtimeMs + ms < Date.now();
+    return stat.ctimeMs + ms < Date.now();
 }
 /*
  * Returns true if the path has been modified after 'ms'
  * milliseconds ago (inclusive).
  */
-function lastModifiedAfter(path, ms) {
-    return !lastModifiedBefore(path, ms);
+function lastChangedAfter(path, ms) {
+    return !lastChangedBefore(path, ms);
 }
 async function findVersions(entity, entityID) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 3000))
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastChangedAfter(compressedArc, 3000))
         return [];
     const params = [TAR_LS_PARAMS, compressedArc];
     const versions = [];
@@ -1008,7 +1014,7 @@ async function read(entity, entityID, version, format) {
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
     // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastModifiedAfter(compressedArc, 4000))
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastChangedAfter(compressedArc, 4000))
         return null;
     return await new Promise((res, rej) => {
         const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_2__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_3__[/* TAR */ "e"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
@@ -1174,9 +1180,6 @@ var config = __webpack_require__(4);
 // EXTERNAL MODULE: external "child_process"
 var external_child_process_ = __webpack_require__(27);
 
-// EXTERNAL MODULE: ./dist/main/common/logging.js
-var logging = __webpack_require__(3);
-
 // EXTERNAL MODULE: ./dist/main/common/events.js
 var events = __webpack_require__(9);
 
@@ -1189,6 +1192,23 @@ var util = __webpack_require__(1);
 // EXTERNAL MODULE: ./dist/main/file.js
 var file = __webpack_require__(31);
 
+// CONCATENATED MODULE: ./dist/main/common/PromisePool.js
+class PromisePool {
+    constructor(threads) {
+        this.promises = [];
+        this.threads = threads;
+    }
+    async register(fn) {
+        this.promises.push(new Promise(fn));
+        if (this.promises.length === this.threads)
+            await this.flush();
+    }
+    async flush() {
+        await Promise.all(this.promises);
+        this.promises = [];
+    }
+}
+
 // CONCATENATED MODULE: ./dist/main/services/compressor/functions.js
 
 
@@ -1199,63 +1219,33 @@ var file = __webpack_require__(31);
 
 
 
-async function tryLoop(spawner) {
-    for (let attempt = 0; attempt < 10; attempt++) {
-        try {
-            const content = await new Promise((res, rej) => {
-                const process = spawner();
-                process.on("error", err => rej(err));
-                process.stdout.on("error", err => rej(err));
-                process.stderr.on("error", err => {
-                    Object(util["d" /* fancyLog */])("stderr error");
-                    Object(util["d" /* fancyLog */])(JSON.stringify(err));
-                });
-                const stdout = [];
-                const stderr = [];
-                process.stdout.on("data", (data) => stdout.push(data));
-                process.stderr.on("data", (data) => stderr.push(data));
-                process.on("close", code => {
-                    if (code === 0) {
-                        const content = Buffer.concat(stdout).toString();
-                        res(content);
-                    }
-                    else {
-                        const content = Buffer.concat(stderr).toString();
-                        rej(content);
-                    }
-                });
-            });
-            return content;
-        }
-        catch (err) {
-            Object(util["d" /* fancyLog */])("Caught error during attempt " + attempt);
-            Object(util["d" /* fancyLog */])(JSON.stringify(err));
-            await new Promise(res => setTimeout(res, 100));
-        }
-    }
-}
 const ZSTD = "zstd";
-const MV = "mv";
-async function spawnSeq(sequence) {
-    if (sequence.length === 0)
-        return;
-    else {
-        const [head, ...tail] = sequence;
-        Object(logging["a" /* log */])(JSON.stringify(head));
-        const [command, cwd, args] = head;
-        let promise;
-        if (cwd)
-            promise = tryLoop(() => Object(external_child_process_["spawn"])(command, args, { cwd }));
-        else
-            promise = tryLoop(() => Object(external_child_process_["spawn"])(command, args));
-        const stdout = await promise;
-        if (stdout) {
-            Object(logging["a" /* log */])(JSON.stringify(head));
-            Object(logging["a" /* log */])("STDOUT:");
-            Object(logging["a" /* log */])(stdout);
-        }
-        await spawnSeq(tail);
-    }
+const MK_TAR_ARGS = ["--zstd", "-cvf"];
+async function spawnPromise(spawner) {
+    const content = await new Promise((res, rej) => {
+        const process = spawner();
+        process.on("error", err => rej(err));
+        process.stdout.on("error", err => rej(err));
+        process.stderr.on("error", err => {
+            Object(util["d" /* fancyLog */])("stderr error");
+            Object(util["d" /* fancyLog */])(JSON.stringify(err));
+        });
+        const stdout = [];
+        const stderr = [];
+        process.stdout.on("data", (data) => stdout.push(data));
+        process.stderr.on("data", (data) => stderr.push(data));
+        process.on("close", code => {
+            if (code === 0) {
+                const content = Buffer.concat(stdout).toString();
+                res(content);
+            }
+            else {
+                const content = Buffer.concat(stderr).toString();
+                rej(content);
+            }
+        });
+    });
+    return content;
 }
 async function compress() {
     const redis = Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local);
@@ -1267,43 +1257,98 @@ async function compress() {
     redis.setex(events["m" /* SYNC_LOCK */], 3600);
     Object(util["d" /* fancyLog */])("Placed sync lock.");
     const tmpDir = await Object(config["j" /* tmpDirPromise */])();
+    const blobDir = await Object(config["f" /* blobDirPromise */])();
     const entities = external_fs_default.a.readdirSync(tmpDir);
-    const promises = [];
+    const promises = new PromisePool(100);
     let newArcs = 0;
     let oldArcs = 0;
     for (const entity of entities) {
-        const entitiesDir = external_path_default.a.join(tmpDir, entity);
-        const entityIDs = external_fs_default.a.readdirSync(entitiesDir).filter(dir => dir.match(/^[0-9]+$/));
-        console.log(`compressing ${entityIDs.length} entities.`);
-        for (const entityID of entityIDs) {
-            const entityDir = external_path_default.a.join(entitiesDir, entityID);
-            const compressedArc = `${entityDir.replace(/\/tmp\//, "/blobs/")}.tzst`;
-            const arc = `${entityDir}.tar`;
+        const tmpEntitiesDir = external_path_default.a.join(tmpDir, entity);
+        const tmpEntityIDs = external_fs_default.a.readdirSync(tmpEntitiesDir).filter(dir => dir.match(/^[0-9]+$/));
+        if (!tmpEntityIDs.length)
+            continue;
+        Object(util["d" /* fancyLog */])(`compressing ${tmpEntityIDs.length} entities.`);
+        const entitiesDir = external_path_default.a.join(blobDir, entity);
+        await Object(config["h" /* safeMkdir */])(entitiesDir);
+        for (const entityID of tmpEntityIDs) {
+            const tmpEntityDir = external_path_default.a.join(tmpEntitiesDir, entityID);
+            const compressedSrc = `${tmpEntityDir}.tzst`;
+            const compressedDst = external_path_default.a.join(entitiesDir, `${entityID}.tzst`);
+            const arc = `${tmpEntityDir}.tar`;
             // Only compress files not touched in past 5s.
-            if (Object(file["b" /* lastModifiedAfter */])(entityDir, 5000))
+            if (Object(file["b" /* lastChangedAfter */])(tmpEntityDir, 5000))
                 continue;
-            const compressedArcExists = external_fs_default.a.existsSync(compressedArc);
-            if (compressedArcExists) {
-                promises.push(spawnSeq([
-                    [ZSTD, undefined, ["-df", compressedArc, "-o", arc]],
-                    [config["e" /* TAR */], entitiesDir, ["-uvf", arc, entityID]],
-                    [ZSTD, undefined, ["-f", arc, "-o", compressedArc]],
-                    [MV, undefined, [arc, await Object(config["g" /* nullFilePromise */])(arc)]],
-                    [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
-                ]));
-                ++oldArcs;
-            }
-            else {
-                await Object(config["h" /* safeMkdir */])(external_path_default.a.dirname(compressedArc));
-                promises.push(spawnSeq([
-                    [config["e" /* TAR */], entitiesDir, ["--zstd", "-cvf", compressedArc, entityID]],
-                    [MV, undefined, [entityDir, await Object(config["g" /* nullFilePromise */])(entityDir)]],
-                ]));
-                ++newArcs;
-            }
+            const cwd = { cwd: tmpEntitiesDir };
+            await promises.register(async (res) => {
+                const compressedArcExists = external_fs_default.a.existsSync(compressedDst);
+                if (compressedArcExists) {
+                    try {
+                        await spawnPromise(() => Object(external_child_process_["spawn"])(ZSTD, ["-df", compressedDst, "-o", arc]));
+                    }
+                    catch (e) {
+                        Object(util["d" /* fancyLog */])("error decompressing");
+                        Object(util["d" /* fancyLog */])(JSON.stringify(e));
+                        if (external_fs_default.a.existsSync(arc))
+                            external_fs_default.a.unlinkSync(arc);
+                        res();
+                        return;
+                    }
+                    try {
+                        await spawnPromise(() => Object(external_child_process_["spawn"])(config["e" /* TAR */], ["-uvf", arc, entityID], cwd));
+                    }
+                    catch (e) {
+                        Object(util["d" /* fancyLog */])("error updating tar");
+                        Object(util["d" /* fancyLog */])(JSON.stringify(e));
+                        if (external_fs_default.a.existsSync(arc))
+                            external_fs_default.a.unlinkSync(arc);
+                        res();
+                        return;
+                    }
+                    try {
+                        await spawnPromise(() => Object(external_child_process_["spawn"])(ZSTD, ["-f", arc, "-o", compressedSrc]));
+                    }
+                    catch (e) {
+                        Object(util["d" /* fancyLog */])("error recompressing tar");
+                        Object(util["d" /* fancyLog */])(JSON.stringify(e));
+                        if (external_fs_default.a.existsSync(arc))
+                            external_fs_default.a.unlinkSync(arc);
+                        if (external_fs_default.a.existsSync(compressedSrc))
+                            external_fs_default.a.unlinkSync(compressedSrc);
+                        res();
+                        return;
+                    }
+                    if (external_fs_default.a.existsSync(compressedSrc))
+                        external_fs_default.a.renameSync(compressedSrc, compressedDst);
+                    if (external_fs_default.a.existsSync(arc))
+                        external_fs_default.a.renameSync(arc, await Object(config["g" /* nullFilePromise */])(arc));
+                    if (external_fs_default.a.existsSync(tmpEntityDir))
+                        external_fs_default.a.renameSync(tmpEntityDir, await Object(config["g" /* nullFilePromise */])(tmpEntityDir));
+                    res();
+                    ++oldArcs;
+                }
+                else {
+                    try {
+                        await spawnPromise(() => Object(external_child_process_["spawn"])(config["e" /* TAR */], [...MK_TAR_ARGS, compressedSrc, entityID], cwd));
+                    }
+                    catch (e) {
+                        Object(util["d" /* fancyLog */])("error creating tar");
+                        Object(util["d" /* fancyLog */])(JSON.stringify(e));
+                        if (external_fs_default.a.existsSync(compressedSrc))
+                            external_fs_default.a.unlinkSync(compressedSrc);
+                        res();
+                        return;
+                    }
+                    if (external_fs_default.a.existsSync(compressedSrc))
+                        external_fs_default.a.renameSync(compressedSrc, compressedDst);
+                    if (external_fs_default.a.existsSync(tmpEntityDir))
+                        external_fs_default.a.renameSync(tmpEntityDir, await Object(config["g" /* nullFilePromise */])(tmpEntityDir));
+                    res();
+                    ++newArcs;
+                }
+            });
         }
     }
-    await Promise.all(promises);
+    await promises.flush();
     redis.del(events["m" /* SYNC_LOCK */]);
     Object(util["d" /* fancyLog */])("Released sync lock");
     Object(util["d" /* fancyLog */])(`${newArcs} archives created.`);
