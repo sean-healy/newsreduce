@@ -9,8 +9,7 @@ export class Anchor extends DBObject<Anchor> {
             super({ value: arg });
         else {
             const { value } = arg;
-            if (value) super({ value });
-            else throw new Error("value can't be falsey");
+            super({ value });
         }
     }
 

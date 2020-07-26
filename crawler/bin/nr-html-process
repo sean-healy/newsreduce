@@ -3218,10 +3218,7 @@ class Anchor extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ 
             super({ value: arg });
         else {
             const { value } = arg;
-            if (value)
-                super({ value });
-            else
-                throw new Error("value can't be falsey");
+            super({ value });
         }
     }
     hashSuffix() {
