@@ -36,18 +36,19 @@ export function getLinks(window: DOMWindow) {
         const parts = anchor.href.split(HASH, 2);
         const url: string = parts[0];
         const hash: string = parts.length > 1 ? parts[1] : "";
+        const value = new Anchor({ value: anchor.innerHTML });
         let child: ResourceURL;
         try {
-            const value = new Anchor({ value: anchor.innerHTML });
             child = new ResourceURL(url);
-            const link = new ResourceLink({ parent, child, value });
-            if (hash)
-                links.push(new ResourceLinkHash({ link, hash: new ResourceHash(hash) }));
-            else links.push(link);
         } catch (e) {
             fancyLog("invalid url: " + url);
             fancyLog(JSON.stringify(e));
+            continue;
         }
+        const link = new ResourceLink({ parent, child, value });
+        if (hash)
+            links.push(new ResourceLinkHash({ link, hash: new ResourceHash(hash) }));
+        else links.push(link);
     }
 
     return links;

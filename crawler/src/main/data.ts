@@ -1,7 +1,6 @@
 import sql from "sql";
-import { thenDebug } from "common/functional";
 import { ResourceURL } from "types/objects/ResourceURL";
-import { STR_ONE, fancyLog } from "common/util";
+import { fancyLog } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 

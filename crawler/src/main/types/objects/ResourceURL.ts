@@ -30,7 +30,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
         if (arg === null || arg === undefined) super();
         else if (typeof arg === "string") {
             const groups = arg.match(URL);
-            if (!groups) throw new Error(`invalid url: ${arg}`);
+            if (!groups) throw new Error(`url parse error for: ${arg}`);
             const ssl = !!groups[1];
             const portStr = groups[3];
             const port = portStr ?
@@ -38,10 +38,14 @@ export class ResourceURL extends DBObject<ResourceURL> {
             const path = groups[4] ? groups[4] : "";
             const query = groups[5] ? groups[5].substr(1) : "";
             const host = groups[2];
-            if (host === null || host === undefined) throw new Error(`invalid url (no host): ${arg}`);
-            if (port === null || port === undefined) throw new Error(`invalid url (no port): ${arg}`);
-            if (path === null || path === undefined) throw new Error(`invalid url (no path): ${arg}`);
-            if (query === null || query === undefined) throw new Error(`invalid url (no query): ${arg}`);
+            if (host === null || host === undefined)
+                throw new Error(`invalid url (no host): ${arg}`);
+            if (port === null || port === undefined)
+                throw new Error(`invalid url (no port): ${arg}`);
+            if (path === null || path === undefined)
+                throw new Error(`invalid url (no path): ${arg}`);
+            if (query === null || query === undefined)
+                throw new Error(`invalid url (no query): ${arg}`);
             super({
                 ssl,
                 host: new Host({ name: host }),

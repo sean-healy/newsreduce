@@ -12,7 +12,7 @@ export class ResourceLink extends DBObject<ResourceLink> {
         child?: string,
         value?: string,
     ) {
-        if (!parentOrObj) super();
+        if (parentOrObj === null || parentOrObj === undefined) super();
         else if (typeof parentOrObj === "string") super({
             parent: new ResourceURL(parentOrObj),
             child: new ResourceURL(child),

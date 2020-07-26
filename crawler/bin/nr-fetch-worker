@@ -805,7 +805,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         else if (typeof arg === "string") {
             const groups = arg.match(URL);
             if (!groups)
-                throw new Error(`invalid url: ${arg}`);
+                throw new Error(`url parse error for: ${arg}`);
             const ssl = !!groups[1];
             const portStr = groups[3];
             const port = portStr ?
@@ -1404,8 +1404,6 @@ class Host extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a
         return "Host";
     }
     async applyThrottle() {
-        console.log("applying throttle");
-        console.log(this);
         await common_Redis__WEBPACK_IMPORTED_MODULE_1__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_1__[/* REDIS_PARAMS */ "a"].throttle).setpx(this.name, this.throttle, common_util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "b"]);
     }
     async crawlAllowed() {
@@ -1554,7 +1552,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class ResourceLink extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(parentOrObj, child, value) {
-        if (!parentOrObj)
+        if (parentOrObj === null || parentOrObj === undefined)
             super();
         else if (typeof parentOrObj === "string")
             super({

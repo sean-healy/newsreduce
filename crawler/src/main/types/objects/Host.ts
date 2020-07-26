@@ -33,8 +33,6 @@ export class Host extends DBObject<Host> {
         return "Host";
     }
     async applyThrottle() {
-        console.log("applying throttle");
-        console.log(this);
         await Redis.renewRedis(REDIS_PARAMS.throttle).setpx(this.name, this.throttle, STR_ONE)
     }
     async crawlAllowed() {
