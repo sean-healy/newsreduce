@@ -7,6 +7,8 @@ test("ResourceVersion works", () => {
         resource: new ResourceURL("https://example.com"),
         time: 1595414156,
         type: ResourceVersionType.RAW_HTML,
+        length: 10,
     });
+
     console.log(version.getInsertParams());
 });

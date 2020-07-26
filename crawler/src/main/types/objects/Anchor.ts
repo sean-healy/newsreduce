@@ -1,9 +1,9 @@
 import { DBObject } from "types/DBObject";
 
-export class HTTPHeaderValue extends DBObject<HTTPHeaderValue> {
+export class Anchor extends DBObject<Anchor> {
     readonly value: string;
 
-    constructor(arg: string | { [key in keyof HTTPHeaderValue]?: HTTPHeaderValue[key] }) {
+    constructor(arg: string | { [key in keyof Anchor]?: Anchor[key] }) {
         if (arg === null || arg === undefined) super();
         else if (typeof arg === "string")
             super({ value: arg });
@@ -24,6 +24,6 @@ export class HTTPHeaderValue extends DBObject<HTTPHeaderValue> {
         return [this.getID(), this.value];
     }
     table(): string {
-        return "HTTPHeaderValue";
+        return "Anchor";
     }
 }

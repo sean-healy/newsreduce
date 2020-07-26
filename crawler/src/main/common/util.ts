@@ -8,24 +8,42 @@ export function setImmediateInterval(f: () => void, ms: number) {
 }
 
 export const STR_ONE = "1";
-export const ZERO = BigInt(0);
-export const EIGHT = BigInt(8);
-export const MASK = BigInt(0xFF);
+export const BIGINT_ZERO = BigInt(0);
+export const BIGINT_EIGHT = BigInt(8);
+export const BIGINT_MASK = BigInt(0xFF);
 
-export function bytesToBigInt(bytes: Buffer): bigint {
+export function bytesToBigInt(bytes: Buffer) {
     if (!bytes) return bytes as (null | undefined);
-    let result = ZERO;
+    let result = BIGINT_ZERO;
     for (const byte of bytes)
-        result = (result << EIGHT) | BigInt(byte);
+        result = (result << BIGINT_EIGHT) | BigInt(byte);
 
     return result;
 }
 
-export function writeBigUInt96BE(n: bigint, buffer: Buffer, offset: number) {
-    for (let i = 0; i <= 11; ++i) {
-        const byte = (n & MASK);
-        buffer[offset + 11 - i] = Number(byte);
-        n >>= EIGHT;
+export function bytesToNumber(bytes: Buffer) {
+    if (!bytes) return bytes as (null | undefined);
+    let result = 0;
+    for (const byte of bytes)
+        result = (result << 8) | byte;
+
+    return result;
+}
+
+export function writeBigUInt96BE(n: bigint, buffer: Buffer, offset: number = 0) {
+    writeAnyNumberBE(n, buffer, offset, 12);
+}
+export function writeAnyNumberBE(
+    n: number | bigint,
+    buffer: Buffer,
+    offset: number,
+    bytes: number
+) {
+    let bigintN = BigInt(n);
+    for (let i = 0; i < bytes; ++i) {
+        const byte = (bigintN & BIGINT_MASK);
+        buffer[offset + bytes - 1 - i] = Number(byte);
+        bigintN >>= BIGINT_EIGHT;
     }
 }
 
@@ -118,7 +136,7 @@ export function fancyLog(what: string) {
 export const IDENTITY_FUNCTION = <T>(r: T) => r
 
 export async function spawnPromise(spawner: () => ChildProcessWithoutNullStreams) {
-    const content = await new Promise<string>((res, rej) => {
+    const content = await new Promise<Buffer>((res, rej) => {
         const process = spawner();
         process.on("error", err => rej(err));
         process.stdout.on("error", err => rej(err));
@@ -132,14 +150,20 @@ export async function spawnPromise(spawner: () => ChildProcessWithoutNullStreams
         process.stderr.on("data", (data: Buffer) => stderr.push(data));
         process.on("close", code => {
             if (code === 0) {
-                const content = Buffer.concat(stdout).toString();
+                const content = Buffer.concat(stdout);
                 res(content);
             } else {
-                const content = Buffer.concat(stderr).toString();
+                const content = Buffer.concat(stderr);
                 rej(content);
             }
         });
     });
 
     return content;
+}
+
+export function sleep(ms: number) {
+    return new Promise<void>(res => {
+        setTimeout(res, ms);
+    });
 }

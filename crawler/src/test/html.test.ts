@@ -4,11 +4,11 @@ import path from "path";
 import { getLinks } from "services/html-processor/ExtractAHrefs";
 import { getHits } from "services/html-processor/ExtractHits";
 import { toRawText } from "services/html-processor/ExtractRawText";
-import { Hits } from "types/Hits";
 import { resourceIsWikiCategory, getEntities } from "services/html-processor/ExtractWikiTree";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { WikiCategory } from "types/objects/WikiCategory";
 import { WikiPage } from "types/objects/WikiPage";
+import { WordHits } from "types/WordHits";
 
 test("extract hits works", async () => {
     const src = "http://src.com/";
@@ -20,10 +20,10 @@ test("extract hits works", async () => {
     `;
     const doc = new JSDOM(html, { url: src });
     const window = doc.window;
-    const hits = getHits(window);
-    const buffer = hits.toBuffer();
-    const actualHits = Hits.fromBuffer(buffer);
-    expect(actualHits.toString()).toBe(hits.toString());
+    const { wordHits, linkHits } = getHits(window);
+    const buffer = wordHits.toBuffer();
+    const actualHits = new WordHits().fromBuffer(buffer);
+    expect(actualHits.toString()).toBe(wordHits.toString());
 });
 
 test("get links works", async () => {
@@ -44,7 +44,8 @@ test("get links works", async () => {
     `;
     const doc = new JSDOM(html, { url: src });
     const window = doc.window;
-    const links = getLinks(window).map(obj => obj.toString());
+    const linkObjects = getLinks(window);
+    const links = linkObjects.map(obj => obj.toString());
     expect(links).toStrictEqual([
         'http://src.com/-->http://dst.com/1',
         'http://src.com/-->http://dst.com/2',

@@ -39,8 +39,6 @@ entityIDs(Entity.RESOURCE).then(async ids => {
 */
 
 import { selectPreSchedule } from "./data";
-import { thenDebug } from "./common/functional";
 
 selectPreSchedule()
-    .then(resources => console.log(resources))
-    .catch(thenDebug);
+    .then(resources => console.log(resources));

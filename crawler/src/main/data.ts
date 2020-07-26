@@ -36,18 +36,7 @@ export async function schedule(items: Schedule[]) {
     await Promise.all(promises);
 }
 
-export async function crawlAllowed(host: string) {
-    return !(await Redis.renewRedis(REDIS_PARAMS.throttle).eq(host));
-}
-
 export async function selectResourcesNotProcessed() {
     const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
     return genericSQLPromise<{ [key: string]: any }[], { [key: string]: any }[]>(query);
-}
-
-export function throttle(host: string, ms: number) {
-    Redis
-        .renewRedis(REDIS_PARAMS.throttle)
-        .setpx(host, ms, STR_ONE)
-        .catch(thenDebug);
 }

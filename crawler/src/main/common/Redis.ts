@@ -96,7 +96,7 @@ export class Redis {
                 fancyLog(JSON.stringify(err));
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
                 delete STATIC_CONNECTIONS[this.params.name];
-                oldClient.quit();
+                if (oldClient) oldClient.quit();
                 this.client = Redis.renewRedis(this.params).client;
             }
         }

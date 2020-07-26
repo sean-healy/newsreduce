@@ -3,7 +3,7 @@ import { ResourceLink } from "types/objects/ResourceLink";
 import { Word } from "types/objects/Word";
 
 const url = "https://en.wikipedia.org/wiki/Main_Page";
-const link = new ResourceLink(url, url);
+const link = new ResourceLink(url, url, "Main page");
 const word = new Word("the");
 test("saving a link should work", async () => {
     const success = await new Promise(res => {

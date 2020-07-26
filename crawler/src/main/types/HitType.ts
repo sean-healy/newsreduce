@@ -12,9 +12,9 @@ export enum HitType {
     EM,
     BLOCKQUOTE,
     P,
-    OTHER_TEXT,
-    ACCESSABILITY_DATA,
     META_DATA,
+    ACCESSABILITY_DATA,
+    OTHER_TEXT,
 };
 
 const META_NAMES_CONSIDERED = [

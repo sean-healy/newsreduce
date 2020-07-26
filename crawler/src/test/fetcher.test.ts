@@ -1,24 +1,26 @@
 import "./setup";
-import { crawlAllowed, throttle, schedule } from "data";
+import { schedule } from "data";
 import { fetchAndWrite, pollAndFetch } from "services/fetcher/functions";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { Redis, REDIS_PARAMS } from "common/Redis";
+import { Host } from "types/objects/Host";
 
 test("crawl allowed should work", async () => {
     await Redis.renewRedis(REDIS_PARAMS.throttle).del("fakeurl.fake")
-    let allowed = (await crawlAllowed("fakeurl.fake"));
+    const host = new Host("fakeurl2.fake", 500);
+    let allowed = (await host.crawlAllowed());
     expect(allowed).toBe(true);
-    throttle("fakeurl2.fake", 500);
+    host.applyThrottle();
     await new Promise(res => {
         setTimeout(() => {
             res();
         }, 100);
     });
-    allowed = (await crawlAllowed("fakeurl2.fake"));
+    allowed = (await host.crawlAllowed());
     expect(allowed).toBe(false);
     allowed = await new Promise(res => {
         setTimeout(async () => {
-            res(await crawlAllowed("fakeurl2.fake"));
+            res(await host.crawlAllowed());
         }, 800);
     });
     expect(allowed).toBe(true);

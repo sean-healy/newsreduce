@@ -3,9 +3,9 @@ import path from "path";
 import crypto from "crypto";
 import { spawn } from "child_process";
 import { blobDirPromise, tmpDirPromise, TAR, safeMkdir } from "common/config";
-import { FileFormat, formatToFileName, fileNameToFormat } from "types/FileFormat";
 import { Entity, entityName } from "types/Entity";
 import { fancyLog, spawnPromise } from "common/util";
+import { ResourceVersionType } from "types/objects/ResourceVersionType";
 
 const FINISH = "finish";
 const ERROR = "error";
@@ -25,8 +25,10 @@ export async function entityIDs(entity: Entity) {
 
 /**
  * @param entityID the ID of the resource to be saved (a hash of the URL)
- * @param version    the version of the resource to be saved (milliseconds since 1970-01-01 00:00:00)
- * @param src        the source of data to be saved, either as a string of the raw data or an input stream
+ * @param version  the version of the resource to be saved (milliseconds
+ *                 since 1970-01-01 00:00:00)
+ * @param src      the source of data to be saved, either as a string of
+ *                 the raw data or an input stream
  * 
  * @return number of bytes written
  */
@@ -34,7 +36,7 @@ export async function write(
     entity: Entity,
     entityID: bigint,
     version: number,
-    format: FileFormat,
+    format: ResourceVersionType,
     src: NodeJS.ReadableStream | string | Buffer
 ) {
     const bufferFile = path.join("/tmp", crypto.randomBytes(30).toString("hex"));
@@ -65,7 +67,9 @@ export async function write(
     }
     if (bytesWritten >= 0) {
         const versions = await findVersions(entity, entityID);
-        const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format)
+        const found =
+            versions.find(vAndFormat =>
+                vAndFormat[0] === version && vAndFormat[1].filename === format.filename)
         if (found) {
             bytesWritten = -1;
             if (fs.existsSync(bufferFile)) {
@@ -80,7 +84,7 @@ export async function write(
         }
         else {
             const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
-            const tmpFile = path.join(dir, `${version}_${formatToFileName(format)}`);
+            const tmpFile = path.join(dir, `${version}_${format.filename}`);
             await safeMkdir(dir);
             try {
                 fs.renameSync(bufferFile, tmpFile);
@@ -104,15 +108,6 @@ export async function write(
     return bytesWritten;
 }
 
-export const sortVersions = (versions: [number, FileFormat][]) => versions.sort((v1, v2) => {
-    const vID1 = v1[0];
-    const vID2 = v2[0];
-    const cmp = vID1 - vID2;
-    if (cmp !== 0) return cmp;
-    const vFormat1 = v1[1];
-    const vFormat2 = v2[1];
-    return vFormat1 - vFormat2;
-});
 /*
  * Returns true if the path has been modified before 'ms'
  * milliseconds ago (exclusive).
@@ -128,18 +123,37 @@ export function lastChangedBefore(path: string, ms: number) {
 export function lastChangedAfter(path: string, ms: number) {
     return !lastChangedBefore(path, ms);
 }
+
+type VersionSignature = [number, ResourceVersionType];
+export const compareVersionSignatures = (v1: VersionSignature, v2: VersionSignature) => {
+    const vID1 = v1[0];
+    const vID2 = v2[0];
+    const cmp = vID1 - vID2;
+    if (cmp !== 0) return cmp;
+    const vType1 = v1[1];
+    const vType2 = v2[1];
+    if (vType1.filename < vType2.filename) return -1;
+    if (vType1.filename > vType2.filename) return +1;
+    return 0;
+};
+
 export async function findVersions(entity: Entity, entityID: bigint) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
-    // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs.existsSync(compressedArc) || lastChangedAfter(compressedArc, 3000)) return [];
+    // Ignore files that have not been written yet.
+    if (!fs.existsSync(compressedArc)) return [];
 
     return (await spawnPromise(() => spawn(TAR, [TAR_LS_PARAMS, compressedArc])))
-        .split("\n")                                               // Separate out lines.
-        .map(line => line.replace(/^[0-9]+\//, ""))                // Remove redundant entity ID.
-        .filter(line => line.match(/^[0-9]+_/))                    // Ensure this addresses a file.
-        .map(line => line.split(/[/_]/, 2))                        // Split on spaces and underscore.
-        .map(arr => [parseInt(arr[0]), fileNameToFormat(arr[1])]); // parse time and format pieces.
+        .toString()
+        .split("\n")                                // Separate out lines.
+        .map(line => line.replace(/^[0-9]+\//, "")) // Remove redundant entity ID.
+        .filter(line => line.match(/^[0-9]+_/))     // Ensure this addresses a file.
+        .map(line => line.split(/[/_]/, 2))         // Split on spaces and underscore.
+        .map(arr => [
+            parseInt(arr[0]),
+            new ResourceVersionType(arr[1])
+        ] as VersionSignature)
+        .sort(compareVersionSignatures);
 }
 export async function findFormats(entity: Entity, entityID: bigint, version: number) {
     return (await findVersions(entity, entityID))
@@ -147,36 +161,47 @@ export async function findFormats(entity: Entity, entityID: bigint, version: num
         .map(([, format]) => format);
 }
 
-export async function read(entity: Entity, entityID: bigint, version: number, format: FileFormat) {
+export async function read(
+    entity: Entity,
+    entityID: bigint,
+    version: number,
+    format: ResourceVersionType
+) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
-    const tarPath = path.join(`${entityID}`, `${version}_${formatToFileName(format)}`);
+    const tarPath = path.join(`${entityID}`, `${version}_${format.filename}`);
     // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs.existsSync(compressedArc) || lastChangedAfter(compressedArc, 4000)) return null;
-    return await new Promise<Buffer>((res, rej) => {
-        const tarCat =
-            spawn(TAR, [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
-        const allData = [];
-        tarCat.stdout.on("data", (data: Buffer) => allData.push(data));
-        const errData = [];
-        tarCat.stderr.on("data", (data: Buffer) => errData.push(data));
-        tarCat.on("close", code => code === 0 ? res(Buffer.concat(allData)) : rej(Buffer.concat(errData)));
-    });
+    if (!fs.existsSync(compressedArc)) return null;
+    const params = [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath];
+
+    return await spawnPromise(() => spawn(TAR, params));
 }
-export async function findLatestVersion(entity: Entity, entityID: bigint, format: FileFormat) {
+export async function findLatestVersion(
+    entity: Entity,
+    entityID: bigint,
+    format: ResourceVersionType
+) {
     const versions = await findVersions(entity, entityID);
-    const sorted = versions.filter(version => version[1] === format).sort((a, b) => {
-        const cmp = a[0] - b[0];
-        if (cmp === 0) return a[1] - b[1];
-        return cmp;
-    });
+    const sorted = versions
+        .filter(version => version[1].filename === format.filename)
+        .sort((a, b) => {
+            const cmp = a[0] - b[0];
+            if (cmp !== 0) return cmp;
+            if (a[1].filename < b[1].filename) return -1;
+            if (a[1].filename > b[1].filename) return +1;
+            return 0;
+        });
     if (!sorted || !sorted.length) return -1;
     else {
         const [time,] = sorted[sorted.length - 1];
         return time;
     }
 }
-export async function readLatestVersion(entity: Entity, entityID: bigint, format: FileFormat) {
+export async function readLatestVersion(
+    entity: Entity,
+    entityID: bigint,
+    format: ResourceVersionType,
+) {
     const latestVersion = await findLatestVersion(entity, entityID, format);
     if (latestVersion === -1) return null;
     return await read(entity, entityID, latestVersion, format);

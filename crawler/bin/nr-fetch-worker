@@ -238,40 +238,55 @@ class DBObject_DBObject {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return setImmediateInterval; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
-/* unused harmony export ZERO */
-/* unused harmony export EIGHT */
-/* unused harmony export MASK */
+/* unused harmony export BIGINT_ZERO */
+/* unused harmony export BIGINT_EIGHT */
+/* unused harmony export BIGINT_MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return tabulate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return bytesToNumber; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return writeAnyNumberBE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return spawnPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return spawnPromise; });
+/* unused harmony export sleep */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function setImmediateInterval(f, ms) {
     setImmediate(f);
     return setInterval(f, ms);
 }
 const STR_ONE = "1";
-const ZERO = BigInt(0);
-const EIGHT = BigInt(8);
-const MASK = BigInt(0xFF);
+const BIGINT_ZERO = BigInt(0);
+const BIGINT_EIGHT = BigInt(8);
+const BIGINT_MASK = BigInt(0xFF);
 function bytesToBigInt(bytes) {
     if (!bytes)
         return bytes;
-    let result = ZERO;
+    let result = BIGINT_ZERO;
     for (const byte of bytes)
-        result = (result << EIGHT) | BigInt(byte);
+        result = (result << BIGINT_EIGHT) | BigInt(byte);
     return result;
 }
-function writeBigUInt96BE(n, buffer, offset) {
-    for (let i = 0; i <= 11; ++i) {
-        const byte = (n & MASK);
-        buffer[offset + 11 - i] = Number(byte);
-        n >>= EIGHT;
+function bytesToNumber(bytes) {
+    if (!bytes)
+        return bytes;
+    let result = 0;
+    for (const byte of bytes)
+        result = (result << 8) | byte;
+    return result;
+}
+function writeBigUInt96BE(n, buffer, offset = 0) {
+    writeAnyNumberBE(n, buffer, offset, 12);
+}
+function writeAnyNumberBE(n, buffer, offset, bytes) {
+    let bigintN = BigInt(n);
+    for (let i = 0; i < bytes; ++i) {
+        const byte = (bigintN & BIGINT_MASK);
+        buffer[offset + bytes - 1 - i] = Number(byte);
+        bigintN >>= BIGINT_EIGHT;
     }
 }
 function iteratorToArray(itr) {
@@ -374,16 +389,21 @@ async function spawnPromise(spawner) {
         process.stderr.on("data", (data) => stderr.push(data));
         process.on("close", code => {
             if (code === 0) {
-                const content = Buffer.concat(stdout).toString();
+                const content = Buffer.concat(stdout);
                 res(content);
             }
             else {
-                const content = Buffer.concat(stderr).toString();
+                const content = Buffer.concat(stderr);
                 rej(content);
             }
         });
     });
     return content;
+}
+function sleep(ms) {
+    return new Promise(res => {
+        setTimeout(res, ms);
+    });
 }
 
 
@@ -473,10 +493,11 @@ class Redis {
             catch (err) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(err));
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "e"])(JSON.stringify(err));
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
                 delete STATIC_CONNECTIONS[this.params.name];
-                oldClient.quit();
+                if (oldClient)
+                    oldClient.quit();
                 this.client = Redis.renewRedis(this.params).client;
             }
         }
@@ -602,11 +623,11 @@ class Redis {
         client.on("error", (error, msg) => {
             if (msg) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
-                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(msg);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "e"])(msg);
             }
             if (error) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
-                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(error));
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "e"])(JSON.stringify(error));
             }
         });
         return new Redis(params, client);
@@ -758,11 +779,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var types_objects_Host__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(17);
 /* harmony import */ var file__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(12);
-/* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(10);
-/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(3);
-/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(2);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(9);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(1);
+/* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(3);
+/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(9);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(1);
+/* harmony import */ var _ResourceVersion__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(28);
 
 
 
@@ -779,7 +800,7 @@ const PORT_BASE = 10;
 const URL = /^http(s)?:\/\/([^\/:?#]+)(:\d+)?(\/[^?#]*)?(\?[^#]*)?(#.*)?$/;
 class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(arg) {
-        if (!arg)
+        if (arg === null || arg === undefined)
             super();
         else if (typeof arg === "string") {
             const groups = arg.match(URL);
@@ -828,7 +849,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     }
     toURL() {
         if (!this.port)
-            Object(common_logging__WEBPACK_IMPORTED_MODULE_7__[/* log */ "a"])("error", "port should be truthy in toURL", JSON.stringify(this));
+            Object(common_logging__WEBPACK_IMPORTED_MODULE_6__[/* log */ "a"])("error", "port should be truthy in toURL", JSON.stringify(this));
         const protocol = this.ssl ? "https://" : "http://";
         let length = protocol.length;
         let portString = "";
@@ -844,8 +865,8 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             portString = this.port.toString(PORT_BASE);
         }
         else {
-            common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general)
-                .zincrby(common_events__WEBPACK_IMPORTED_MODULE_9__[/* FAILURE_CACHE */ "g"], 1, "port gen issue " + JSON.stringify(this));
+            common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].general)
+                .zincrby(common_events__WEBPACK_IMPORTED_MODULE_8__[/* FAILURE_CACHE */ "g"], 1, "port gen issue " + JSON.stringify(this));
         }
         length += portString ? 1 : 0;
         length += Buffer.byteLength(portString, URL_ENCODING);
@@ -893,9 +914,9 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             for (i = 0; i < 10 && bytesWritten < 0; ++i)
                 bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
             if (i > 1 && bytesWritten >= 0) {
-                Object(common_util__WEBPACK_IMPORTED_MODULE_10__[/* fancyLog */ "d"])(`wrote ${bytesWritten}b to ` +
+                Object(common_util__WEBPACK_IMPORTED_MODULE_9__[/* fancyLog */ "e"])(`wrote ${bytesWritten}b to ` +
                     `${Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE)} ${id} ` +
-                    `(${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_6__[/* formatToFileName */ "c"])(format)}, v${version}) on attempt ${i}.`);
+                    `(${format.filename}, v${version}) on attempt ${i}.`);
             }
         }
         else
@@ -903,10 +924,10 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         return bytesWritten;
     }
     isFetchLocked() {
-        return common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).eq(this.toURL());
+        return common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].fetchLock).eq(this.toURL());
     }
-    setFetchLock() {
-        common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL(), 300);
+    async setFetchLock() {
+        await common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].fetchLock).setex(this.toURL(), 300);
     }
     isInvalid() {
         return this.ssl === null
@@ -923,17 +944,16 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     isValid() {
         return !this.isInvalid();
     }
-    static async popForFetching(host) {
-        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax(host, 1);
-        if (url)
-            new ResourceURL(url).setFetchLock();
-        return new ResourceURL(url);
-    }
     static async popForProcessing() {
-        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_8__[/* REDIS_PARAMS */ "a"].general).spop("html");
+        const url = await common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].general).spop("html");
         if (!url)
             return null;
         return new ResourceURL(url);
+    }
+    static async registerVersionIfSuccessful(resource, time, type, length) {
+        if (length >= 0)
+            await new _ResourceVersion__WEBPACK_IMPORTED_MODULE_10__["ResourceVersion"]({ resource, time, type, length })
+                .enqueueInsert({ recursive: true });
     }
 }
 
@@ -988,35 +1008,99 @@ const FAILURE_CACHE = "failures";
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FileFormat; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return formatToFileName; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return fileNameToFormat; });
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return /* binding */ ResourceVersionType_ResourceVersionType; });
+
+// EXTERNAL MODULE: ./dist/main/types/DBObject.js + 1 modules
+var DBObject = __webpack_require__(0);
+
+// CONCATENATED MODULE: ./dist/main/types/FileFormat.js
 var FileFormat;
 (function (FileFormat) {
     FileFormat[FileFormat["RAW_HTML"] = 0] = "RAW_HTML";
     FileFormat[FileFormat["RAW_HEADERS"] = 1] = "RAW_HEADERS";
-    FileFormat[FileFormat["RAW_TXT"] = 2] = "RAW_TXT";
-    FileFormat[FileFormat["HITS"] = 3] = "HITS";
-    FileFormat[FileFormat["UNKNOWN"] = 4] = "UNKNOWN";
+    FileFormat[FileFormat["RAW_WORDS_TXT"] = 2] = "RAW_WORDS_TXT";
+    FileFormat[FileFormat["RAW_LINKS_TXT"] = 3] = "RAW_LINKS_TXT";
+    FileFormat[FileFormat["WORD_HITS"] = 4] = "WORD_HITS";
+    FileFormat[FileFormat["LINK_HITS"] = 5] = "LINK_HITS";
+    FileFormat[FileFormat["UNKNOWN"] = 6] = "UNKNOWN";
 })(FileFormat || (FileFormat = {}));
+const RAW_HTML_FILE = "raw.html";
+const RAW_HEADERS_FILE = "headers.txt";
+const RAW_WORDS_TXT_FILE = "raw-words.txt";
+const RAW_LINKS_TXT_FILE = "raw-links.txt";
+const WORD_HITS_FILE = "word-hits.bin";
+const LINK_HITS_FILE = "link-hits.bin";
 function formatToFileName(format) {
     switch (format) {
-        case FileFormat.RAW_HTML: return "raw.html";
-        case FileFormat.RAW_HEADERS: return "headers.txt";
-        case FileFormat.RAW_TXT: return "raw.txt";
-        case FileFormat.HITS: return "hit.bin";
+        case FileFormat.RAW_HTML: return RAW_HTML_FILE;
+        case FileFormat.RAW_HEADERS: return RAW_HEADERS_FILE;
+        case FileFormat.RAW_WORDS_TXT: return RAW_WORDS_TXT_FILE;
+        case FileFormat.RAW_LINKS_TXT: return RAW_LINKS_TXT_FILE;
+        case FileFormat.WORD_HITS: return WORD_HITS_FILE;
+        case FileFormat.LINK_HITS: return LINK_HITS_FILE;
         default: throw `format not handled: ${format}`;
     }
 }
 function fileNameToFormat(fileName) {
     switch (fileName) {
-        case "raw.html": return FileFormat.RAW_HTML;
-        case "headers.txt": return FileFormat.RAW_HEADERS;
-        case "raw.txt": return FileFormat.RAW_TXT;
-        case "hit.bin": return FileFormat.HITS;
+        case RAW_HTML_FILE: return FileFormat.RAW_HTML;
+        case RAW_HEADERS_FILE: return FileFormat.RAW_HEADERS;
+        case RAW_WORDS_TXT_FILE: return FileFormat.RAW_WORDS_TXT;
+        case RAW_LINKS_TXT_FILE: return FileFormat.RAW_LINKS_TXT;
+        case WORD_HITS_FILE: return FileFormat.WORD_HITS;
+        case LINK_HITS_FILE: return FileFormat.LINK_HITS;
         default: return FileFormat.UNKNOWN;
     }
 }
+
+// CONCATENATED MODULE: ./dist/main/types/objects/ResourceVersionType.js
+
+
+class ResourceVersionType_ResourceVersionType extends DBObject["a" /* DBObject */] {
+    constructor(arg) {
+        if (!arg)
+            super();
+        else if (typeof arg === "string")
+            super({ filename: arg });
+        else
+            super(arg);
+    }
+    insertCols() {
+        return ["id", "filename"];
+    }
+    getInsertParams() {
+        const params = [this.getID(), this.filename];
+        return params;
+    }
+    table() {
+        return "ResourceVersionType";
+    }
+    hashSuffix() {
+        return this.filename;
+    }
+}
+ResourceVersionType_ResourceVersionType.RAW_HTML = new ResourceVersionType_ResourceVersionType({
+    filename: RAW_HTML_FILE,
+});
+ResourceVersionType_ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType_ResourceVersionType({
+    filename: RAW_WORDS_TXT_FILE,
+});
+ResourceVersionType_ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType_ResourceVersionType({
+    filename: RAW_LINKS_TXT_FILE,
+});
+ResourceVersionType_ResourceVersionType.WORD_HITS = new ResourceVersionType_ResourceVersionType({
+    filename: WORD_HITS_FILE,
+});
+ResourceVersionType_ResourceVersionType.LINK_HITS = new ResourceVersionType_ResourceVersionType({
+    filename: LINK_HITS_FILE,
+});
+ResourceVersionType_ResourceVersionType.RAW_HEADERS = new ResourceVersionType_ResourceVersionType({
+    filename: RAW_HEADERS_FILE,
+});
 
 
 /***/ }),
@@ -1074,7 +1158,7 @@ class SQL {
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.message);
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.name);
                     Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error.sqlMessage);
-                    Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(error));
+                    Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "e"])(JSON.stringify(error));
                 }
             });
             // Be careful for concurrency bugs creating multiple connections.
@@ -1094,8 +1178,8 @@ class SQL {
             catch (err) {
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(common_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])("error on attempt " + attempt.toString());
-                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "d"])(JSON.stringify(err));
+                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "e"])("error on attempt " + attempt.toString());
+                Object(_util__WEBPACK_IMPORTED_MODULE_5__[/* fancyLog */ "e"])(JSON.stringify(err));
                 const oldClient = DB_CLIENT;
                 DB_CLIENT = null;
                 oldClient.destroy();
@@ -1289,8 +1373,24 @@ class HTTPHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Host", function() { return Host; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1);
+
+
 
 class Host extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(paramsOrName, throttle) {
+        if (paramsOrName === null || paramsOrName === undefined)
+            super();
+        else if (typeof paramsOrName === "string") {
+            super({
+                name: paramsOrName,
+                throttle,
+            });
+        }
+        else
+            super(paramsOrName);
+    }
     hashSuffix() {
         return this.name;
     }
@@ -1302,6 +1402,17 @@ class Host extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a
     }
     table() {
         return "Host";
+    }
+    async applyThrottle() {
+        console.log("applying throttle");
+        console.log(this);
+        await common_Redis__WEBPACK_IMPORTED_MODULE_1__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_1__[/* REDIS_PARAMS */ "a"].throttle).setpx(this.name, this.throttle, common_util__WEBPACK_IMPORTED_MODULE_2__[/* STR_ONE */ "b"]);
+    }
+    async crawlAllowed() {
+        return !(await common_Redis__WEBPACK_IMPORTED_MODULE_1__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_1__[/* REDIS_PARAMS */ "a"].throttle).eq(this.name));
+    }
+    async popURLForFetching() {
+        return await common_Redis__WEBPACK_IMPORTED_MODULE_1__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_1__[/* REDIS_PARAMS */ "a"].fetchSchedule).zpopmax(this.name, 1);
     }
 }
 
@@ -1437,31 +1548,34 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceLink", function() { return ResourceLink; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 /* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var types_objects_Anchor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(60);
+
 
 
 class ResourceLink extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(parentOrObj, child) {
+    constructor(parentOrObj, child, value) {
         if (!parentOrObj)
             super();
         else if (typeof parentOrObj === "string")
             super({
                 parent: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](parentOrObj),
                 child: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](child),
+                value: new types_objects_Anchor__WEBPACK_IMPORTED_MODULE_2__["Anchor"](value),
             });
         else
             super(parentOrObj);
     }
     insertCols() {
-        return ["parent", "child"];
+        return ["parent", "child", "value"];
     }
     getInsertParams() {
-        return [this.parent.getID(), this.child.getID()];
+        return [this.parent.getID(), this.child.getID(), this.value.getID()];
     }
     table() {
         return "ResourceLink";
     }
     getDeps() {
-        return [this.parent, this.child];
+        return [this.parent, this.child, this.value];
     }
     toString() {
         return `${this.parent.toURL()}-->${this.child.toURL()}`;
@@ -1505,7 +1619,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class HTTPHeaderValue extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(arg) {
-        if (!arg)
+        if (arg === null || arg === undefined)
             super();
         else if (typeof arg === "string")
             super({ value: arg });
@@ -1570,44 +1684,7 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
 
 
 /***/ }),
-/* 29 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return ResourceVersionType; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-
-class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    insertCols() {
-        return ["id", "filename"];
-    }
-    getInsertParams() {
-        const params = [this.getID(), this.filename];
-        return params;
-    }
-    table() {
-        return "ResourceVersionType";
-    }
-    hashSuffix() {
-        return this.filename;
-    }
-}
-ResourceVersionType.RAW_HTML = new ResourceVersionType({
-    filename: "raw.html",
-});
-ResourceVersionType.RAW_TXT = new ResourceVersionType({
-    filename: "raw.txt",
-});
-ResourceVersionType.HITS = new ResourceVersionType({
-    filename: "hits.bin",
-});
-ResourceVersionType.HEADERS = new ResourceVersionType({
-    filename: "headers.txt",
-});
-
-
-/***/ }),
+/* 29 */,
 /* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1639,9 +1716,9 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 "use strict";
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return write; });
-/* unused harmony export sortVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return lastChangedBefore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastChangedAfter; });
+/* unused harmony export compareVersionSignatures */
 /* unused harmony export findVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return read; });
@@ -1656,9 +1733,9 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 /* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(27);
 /* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
-/* harmony import */ var types_FileFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(10);
-/* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(12);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(1);
+/* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(12);
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(1);
+/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(10);
 
 
 
@@ -1673,7 +1750,7 @@ const TAR_LS_PARAMS = "-atf";
 const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
 const TAR_CAT_PARAMS_AFTER_FILE = "-O";
 async function entityIDs(entity) {
-    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity));
+    const entityDir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(entity));
     const files = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readdirSync(entityDir);
     return files
         .map(file => file.match(/^([0-9]+)\.tzst$/))
@@ -1683,8 +1760,10 @@ async function entityIDs(entity) {
 }
 /**
  * @param entityID the ID of the resource to be saved (a hash of the URL)
- * @param version    the version of the resource to be saved (milliseconds since 1970-01-01 00:00:00)
- * @param src        the source of data to be saved, either as a string of the raw data or an input stream
+ * @param version  the version of the resource to be saved (milliseconds
+ *                 since 1970-01-01 00:00:00)
+ * @param src      the source of data to be saved, either as a string of
+ *                 the raw data or an input stream
  *
  * @return number of bytes written
  */
@@ -1697,8 +1776,8 @@ async function write(entity, entityID, version, format, src) {
             bytesWritten = src.length;
         }
         catch (e) {
-            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while writing string to file.");
-            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+            Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])("exception while writing string to file.");
+            Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])(JSON.stringify(e));
             bytesWritten = -1;
         }
     }
@@ -1713,14 +1792,14 @@ async function write(entity, entityID, version, format, src) {
             });
         }
         catch (e) {
-            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while writing stream to file.");
-            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+            Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])("exception while writing stream to file.");
+            Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])(JSON.stringify(e));
             bytesWritten = -1;
         }
     }
     if (bytesWritten >= 0) {
         const versions = await findVersions(entity, entityID);
-        const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1] === format);
+        const found = versions.find(vAndFormat => vAndFormat[0] === version && vAndFormat[1].filename === format.filename);
         if (found) {
             bytesWritten = -1;
             if (fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(bufferFile)) {
@@ -1728,22 +1807,22 @@ async function write(entity, entityID, version, format, src) {
                     fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);
                 }
                 catch (e) {
-                    Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while removing file.");
-                    Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+                    Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])("exception while removing file.");
+                    Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])(JSON.stringify(e));
                     bytesWritten = -1;
                 }
             }
         }
         else {
-            const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}`);
-            const tmpFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(dir, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
+            const dir = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* tmpDirPromise */ "j"])(), Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(entity), `${entityID}`);
+            const tmpFile = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(dir, `${version}_${format.filename}`);
             await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* safeMkdir */ "h"])(dir);
             try {
                 fs__WEBPACK_IMPORTED_MODULE_0___default.a.renameSync(bufferFile, tmpFile);
             }
             catch (e) {
-                Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while renaming file.");
-                Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+                Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])("exception while renaming file.");
+                Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])(JSON.stringify(e));
                 bytesWritten = -1;
             }
         }
@@ -1753,23 +1832,13 @@ async function write(entity, entityID, version, format, src) {
             fs__WEBPACK_IMPORTED_MODULE_0___default.a.unlinkSync(bufferFile);
         }
         catch (e) {
-            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])("exception while removing file.");
-            Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* fancyLog */ "d"])(JSON.stringify(e));
+            Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])("exception while removing file.");
+            Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])(JSON.stringify(e));
             bytesWritten = -1;
         }
     }
     return bytesWritten;
 }
-const sortVersions = (versions) => versions.sort((v1, v2) => {
-    const vID1 = v1[0];
-    const vID2 = v2[0];
-    const cmp = vID1 - vID2;
-    if (cmp !== 0)
-        return cmp;
-    const vFormat1 = v1[1];
-    const vFormat2 = v2[1];
-    return vFormat1 - vFormat2;
-});
 /*
  * Returns true if the path has been modified before 'ms'
  * milliseconds ago (exclusive).
@@ -1785,18 +1854,37 @@ function lastChangedBefore(path, ms) {
 function lastChangedAfter(path, ms) {
     return !lastChangedBefore(path, ms);
 }
+const compareVersionSignatures = (v1, v2) => {
+    const vID1 = v1[0];
+    const vID2 = v2[0];
+    const cmp = vID1 - vID2;
+    if (cmp !== 0)
+        return cmp;
+    const vType1 = v1[1];
+    const vType2 = v2[1];
+    if (vType1.filename < vType2.filename)
+        return -1;
+    if (vType1.filename > vType2.filename)
+        return +1;
+    return 0;
+};
 async function findVersions(entity, entityID) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])();
-    const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
-    // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastChangedAfter(compressedArc, 3000))
+    const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
+    // Ignore files that have not been written yet.
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
         return [];
-    return (await Object(common_util__WEBPACK_IMPORTED_MODULE_7__[/* spawnPromise */ "g"])(() => Object(child_process__WEBPACK_IMPORTED_MODULE_3__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_4__[/* TAR */ "e"], [TAR_LS_PARAMS, compressedArc])))
+    return (await Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* spawnPromise */ "h"])(() => Object(child_process__WEBPACK_IMPORTED_MODULE_3__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_4__[/* TAR */ "e"], [TAR_LS_PARAMS, compressedArc])))
+        .toString()
         .split("\n") // Separate out lines.
         .map(line => line.replace(/^[0-9]+\//, "")) // Remove redundant entity ID.
         .filter(line => line.match(/^[0-9]+_/)) // Ensure this addresses a file.
         .map(line => line.split(/[/_]/, 2)) // Split on spaces and underscore.
-        .map(arr => [parseInt(arr[0]), Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* fileNameToFormat */ "b"])(arr[1])]); // parse time and format pieces.
+        .map(arr => [
+        parseInt(arr[0]),
+        new types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__["ResourceVersionType"](arr[1])
+    ])
+        .sort(compareVersionSignatures);
 }
 async function findFormats(entity, entityID, version) {
     return (await findVersions(entity, entityID))
@@ -1805,27 +1893,27 @@ async function findFormats(entity, entityID, version) {
 }
 async function read(entity, entityID, version, format) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])();
-    const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_6__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
-    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}_${Object(types_FileFormat__WEBPACK_IMPORTED_MODULE_5__[/* formatToFileName */ "c"])(format)}`);
+    const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
+    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}_${format.filename}`);
     // Ignore files that are not written yet, or that have been written too recently.
-    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc) || lastChangedAfter(compressedArc, 4000))
+    if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
         return null;
-    return await new Promise((res, rej) => {
-        const tarCat = Object(child_process__WEBPACK_IMPORTED_MODULE_3__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_4__[/* TAR */ "e"], [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath]);
-        const allData = [];
-        tarCat.stdout.on("data", (data) => allData.push(data));
-        const errData = [];
-        tarCat.stderr.on("data", (data) => errData.push(data));
-        tarCat.on("close", code => code === 0 ? res(Buffer.concat(allData)) : rej(Buffer.concat(errData)));
-    });
+    const params = [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath];
+    return await Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* spawnPromise */ "h"])(() => Object(child_process__WEBPACK_IMPORTED_MODULE_3__["spawn"])(common_config__WEBPACK_IMPORTED_MODULE_4__[/* TAR */ "e"], params));
 }
 async function findLatestVersion(entity, entityID, format) {
     const versions = await findVersions(entity, entityID);
-    const sorted = versions.filter(version => version[1] === format).sort((a, b) => {
+    const sorted = versions
+        .filter(version => version[1].filename === format.filename)
+        .sort((a, b) => {
         const cmp = a[0] - b[0];
-        if (cmp === 0)
-            return a[1] - b[1];
-        return cmp;
+        if (cmp !== 0)
+            return cmp;
+        if (a[1].filename < b[1].filename)
+            return -1;
+        if (a[1].filename > b[1].filename)
+            return +1;
+        return 0;
     });
     if (!sorted || !sorted.length)
         return -1;
@@ -2246,7 +2334,7 @@ class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 
 
 function dangerouslyExit() {
-    Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "d"])("Safety procedure activated. Exiting.");
+    Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "e"])("Safety procedure activated. Exiting.");
     for (const connection of Object.values(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* STATIC_CONNECTIONS */ "c"]))
         if (connection && connection.connected)
             connection.quit();
@@ -2280,7 +2368,7 @@ let SAFELY_EXIT = [false];
 function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
     const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
     if (options.interval || options.interval === undefined)
-        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(() => synchronised(name, f, postcondition), options.period ? options.period : 2000);
+        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "g"])(() => synchronised(name, f, postcondition), options.period ? options.period : 2000);
     let events;
     if (preconditions && preconditions.size > 0) {
         events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
@@ -2292,7 +2380,7 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
     }
     else
         events = null;
-    SAFETY_INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "f"])(async () => {
+    SAFETY_INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "g"])(async () => {
         const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
         if (content.match(/1/))
             SAFELY_EXIT[0] = true;
@@ -2308,113 +2396,13 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
 module.exports = require("mysql");
 
 /***/ }),
-/* 47 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectPreSchedule; });
-__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ schedule; });
-__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ crawlAllowed; });
-__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectResourcesNotProcessed; });
-__webpack_require__.d(__webpack_exports__, "e", function() { return /* binding */ throttle; });
-
-// CONCATENATED MODULE: ./dist/main/sql.js
-/* harmony default export */ var sql = ({
-    // /home/sean/newsreduce/sql/BULK_INSERT.sql
-    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
-    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
-    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
-    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
-    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
-    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
-    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
-    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
-    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
-    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
-    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
-    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
-    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
-    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
-    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
-    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
-    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
-});
-
-// CONCATENATED MODULE: ./dist/main/common/functional.js
-const thenLog = (msg) => () => console.log(msg);
-const thenDebug = (err) => {
-    if (err)
-        console.debug(err);
-};
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
-var ResourceURL = __webpack_require__(7);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(1);
-
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./dist/main/common/SQL.js
-var SQL = __webpack_require__(11);
-
-// CONCATENATED MODULE: ./dist/main/data.js
-
-
-
-
-
-
-async function genericSQLPromise(query, params = [], mapper) {
-    let response = await SQL["b" /* SQL */].query(query, params);
-    if (mapper && response)
-        response = mapper(response);
-    return response;
-}
-function selectPreSchedule() {
-    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
-}
-async function schedule(items) {
-    Object(util["d" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
-    const promises = [];
-    let scheduled = 0;
-    for (const item of items) {
-        const resourceURL = new ResourceURL["ResourceURL"](item.url);
-        if (!await resourceURL.isFetchLocked()) {
-            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
-                .zincrby(resourceURL.host.name, 1, item.url));
-            ++scheduled;
-        }
-    }
-    if (scheduled)
-        Object(util["d" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
-    await Promise.all(promises);
-}
-async function crawlAllowed(host) {
-    return !(await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].throttle).eq(host));
-}
-async function selectResourcesNotProcessed() {
-    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
-    return genericSQLPromise(query);
-}
-function throttle(host, ms) {
-    Redis["b" /* Redis */]
-        .renewRedis(Redis["a" /* REDIS_PARAMS */].throttle)
-        .setpx(host, ms, util["b" /* STR_ONE */])
-        .catch(thenDebug);
-}
-
-
-/***/ }),
+/* 47 */,
 /* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
+	"./Anchor": 60,
+	"./Anchor.js": 60,
 	"./Client": 20,
 	"./Client.js": 20,
 	"./ClientCookie": 36,
@@ -2461,8 +2449,8 @@ var map = {
 	"./ResourceURLQuery.js": 19,
 	"./ResourceVersion": 28,
 	"./ResourceVersion.js": 28,
-	"./ResourceVersionType": 29,
-	"./ResourceVersionType.js": 29,
+	"./ResourceVersionType": 10,
+	"./ResourceVersionType.js": 10,
 	"./WikiCategory": 30,
 	"./WikiCategory.js": 30,
 	"./WikiPage": 34,
@@ -2528,7 +2516,7 @@ function start(f, birthLog, deathLog, preconditions, postcondition) {
     const workerID = Object(external_crypto_["randomBytes"])(30).toString("hex");
     let lo;
     let hi;
-    Object(util["f" /* setImmediateInterval */])(() => Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local).publish(birthLog, workerID), 400);
+    Object(util["g" /* setImmediateInterval */])(() => Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local).publish(birthLog, workerID), 400);
     const listen = Redis["b" /* Redis */].newSub(Redis["a" /* REDIS_PARAMS */].local);
     listen.client.subscribe(workerID);
     listen.client.on("message", (_, msg) => {
@@ -2540,12 +2528,6 @@ function start(f, birthLog, deathLog, preconditions, postcondition) {
 // EXTERNAL MODULE: external "node-fetch"
 var external_node_fetch_ = __webpack_require__(8);
 var external_node_fetch_default = /*#__PURE__*/__webpack_require__.n(external_node_fetch_);
-
-// EXTERNAL MODULE: ./dist/main/data.js + 2 modules
-var data = __webpack_require__(47);
-
-// EXTERNAL MODULE: ./dist/main/types/FileFormat.js
-var FileFormat = __webpack_require__(10);
 
 // EXTERNAL MODULE: ./dist/main/common/logging.js
 var logging = __webpack_require__(3);
@@ -2567,12 +2549,10 @@ var ResourceHeader = __webpack_require__(32);
 // EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersion.js
 var ResourceVersion = __webpack_require__(28);
 
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
-var ResourceVersionType = __webpack_require__(29);
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js + 1 modules
+var ResourceVersionType = __webpack_require__(10);
 
 // CONCATENATED MODULE: ./dist/main/services/fetcher/functions.js
-
-
 
 
 
@@ -2588,7 +2568,6 @@ function buildOnFetch(url) {
         const resource = new ResourceURL["ResourceURL"](url);
         //fancyLog(JSON.stringify(resource));
         const time = milliTimestamp();
-        const bodyLength = await resource.writeVersion(time, FileFormat["a" /* FileFormat */].RAW_HTML, response.body);
         let headers = [];
         let objects = [];
         response.headers.forEach(async (value, anyCaseKey) => {
@@ -2596,14 +2575,14 @@ function buildOnFetch(url) {
             const key = anyCaseKey.toLowerCase();
             objects.push(new ResourceHeader["ResourceHeader"](url, key, value));
             if (key === "content-type") {
-                const type = value.toLowerCase();
-                if (type.match(/^text\/html/))
-                    objects.push(new ResourceVersion["ResourceVersion"]({
-                        resource,
-                        time,
-                        type: ResourceVersionType["ResourceVersionType"].RAW_HTML,
-                        length: bodyLength,
-                    }));
+                const mimeType = value.toLowerCase();
+                let type = null;
+                if (mimeType.match(/^text\/html/))
+                    type = ResourceVersionType["ResourceVersionType"].RAW_HTML;
+                if (type) {
+                    await resource.writeVersion(time, type, response.body)
+                        .then(length => objects.push(new ResourceVersion["ResourceVersion"]({ resource, time, type, length })));
+                }
             }
         });
         const headerContent = headers.join("\n");
@@ -2611,11 +2590,11 @@ function buildOnFetch(url) {
             Object(logging["a" /* log */])("header issue");
             Object(logging["a" /* log */])(JSON.stringify(headers));
         }
-        const headersLength = await resource.writeVersion(time, FileFormat["a" /* FileFormat */].RAW_HEADERS, headerContent);
+        const headersLength = await resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].RAW_HEADERS, headerContent);
         objects.push(new ResourceVersion["ResourceVersion"]({
             resource,
             time,
-            type: ResourceVersionType["ResourceVersionType"].HEADERS,
+            type: ResourceVersionType["ResourceVersionType"].RAW_HEADERS,
             length: headersLength,
         }));
         await Promise.all(objects.map(obj => obj.enqueueInsert({ recursive: true })));
@@ -2629,26 +2608,24 @@ async function pollAndFetch(lo, hi) {
     let fetched = new Set();
     do {
         hostnames = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule).keys();
-        Object(logging["a" /* log */])("Got hosts from redis:", JSON.stringify(hostnames));
         const hostIDs = hostnames.map(hostname => new Host["Host"]({ name: hostname }).getID());
         const throttleList = (await new Host["Host"]().bulkSelect(hostIDs, ["name", "throttle"]));
         const throttles = {};
         for (const row of throttleList)
             throttles[row.name] = Number(row.throttle);
-        Object(logging["a" /* log */])("Throttles for hosts", JSON.stringify(throttles));
         for (const hostname of hostnames) {
-            const host = new Host["Host"]({ name: hostname });
+            const host = new Host["Host"]({ name: hostname, throttle: throttles[hostname] });
             const id = host.getID();
             if (id >= lo() && id < hi()) {
-                Object(logging["a" /* log */])(`Host within range(${lo()} -- > ${hi()}: ${host.name}`);
-                const allowed = await Object(data["a" /* crawlAllowed */])(hostname);
+                const allowed = await host.crawlAllowed();
                 if (allowed) {
-                    const resourceURL = await ResourceURL["ResourceURL"].popForFetching(hostname);
-                    if (resourceURL && resourceURL.isValid()) {
-                        const url = resourceURL.toURL();
-                        Object(data["e" /* throttle */])(hostname, throttles[hostname]);
+                    const resource = new ResourceURL["ResourceURL"](await host.popURLForFetching());
+                    if (resource.isValid()) {
+                        await resource.setFetchLock();
+                        const url = resource.toURL();
+                        await host.applyThrottle();
                         await fetchAndWrite(url);
-                        Object(util["d" /* fancyLog */])(url);
+                        Object(util["e" /* fancyLog */])(url);
                         Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd("html", url);
                         fetched.add(url);
                     }
@@ -2665,6 +2642,49 @@ async function pollAndFetch(lo, hi) {
 
 
 start(pollAndFetch, events["h" /* FETCHER_BIRTH_LOG */], events["i" /* FETCHER_DEATH_LOG */], new Set(events["l" /* SCHEDULE_COMPLETE */]), events["j" /* FETCH_COMPLETE */]);
+
+
+/***/ }),
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Anchor", function() { return Anchor; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
+class Anchor extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(arg) {
+        if (arg === null || arg === undefined)
+            super();
+        else if (typeof arg === "string")
+            super({ value: arg });
+        else {
+            const { value } = arg;
+            if (value)
+                super({ value });
+            else
+                throw new Error("value can't be falsey");
+        }
+    }
+    hashSuffix() {
+        return this.value;
+    }
+    insertCols() {
+        return ["id", "value"];
+    }
+    getInsertParams() {
+        return [this.getID(), this.value];
+    }
+    table() {
+        return "Anchor";
+    }
+}
 
 
 /***/ })

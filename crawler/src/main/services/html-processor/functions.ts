@@ -10,11 +10,12 @@ import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProce
 import { selectResourcesNotProcessed } from "data";
 import { fancyLog } from "common/util";
 import { SAFELY_EXIT } from "common/processor";
+import { ResourceVersionType } from "types/objects/ResourceVersionType";
 const PROCESSORS: HTMLDocumentProcessor[] =
     [new ExtractAHrefs(), new ExtractWikiTree(), new ExtractRawText(), new ExtractHits()];
 
 export async function processURL(resource: bigint, url: string, time: number) {
-    let formats: FileFormat[];
+    let formats: ResourceVersionType[];
     try {
         formats = await findFormats(Entity.RESOURCE, resource, time);
     } catch (e) {
@@ -23,10 +24,11 @@ export async function processURL(resource: bigint, url: string, time: number) {
         SAFELY_EXIT[0] = true;
     }
     for (const format of formats) {
-        if (format === FileFormat.RAW_HTML) {
+        if (format.filename === ResourceVersionType.RAW_HTML.filename) {
             let content: Buffer;
             try {
-                content = await read(Entity.RESOURCE, resource, time, FileFormat.RAW_HTML);
+                content =
+                    await read(Entity.RESOURCE, resource, time, ResourceVersionType.RAW_HTML);
             } catch (e) {
                 fancyLog("error while reading file");
                 fancyLog(JSON.stringify(e));

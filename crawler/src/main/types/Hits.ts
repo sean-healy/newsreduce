@@ -1,95 +1,117 @@
-import { Word } from "types/objects/Word";
 import { HitList } from "types/HitList";
 import { HitType } from "types/HitType";
 import { Hit } from "types/Hit";
-import { CMP_BIG_INT, writeBigUInt96BE, iteratorToArray, bytesToBigInt } from "common/util";
+import {
+    CMP_BIG_INT,
+    writeBigUInt96BE,
+    iteratorToArray,
+    bytesToBigInt,
+    writeAnyNumberBE,
+    bytesToNumber,
+    fancyLog,
+} from "common/util";
+import { DBObject } from "./DBObject";
 
 const POSITION_BITS = 4;
 
-export class Hits {
-    readonly wordHits: Map<bigint, HitList>;
-    readonly words: Map<bigint, Word>;
-    constructor(wordHits?: Map<bigint, HitList>) {
-        if (wordHits) this.wordHits = wordHits;
-        else this.wordHits = new Map();
-        this.words = new Map();
+export abstract class Hits<T extends DBObject<T>> {
+    readonly hits: Map<bigint, HitList>;
+    readonly objects: Map<bigint, DBObject<T>>;
+    readonly builder: (value: string) => T;
+    readonly lengthBytes: number;
+    constructor(
+        builder: (value: string) => T,
+        lengthBytes: number,
+        hits: Map<bigint, HitList> = new Map(),
+    ) {
+        this.hits = hits;
+        this.builder = builder;
+        this.lengthBytes = lengthBytes;
+        this.objects = new Map();
     }
 
     register(value: string, n: number, of: number, type: HitType) {
-        const wordObj = new Word(value);
-        const wordID = wordObj.getID();
-        let wordHits: HitList;
-        if (this.wordHits.has(wordID))
-            wordHits = this.wordHits.get(wordID);
+        let obj: DBObject<T>;
+        try {
+            obj = this.builder(value);
+        } catch (e) {
+            fancyLog("caught exception while gathering hits");
+            fancyLog(JSON.stringify(e));
+            return n;
+        }
+        const id = obj.getID();
+        let hits: HitList;
+        if (this.hits.has(id))
+            hits = this.hits.get(id);
         else {
-            wordHits = [];
-            this.wordHits.set(wordID, wordHits);
-            this.words.set(wordID, wordObj);
+            hits = [];
+            this.hits.set(id, hits);
+            this.objects.set(id, obj);
         }
         const position = Math.floor((n / of) * (1 << POSITION_BITS));
 
-        wordHits.push(new Hit(type, position));
+        hits.push(new Hit(type, position));
+
+        return n + 1;
     }
 
     toBuffer() {
         let bytes = 0;
-        // 12 bytes pet word IDs
-        bytes += this.words.size * 12;
-        // 2 bytes pet word (for length of hit list).
-        bytes += this.words.size * 2;
-        let wordIDs: bigint[] = new Array(this.words.size);
-        let i = 0;
-        this.wordHits.forEach((hits, wordID) => {
-            // 1 byte per hit
-            bytes += hits.length;
-            wordIDs[i++] = wordID;
-        });
+        // 12 bytes per ID
+        bytes += this.hits.size * 12;
+        // N bytes per ID (for length of hit list).
+        bytes += this.hits.size * this.lengthBytes;
+        const ids = [...this.hits.keys()];
+        // 1 byte per hit
+        bytes += [...this.hits.values()].map(hits => hits.length).reduce((a, b) => a + b, 0);
         const fileData = Buffer.alloc(bytes);
         let offset = 0;
-        for (const wordID of wordIDs.sort(CMP_BIG_INT)) {
-            writeBigUInt96BE(wordID, fileData, offset);
+        for (const id of ids.sort(CMP_BIG_INT)) {
+            writeBigUInt96BE(id, fileData, offset);
             offset += 12;
-            const wordHits = this.wordHits.get(wordID).sort().slice(0, (1 << 16) - 1)
+            const hits = this.hits.get(id).sort().slice(0, (1 << this.lengthBytes * 8) - 1)
                 .map(hit => hit.toByte());
-            fileData.writeUInt16BE(wordHits.length, offset);
-            offset += 2;
-            Buffer.from(wordHits).copy(fileData, offset);
-            offset += wordHits.length;
+            const length = Math.min(hits.length, (1 << this.lengthBytes * 8) - 1);
+            writeAnyNumberBE(length, fileData, offset, this.lengthBytes);
+            offset += this.lengthBytes;
+            Buffer.from(hits).copy(fileData, offset);
+            offset += hits.length;
         }
 
         return fileData;
     }
 
     toString() {
-        const wordIDs = iteratorToArray(this.wordHits.keys()).sort(CMP_BIG_INT);
+        const wordIDs = iteratorToArray(this.hits.keys()).sort(CMP_BIG_INT);
         let str = "";
-        for (const wordID of wordIDs) {
-            str += `${wordID}`.padStart(29, "0") + " ";
-            const bytes = this.wordHits.get(wordID).map(hit => hit.toByte());
+        for (const id of wordIDs) {
+            str += `${id}`.padStart(29, "0") + " ";
+            const bytes = this.hits.get(id).map(hit => hit.toByte());
             str += Buffer.of(...bytes).toString("hex") + "\n";
         }
 
         return str;
     }
 
-    static fromBuffer(buffer: Buffer) {
+    abstract build(hits: Map<bigint, HitList>): Hits<T>;
+    fromBuffer(buffer: Buffer) {
         const hits = new Map<bigint, HitList>();
         const bufferLength = buffer.length;
         let offset = 0;
         while (offset < bufferLength) {
-            const wordID = bytesToBigInt(buffer.slice(offset, offset + 12));
+            const id = bytesToBigInt(buffer.slice(offset, offset + 12));
             offset += 12;
-            const hitsLength = buffer.slice(offset, offset + 2).readUInt16BE();
-            offset += 2;
-            const wordHits = new Array<Hit>(hitsLength);
+            const hitsLength = bytesToNumber(buffer.slice(offset, offset + this.lengthBytes));
+            offset += this.lengthBytes;
+            const itemHits = new Array<Hit>(Number(hitsLength));
             for (let i = 0; i < hitsLength; ++i) {
                 const hit = Hit.fromByte(buffer[offset + i]);
-                wordHits[i] = hit;
+                itemHits[i] = hit;
             }
             offset += hitsLength;
-            hits.set(wordID, wordHits);
+            hits.set(id, itemHits);
         }
 
-        return new Hits(hits);
+        return this.build(hits);
     }
 }

@@ -91,40 +91,55 @@
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CMP_BIG_INT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return setImmediateInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return setImmediateInterval; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return STR_ONE; });
-/* unused harmony export ZERO */
-/* unused harmony export EIGHT */
-/* unused harmony export MASK */
+/* unused harmony export BIGINT_ZERO */
+/* unused harmony export BIGINT_EIGHT */
+/* unused harmony export BIGINT_MASK */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return bytesToBigInt; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return writeBigUInt96BE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return iteratorToArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return tabulate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return fancyLog; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return bytesToNumber; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return writeBigUInt96BE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return writeAnyNumberBE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return iteratorToArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return tabulate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return fancyLog; });
 /* unused harmony export IDENTITY_FUNCTION */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return spawnPromise; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return spawnPromise; });
+/* unused harmony export sleep */
 const CMP_BIG_INT = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function setImmediateInterval(f, ms) {
     setImmediate(f);
     return setInterval(f, ms);
 }
 const STR_ONE = "1";
-const ZERO = BigInt(0);
-const EIGHT = BigInt(8);
-const MASK = BigInt(0xFF);
+const BIGINT_ZERO = BigInt(0);
+const BIGINT_EIGHT = BigInt(8);
+const BIGINT_MASK = BigInt(0xFF);
 function bytesToBigInt(bytes) {
     if (!bytes)
         return bytes;
-    let result = ZERO;
+    let result = BIGINT_ZERO;
     for (const byte of bytes)
-        result = (result << EIGHT) | BigInt(byte);
+        result = (result << BIGINT_EIGHT) | BigInt(byte);
     return result;
 }
-function writeBigUInt96BE(n, buffer, offset) {
-    for (let i = 0; i <= 11; ++i) {
-        const byte = (n & MASK);
-        buffer[offset + 11 - i] = Number(byte);
-        n >>= EIGHT;
+function bytesToNumber(bytes) {
+    if (!bytes)
+        return bytes;
+    let result = 0;
+    for (const byte of bytes)
+        result = (result << 8) | byte;
+    return result;
+}
+function writeBigUInt96BE(n, buffer, offset = 0) {
+    writeAnyNumberBE(n, buffer, offset, 12);
+}
+function writeAnyNumberBE(n, buffer, offset, bytes) {
+    let bigintN = BigInt(n);
+    for (let i = 0; i < bytes; ++i) {
+        const byte = (bigintN & BIGINT_MASK);
+        buffer[offset + bytes - 1 - i] = Number(byte);
+        bigintN >>= BIGINT_EIGHT;
     }
 }
 function iteratorToArray(itr) {
@@ -227,16 +242,21 @@ async function spawnPromise(spawner) {
         process.stderr.on("data", (data) => stderr.push(data));
         process.on("close", code => {
             if (code === 0) {
-                const content = Buffer.concat(stdout).toString();
+                const content = Buffer.concat(stdout);
                 res(content);
             }
             else {
-                const content = Buffer.concat(stderr).toString();
+                const content = Buffer.concat(stderr);
                 rej(content);
             }
         });
     });
     return content;
+}
+function sleep(ms) {
+    return new Promise(res => {
+        setTimeout(res, ms);
+    });
 }
 
 
@@ -363,10 +383,11 @@ class Redis {
             catch (err) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])("error on attempt", attempt.toString());
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(err);
-                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(err));
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "e"])(JSON.stringify(err));
                 const oldClient = STATIC_CONNECTIONS[this.params.name];
                 delete STATIC_CONNECTIONS[this.params.name];
-                oldClient.quit();
+                if (oldClient)
+                    oldClient.quit();
                 this.client = Redis.renewRedis(this.params).client;
             }
         }
@@ -492,11 +513,11 @@ class Redis {
         client.on("error", (error, msg) => {
             if (msg) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(msg);
-                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(msg);
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "e"])(msg);
             }
             if (error) {
                 Object(_logging__WEBPACK_IMPORTED_MODULE_3__[/* log */ "a"])(error);
-                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "d"])(JSON.stringify(error));
+                Object(_util__WEBPACK_IMPORTED_MODULE_2__[/* fancyLog */ "e"])(JSON.stringify(error));
             }
         });
         return new Redis(params, client);
@@ -673,16 +694,16 @@ function start(birthLog, deathLog, idBytes) {
         const old = dob.has(id);
         dob.set(id, Date.now());
         if (!old)
-            Object(util["d" /* fancyLog */])(`new worker: ${id}`);
+            Object(util["e" /* fancyLog */])(`new worker: ${id}`);
         reAssemble();
     }
     function retireWorker(id) {
-        Object(util["d" /* fancyLog */])(`retire worker ${id}`);
+        Object(util["e" /* fancyLog */])(`retire worker ${id}`);
         dob.delete(id);
         reAssemble();
     }
     function retireWorkers(ids) {
-        Object(util["d" /* fancyLog */])(`retire workers: ${JSON.stringify(ids)}`);
+        Object(util["e" /* fancyLog */])(`retire workers: ${JSON.stringify(ids)}`);
         for (const id of ids)
             dob.delete(id);
         reAssemble();
@@ -715,7 +736,7 @@ function start(birthLog, deathLog, idBytes) {
         if (toRetire.length !== 0)
             retireWorkers(toRetire);
     }, 1000);
-    Object(util["d" /* fancyLog */])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
+    Object(util["e" /* fancyLog */])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
 }
 
 // EXTERNAL MODULE: ./dist/main/common/events.js

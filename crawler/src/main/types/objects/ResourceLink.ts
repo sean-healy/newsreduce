@@ -1,33 +1,37 @@
 import { DBObject } from "types/DBObject";
 import { ResourceURL } from "types/objects/ResourceURL";
+import { Anchor } from "types/objects/Anchor";
 
 export class ResourceLink extends DBObject<ResourceLink> {
     readonly parent: ResourceURL;
     readonly child: ResourceURL;
+    readonly value: Anchor;
 
     constructor(
         parentOrObj?: string | { [key in keyof ResourceLink]?: ResourceLink[key] },
-        child?: string
+        child?: string,
+        value?: string,
     ) {
         if (!parentOrObj) super();
         else if (typeof parentOrObj === "string") super({
             parent: new ResourceURL(parentOrObj),
             child: new ResourceURL(child),
+            value: new Anchor(value),
         });
         else super(parentOrObj);
     }
 
     insertCols(): string[] {
-        return ["parent", "child"];
+        return ["parent", "child", "value"];
     }
     getInsertParams(): any[] {
-        return [this.parent.getID(), this.child.getID()];
+        return [this.parent.getID(), this.child.getID(), this.value.getID()];
     }
     table(): string {
         return "ResourceLink";
     }
     getDeps() {
-        return [this.parent, this.child];
+        return [this.parent, this.child, this.value];
     }
     toString() {
         return `${this.parent.toURL()}-->${this.child.toURL()}`;

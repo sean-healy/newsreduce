@@ -4,11 +4,12 @@ import { ResourceURLPath } from "types/objects/ResourceURLPath";
 import { Host } from "types/objects/Host";
 import { write } from "file";
 import { Entity, entityName } from "types/Entity";
-import { FileFormat, formatToFileName } from "types/FileFormat";
 import { log } from "common/logging";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { FAILURE_CACHE } from "common/events";
 import { fancyLog } from "common/util";
+import { ResourceVersionType } from "./ResourceVersionType";
+import { ResourceVersion } from "./ResourceVersion";
 
 const URL_ENCODING = "utf8";
 const PORT_BASE = 10;
@@ -26,7 +27,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
     readonly query: ResourceURLQuery;
 
     constructor(arg?: ConstructorParam) {
-        if (!arg) super();
+        if (arg === null || arg === undefined) super();
         else if (typeof arg === "string") {
             const groups = arg.match(URL);
             if (!groups) throw new Error(`invalid url: ${arg}`);
@@ -124,7 +125,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
     }
     async writeVersion(
         version: number,
-        format: FileFormat,
+        format: ResourceVersionType,
         input: string | Buffer | NodeJS.ReadableStream
     ) {
         const id = this.getID();
@@ -137,7 +138,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
                 fancyLog(
                     `wrote ${bytesWritten}b to ` +
                     `${entityName(Entity.RESOURCE)} ${id} ` +
-                    `(${formatToFileName(format)}, v${version}) on attempt ${i}.`
+                    `(${format.filename}, v${version}) on attempt ${i}.`
                 );
             }
         } else
@@ -148,8 +149,8 @@ export class ResourceURL extends DBObject<ResourceURL> {
     isFetchLocked() {
         return Redis.renewRedis(REDIS_PARAMS.fetchLock).eq(this.toURL());
     }
-    setFetchLock() {
-        Redis.renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL(), 300);
+    async setFetchLock() {
+        await Redis.renewRedis(REDIS_PARAMS.fetchLock).setex(this.toURL(), 300);
     }
     isInvalid() {
         return this.ssl === null
@@ -166,16 +167,20 @@ export class ResourceURL extends DBObject<ResourceURL> {
     isValid() {
         return !this.isInvalid();
     }
-    static async popForFetching(host: string) {
-        const url = await Redis.renewRedis(REDIS_PARAMS.fetchSchedule).zpopmax(host, 1);
-        if (url) new ResourceURL(url).setFetchLock();
-
-        return new ResourceURL(url);
-    }
     static async popForProcessing() {
         const url = await Redis.renewRedis(REDIS_PARAMS.general).spop("html");
         if (!url) return null;
 
         return new ResourceURL(url);
+    }
+    static async registerVersionIfSuccessful(
+        resource: ResourceURL,
+        time: number,
+        type: ResourceVersionType,
+        length: number,
+    ) {
+        if (length >= 0)
+            await new ResourceVersion({ resource, time, type, length })
+                .enqueueInsert({ recursive: true });
     }
 }

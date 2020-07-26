@@ -11,7 +11,7 @@ import { PromisePool } from "common/PromisePool";
 const ZSTD = "zstd";
 const MK_TAR_ARGS = ["--zstd", "-cvf"];
 // Only compress files not touched in past 5s.
-const SAFETY_PERIOD_MS = 5000;
+export const SAFETY_PERIOD_MS = 5000;
 
 export async function compress() {
     const redis = Redis.renewRedis(REDIS_PARAMS.local);
@@ -29,6 +29,7 @@ export async function compress() {
     let newArcs = 0;
     let oldArcs = 0;
     for (const entity of entities) {
+        console.log(entity);
         const tmpEntitiesDir = path.join(tmpDir, entity);
         const tmpEntityIDs = fs.readdirSync(tmpEntitiesDir).filter(dir => dir.match(/^[0-9]+$/));
         if (!tmpEntityIDs.length) continue;
@@ -36,14 +37,22 @@ export async function compress() {
         const entitiesDir = path.join(blobDir, entity);
         await safeMkdir(entitiesDir);
         for (const entityID of tmpEntityIDs) {
+            console.log(entityID);
             const tmpEntityDir = path.join(tmpEntitiesDir, entityID);
             const compressedSrc = `${tmpEntityDir}.tzst`
             const compressedDst = path.join(entitiesDir, `${entityID}.tzst`);
             const arc = `${tmpEntityDir}.tar`
             const cwd = { cwd: tmpEntitiesDir };
             await promises.register(async res => {
-                if (lastChangedAfter(tmpEntityDir, SAFETY_PERIOD_MS)) {
-                    fancyLog("entity modified too recently.");
+                try {
+                    if (lastChangedAfter(tmpEntityDir, SAFETY_PERIOD_MS)) {
+                        fancyLog("entity modified too recently.");
+                        res();
+                        return;
+                    }
+                } catch (e) {
+                    fancyLog("exception during stat");
+                    fancyLog(JSON.stringify(e));
                     res();
                     return;
                 }
@@ -82,7 +91,8 @@ export async function compress() {
                     ++oldArcs;
                 } else {
                     try {
-                        await spawnPromise(() => spawn(TAR, [...MK_TAR_ARGS, compressedSrc, entityID], cwd));
+                        await spawnPromise(() =>
+                            spawn(TAR, [...MK_TAR_ARGS, compressedSrc, entityID], cwd));
                     } catch (e) {
                         fancyLog("error creating tar");
                         fancyLog(JSON.stringify(e));
@@ -95,8 +105,14 @@ export async function compress() {
                 if (fs.existsSync(compressedSrc))
                     fs.renameSync(compressedSrc, compressedDst);
                 // Recheck last changed time, in case of concurrency bugs.
-                if (fs.existsSync(tmpEntityDir) && lastChangedBefore(tmpEntityDir, SAFETY_PERIOD_MS))
-                    fs.renameSync(tmpEntityDir, await nullFilePromise(tmpEntityDir));
+                try {
+                    if (fs.existsSync(tmpEntityDir) &&
+                        lastChangedBefore(tmpEntityDir, SAFETY_PERIOD_MS))
+                        fs.renameSync(tmpEntityDir, await nullFilePromise(tmpEntityDir));
+                } catch (e) {
+                    fancyLog("exception during exists and stat");
+                    fancyLog(JSON.stringify(e));
+                }
                 res();
             });
         }
