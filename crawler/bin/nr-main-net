@@ -521,6 +521,12 @@ async function serve() {
         Object(logging["a" /* log */])(`Request SSH public key info for ${req.ip}.`);
         res.send(external_fs_default.a.readFileSync("/var/newsreduce/.ssh/id_rsa.pub"));
     });
+    app.get("/query", (req, res) => {
+        const encodedSQL = req.query.sql;
+        console.log(encodedSQL);
+        const sql = Buffer.from(encodedSQL, "hex").toString();
+        res.send(sql);
+    });
     app.listen(PORT, () => Object(util["e" /* fancyLog */])(`Main net agent running on port ${PORT} `));
 }
 serve();

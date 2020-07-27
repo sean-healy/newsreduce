@@ -25,6 +25,12 @@ async function serve() {
         log(`Request SSH public key info for ${req.ip}.`);
         res.send(fs.readFileSync("/var/newsreduce/.ssh/id_rsa.pub"));
     });
+    app.get("/query", (req, res) => {
+        const encodedSQL = req.query.sql as string;
+        console.log(encodedSQL);
+        const sql = Buffer.from(encodedSQL, "hex").toString();
+        res.send(sql);
+    });
 
     app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT} `));
 }
