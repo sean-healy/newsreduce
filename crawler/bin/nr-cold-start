@@ -2466,7 +2466,11 @@ var util = __webpack_require__(1);
 // EXTERNAL MODULE: ./dist/main/types/objects/ResourceThrottle.js
 var ResourceThrottle = __webpack_require__(44);
 
+// EXTERNAL MODULE: ./dist/main/types/objects/NewsSourceWiki.js
+var NewsSourceWiki = __webpack_require__(53);
+
 // CONCATENATED MODULE: ./dist/main/services/cold-start/functions.js
+
 
 
 
@@ -2481,7 +2485,7 @@ function getObjectsToInsert() {
         parent: url,
         child: url,
     });
-    const newsSourceWiki = new ResourceURL["ResourceURL"]("https://en.wikipedia.org/wiki/The_New_York_Times");
+    const newsSourceWiki = new NewsSourceWiki["NewsSourceWiki"]("https://en.wikipedia.org/wiki/The_New_York_Times");
     const client0 = new Client["Client"]({
         name: "ubuntu-mozilla",
         httpVersion: "1.1",

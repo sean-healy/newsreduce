@@ -4,6 +4,7 @@ import { ResourceURL } from "types/objects/ResourceURL";
 import { ClientHeader } from "types/objects/ClientHeader";
 import { fancyLog } from "common/util";
 import { ResourceThrottle } from "types/objects/ResourceThrottle";
+import { NewsSourceWiki } from "types/objects/NewsSourceWiki";
 
 export function getObjectsToInsert() {
     const origin = "https://en.wikipedia.org/wiki/Category:News_media";
@@ -13,7 +14,7 @@ export function getObjectsToInsert() {
         parent: url,
         child: url,
     });
-    const newsSourceWiki = new ResourceURL("https://en.wikipedia.org/wiki/The_New_York_Times");
+    const newsSourceWiki = new NewsSourceWiki("https://en.wikipedia.org/wiki/The_New_York_Times");
     const client0: Client = new Client({
         name: "ubuntu-mozilla",
         httpVersion: "1.1",
