@@ -155,6 +155,9 @@ export async function findVersions(entity: Entity, entityID: bigint) {
         ] as VersionSignature)
         .sort(compareVersionSignatures);
 }
+export async function findTimes(entity: Entity, entityID: bigint) {
+    return [...new Set((await findVersions(entity, entityID)).map(([time,]) => time))].sort((a, b) => a - b);
+}
 export async function findFormats(entity: Entity, entityID: bigint, version: number) {
     return (await findVersions(entity, entityID))
         .filter(([time,]) => time === version)

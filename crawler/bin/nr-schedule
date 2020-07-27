@@ -912,7 +912,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         if (typeof input === "string" || input instanceof Buffer) {
             let i = 0;
             for (i = 0; i < 10 && bytesWritten < 0; ++i)
-                bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
+                bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "f"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
             if (i > 1 && bytesWritten >= 0) {
                 Object(common_util__WEBPACK_IMPORTED_MODULE_9__[/* fancyLog */ "e"])(`wrote ${bytesWritten}b to ` +
                     `${Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE)} ${id} ` +
@@ -920,7 +920,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             }
         }
         else
-            bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
+            bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "f"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
         if (bytesWritten >= 0)
             new _ResourceVersion__WEBPACK_IMPORTED_MODULE_10__["ResourceVersion"]({
                 resource: this,
@@ -1615,13 +1615,14 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 
 "use strict";
 /* unused harmony export entityIDs */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return write; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return lastChangedBefore; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return lastChangedAfter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return write; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return lastChangedBefore; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return lastChangedAfter; });
 /* unused harmony export compareVersionSignatures */
 /* unused harmony export findVersions */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return findTimes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return read; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return read; });
 /* unused harmony export findLatestVersion */
 /* unused harmony export readLatestVersion */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
@@ -1785,6 +1786,9 @@ async function findVersions(entity, entityID) {
         new types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__["ResourceVersionType"](arr[1])
     ])
         .sort(compareVersionSignatures);
+}
+async function findTimes(entity, entityID) {
+    return [...new Set((await findVersions(entity, entityID)).map(([time,]) => time))].sort((a, b) => a - b);
 }
 async function findFormats(entity, entityID, version) {
     return (await findVersions(entity, entityID))
