@@ -2349,6 +2349,8 @@ var map = {
 	"./HTTPHeaderValue.js": 25,
 	"./Host": 17,
 	"./Host.js": 17,
+	"./NewsSourceWiki": 53,
+	"./NewsSourceWiki.js": 53,
 	"./ResourceHTMLHead": 43,
 	"./ResourceHTMLHead.js": 43,
 	"./ResourceHash": 22,
@@ -2404,7 +2406,38 @@ webpackContext.id = 48;
 /* 50 */,
 /* 51 */,
 /* 52 */,
-/* 53 */,
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NewsSourceWiki", function() { return NewsSourceWiki; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+
+
+class NewsSourceWiki extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(url) {
+        super({
+            resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
+        });
+    }
+    insertCols() {
+        return ["resource"];
+    }
+    getInsertParams() {
+        return [this.resource.getID()];
+    }
+    table() {
+        return "NewsSourceWiki";
+    }
+    idCol() {
+        return "resource";
+    }
+}
+
+
+/***/ }),
 /* 54 */,
 /* 55 */,
 /* 56 */,
@@ -2448,6 +2481,7 @@ function getObjectsToInsert() {
         parent: url,
         child: url,
     });
+    const newsSourceWiki = new ResourceURL["ResourceURL"]("https://en.wikipedia.org/wiki/The_New_York_Times");
     const client0 = new Client["Client"]({
         name: "ubuntu-mozilla",
         httpVersion: "1.1",
@@ -2483,7 +2517,7 @@ function getObjectsToInsert() {
         new ClientHeader["ClientHeader"](client2.name, "upgrade-insecure-requests", "1"),
         new ClientHeader["ClientHeader"](client2.name, "user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
-    return [wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders];
+    return [newsSourceWiki, wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders];
 }
 async function insertColdStartObjects() {
     const promises = [];

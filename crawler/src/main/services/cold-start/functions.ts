@@ -13,6 +13,7 @@ export function getObjectsToInsert() {
         parent: url,
         child: url,
     });
+    const newsSourceWiki = new ResourceURL("https://en.wikipedia.org/wiki/The_New_York_Times");
     const client0: Client = new Client({
         name: "ubuntu-mozilla",
         httpVersion: "1.1",
@@ -56,7 +57,7 @@ export function getObjectsToInsert() {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
 
-    return [wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders];
+    return [newsSourceWiki, wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders];
 }
 
 export async function insertColdStartObjects() {

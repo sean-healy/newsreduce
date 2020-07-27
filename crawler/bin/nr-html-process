@@ -3135,6 +3135,8 @@ var map = {
 	"./HTTPHeaderValue.js": 25,
 	"./Host": 17,
 	"./Host.js": 17,
+	"./NewsSourceWiki": 53,
+	"./NewsSourceWiki.js": 53,
 	"./ResourceHTMLHead": 43,
 	"./ResourceHTMLHead.js": 43,
 	"./ResourceHash": 22,
@@ -3195,7 +3197,38 @@ module.exports = require("jsdom");
 /* 50 */,
 /* 51 */,
 /* 52 */,
-/* 53 */,
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NewsSourceWiki", function() { return NewsSourceWiki; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+
+
+class NewsSourceWiki extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(url) {
+        super({
+            resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](url),
+        });
+    }
+    insertCols() {
+        return ["resource"];
+    }
+    getInsertParams() {
+        return [this.resource.getID()];
+    }
+    table() {
+        return "NewsSourceWiki";
+    }
+    idCol() {
+        return "resource";
+    }
+}
+
+
+/***/ }),
 /* 54 */,
 /* 55 */,
 /* 56 */,
