@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 67);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1015,150 +1015,9 @@ const FAILURE_CACHE = "failures";
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-// ESM COMPAT FLAG
-__webpack_require__.r(__webpack_exports__);
 
-// EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(9);
-
-// EXTERNAL MODULE: ./dist/main/common/processor.js
-var common_processor = __webpack_require__(45);
-
-// EXTERNAL MODULE: external "jsdom"
-var external_jsdom_ = __webpack_require__(49);
-
-// EXTERNAL MODULE: ./dist/main/file.js
-var file = __webpack_require__(31);
-
-// EXTERNAL MODULE: ./dist/main/types/Entity.js
-var Entity = __webpack_require__(12);
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/HTMLDocumentProcessor.js
-const EXCLUDE = [
-    "NOSCRIPT",
-    "SCRIPT",
-    "STYLE",
-    "FORM",
-    "INPUT",
-    "BUTTON",
-];
-class HTMLDocumentProcessor {
-    constructor() { }
-    static removeExcludedNodes(window) {
-        for (const tag of EXCLUDE) {
-            const items = window.document.querySelectorAll(tag);
-            for (let i = 0; i < items.length; ++i) {
-                const item = items.item(i);
-                item.parentElement.removeChild(item);
-            }
-        }
-    }
-}
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
-var ResourceURL = __webpack_require__(7);
-
-// CONCATENATED MODULE: ./dist/main/types/HitType.js
-var HitType;
-(function (HitType) {
-    HitType[HitType["TITLE"] = 0] = "TITLE";
-    HitType[HitType["H1"] = 1] = "H1";
-    HitType[HitType["H2"] = 2] = "H2";
-    HitType[HitType["H3"] = 3] = "H3";
-    HitType[HitType["H4"] = 4] = "H4";
-    HitType[HitType["H5"] = 5] = "H5";
-    HitType[HitType["H6"] = 6] = "H6";
-    HitType[HitType["FIGCAPTION"] = 7] = "FIGCAPTION";
-    HitType[HitType["STRONG"] = 8] = "STRONG";
-    HitType[HitType["A"] = 9] = "A";
-    HitType[HitType["EM"] = 10] = "EM";
-    HitType[HitType["BLOCKQUOTE"] = 11] = "BLOCKQUOTE";
-    HitType[HitType["P"] = 12] = "P";
-    HitType[HitType["META_DATA"] = 13] = "META_DATA";
-    HitType[HitType["ACCESSABILITY_DATA"] = 14] = "ACCESSABILITY_DATA";
-    HitType[HitType["OTHER_TEXT"] = 15] = "OTHER_TEXT";
-})(HitType || (HitType = {}));
-;
-const META_NAMES_CONSIDERED = [
-    "description",
-    "author",
-    "keywords",
-];
-function nodeToHitType(node) {
-    let hitType;
-    switch (node.tagName) {
-        case "TITLE":
-            hitType = HitType.TITLE;
-            break;
-        case "H1":
-            hitType = HitType.H1;
-            break;
-        case "H2":
-            hitType = HitType.H2;
-            break;
-        case "H3":
-            hitType = HitType.H3;
-            break;
-        case "H4":
-            hitType = HitType.H4;
-            break;
-        case "H5":
-            hitType = HitType.H5;
-            break;
-        case "H6":
-            hitType = HitType.H6;
-            break;
-        case "FIGCAPTION":
-            hitType = HitType.FIGCAPTION;
-            break;
-        case "STRONG":
-        case "B":
-            hitType = HitType.STRONG;
-            break;
-        case "EM":
-        case "I":
-            hitType = HitType.EM;
-            break;
-        case "BLOCKQUOTE":
-            hitType = HitType.BLOCKQUOTE;
-            break;
-        case "A":
-            hitType = HitType.A;
-            break;
-        case "P":
-            hitType = HitType.P;
-            break;
-        case "META":
-            const name = node.getAttribute("name");
-            if (name) {
-                if (name in META_NAMES_CONSIDERED) {
-                    hitType = HitType.META_DATA;
-                }
-                else {
-                    hitType = HitType.OTHER_TEXT;
-                }
-            }
-            else {
-                const name = node.getAttribute("property");
-                if (name in META_NAMES_CONSIDERED) {
-                    hitType = HitType.META_DATA;
-                }
-                else {
-                    hitType = HitType.OTHER_TEXT;
-                }
-            }
-            break;
-        default:
-            if (node.hasAttribute("title") || node.hasAttribute("alt"))
-                hitType = HitType.ACCESSABILITY_DATA;
-            else
-                hitType = HitType.OTHER_TEXT;
-    }
-    return hitType;
-}
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
-var ResourceVersionType = __webpack_require__(29);
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ Hits_Hits; });
 
 // CONCATENATED MODULE: ./dist/main/types/Hit.js
 class Hit {
@@ -1267,397 +1126,6 @@ class Hits_Hits {
         return this.build(hits);
     }
 }
-
-// EXTERNAL MODULE: ./dist/main/types/objects/Word.js
-var Word = __webpack_require__(35);
-
-// CONCATENATED MODULE: ./dist/main/types/WordHits.js
-
-
-class WordHits_WordHits extends Hits_Hits {
-    constructor(hits = new Map()) {
-        super(value => new Word["Word"](value), 2, hits);
-    }
-    build(hits) {
-        return new WordHits_WordHits(hits);
-    }
-}
-
-// CONCATENATED MODULE: ./dist/main/types/LinkHits.js
-
-
-class LinkHits_LinkHits extends Hits_Hits {
-    constructor(hits = new Map()) {
-        super(value => new ResourceURL["ResourceURL"](value), 2, hits);
-    }
-    build(hits) {
-        return new LinkHits_LinkHits(hits);
-    }
-}
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceLink.js
-var ResourceLink = __webpack_require__(23);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceLinkHash.js
-var ResourceLinkHash = __webpack_require__(33);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceHash.js
-var ResourceHash = __webpack_require__(22);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/Anchor.js
-var Anchor = __webpack_require__(60);
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractAHrefs.js
-
-
-
-
-
-
-
-
-const HASH = "#";
-const ANCHOR_TAG = "a";
-function htmlCollectionToArray(coll) {
-    const array = new Array(coll.length);
-    for (let position = 0; position < coll.length; ++position)
-        array[position] = coll.item(position);
-    return array;
-}
-function getAnchorsWithHREF(window) {
-    const truthyAndFalseyAnchors = htmlCollectionToArray(window.document.getElementsByTagName(ANCHOR_TAG));
-    return truthyAndFalseyAnchors.filter(a => a.href);
-}
-function getLinks(window) {
-    const parent = new ResourceURL["ResourceURL"](window.location.toString());
-    const links = [];
-    for (const anchor of getAnchorsWithHREF(window)) {
-        const parts = anchor.href.split(HASH, 2);
-        const url = parts[0];
-        const hash = parts.length > 1 ? parts[1] : "";
-        const value = new Anchor["Anchor"]({ value: anchor.innerHTML });
-        let child;
-        try {
-            child = new ResourceURL["ResourceURL"](url);
-        }
-        catch (e) {
-            Object(util["e" /* fancyLog */])("invalid url: " + url);
-            Object(util["e" /* fancyLog */])(JSON.stringify(e));
-            continue;
-        }
-        const link = new ResourceLink["ResourceLink"]({ parent, child, value });
-        if (hash)
-            links.push(new ResourceLinkHash["ResourceLinkHash"]({ link, hash: new ResourceHash["ResourceHash"](hash) }));
-        else
-            links.push(link);
-    }
-    return links;
-}
-class ExtractAHrefs_ExtractAHrefs extends HTMLDocumentProcessor {
-    ro() { return true; }
-    async apply(window, time) {
-        const parent = new ResourceURL["ResourceURL"](window.location.toString());
-        const links = getLinks(window);
-        const urls = links.map(item => (item instanceof ResourceLinkHash["ResourceLinkHash"] ?
-            item.link.child : item.child).toURL());
-        const fsPromise = parent.writeVersion(time, ResourceVersionType["ResourceVersionType"].RAW_LINKS_TXT, urls.join("\n"));
-        const dbPromises = links.map(link => link.enqueueInsert({ recursive: true }));
-        const promises = [...dbPromises, fsPromise];
-        await Promise.all(promises);
-    }
-}
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractHits.js
-
-
-
-
-
-
-
-
-const INCLUDE_TAGS = [
-    "TITLE",
-    "H1",
-    "H2",
-    "H3",
-    "H4",
-    "H5",
-    "H6",
-    "FIGCAPTION",
-    "STRONG",
-    "B",
-    "A",
-    "EM",
-    "I",
-    "BLOCKQUOTE",
-    "P",
-    "META",
-];
-function contentFromNode(node, hitType) {
-    let content;
-    switch (hitType) {
-        case HitType.META_DATA:
-            content = node.getAttribute("content");
-            break;
-        case HitType.ACCESSABILITY_DATA:
-            content = node.getAttribute("title");
-            if (!content)
-                node.getAttribute("alt");
-            break;
-        default:
-            content = node.textContent;
-    }
-    return content;
-}
-function wordsFromNode(node, hitType) {
-    const content = contentFromNode(node, hitType);
-    const lc = content.toLowerCase();
-    const normalised = lc.replace(/[–-]/g, "");
-    const words = normalised.match(/[^ \t\s!"'^&*();:@~#\n®.,<>?/\[\]\\{}“”‘’]+/g);
-    return words;
-}
-function urlsFromNode(node) {
-    const anchors = node.querySelectorAll("a");
-    const length = anchors.length;
-    const urls = [];
-    for (let i = 0; i < length; ++i) {
-        const item = anchors.item(i);
-        const url = item.href;
-        try {
-            const resource = new ResourceURL["ResourceURL"](url);
-            urls.push(resource.toURL());
-        }
-        catch (e) {
-            Object(util["e" /* fancyLog */])(`unhandled url: ${url}`);
-            Object(util["e" /* fancyLog */])(JSON.stringify(e));
-        }
-    }
-    return urls;
-}
-;
-function getHits(window) {
-    HTMLDocumentProcessor.removeExcludedNodes(window);
-    const queryItems = htmlCollectionToArray(window.document.querySelectorAll(INCLUDE_TAGS.join(",")));
-    const blockWordData = [];
-    const linksData = [];
-    const truthyAnchors = getAnchorsWithHREF(window);
-    for (const anchor of truthyAnchors)
-        linksData.push([anchor.href, nodeToHitType(anchor.parentElement)]);
-    // Ensure no words are counted twice.
-    for (const item of queryItems)
-        item.parentNode.removeChild(item);
-    let wordsOnPage = 0;
-    for (const item of queryItems) {
-        const hitType = nodeToHitType(item);
-        const words = wordsFromNode(item, hitType);
-        if (words && words.length) {
-            blockWordData.push({ hitType, items: words });
-            wordsOnPage += words.length;
-        }
-    }
-    let n = 0;
-    const wordHits = new WordHits_WordHits();
-    for (const block of blockWordData)
-        for (const word of block.items)
-            wordHits.register(word, n++, wordsOnPage, block.hitType);
-    n = 0;
-    const linkHits = new LinkHits_LinkHits();
-    for (const [url, hitType] of linksData)
-        n = linkHits.register(url, n, linksData.length, hitType);
-    return { wordHits, linkHits };
-}
-class ExtractHits_ExtractHits extends HTMLDocumentProcessor {
-    ro() { return false; }
-    async apply(window, time) {
-        const resource = new ResourceURL["ResourceURL"](window.location.toString());
-        const { wordHits, linkHits } = getHits(window);
-        await Promise.all([
-            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].LINK_HITS, linkHits.toBuffer()),
-            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].WORD_HITS, wordHits.toBuffer()),
-        ]);
-    }
-}
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractRawText.js
-
-
-
-function toRawText(window) {
-    HTMLDocumentProcessor.removeExcludedNodes(window);
-    const rawText = window.document.body.textContent
-        .replace(/\n\s+\n/g, "\n\n")
-        .replace(/\n\n+/g, "\n\n");
-    return rawText;
-}
-class ExtractRawText_ExtractRawText extends HTMLDocumentProcessor {
-    ro() { return true; }
-    async apply(window, time) {
-        const rawText = toRawText(window);
-        const resource = new ResourceURL["ResourceURL"](window.location.toString());
-        await resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].RAW_WORDS_TXT, rawText);
-    }
-}
-
-// EXTERNAL MODULE: ./dist/main/types/objects/WikiCategory.js
-var WikiCategory = __webpack_require__(30);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/WikiPage.js
-var WikiPage = __webpack_require__(34);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceThrottle.js
-var ResourceThrottle = __webpack_require__(44);
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractWikiTree.js
-
-
-
-
-
-const SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
-const CATEGORY_PAGE_SELECT = "#mw-pages .mw-category .mw-category-group li>a";
-function resourceIsWikiCategory(resource) {
-    return resource.ssl
-        && resource.host.name === "en.wikipedia.org"
-        && resource.port === 443
-        && resource.path.value.match(/^\/wiki\/Category:/)
-        && resource.query.value === "";
-}
-function getHrefs(window, selector) {
-    const node = window.document.querySelectorAll(selector);
-    const urls = new Array(node.length);
-    for (let i = 0; i < node.length; ++i) {
-        const a = node.item(i);
-        if (a.href)
-            urls[i] = a.href;
-    }
-    return urls;
-}
-function getSubWikiPages(wikiDoc) {
-    return getHrefs(wikiDoc, CATEGORY_PAGE_SELECT);
-}
-function getSubWikiCategories(wikiDoc) {
-    return getHrefs(wikiDoc, SUBCATEGORY_SELECTOR);
-}
-function getEntities(window) {
-    const parent = new ResourceURL["ResourceURL"](window.location.toString());
-    if (!resourceIsWikiCategory(parent))
-        return [];
-    const subWikiCategoryURLs = getSubWikiCategories(window);
-    const subWikiPageURLs = getSubWikiPages(window);
-    const children = subWikiPageURLs.concat(subWikiCategoryURLs);
-    const relations = children
-        .map(child => new ResourceURL["ResourceURL"](child))
-        .map(child => new WikiCategory["WikiCategory"]({ parent, child }));
-    const pages = subWikiPageURLs
-        .map(url => new WikiPage["WikiPage"](url));
-    const throttles = children.map(url => new ResourceThrottle["ResourceThrottle"](url, 7 * 24 * 60 * 60 * 1000));
-    return relations.concat(pages).concat(throttles);
-}
-class ExtractWikiTree_ExtractWikiTree extends HTMLDocumentProcessor {
-    ro() { return true; }
-    async apply(window) {
-        const entities = getEntities(window);
-        const promises = entities.map(entity => entity.enqueueInsert({ recursive: true }));
-        await Promise.all(promises);
-    }
-}
-
-// EXTERNAL MODULE: ./dist/main/data.js + 1 modules
-var data = __webpack_require__(47);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceTitle.js
-var ResourceTitle = __webpack_require__(61);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/Title.js
-var Title = __webpack_require__(62);
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractTitle.js
-
-
-
-
-
-class ExtractTitle_ExtractTitle extends HTMLDocumentProcessor {
-    ro() { return true; }
-    async apply(window, time) {
-        const resource = new ResourceURL["ResourceURL"](window.location.toString());
-        const titleContent = window.document.title;
-        const title = new Title["Title"](titleContent);
-        const resourceTitle = new ResourceTitle["ResourceTitle"]({ resource, title });
-        const fsPromise = resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].TITLE, titleContent);
-        const dbPromise = resourceTitle.enqueueInsert({ recursive: true });
-        const promises = [dbPromise, fsPromise];
-        await Promise.all(promises);
-    }
-}
-
-// EXTERNAL MODULE: ./dist/main/common/PromisePool.js
-var PromisePool = __webpack_require__(64);
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/functions.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-const PROCESSORS = [new ExtractAHrefs_ExtractAHrefs(), new ExtractTitle_ExtractTitle(), new ExtractWikiTree_ExtractWikiTree(), new ExtractRawText_ExtractRawText(), new ExtractHits_ExtractHits()];
-async function processURL(resource, url, time, pool) {
-    let formats;
-    try {
-        formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
-    }
-    catch (e) {
-        Object(util["e" /* fancyLog */])("error while listing formats");
-        Object(util["e" /* fancyLog */])(JSON.stringify(e));
-        common_processor["a" /* SAFELY_EXIT */][0] = true;
-    }
-    for (const format of formats) {
-        if (format.filename === ResourceVersionType["ResourceVersionType"].RAW_HTML.filename) {
-            let content;
-            try {
-                content =
-                    await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, ResourceVersionType["ResourceVersionType"].RAW_HTML);
-            }
-            catch (e) {
-                Object(util["e" /* fancyLog */])("error while reading file");
-                Object(util["e" /* fancyLog */])(JSON.stringify(e));
-                common_processor["a" /* SAFELY_EXIT */][0] = true;
-            }
-            if (content) {
-                console.log(`${time} ${url}`);
-                let window;
-                let reDOM = true;
-                for (const processor of PROCESSORS) {
-                    if (reDOM)
-                        window = new external_jsdom_["JSDOM"](content, { url }).window;
-                    await pool.registerPromise(processor.apply(window, time));
-                    reDOM = processor.ro();
-                }
-            }
-        }
-    }
-}
-async function process() {
-    const pool = new PromisePool["a" /* PromisePool */](50);
-    for (const row of await Object(data["c" /* selectResourcesNotProcessed */])())
-        await processURL(row.resource, row.url, row.time, pool);
-    pool.flush();
-}
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/main.js
-
-
-
-Object(common_processor["b" /* startProcessor */])(process, new Set([events["j" /* FETCH_COMPLETE */]]), events["k" /* HTML_PROCESS_COMPLETE */]);
 
 
 /***/ }),
@@ -2170,23 +1638,9 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_HTML_FILE", function() { return RAW_HTML_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_HEADERS_FILE", function() { return RAW_HEADERS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_WORDS_TXT_FILE", function() { return RAW_WORDS_TXT_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_LINKS_TXT_FILE", function() { return RAW_LINKS_TXT_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WORD_HITS_FILE", function() { return WORD_HITS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LINK_HITS_FILE", function() { return LINK_HITS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TITLE_FILE", function() { return TITLE_FILE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return ResourceVersionType; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
-const RAW_HTML_FILE = "raw.html";
-const RAW_HEADERS_FILE = "headers.txt";
-const RAW_WORDS_TXT_FILE = "raw-words.txt";
-const RAW_LINKS_TXT_FILE = "raw-links.txt";
-const WORD_HITS_FILE = "word-hits.bin";
-const LINK_HITS_FILE = "link-hits.bin";
-const TITLE_FILE = "title.txt";
 class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(arg) {
         if (!arg)
@@ -2210,26 +1664,33 @@ class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/*
         return this.filename;
     }
 }
+ResourceVersionType.RAW_HTML_FILE = "raw.html";
+ResourceVersionType.RAW_HEADERS_FILE = "headers.txt";
+ResourceVersionType.RAW_WORDS_TXT_FILE = "raw-words.txt";
+ResourceVersionType.RAW_LINKS_TXT_FILE = "raw-links.txt";
+ResourceVersionType.WORD_HITS_FILE = "word-hits.bin";
+ResourceVersionType.LINK_HITS_FILE = "link-hits.bin";
+ResourceVersionType.TITLE_FILE = "title.txt";
 ResourceVersionType.RAW_HTML = new ResourceVersionType({
-    filename: RAW_HTML_FILE,
+    filename: ResourceVersionType.RAW_HTML_FILE,
 });
 ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType({
-    filename: RAW_WORDS_TXT_FILE,
+    filename: ResourceVersionType.RAW_WORDS_TXT_FILE,
 });
 ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType({
-    filename: RAW_LINKS_TXT_FILE,
+    filename: ResourceVersionType.RAW_LINKS_TXT_FILE,
 });
 ResourceVersionType.WORD_HITS = new ResourceVersionType({
-    filename: WORD_HITS_FILE,
+    filename: ResourceVersionType.WORD_HITS_FILE,
 });
 ResourceVersionType.LINK_HITS = new ResourceVersionType({
-    filename: LINK_HITS_FILE,
+    filename: ResourceVersionType.LINK_HITS_FILE,
 });
 ResourceVersionType.RAW_HEADERS = new ResourceVersionType({
-    filename: RAW_HEADERS_FILE,
+    filename: ResourceVersionType.RAW_HEADERS_FILE,
 });
 ResourceVersionType.TITLE = new ResourceVersionType({
-    filename: TITLE_FILE,
+    filename: ResourceVersionType.TITLE_FILE,
 });
 
 
@@ -3255,6 +2716,569 @@ class PromisePool {
         this.promises = [];
     }
 }
+
+
+/***/ }),
+/* 65 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return WordHits; });
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(35);
+
+
+class WordHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
+    constructor(hits = new Map()) {
+        super(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value), 2, hits);
+    }
+    build(hits) {
+        return new WordHits(hits);
+    }
+}
+
+
+/***/ }),
+/* 66 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LinkHits; });
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+/* harmony import */ var _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+
+
+class LinkHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
+    constructor(hits = new Map()) {
+        super(value => new _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](value), 2, hits);
+    }
+    build(hits) {
+        return new LinkHits(hits);
+    }
+}
+
+
+/***/ }),
+/* 67 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./dist/main/common/events.js
+var events = __webpack_require__(9);
+
+// EXTERNAL MODULE: ./dist/main/common/processor.js
+var common_processor = __webpack_require__(45);
+
+// EXTERNAL MODULE: external "jsdom"
+var external_jsdom_ = __webpack_require__(49);
+
+// EXTERNAL MODULE: ./dist/main/file.js
+var file = __webpack_require__(31);
+
+// EXTERNAL MODULE: ./dist/main/types/Entity.js
+var Entity = __webpack_require__(12);
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/HTMLDocumentProcessor.js
+const EXCLUDE = [
+    "NOSCRIPT",
+    "SCRIPT",
+    "STYLE",
+    "FORM",
+    "INPUT",
+    "BUTTON",
+];
+class HTMLDocumentProcessor {
+    constructor() { }
+    static removeExcludedNodes(window) {
+        for (const tag of EXCLUDE) {
+            const items = window.document.querySelectorAll(tag);
+            for (let i = 0; i < items.length; ++i) {
+                const item = items.item(i);
+                item.parentElement.removeChild(item);
+            }
+        }
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
+var ResourceURL = __webpack_require__(7);
+
+// CONCATENATED MODULE: ./dist/main/types/HitType.js
+var HitType;
+(function (HitType) {
+    HitType[HitType["TITLE"] = 0] = "TITLE";
+    HitType[HitType["H1"] = 1] = "H1";
+    HitType[HitType["H2"] = 2] = "H2";
+    HitType[HitType["H3"] = 3] = "H3";
+    HitType[HitType["H4"] = 4] = "H4";
+    HitType[HitType["H5"] = 5] = "H5";
+    HitType[HitType["H6"] = 6] = "H6";
+    HitType[HitType["FIGCAPTION"] = 7] = "FIGCAPTION";
+    HitType[HitType["STRONG"] = 8] = "STRONG";
+    HitType[HitType["A"] = 9] = "A";
+    HitType[HitType["EM"] = 10] = "EM";
+    HitType[HitType["BLOCKQUOTE"] = 11] = "BLOCKQUOTE";
+    HitType[HitType["P"] = 12] = "P";
+    HitType[HitType["META_DATA"] = 13] = "META_DATA";
+    HitType[HitType["ACCESSABILITY_DATA"] = 14] = "ACCESSABILITY_DATA";
+    HitType[HitType["OTHER_TEXT"] = 15] = "OTHER_TEXT";
+})(HitType || (HitType = {}));
+;
+const META_NAMES_CONSIDERED = [
+    "description",
+    "author",
+    "keywords",
+];
+function nodeToHitType(node) {
+    let hitType;
+    switch (node.tagName) {
+        case "TITLE":
+            hitType = HitType.TITLE;
+            break;
+        case "H1":
+            hitType = HitType.H1;
+            break;
+        case "H2":
+            hitType = HitType.H2;
+            break;
+        case "H3":
+            hitType = HitType.H3;
+            break;
+        case "H4":
+            hitType = HitType.H4;
+            break;
+        case "H5":
+            hitType = HitType.H5;
+            break;
+        case "H6":
+            hitType = HitType.H6;
+            break;
+        case "FIGCAPTION":
+            hitType = HitType.FIGCAPTION;
+            break;
+        case "STRONG":
+        case "B":
+            hitType = HitType.STRONG;
+            break;
+        case "EM":
+        case "I":
+            hitType = HitType.EM;
+            break;
+        case "BLOCKQUOTE":
+            hitType = HitType.BLOCKQUOTE;
+            break;
+        case "A":
+            hitType = HitType.A;
+            break;
+        case "P":
+            hitType = HitType.P;
+            break;
+        case "META":
+            const name = node.getAttribute("name");
+            if (name) {
+                if (name in META_NAMES_CONSIDERED) {
+                    hitType = HitType.META_DATA;
+                }
+                else {
+                    hitType = HitType.OTHER_TEXT;
+                }
+            }
+            else {
+                const name = node.getAttribute("property");
+                if (name in META_NAMES_CONSIDERED) {
+                    hitType = HitType.META_DATA;
+                }
+                else {
+                    hitType = HitType.OTHER_TEXT;
+                }
+            }
+            break;
+        default:
+            if (node.hasAttribute("title") || node.hasAttribute("alt"))
+                hitType = HitType.ACCESSABILITY_DATA;
+            else
+                hitType = HitType.OTHER_TEXT;
+    }
+    return hitType;
+}
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
+var ResourceVersionType = __webpack_require__(29);
+
+// EXTERNAL MODULE: ./dist/main/types/WordHits.js
+var WordHits = __webpack_require__(65);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(1);
+
+// EXTERNAL MODULE: ./dist/main/types/LinkHits.js
+var LinkHits = __webpack_require__(66);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceLink.js
+var ResourceLink = __webpack_require__(23);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceLinkHash.js
+var ResourceLinkHash = __webpack_require__(33);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceHash.js
+var ResourceHash = __webpack_require__(22);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/Anchor.js
+var Anchor = __webpack_require__(60);
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractAHrefs.js
+
+
+
+
+
+
+
+
+const HASH = "#";
+const ANCHOR_TAG = "a";
+function htmlCollectionToArray(coll) {
+    const array = new Array(coll.length);
+    for (let position = 0; position < coll.length; ++position)
+        array[position] = coll.item(position);
+    return array;
+}
+function getAnchorsWithHREF(window) {
+    const truthyAndFalseyAnchors = htmlCollectionToArray(window.document.getElementsByTagName(ANCHOR_TAG));
+    return truthyAndFalseyAnchors.filter(a => a.href);
+}
+function getLinks(window) {
+    const parent = new ResourceURL["ResourceURL"](window.location.toString());
+    const links = [];
+    for (const anchor of getAnchorsWithHREF(window)) {
+        const parts = anchor.href.split(HASH, 2);
+        const url = parts[0];
+        const hash = parts.length > 1 ? parts[1] : "";
+        const value = new Anchor["Anchor"]({ value: anchor.innerHTML });
+        let child;
+        try {
+            child = new ResourceURL["ResourceURL"](url);
+        }
+        catch (e) {
+            Object(util["e" /* fancyLog */])("invalid url: " + url);
+            Object(util["e" /* fancyLog */])(JSON.stringify(e));
+            continue;
+        }
+        const link = new ResourceLink["ResourceLink"]({ parent, child, value });
+        if (hash)
+            links.push(new ResourceLinkHash["ResourceLinkHash"]({ link, hash: new ResourceHash["ResourceHash"](hash) }));
+        else
+            links.push(link);
+    }
+    return links;
+}
+class ExtractAHrefs_ExtractAHrefs extends HTMLDocumentProcessor {
+    ro() { return true; }
+    async apply(window, time) {
+        const parent = new ResourceURL["ResourceURL"](window.location.toString());
+        const links = getLinks(window);
+        const urls = links.map(item => item instanceof ResourceLinkHash["ResourceLinkHash"] ? `${item.link.child.toURL()}#${item.hash.value}` : item.child.toURL());
+        const fsPromise = parent.writeVersion(time, ResourceVersionType["ResourceVersionType"].RAW_LINKS_TXT, urls.join("\n"));
+        const dbPromises = links.map(link => link.enqueueInsert({ recursive: true }));
+        const promises = [...dbPromises, fsPromise];
+        await Promise.all(promises);
+    }
+}
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractHits.js
+
+
+
+
+
+
+
+
+const INCLUDE_TAGS = [
+    "TITLE",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "FIGCAPTION",
+    "STRONG",
+    "B",
+    "A",
+    "EM",
+    "I",
+    "BLOCKQUOTE",
+    "P",
+    "META",
+];
+function contentFromNode(node, hitType) {
+    let content;
+    switch (hitType) {
+        case HitType.META_DATA:
+            content = node.getAttribute("content");
+            break;
+        case HitType.ACCESSABILITY_DATA:
+            content = node.getAttribute("title");
+            if (!content)
+                node.getAttribute("alt");
+            break;
+        default:
+            content = node.textContent;
+    }
+    return content;
+}
+function wordsFromNode(node, hitType) {
+    const content = contentFromNode(node, hitType);
+    const lc = content.toLowerCase();
+    const normalised = lc.replace(/[–-]/g, "");
+    const words = normalised.match(/[^ \t\s!"'^&*();:@~#\n®.,<>?/\[\]\\{}“”‘’]+/g);
+    return words;
+}
+function urlsFromNode(node) {
+    const anchors = node.querySelectorAll("a");
+    const length = anchors.length;
+    const urls = [];
+    for (let i = 0; i < length; ++i) {
+        const item = anchors.item(i);
+        const url = item.href;
+        try {
+            const resource = new ResourceURL["ResourceURL"](url);
+            urls.push(resource.toURL());
+        }
+        catch (e) {
+            Object(util["e" /* fancyLog */])(`unhandled url: ${url}`);
+            Object(util["e" /* fancyLog */])(JSON.stringify(e));
+        }
+    }
+    return urls;
+}
+;
+function getHits(window) {
+    HTMLDocumentProcessor.removeExcludedNodes(window);
+    const queryItems = htmlCollectionToArray(window.document.querySelectorAll(INCLUDE_TAGS.join(",")));
+    const blockWordData = [];
+    const linksData = [];
+    const truthyAnchors = getAnchorsWithHREF(window);
+    for (const anchor of truthyAnchors)
+        linksData.push([anchor.href, nodeToHitType(anchor.parentElement)]);
+    // Ensure no words are counted twice.
+    for (const item of queryItems)
+        item.parentNode.removeChild(item);
+    let wordsOnPage = 0;
+    for (const item of queryItems) {
+        const hitType = nodeToHitType(item);
+        const words = wordsFromNode(item, hitType);
+        if (words && words.length) {
+            blockWordData.push({ hitType, items: words });
+            wordsOnPage += words.length;
+        }
+    }
+    let n = 0;
+    const wordHits = new WordHits["a" /* WordHits */]();
+    for (const block of blockWordData)
+        for (const word of block.items)
+            wordHits.register(word, n++, wordsOnPage, block.hitType);
+    n = 0;
+    const linkHits = new LinkHits["a" /* LinkHits */]();
+    for (const [url, hitType] of linksData)
+        n = linkHits.register(url, n, linksData.length, hitType);
+    return { wordHits, linkHits };
+}
+class ExtractHits_ExtractHits extends HTMLDocumentProcessor {
+    ro() { return false; }
+    async apply(window, time) {
+        const resource = new ResourceURL["ResourceURL"](window.location.toString());
+        const { wordHits, linkHits } = getHits(window);
+        await Promise.all([
+            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].LINK_HITS, linkHits.toBuffer()),
+            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].WORD_HITS, wordHits.toBuffer()),
+        ]);
+    }
+}
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractRawText.js
+
+
+
+function toRawText(window) {
+    HTMLDocumentProcessor.removeExcludedNodes(window);
+    const rawText = window.document.body.textContent
+        .replace(/\n\s+\n/g, "\n\n")
+        .replace(/\n\n+/g, "\n\n");
+    return rawText;
+}
+class ExtractRawText_ExtractRawText extends HTMLDocumentProcessor {
+    ro() { return true; }
+    async apply(window, time) {
+        const rawText = toRawText(window);
+        const resource = new ResourceURL["ResourceURL"](window.location.toString());
+        await resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].RAW_WORDS_TXT, rawText);
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/types/objects/WikiCategory.js
+var WikiCategory = __webpack_require__(30);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/WikiPage.js
+var WikiPage = __webpack_require__(34);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceThrottle.js
+var ResourceThrottle = __webpack_require__(44);
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractWikiTree.js
+
+
+
+
+
+const SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
+const CATEGORY_PAGE_SELECT = "#mw-pages .mw-category .mw-category-group li>a";
+function resourceIsWikiCategory(resource) {
+    return resource.ssl
+        && resource.host.name === "en.wikipedia.org"
+        && resource.port === 443
+        && resource.path.value.match(/^\/wiki\/Category:/)
+        && resource.query.value === "";
+}
+function getHrefs(window, selector) {
+    const node = window.document.querySelectorAll(selector);
+    const urls = new Array(node.length);
+    for (let i = 0; i < node.length; ++i) {
+        const a = node.item(i);
+        if (a.href)
+            urls[i] = a.href;
+    }
+    return urls;
+}
+function getSubWikiPages(wikiDoc) {
+    return getHrefs(wikiDoc, CATEGORY_PAGE_SELECT);
+}
+function getSubWikiCategories(wikiDoc) {
+    return getHrefs(wikiDoc, SUBCATEGORY_SELECTOR);
+}
+function getEntities(window) {
+    const parent = new ResourceURL["ResourceURL"](window.location.toString());
+    if (!resourceIsWikiCategory(parent))
+        return [];
+    const subWikiCategoryURLs = getSubWikiCategories(window);
+    const subWikiPageURLs = getSubWikiPages(window);
+    const children = subWikiPageURLs.concat(subWikiCategoryURLs);
+    const relations = children
+        .map(child => new ResourceURL["ResourceURL"](child))
+        .map(child => new WikiCategory["WikiCategory"]({ parent, child }));
+    const pages = subWikiPageURLs
+        .map(url => new WikiPage["WikiPage"](url));
+    const throttles = children.map(url => new ResourceThrottle["ResourceThrottle"](url, 7 * 24 * 60 * 60 * 1000));
+    return relations.concat(pages).concat(throttles);
+}
+class ExtractWikiTree_ExtractWikiTree extends HTMLDocumentProcessor {
+    ro() { return true; }
+    async apply(window) {
+        const entities = getEntities(window);
+        const promises = entities.map(entity => entity.enqueueInsert({ recursive: true }));
+        await Promise.all(promises);
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/data.js + 1 modules
+var data = __webpack_require__(47);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceTitle.js
+var ResourceTitle = __webpack_require__(61);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/Title.js
+var Title = __webpack_require__(62);
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractTitle.js
+
+
+
+
+
+class ExtractTitle_ExtractTitle extends HTMLDocumentProcessor {
+    ro() { return true; }
+    async apply(window, time) {
+        const resource = new ResourceURL["ResourceURL"](window.location.toString());
+        const titleContent = window.document.title;
+        const title = new Title["Title"](titleContent);
+        const resourceTitle = new ResourceTitle["ResourceTitle"]({ resource, title });
+        const fsPromise = resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].TITLE, titleContent);
+        const dbPromise = resourceTitle.enqueueInsert({ recursive: true });
+        const promises = [dbPromise, fsPromise];
+        await Promise.all(promises);
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/common/PromisePool.js
+var PromisePool = __webpack_require__(64);
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/functions.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+const PROCESSORS = [new ExtractAHrefs_ExtractAHrefs(), new ExtractTitle_ExtractTitle(), new ExtractWikiTree_ExtractWikiTree(), new ExtractRawText_ExtractRawText(), new ExtractHits_ExtractHits()];
+async function processURL(resource, url, time, pool) {
+    let formats;
+    try {
+        formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
+    }
+    catch (e) {
+        Object(util["e" /* fancyLog */])("error while listing formats");
+        Object(util["e" /* fancyLog */])(JSON.stringify(e));
+        common_processor["a" /* SAFELY_EXIT */][0] = true;
+    }
+    for (const format of formats) {
+        if (format.filename === ResourceVersionType["ResourceVersionType"].RAW_HTML.filename) {
+            let content;
+            try {
+                content =
+                    await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, ResourceVersionType["ResourceVersionType"].RAW_HTML);
+            }
+            catch (e) {
+                Object(util["e" /* fancyLog */])("error while reading file");
+                Object(util["e" /* fancyLog */])(JSON.stringify(e));
+                common_processor["a" /* SAFELY_EXIT */][0] = true;
+            }
+            if (content) {
+                console.log(`${time} ${url}`);
+                let window;
+                let reDOM = true;
+                for (const processor of PROCESSORS) {
+                    if (reDOM)
+                        window = new external_jsdom_["JSDOM"](content, { url }).window;
+                    await pool.registerPromise(processor.apply(window, time));
+                    reDOM = processor.ro();
+                }
+            }
+        }
+    }
+}
+async function process() {
+    const pool = new PromisePool["a" /* PromisePool */](50);
+    for (const row of await Object(data["c" /* selectResourcesNotProcessed */])())
+        await processURL(row.resource, row.url, row.time, pool);
+    pool.flush();
+}
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/main.js
+
+
+
+Object(common_processor["b" /* startProcessor */])(process, new Set([events["j" /* FETCH_COMPLETE */]]), events["k" /* HTML_PROCESS_COMPLETE */]);
 
 
 /***/ })

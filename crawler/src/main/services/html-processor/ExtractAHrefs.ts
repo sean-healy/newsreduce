@@ -60,8 +60,7 @@ export class ExtractAHrefs extends HTMLDocumentProcessor {
         const parent = new ResourceURL(window.location.toString());
         const links = getLinks(window);
         const urls = links.map(item =>
-            (item instanceof ResourceLinkHash ?
-                item.link.child : (item as ResourceLink).child).toURL());
+            item instanceof ResourceLinkHash ? `${item.link.child.toURL()}#${item.hash.value}` : (item as ResourceLink).child.toURL());
         const fsPromise = parent.writeVersion(time, ResourceVersionType.RAW_LINKS_TXT, urls.join("\n"));
         const dbPromises = links.map(link => link.enqueueInsert({ recursive: true }));
         const promises: Promise<any>[] = [...dbPromises, fsPromise];

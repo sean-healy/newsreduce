@@ -7,6 +7,8 @@ import { DBObject } from "types/DBObject";
 import { findTimes, findFormats, read } from "file";
 import { Entity } from "types/Entity";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { WordHits } from "types/WordHits";
+import { LinkHits } from "types/LinkHits";
 
 const PORT = 9999;
 
@@ -52,8 +54,26 @@ async function serve() {
         const id = BigInt(req.query.id);
         const time = Number(req.query.time);
         const format = req.query.format as string;
-        const version = await read(Entity.RESOURCE, id, time, new ResourceVersionType(format));
-        res.send(version.toString());
+        let version = await read(Entity.RESOURCE, id, time, new ResourceVersionType(format));
+        const contentType = (() => {
+            switch (format) {
+                case ResourceVersionType.RAW_HEADERS_FILE:
+                case ResourceVersionType.RAW_WORDS_TXT_FILE:
+                case ResourceVersionType.RAW_LINKS_TXT_FILE:
+                case ResourceVersionType.TITLE_FILE:
+                    return "text/plain; charset=UTF-8";
+                case ResourceVersionType.WORD_HITS_FILE:
+                    version = Buffer.from(new WordHits().fromBuffer(version).toString());
+                    return "text/plain; charset=UTF-8";
+                case ResourceVersionType.LINK_HITS_FILE:
+                    version = Buffer.from(new LinkHits().fromBuffer(version).toString());
+                    return "text/plain; charset=UTF-8";
+                case ResourceVersionType.RAW_HTML_FILE:
+                    return "text/html; charset=UTF-8";
+
+            }
+        })();
+        res.contentType(contentType).send(version.toString());
     });
 
     app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT} `));

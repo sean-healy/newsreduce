@@ -1011,7 +1011,124 @@ const FAILURE_CACHE = "failures";
 
 
 /***/ }),
-/* 10 */,
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ Hits_Hits; });
+
+// CONCATENATED MODULE: ./dist/main/types/Hit.js
+class Hit {
+    constructor(prominentHTMLTag, relativePositionInDocument) {
+        this.prominentHTMLTag = prominentHTMLTag;
+        this.relativePositionInDocument = relativePositionInDocument;
+    }
+    toByte() {
+        return ((this.prominentHTMLTag << 4) | this.relativePositionInDocument);
+    }
+    static fromByte(byte) {
+        const prominentHTMLTag = byte >> 4;
+        const relativePositionInDocument = byte & 0b1111;
+        return new Hit(prominentHTMLTag, relativePositionInDocument);
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(1);
+
+// CONCATENATED MODULE: ./dist/main/types/Hits.js
+
+
+const POSITION_BITS = 4;
+class Hits_Hits {
+    constructor(builder, lengthBytes, hits = new Map()) {
+        this.hits = hits;
+        this.builder = builder;
+        this.lengthBytes = lengthBytes;
+        this.objects = new Map();
+    }
+    register(value, n, of, type) {
+        let obj;
+        try {
+            obj = this.builder(value);
+        }
+        catch (e) {
+            Object(util["e" /* fancyLog */])("caught exception while gathering hits");
+            Object(util["e" /* fancyLog */])(JSON.stringify(e));
+            return n;
+        }
+        const id = obj.getID();
+        let hits;
+        if (this.hits.has(id))
+            hits = this.hits.get(id);
+        else {
+            hits = [];
+            this.hits.set(id, hits);
+            this.objects.set(id, obj);
+        }
+        const position = Math.floor((n / of) * (1 << POSITION_BITS));
+        hits.push(new Hit(type, position));
+        return n + 1;
+    }
+    toBuffer() {
+        let bytes = 0;
+        // 12 bytes per ID
+        bytes += this.hits.size * 12;
+        // N bytes per ID (for length of hit list).
+        bytes += this.hits.size * this.lengthBytes;
+        const ids = [...this.hits.keys()];
+        // 1 byte per hit
+        bytes += [...this.hits.values()].map(hits => hits.length).reduce((a, b) => a + b, 0);
+        const fileData = Buffer.alloc(bytes);
+        let offset = 0;
+        for (const id of ids.sort(util["a" /* CMP_BIG_INT */])) {
+            Object(util["k" /* writeBigUInt96BE */])(id, fileData, offset);
+            offset += 12;
+            const hits = this.hits.get(id).sort().slice(0, (1 << this.lengthBytes * 8) - 1)
+                .map(hit => hit.toByte());
+            const length = Math.min(hits.length, (1 << this.lengthBytes * 8) - 1);
+            Object(util["j" /* writeAnyNumberBE */])(length, fileData, offset, this.lengthBytes);
+            offset += this.lengthBytes;
+            Buffer.from(hits).copy(fileData, offset);
+            offset += hits.length;
+        }
+        return fileData;
+    }
+    toString() {
+        const wordIDs = Object(util["f" /* iteratorToArray */])(this.hits.keys()).sort(util["a" /* CMP_BIG_INT */]);
+        let str = "";
+        for (const id of wordIDs) {
+            str += `${id}`.padStart(29, "0") + " ";
+            const bytes = this.hits.get(id).map(hit => hit.toByte());
+            str += Buffer.of(...bytes).toString("hex") + "\n";
+        }
+        return str;
+    }
+    fromBuffer(buffer) {
+        const hits = new Map();
+        const bufferLength = buffer.length;
+        let offset = 0;
+        while (offset < bufferLength) {
+            const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            const hitsLength = Object(util["d" /* bytesToNumber */])(buffer.slice(offset, offset + this.lengthBytes));
+            offset += this.lengthBytes;
+            const itemHits = new Array(Number(hitsLength));
+            for (let i = 0; i < hitsLength; ++i) {
+                const hit = Hit.fromByte(buffer[offset + i]);
+                itemHits[i] = hit;
+            }
+            offset += hitsLength;
+            hits.set(id, itemHits);
+        }
+        return this.build(hits);
+    }
+}
+
+
+/***/ }),
 /* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1521,23 +1638,9 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_HTML_FILE", function() { return RAW_HTML_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_HEADERS_FILE", function() { return RAW_HEADERS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_WORDS_TXT_FILE", function() { return RAW_WORDS_TXT_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_LINKS_TXT_FILE", function() { return RAW_LINKS_TXT_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WORD_HITS_FILE", function() { return WORD_HITS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LINK_HITS_FILE", function() { return LINK_HITS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TITLE_FILE", function() { return TITLE_FILE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return ResourceVersionType; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
-const RAW_HTML_FILE = "raw.html";
-const RAW_HEADERS_FILE = "headers.txt";
-const RAW_WORDS_TXT_FILE = "raw-words.txt";
-const RAW_LINKS_TXT_FILE = "raw-links.txt";
-const WORD_HITS_FILE = "word-hits.bin";
-const LINK_HITS_FILE = "link-hits.bin";
-const TITLE_FILE = "title.txt";
 class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(arg) {
         if (!arg)
@@ -1561,26 +1664,33 @@ class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/*
         return this.filename;
     }
 }
+ResourceVersionType.RAW_HTML_FILE = "raw.html";
+ResourceVersionType.RAW_HEADERS_FILE = "headers.txt";
+ResourceVersionType.RAW_WORDS_TXT_FILE = "raw-words.txt";
+ResourceVersionType.RAW_LINKS_TXT_FILE = "raw-links.txt";
+ResourceVersionType.WORD_HITS_FILE = "word-hits.bin";
+ResourceVersionType.LINK_HITS_FILE = "link-hits.bin";
+ResourceVersionType.TITLE_FILE = "title.txt";
 ResourceVersionType.RAW_HTML = new ResourceVersionType({
-    filename: RAW_HTML_FILE,
+    filename: ResourceVersionType.RAW_HTML_FILE,
 });
 ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType({
-    filename: RAW_WORDS_TXT_FILE,
+    filename: ResourceVersionType.RAW_WORDS_TXT_FILE,
 });
 ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType({
-    filename: RAW_LINKS_TXT_FILE,
+    filename: ResourceVersionType.RAW_LINKS_TXT_FILE,
 });
 ResourceVersionType.WORD_HITS = new ResourceVersionType({
-    filename: WORD_HITS_FILE,
+    filename: ResourceVersionType.WORD_HITS_FILE,
 });
 ResourceVersionType.LINK_HITS = new ResourceVersionType({
-    filename: LINK_HITS_FILE,
+    filename: ResourceVersionType.LINK_HITS_FILE,
 });
 ResourceVersionType.RAW_HEADERS = new ResourceVersionType({
-    filename: RAW_HEADERS_FILE,
+    filename: ResourceVersionType.RAW_HEADERS_FILE,
 });
 ResourceVersionType.TITLE = new ResourceVersionType({
-    filename: TITLE_FILE,
+    filename: ResourceVersionType.TITLE_FILE,
 });
 
 
@@ -2396,7 +2506,15 @@ var Entity = __webpack_require__(12);
 // EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
 var ResourceVersionType = __webpack_require__(29);
 
+// EXTERNAL MODULE: ./dist/main/types/WordHits.js
+var WordHits = __webpack_require__(65);
+
+// EXTERNAL MODULE: ./dist/main/types/LinkHits.js
+var LinkHits = __webpack_require__(66);
+
 // CONCATENATED MODULE: ./dist/main/services/net-agent/for-main.js
+
+
 
 
 
@@ -2449,8 +2567,25 @@ async function serve() {
         const id = BigInt(req.query.id);
         const time = Number(req.query.time);
         const format = req.query.format;
-        const version = await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, id, time, new ResourceVersionType["ResourceVersionType"](format));
-        res.send(version.toString());
+        let version = await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, id, time, new ResourceVersionType["ResourceVersionType"](format));
+        const contentType = (() => {
+            switch (format) {
+                case ResourceVersionType["ResourceVersionType"].RAW_HEADERS_FILE:
+                case ResourceVersionType["ResourceVersionType"].RAW_WORDS_TXT_FILE:
+                case ResourceVersionType["ResourceVersionType"].RAW_LINKS_TXT_FILE:
+                case ResourceVersionType["ResourceVersionType"].TITLE_FILE:
+                    return "text/plain; charset=UTF-8";
+                case ResourceVersionType["ResourceVersionType"].WORD_HITS_FILE:
+                    version = Buffer.from(new WordHits["a" /* WordHits */]().fromBuffer(version).toString());
+                    return "text/plain; charset=UTF-8";
+                case ResourceVersionType["ResourceVersionType"].LINK_HITS_FILE:
+                    version = Buffer.from(new LinkHits["a" /* LinkHits */]().fromBuffer(version).toString());
+                    return "text/plain; charset=UTF-8";
+                case ResourceVersionType["ResourceVersionType"].RAW_HTML_FILE:
+                    return "text/html; charset=UTF-8";
+            }
+        })();
+        res.contentType(contentType).send(version.toString());
     });
     app.listen(PORT, () => Object(util["e" /* fancyLog */])(`Main net agent running on port ${PORT} `));
 }
@@ -2558,6 +2693,47 @@ class SimpleHashObject extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
     }
     getInsertParams() {
         return [this.getID(), this.value];
+    }
+}
+
+
+/***/ }),
+/* 64 */,
+/* 65 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return WordHits; });
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(35);
+
+
+class WordHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
+    constructor(hits = new Map()) {
+        super(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value), 2, hits);
+    }
+    build(hits) {
+        return new WordHits(hits);
+    }
+}
+
+
+/***/ }),
+/* 66 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LinkHits; });
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+/* harmony import */ var _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+
+
+class LinkHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
+    constructor(hits = new Map()) {
+        super(value => new _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](value), 2, hits);
+    }
+    build(hits) {
+        return new LinkHits(hits);
     }
 }
 

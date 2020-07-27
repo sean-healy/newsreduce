@@ -1521,23 +1521,9 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_HTML_FILE", function() { return RAW_HTML_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_HEADERS_FILE", function() { return RAW_HEADERS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_WORDS_TXT_FILE", function() { return RAW_WORDS_TXT_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_LINKS_TXT_FILE", function() { return RAW_LINKS_TXT_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WORD_HITS_FILE", function() { return WORD_HITS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LINK_HITS_FILE", function() { return LINK_HITS_FILE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TITLE_FILE", function() { return TITLE_FILE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return ResourceVersionType; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
-const RAW_HTML_FILE = "raw.html";
-const RAW_HEADERS_FILE = "headers.txt";
-const RAW_WORDS_TXT_FILE = "raw-words.txt";
-const RAW_LINKS_TXT_FILE = "raw-links.txt";
-const WORD_HITS_FILE = "word-hits.bin";
-const LINK_HITS_FILE = "link-hits.bin";
-const TITLE_FILE = "title.txt";
 class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(arg) {
         if (!arg)
@@ -1561,26 +1547,33 @@ class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/*
         return this.filename;
     }
 }
+ResourceVersionType.RAW_HTML_FILE = "raw.html";
+ResourceVersionType.RAW_HEADERS_FILE = "headers.txt";
+ResourceVersionType.RAW_WORDS_TXT_FILE = "raw-words.txt";
+ResourceVersionType.RAW_LINKS_TXT_FILE = "raw-links.txt";
+ResourceVersionType.WORD_HITS_FILE = "word-hits.bin";
+ResourceVersionType.LINK_HITS_FILE = "link-hits.bin";
+ResourceVersionType.TITLE_FILE = "title.txt";
 ResourceVersionType.RAW_HTML = new ResourceVersionType({
-    filename: RAW_HTML_FILE,
+    filename: ResourceVersionType.RAW_HTML_FILE,
 });
 ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType({
-    filename: RAW_WORDS_TXT_FILE,
+    filename: ResourceVersionType.RAW_WORDS_TXT_FILE,
 });
 ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType({
-    filename: RAW_LINKS_TXT_FILE,
+    filename: ResourceVersionType.RAW_LINKS_TXT_FILE,
 });
 ResourceVersionType.WORD_HITS = new ResourceVersionType({
-    filename: WORD_HITS_FILE,
+    filename: ResourceVersionType.WORD_HITS_FILE,
 });
 ResourceVersionType.LINK_HITS = new ResourceVersionType({
-    filename: LINK_HITS_FILE,
+    filename: ResourceVersionType.LINK_HITS_FILE,
 });
 ResourceVersionType.RAW_HEADERS = new ResourceVersionType({
-    filename: RAW_HEADERS_FILE,
+    filename: ResourceVersionType.RAW_HEADERS_FILE,
 });
 ResourceVersionType.TITLE = new ResourceVersionType({
-    filename: TITLE_FILE,
+    filename: ResourceVersionType.TITLE_FILE,
 });
 
 
