@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"noImplicitAny": true,
+        "allowSyntheticDefaultImports": true,
+		"preserveConstEnums": true,
+		"downlevelIteration": true,
+		"sourceMap": true,
+        "outDir": "dist",
+        "strictNullChecks": false,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "declaration": false,
+        "lib": [
+            "dom",
+            "es2020"
+        ],
+        "baseUrl": "src/main/ts",
+        "paths": {
+            ".": [""]
+        },
+        "target": "es2020",
+        "jsx": "react"
+	},
+    "include": [
+        "src/main/ts/**.ts",
+        "src/test/ts/**.ts",
+        "src/main/ts/**.tsx",
+        "src/test/ts/**.tsx"
+    ]
+}
