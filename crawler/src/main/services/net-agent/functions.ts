@@ -32,9 +32,13 @@ export async function newFilteredServer() {
     const whitelist = await cacheGuestlist();
     const app = express();
     app.use((req, res, next) => {
-        if (whitelist.has(req.ip)) next();
-        else res.sendStatus(401);
+        if (whitelist.has(req.ip)) {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "X-Requested-With");
+            next();
+        } else res.sendStatus(401);
     });
+
 
     return app;
 }
