@@ -158,9 +158,9 @@ export async function findVersions(entity: Entity, entityID: bigint) {
 export async function findTimes(entity: Entity, entityID: bigint) {
     return [...new Set((await findVersions(entity, entityID)).map(([time,]) => time))].sort((a, b) => a - b);
 }
-export async function findFormats(entity: Entity, entityID: bigint, version: number) {
+export async function findFormats(entity: Entity, entityID: bigint, time: number) {
     return (await findVersions(entity, entityID))
-        .filter(([time,]) => time === version)
+        .filter(([ms,]) => ms === time)
         .map(([, format]) => format);
 }
 

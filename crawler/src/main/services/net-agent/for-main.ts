@@ -4,7 +4,7 @@ import { newFilteredServer } from "./functions";
 import { fancyLog } from "common/util";
 import { SQL } from "common/SQL";
 import { DBObject } from "types/DBObject";
-import { findFormats, findTimes } from "file";
+import { findTimes, findFormats } from "file";
 import { Entity } from "types/Entity";
 
 const PORT = 9999;
@@ -41,6 +41,12 @@ async function serve() {
         const id = BigInt(req.query.id);
         const times = await findTimes(Entity.RESOURCE, id);
         res.send(JSON.stringify(times));
+    });
+    app.get("/resource-formats", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const time = Number(req.query.time);
+        const formats = (await findFormats(Entity.RESOURCE, id, time)).map(format => format.filename);
+        res.send(JSON.stringify(formats));
     });
 
     app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT} `));

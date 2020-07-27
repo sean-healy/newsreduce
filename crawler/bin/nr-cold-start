@@ -1790,9 +1790,9 @@ async function findVersions(entity, entityID) {
 async function findTimes(entity, entityID) {
     return [...new Set((await findVersions(entity, entityID)).map(([time,]) => time))].sort((a, b) => a - b);
 }
-async function findFormats(entity, entityID, version) {
+async function findFormats(entity, entityID, time) {
     return (await findVersions(entity, entityID))
-        .filter(([time,]) => time === version)
+        .filter(([ms,]) => ms === time)
         .map(([, format]) => format);
 }
 async function read(entity, entityID, version, format) {

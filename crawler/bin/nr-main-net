@@ -1790,9 +1790,9 @@ async function findVersions(entity, entityID) {
 async function findTimes(entity, entityID) {
     return [...new Set((await findVersions(entity, entityID)).map(([time,]) => time))].sort((a, b) => a - b);
 }
-async function findFormats(entity, entityID, version) {
+async function findFormats(entity, entityID, time) {
     return (await findVersions(entity, entityID))
-        .filter(([time,]) => time === version)
+        .filter(([ms,]) => ms === time)
         .map(([, format]) => format);
 }
 async function read(entity, entityID, version, format) {
@@ -2435,6 +2435,12 @@ async function serve() {
         const id = BigInt(req.query.id);
         const times = await Object(file["b" /* findTimes */])(Entity["a" /* Entity */].RESOURCE, id);
         res.send(JSON.stringify(times));
+    });
+    app.get("/resource-formats", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const time = Number(req.query.time);
+        const formats = (await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, id, time)).map(format => format.filename);
+        res.send(JSON.stringify(formats));
     });
     app.listen(PORT, () => Object(util["e" /* fancyLog */])(`Main net agent running on port ${PORT} `));
 }
