@@ -906,21 +906,28 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     getDeps() {
         return [this.host, this.path, this.query];
     }
-    async writeVersion(version, format, input) {
+    async writeVersion(time, type, input) {
         const id = this.getID();
         let bytesWritten = -1;
         if (typeof input === "string" || input instanceof Buffer) {
             let i = 0;
             for (i = 0; i < 10 && bytesWritten < 0; ++i)
-                bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
+                bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
             if (i > 1 && bytesWritten >= 0) {
                 Object(common_util__WEBPACK_IMPORTED_MODULE_9__[/* fancyLog */ "e"])(`wrote ${bytesWritten}b to ` +
                     `${Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE)} ${id} ` +
-                    `(${format.filename}, v${version}) on attempt ${i}.`);
+                    `(${type.filename}, v${time}) on attempt ${i}.`);
             }
         }
         else
-            bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, version, format, input);
+            bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
+        if (bytesWritten >= 0)
+            new _ResourceVersion__WEBPACK_IMPORTED_MODULE_10__["ResourceVersion"]({
+                resource: this,
+                time,
+                type,
+                length: bytesWritten,
+            }).enqueueInsert({ recursive: true });
         return bytesWritten;
     }
     isFetchLocked() {

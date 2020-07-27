@@ -114,11 +114,9 @@ export class ExtractHits extends HTMLDocumentProcessor {
     async apply(window: DOMWindow, time?: number) {
         const resource = new ResourceURL(window.location.toString());
         const { wordHits, linkHits } = getHits(window);
-        resource.writeVersion(time, ResourceVersionType.LINK_HITS, linkHits.toBuffer())
-            .then(async length => ResourceURL.registerVersionIfSuccessful(
-                resource, time, ResourceVersionType.LINK_HITS, length));
-        resource.writeVersion(time, ResourceVersionType.WORD_HITS, wordHits.toBuffer())
-            .then(async length => ResourceURL.registerVersionIfSuccessful(
-                resource, time, ResourceVersionType.WORD_HITS, length));
+        await Promise.all([
+            resource.writeVersion(time, ResourceVersionType.LINK_HITS, linkHits.toBuffer()),
+            resource.writeVersion(time, ResourceVersionType.WORD_HITS, wordHits.toBuffer()),
+        ]);
     }
 }

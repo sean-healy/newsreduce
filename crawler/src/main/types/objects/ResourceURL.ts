@@ -128,8 +128,8 @@ export class ResourceURL extends DBObject<ResourceURL> {
         return [this.host, this.path, this.query];
     }
     async writeVersion(
-        version: number,
-        format: ResourceVersionType,
+        time: number,
+        type: ResourceVersionType,
         input: string | Buffer | NodeJS.ReadableStream
     ) {
         const id = this.getID();
@@ -137,16 +137,24 @@ export class ResourceURL extends DBObject<ResourceURL> {
         if (typeof input === "string" || input instanceof Buffer) {
             let i = 0;
             for (i = 0; i < 10 && bytesWritten < 0; ++i)
-                bytesWritten = await write(Entity.RESOURCE, id, version, format, input);
+                bytesWritten = await write(Entity.RESOURCE, id, time, type, input);
             if (i > 1 && bytesWritten >= 0) {
                 fancyLog(
                     `wrote ${bytesWritten}b to ` +
                     `${entityName(Entity.RESOURCE)} ${id} ` +
-                    `(${format.filename}, v${version}) on attempt ${i}.`
+                    `(${type.filename}, v${time}) on attempt ${i}.`
                 );
             }
         } else
-            bytesWritten = await write(Entity.RESOURCE, id, version, format, input);
+            bytesWritten = await write(Entity.RESOURCE, id, time, type, input);
+
+        if (bytesWritten >= 0)
+            new ResourceVersion({
+                resource: this,
+                time,
+                type,
+                length: bytesWritten,
+            }).enqueueInsert({ recursive: true });
 
         return bytesWritten;
     }

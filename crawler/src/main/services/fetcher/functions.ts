@@ -6,14 +6,12 @@ import { Host } from "types/objects/Host";
 import { ResourceHeader } from "types/objects/ResourceHeader";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog } from "common/util";
-import { ResourceVersion } from "types/objects/ResourceVersion";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
 import { DBObject } from "types/DBObject";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
         const resource = new ResourceURL(url);
-        //fancyLog(JSON.stringify(resource));
         const time = milliTimestamp();
         let headers = [];
         let objects: DBObject<any>[] = [];
@@ -26,11 +24,8 @@ export function buildOnFetch(url: string) {
                 let type: ResourceVersionType = null;
                 if (mimeType.match(/^text\/html/))
                     type = ResourceVersionType.RAW_HTML;
-                if (type) {
-                    await resource.writeVersion(time, type, response.body)
-                        .then(length =>
-                            objects.push(new ResourceVersion({ resource, time, type, length })));
-                }
+                if (type !== null)
+                    await resource.writeVersion(time, type, response.body);
             }
         });
         const headerContent = headers.join("\n");
@@ -38,15 +33,7 @@ export function buildOnFetch(url: string) {
             log("header issue");
             log(JSON.stringify(headers));
         }
-        const headersLength =
-            await resource.writeVersion(time, ResourceVersionType.RAW_HEADERS, headerContent)
-        objects.push(new ResourceVersion({
-            resource,
-            time,
-            type: ResourceVersionType.RAW_HEADERS,
-            length: headersLength,
-        }));
-
+        await resource.writeVersion(time, ResourceVersionType.RAW_HEADERS, headerContent)
         await Promise.all(objects.map(obj => obj.enqueueInsert({ recursive: true })));
     };
 }
