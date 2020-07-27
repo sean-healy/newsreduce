@@ -1795,10 +1795,10 @@ async function findFormats(entity, entityID, time) {
         .filter(([ms,]) => ms === time)
         .map(([, format]) => format);
 }
-async function read(entity, entityID, version, format) {
+async function read(entity, entityID, time, format) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
-    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}_${format.filename}`);
+    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${time}_${format.filename}`);
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
         return null;
@@ -2393,7 +2393,11 @@ var file = __webpack_require__(31);
 // EXTERNAL MODULE: ./dist/main/types/Entity.js
 var Entity = __webpack_require__(12);
 
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
+var ResourceVersionType = __webpack_require__(29);
+
 // CONCATENATED MODULE: ./dist/main/services/net-agent/for-main.js
+
 
 
 
@@ -2425,7 +2429,6 @@ async function serve() {
     });
     app.get("/query", async (req, res) => {
         const encodedSQL = req.query.sql;
-        console.log(encodedSQL);
         const sql = Buffer.from(encodedSQL, "hex").toString();
         const result = await SQL["b" /* SQL */].query(sql);
         DBObject["a" /* DBObject */].stringifyBigIntsInPlace(result);
@@ -2441,6 +2444,13 @@ async function serve() {
         const time = Number(req.query.time);
         const formats = (await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, id, time)).map(format => format.filename);
         res.send(JSON.stringify(formats));
+    });
+    app.get("/resource-version", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const time = Number(req.query.time);
+        const format = req.query.format;
+        const version = await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, id, time, new ResourceVersionType["ResourceVersionType"](format));
+        res.send(version.toString());
     });
     app.listen(PORT, () => Object(util["e" /* fancyLog */])(`Main net agent running on port ${PORT} `));
 }

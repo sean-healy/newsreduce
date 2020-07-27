@@ -1795,10 +1795,10 @@ async function findFormats(entity, entityID, time) {
         .filter(([ms,]) => ms === time)
         .map(([, format]) => format);
 }
-async function read(entity, entityID, version, format) {
+async function read(entity, entityID, time, format) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
-    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${version}_${format.filename}`);
+    const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${time}_${format.filename}`);
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
         return null;

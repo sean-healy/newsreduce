@@ -167,12 +167,12 @@ export async function findFormats(entity: Entity, entityID: bigint, time: number
 export async function read(
     entity: Entity,
     entityID: bigint,
-    version: number,
+    time: number,
     format: ResourceVersionType
 ) {
     const blobDir = await blobDirPromise();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
-    const tarPath = path.join(`${entityID}`, `${version}_${format.filename}`);
+    const tarPath = path.join(`${entityID}`, `${time}_${format.filename}`);
     // Ignore files that are not written yet, or that have been written too recently.
     if (!fs.existsSync(compressedArc)) return null;
     const params = [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath];

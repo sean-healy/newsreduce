@@ -4,8 +4,9 @@ import { newFilteredServer } from "./functions";
 import { fancyLog } from "common/util";
 import { SQL } from "common/SQL";
 import { DBObject } from "types/DBObject";
-import { findTimes, findFormats } from "file";
+import { findTimes, findFormats, read } from "file";
 import { Entity } from "types/Entity";
+import { ResourceVersionType } from "types/objects/ResourceVersionType";
 
 const PORT = 9999;
 
@@ -31,7 +32,6 @@ async function serve() {
     });
     app.get("/query", async (req, res) => {
         const encodedSQL = req.query.sql as string;
-        console.log(encodedSQL);
         const sql = Buffer.from(encodedSQL, "hex").toString();
         const result = await SQL.query<{ [key: string]: any }[]>(sql);
         DBObject.stringifyBigIntsInPlace(result);
@@ -47,6 +47,13 @@ async function serve() {
         const time = Number(req.query.time);
         const formats = (await findFormats(Entity.RESOURCE, id, time)).map(format => format.filename);
         res.send(JSON.stringify(formats));
+    });
+    app.get("/resource-version", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const time = Number(req.query.time);
+        const format = req.query.format as string;
+        const version = await read(Entity.RESOURCE, id, time, new ResourceVersionType(format));
+        res.send(version.toString());
     });
 
     app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT} `));
