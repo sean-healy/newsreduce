@@ -1,25 +1,8 @@
-import { DBObject } from "types/DBObject";
+import { SimpleHashObject } from "./SimpleHashObject";
 
-export class Word extends DBObject<Word> {
+export class Word extends SimpleHashObject<Word> {
     readonly value: string;
-
-    constructor(value?: string) {
-        if (value) super({ value });
-    }
-
-    hashSuffix(): string {
-        return this.value;
-    }
-    insertCols(): string[] {
-        return ["id", "value"];
-    }
-    getInsertParams(): any[] {
-        return [this.getID(), this.value];
-    }
     table(): string {
         return "Word";
-    }
-    idCol(): string {
-        return "id";
     }
 }

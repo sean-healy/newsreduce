@@ -1,5 +1,5 @@
 import { defaultHash } from "common/hashing";
-import { bytesToBigInt, fancyLog } from "common/util";
+import { bytesToBigInt } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 

@@ -43,7 +43,7 @@ export async function compress() {
             const compressedDst = path.join(entitiesDir, `${entityID}.tzst`);
             const arc = `${tmpEntityDir}.tar`
             const cwd = { cwd: tmpEntitiesDir };
-            await promises.register(async res => {
+            await promises.registerFn(async res => {
                 try {
                     if (lastChangedAfter(tmpEntityDir, SAFETY_PERIOD_MS)) {
                         fancyLog("entity modified too recently.");

@@ -1,8 +1,8 @@
 import { SimpleHashObject } from "./SimpleHashObject";
 
-export class ResourceHash extends SimpleHashObject<ResourceHash> {
+export class Title extends SimpleHashObject<Title> {
     readonly value: string;
     table(): string {
-        return "ResourceHash";
+        return "Title";
     }
 }

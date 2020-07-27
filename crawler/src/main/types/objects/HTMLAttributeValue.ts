@@ -1,17 +1,7 @@
-import { DBObject } from "types/DBObject";
+import { SimpleHashObject } from "./SimpleHashObject";
 
-export class HTMLAttributeValue extends DBObject<HTMLAttributeValue> {
+export class HTMLAttributeValue extends SimpleHashObject<HTMLAttributeValue> {
     readonly value: string;
-
-    hashSuffix(): string {
-        return this.value;
-    }
-    insertCols(): string[] {
-        return ["id", "value"];
-    }
-    getInsertParams(): any[] {
-        return [this.getID(), this.value];
-    }
     table(): string {
         return "HTMLAttributeValue";
     }

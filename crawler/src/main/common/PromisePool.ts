@@ -7,8 +7,13 @@ export class PromisePool {
         this.threads = threads;
     }
 
-    async register(fn: (res: () => void) => void) {
+    async registerFn(fn: (res: () => void) => void) {
         this.promises.push(new Promise<void>(fn));
+        if (this.promises.length === this.threads) await this.flush();
+    }
+
+    async registerPromise(promise: Promise<any>) {
+        this.promises.push(promise);
         if (this.promises.length === this.threads) await this.flush();
     }
 

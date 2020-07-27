@@ -1011,106 +1011,7 @@ const FAILURE_CACHE = "failures";
 
 
 /***/ }),
-/* 10 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-// ESM COMPAT FLAG
-__webpack_require__.r(__webpack_exports__);
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return /* binding */ ResourceVersionType_ResourceVersionType; });
-
-// EXTERNAL MODULE: ./dist/main/types/DBObject.js + 1 modules
-var DBObject = __webpack_require__(0);
-
-// CONCATENATED MODULE: ./dist/main/types/FileFormat.js
-var FileFormat;
-(function (FileFormat) {
-    FileFormat[FileFormat["RAW_HTML"] = 0] = "RAW_HTML";
-    FileFormat[FileFormat["RAW_HEADERS"] = 1] = "RAW_HEADERS";
-    FileFormat[FileFormat["RAW_WORDS_TXT"] = 2] = "RAW_WORDS_TXT";
-    FileFormat[FileFormat["RAW_LINKS_TXT"] = 3] = "RAW_LINKS_TXT";
-    FileFormat[FileFormat["WORD_HITS"] = 4] = "WORD_HITS";
-    FileFormat[FileFormat["LINK_HITS"] = 5] = "LINK_HITS";
-    FileFormat[FileFormat["UNKNOWN"] = 6] = "UNKNOWN";
-})(FileFormat || (FileFormat = {}));
-const RAW_HTML_FILE = "raw.html";
-const RAW_HEADERS_FILE = "headers.txt";
-const RAW_WORDS_TXT_FILE = "raw-words.txt";
-const RAW_LINKS_TXT_FILE = "raw-links.txt";
-const WORD_HITS_FILE = "word-hits.bin";
-const LINK_HITS_FILE = "link-hits.bin";
-function formatToFileName(format) {
-    switch (format) {
-        case FileFormat.RAW_HTML: return RAW_HTML_FILE;
-        case FileFormat.RAW_HEADERS: return RAW_HEADERS_FILE;
-        case FileFormat.RAW_WORDS_TXT: return RAW_WORDS_TXT_FILE;
-        case FileFormat.RAW_LINKS_TXT: return RAW_LINKS_TXT_FILE;
-        case FileFormat.WORD_HITS: return WORD_HITS_FILE;
-        case FileFormat.LINK_HITS: return LINK_HITS_FILE;
-        default: throw `format not handled: ${format}`;
-    }
-}
-function fileNameToFormat(fileName) {
-    switch (fileName) {
-        case RAW_HTML_FILE: return FileFormat.RAW_HTML;
-        case RAW_HEADERS_FILE: return FileFormat.RAW_HEADERS;
-        case RAW_WORDS_TXT_FILE: return FileFormat.RAW_WORDS_TXT;
-        case RAW_LINKS_TXT_FILE: return FileFormat.RAW_LINKS_TXT;
-        case WORD_HITS_FILE: return FileFormat.WORD_HITS;
-        case LINK_HITS_FILE: return FileFormat.LINK_HITS;
-        default: return FileFormat.UNKNOWN;
-    }
-}
-
-// CONCATENATED MODULE: ./dist/main/types/objects/ResourceVersionType.js
-
-
-class ResourceVersionType_ResourceVersionType extends DBObject["a" /* DBObject */] {
-    constructor(arg) {
-        if (!arg)
-            super();
-        else if (typeof arg === "string")
-            super({ filename: arg });
-        else
-            super(arg);
-    }
-    insertCols() {
-        return ["id", "filename"];
-    }
-    getInsertParams() {
-        const params = [this.getID(), this.filename];
-        return params;
-    }
-    table() {
-        return "ResourceVersionType";
-    }
-    hashSuffix() {
-        return this.filename;
-    }
-}
-ResourceVersionType_ResourceVersionType.RAW_HTML = new ResourceVersionType_ResourceVersionType({
-    filename: RAW_HTML_FILE,
-});
-ResourceVersionType_ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType_ResourceVersionType({
-    filename: RAW_WORDS_TXT_FILE,
-});
-ResourceVersionType_ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType_ResourceVersionType({
-    filename: RAW_LINKS_TXT_FILE,
-});
-ResourceVersionType_ResourceVersionType.WORD_HITS = new ResourceVersionType_ResourceVersionType({
-    filename: WORD_HITS_FILE,
-});
-ResourceVersionType_ResourceVersionType.LINK_HITS = new ResourceVersionType_ResourceVersionType({
-    filename: LINK_HITS_FILE,
-});
-ResourceVersionType_ResourceVersionType.RAW_HEADERS = new ResourceVersionType_ResourceVersionType({
-    filename: RAW_HEADERS_FILE,
-});
-
-
-/***/ }),
+/* 10 */,
 /* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1429,18 +1330,9 @@ class Host extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceURLPath", function() { return ResourceURLPath; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class ResourceURLPath extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class ResourceURLPath extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "ResourceURLPath";
     }
@@ -1454,28 +1346,9 @@ class ResourceURLPath extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceURLQuery", function() { return ResourceURLQuery; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class ResourceURLQuery extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(arg) {
-        if (typeof arg === "string") {
-            super({
-                value: arg,
-            });
-        }
-        else {
-            super(arg);
-        }
-    }
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class ResourceURLQuery extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "ResourceURLQuery";
     }
@@ -1520,24 +1393,9 @@ module.exports = require("dns");
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceHash", function() { return ResourceHash; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class ResourceHash extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(value) {
-        if (value)
-            super({ value });
-        else
-            super();
-    }
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class ResourceHash extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "ResourceHash";
     }
@@ -1595,18 +1453,9 @@ class ResourceLink extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HTTPHeaderName", function() { return HTTPHeaderName; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class HTTPHeaderName extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class HTTPHeaderName extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "HTTPHeaderName";
     }
@@ -1620,31 +1469,9 @@ class HTTPHeaderName extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBOb
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HTTPHeaderValue", function() { return HTTPHeaderValue; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class HTTPHeaderValue extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(arg) {
-        if (arg === null || arg === undefined)
-            super();
-        else if (typeof arg === "string")
-            super({ value: arg });
-        else {
-            const { value } = arg;
-            if (value)
-                super({ value });
-            else
-                throw new Error("value can't be falsey");
-        }
-    }
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class HTTPHeaderValue extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "HTTPHeaderValue";
     }
@@ -1689,7 +1516,75 @@ class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBO
 
 
 /***/ }),
-/* 29 */,
+/* 29 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_HTML_FILE", function() { return RAW_HTML_FILE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_HEADERS_FILE", function() { return RAW_HEADERS_FILE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_WORDS_TXT_FILE", function() { return RAW_WORDS_TXT_FILE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RAW_LINKS_TXT_FILE", function() { return RAW_LINKS_TXT_FILE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WORD_HITS_FILE", function() { return WORD_HITS_FILE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LINK_HITS_FILE", function() { return LINK_HITS_FILE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TITLE_FILE", function() { return TITLE_FILE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return ResourceVersionType; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
+const RAW_HTML_FILE = "raw.html";
+const RAW_HEADERS_FILE = "headers.txt";
+const RAW_WORDS_TXT_FILE = "raw-words.txt";
+const RAW_LINKS_TXT_FILE = "raw-links.txt";
+const WORD_HITS_FILE = "word-hits.bin";
+const LINK_HITS_FILE = "link-hits.bin";
+const TITLE_FILE = "title.txt";
+class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(arg) {
+        if (!arg)
+            super();
+        else if (typeof arg === "string")
+            super({ filename: arg });
+        else
+            super(arg);
+    }
+    insertCols() {
+        return ["id", "filename"];
+    }
+    getInsertParams() {
+        const params = [this.getID(), this.filename];
+        return params;
+    }
+    table() {
+        return "ResourceVersionType";
+    }
+    hashSuffix() {
+        return this.filename;
+    }
+}
+ResourceVersionType.RAW_HTML = new ResourceVersionType({
+    filename: RAW_HTML_FILE,
+});
+ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType({
+    filename: RAW_WORDS_TXT_FILE,
+});
+ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType({
+    filename: RAW_LINKS_TXT_FILE,
+});
+ResourceVersionType.WORD_HITS = new ResourceVersionType({
+    filename: WORD_HITS_FILE,
+});
+ResourceVersionType.LINK_HITS = new ResourceVersionType({
+    filename: LINK_HITS_FILE,
+});
+ResourceVersionType.RAW_HEADERS = new ResourceVersionType({
+    filename: RAW_HEADERS_FILE,
+});
+ResourceVersionType.TITLE = new ResourceVersionType({
+    filename: TITLE_FILE,
+});
+
+
+/***/ }),
 /* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1740,7 +1635,7 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(12);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(1);
-/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(10);
+/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(29);
 
 
 
@@ -2055,27 +1950,11 @@ class WikiPage extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject *
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Word", function() { return Word; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class Word extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(value) {
-        if (value)
-            super({ value });
-    }
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class Word extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "Word";
-    }
-    idCol() {
-        return "id";
     }
 }
 
@@ -2134,18 +2013,9 @@ class HTMLAttribute extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObj
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HTMLAttributeName", function() { return HTMLAttributeName; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class HTMLAttributeName extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class HTMLAttributeName extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "HTMLAttributeName";
     }
@@ -2159,18 +2029,9 @@ class HTMLAttributeName extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* D
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HTMLAttributeValue", function() { return HTMLAttributeValue; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class HTMLAttributeValue extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class HTMLAttributeValue extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "HTMLAttributeValue";
     }
@@ -2236,18 +2097,9 @@ class HTMLNodeAttribute extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* D
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HTMLTag", function() { return HTMLTag; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 
-class HTMLTag extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashSuffix() {
-        return this.value;
-    }
-    insertCols() {
-        return ["id", "value"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.value];
-    }
+class HTMLTag extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
     table() {
         return "HTMLTag";
     }
@@ -2448,6 +2300,8 @@ var map = {
 	"./ResourceLinkHash.js": 33,
 	"./ResourceThrottle": 44,
 	"./ResourceThrottle.js": 44,
+	"./ResourceTitle": 61,
+	"./ResourceTitle.js": 61,
 	"./ResourceURL": 7,
 	"./ResourceURL.js": 7,
 	"./ResourceURLPath": 18,
@@ -2456,8 +2310,12 @@ var map = {
 	"./ResourceURLQuery.js": 19,
 	"./ResourceVersion": 28,
 	"./ResourceVersion.js": 28,
-	"./ResourceVersionType": 10,
-	"./ResourceVersionType.js": 10,
+	"./ResourceVersionType": 29,
+	"./ResourceVersionType.js": 29,
+	"./SimpleHashObject": 63,
+	"./SimpleHashObject.js": 63,
+	"./Title": 62,
+	"./Title.js": 62,
 	"./WikiCategory": 30,
 	"./WikiCategory.js": 30,
 	"./WikiPage": 34,
@@ -2561,22 +2419,8 @@ var util = __webpack_require__(1);
 // EXTERNAL MODULE: ./dist/main/file.js
 var file = __webpack_require__(31);
 
-// CONCATENATED MODULE: ./dist/main/common/PromisePool.js
-class PromisePool {
-    constructor(threads) {
-        this.promises = [];
-        this.threads = threads;
-    }
-    async register(fn) {
-        this.promises.push(new Promise(fn));
-        if (this.promises.length === this.threads)
-            await this.flush();
-    }
-    async flush() {
-        await Promise.all(this.promises);
-        this.promises = [];
-    }
-}
+// EXTERNAL MODULE: ./dist/main/common/PromisePool.js
+var PromisePool = __webpack_require__(64);
 
 // CONCATENATED MODULE: ./dist/main/services/compressor/functions.js
 
@@ -2604,7 +2448,7 @@ async function compress() {
     const tmpDir = await Object(config["j" /* tmpDirPromise */])();
     const blobDir = await Object(config["f" /* blobDirPromise */])();
     const entities = external_fs_default.a.readdirSync(tmpDir);
-    const promises = new PromisePool(50);
+    const promises = new PromisePool["a" /* PromisePool */](50);
     let newArcs = 0;
     let oldArcs = 0;
     for (const entity of entities) {
@@ -2623,7 +2467,7 @@ async function compress() {
             const compressedDst = external_path_default.a.join(entitiesDir, `${entityID}.tzst`);
             const arc = `${tmpEntityDir}.tar`;
             const cwd = { cwd: tmpEntitiesDir };
-            await promises.register(async (res) => {
+            await promises.registerFn(async (res) => {
                 try {
                     if (Object(file["b" /* lastChangedAfter */])(tmpEntityDir, SAFETY_PERIOD_MS)) {
                         Object(util["e" /* fancyLog */])("entity modified too recently.");
@@ -2732,18 +2576,88 @@ Object(processor["b" /* startProcessor */])(compress, null, events["d" /* COMPRE
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Anchor", function() { return Anchor; });
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
+
+class Anchor extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
+    table() {
+        return "Anchor";
+    }
+}
+
+
+/***/ }),
+/* 61 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceTitle", function() { return ResourceTitle; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var _Title__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(62);
+
+
+
+class ResourceTitle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(urlOrObject, title) {
+        if (urlOrObject === null || urlOrObject === undefined)
+            super();
+        else if (typeof urlOrObject === "string")
+            super({
+                resource: new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](urlOrObject),
+                title: new _Title__WEBPACK_IMPORTED_MODULE_2__["Title"](title),
+            });
+        else
+            super(urlOrObject);
+    }
+    insertCols() {
+        return ["resource", "title"];
+    }
+    getInsertParams() {
+        return [this.resource.getID(), this.title.getID()];
+    }
+    table() {
+        return "ResourceTitle";
+    }
+    getDeps() {
+        return [this.resource, this.title];
+    }
+}
+
+
+/***/ }),
+/* 62 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Title", function() { return Title; });
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
+
+class Title extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
+    table() {
+        return "Title";
+    }
+}
+
+
+/***/ }),
+/* 63 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SimpleHashObject", function() { return SimpleHashObject; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 
-class Anchor extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+class SimpleHashObject extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     constructor(arg) {
         if (arg === null || arg === undefined)
             super();
         else if (typeof arg === "string")
             super({ value: arg });
-        else {
-            const { value } = arg;
-            super({ value });
-        }
+        else
+            super(arg);
     }
     hashSuffix() {
         return this.value;
@@ -2754,8 +2668,33 @@ class Anchor extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ 
     getInsertParams() {
         return [this.getID(), this.value];
     }
-    table() {
-        return "Anchor";
+}
+
+
+/***/ }),
+/* 64 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PromisePool; });
+class PromisePool {
+    constructor(threads) {
+        this.promises = [];
+        this.threads = threads;
+    }
+    async registerFn(fn) {
+        this.promises.push(new Promise(fn));
+        if (this.promises.length === this.threads)
+            await this.flush();
+    }
+    async registerPromise(promise) {
+        this.promises.push(promise);
+        if (this.promises.length === this.threads)
+            await this.flush();
+    }
+    async flush() {
+        await Promise.all(this.promises);
+        this.promises = [];
     }
 }
 

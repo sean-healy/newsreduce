@@ -1,6 +1,5 @@
 import { JSDOM, DOMWindow } from "jsdom";
 import { read, findFormats } from "file";
-import { FileFormat } from "types/FileFormat";
 import { Entity } from "types/Entity";
 import { ExtractHits } from "./ExtractHits";
 import { ExtractAHrefs } from "services/html-processor/ExtractAHrefs";
@@ -11,10 +10,12 @@ import { selectResourcesNotProcessed } from "data";
 import { fancyLog } from "common/util";
 import { SAFELY_EXIT } from "common/processor";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { ExtractTitle } from "./ExtractTitle";
+import { PromisePool } from "common/PromisePool";
 const PROCESSORS: HTMLDocumentProcessor[] =
-    [new ExtractAHrefs(), new ExtractWikiTree(), new ExtractRawText(), new ExtractHits()];
+    [new ExtractAHrefs(), new ExtractTitle(), new ExtractWikiTree(), new ExtractRawText(), new ExtractHits()];
 
-export async function processURL(resource: bigint, url: string, time: number) {
+export async function processURL(resource: bigint, url: string, time: number, pool: PromisePool) {
     let formats: ResourceVersionType[];
     try {
         formats = await findFormats(Entity.RESOURCE, resource, time);
@@ -38,19 +39,19 @@ export async function processURL(resource: bigint, url: string, time: number) {
                 console.log(`${time} ${url}`);
                 let window: DOMWindow;
                 let reDOM = true;
-                const promises: Promise<any>[] = [];
                 for (const processor of PROCESSORS) {
                     if (reDOM) window = new JSDOM(content, { url }).window;
-                    promises.push(processor.apply(window, time));
+                    await pool.registerPromise(processor.apply(window, time));
                     reDOM = processor.ro();
                 }
-                await Promise.all(promises);
             }
         }
     }
 }
 
 export async function process() {
+    const pool = new PromisePool(50);
     for (const row of await selectResourcesNotProcessed())
-        await processURL(row.resource, row.url, row.time);
+        await processURL(row.resource, row.url, row.time, pool);
+    pool.flush();
 }

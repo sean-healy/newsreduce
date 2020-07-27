@@ -1,28 +1,7 @@
-import { DBObject } from "types/DBObject";
+import { SimpleHashObject } from "./SimpleHashObject";
 
-export class HTTPHeaderValue extends DBObject<HTTPHeaderValue> {
+export class HTTPHeaderValue extends SimpleHashObject<HTTPHeaderValue> {
     readonly value: string;
-
-    constructor(arg: string | { [key in keyof HTTPHeaderValue]?: HTTPHeaderValue[key] }) {
-        if (arg === null || arg === undefined) super();
-        else if (typeof arg === "string")
-            super({ value: arg });
-        else {
-            const { value } = arg;
-            if (value) super({ value });
-            else throw new Error("value can't be falsey");
-        }
-    }
-
-    hashSuffix(): string {
-        return this.value;
-    }
-    insertCols(): string[] {
-        return ["id", "value"];
-    }
-    getInsertParams(): any[] {
-        return [this.getID(), this.value];
-    }
     table(): string {
         return "HTTPHeaderValue";
     }

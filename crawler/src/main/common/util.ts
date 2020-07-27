@@ -167,3 +167,5 @@ export function sleep(ms: number) {
         setTimeout(res, ms);
     });
 }
+
+export type ConstructorArg0<T> = { [key in keyof T]?: T[key] };

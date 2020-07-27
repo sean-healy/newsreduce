@@ -1,17 +1,7 @@
-import { DBObject } from "types/DBObject";
+import { SimpleHashObject } from "./SimpleHashObject";
 
-export class HTTPHeaderName extends DBObject<HTTPHeaderName> {
+export class HTTPHeaderName extends SimpleHashObject<HTTPHeaderName> {
     readonly value: string;
-
-    hashSuffix(): string {
-        return this.value;
-    }
-    insertCols(): string[] {
-        return ["id", "value"];
-    }
-    getInsertParams(): any[] {
-        return [this.getID(), this.value];
-    }
     table(): string {
         return "HTTPHeaderName";
     }
