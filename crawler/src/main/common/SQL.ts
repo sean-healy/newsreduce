@@ -69,7 +69,7 @@ export class SQL {
 
         return [] as any as T;
     }
-    static async query<T>(template: string, params: any[]) {
+    static async query<T>(template: string, params: any[] = []) {
         return this.tryLoop<T>((res, rej) => {
             SQL.db().then(db => {
                 db.query(template, params, (err, results: T) => {

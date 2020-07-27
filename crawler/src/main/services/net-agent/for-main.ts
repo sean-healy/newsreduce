@@ -2,6 +2,8 @@ import fs from "fs";
 import { log } from "common/logging";
 import { newFilteredServer } from "./functions";
 import { fancyLog } from "common/util";
+import { SQL } from "common/SQL";
+import { DBObject } from "types/DBObject";
 
 const PORT = 9999;
 
@@ -25,11 +27,13 @@ async function serve() {
         log(`Request SSH public key info for ${req.ip}.`);
         res.send(fs.readFileSync("/var/newsreduce/.ssh/id_rsa.pub"));
     });
-    app.get("/query", (req, res) => {
+    app.get("/query", async (req, res) => {
         const encodedSQL = req.query.sql as string;
         console.log(encodedSQL);
         const sql = Buffer.from(encodedSQL, "hex").toString();
-        res.send(sql);
+        const result = await SQL.query<{ [key: string]: any }[]>(sql);
+        DBObject.stringifyBigIntsInPlace(result);
+        res.send(JSON.stringify(result));
     });
 
     app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT} `));

@@ -1096,7 +1096,7 @@ class SQL {
         }
         return [];
     }
-    static async query(template, params) {
+    static async query(template, params = []) {
         return this.tryLoop((res, rej) => {
             SQL.db().then(db => {
                 db.query(template, params, (err, results) => {
