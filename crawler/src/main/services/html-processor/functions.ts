@@ -45,9 +45,9 @@ let a: number;
 export async function processURL(resource: bigint, url: string, time: number, pool: PromisePool) {
     let formats: ResourceVersionType[];
     try {
-        a = Date.now();
+        //a = Date.now();
         formats = await findFormats(Entity.RESOURCE, resource, time);
-        updateMean("findFormats", a);
+        //updateMean("findFormats", a);
     } catch (e) {
         fancyLog("error while listing formats");
         fancyLog(JSON.stringify(e));
@@ -57,28 +57,27 @@ export async function processURL(resource: bigint, url: string, time: number, po
         if (format.filename === ResourceVersionType.RAW_HTML.filename) {
             let content: Buffer;
             try {
-                a = Date.now();
+                //a = Date.now();
                 content = await read(Entity.RESOURCE, resource, time, ResourceVersionType.RAW_HTML);
-                updateMean("read", a);
+                //updateMean("read", a);
             } catch (e) {
                 fancyLog("error while reading file");
                 fancyLog(JSON.stringify(e));
                 SAFELY_EXIT[0] = true;
             }
             if (content) {
-                //console.log(`${time} ${url}`);
+                console.log(`${time} ${url}`);
                 let window: DOMWindow;
                 let reDOM = true;
                 for (const processor of PROCESSORS) {
                     if (reDOM) {
-                        a = Date.now();
+                        //a = Date.now();
                         window = new JSDOM(content, { url }).window;
-                        updateMean("redom", a);
+                        //updateMean("redom", a);
                     }
-                    //const name = (processor as any).__proto__.constructor.name;
-                    a = Date.now();
+                    //a = Date.now();
                     await pool.registerPromise(processor.apply(window, time));
-                    updateMean("promises", a);
+                    //updateMean("promises", a);
                     reDOM = !processor.ro();
                 }
             }

@@ -3259,9 +3259,9 @@ let a;
 async function processURL(resource, url, time, pool) {
     let formats;
     try {
-        a = Date.now();
+        //a = Date.now();
         formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
-        updateMean("findFormats", a);
+        //updateMean("findFormats", a);
     }
     catch (e) {
         Object(util["e" /* fancyLog */])("error while listing formats");
@@ -3272,9 +3272,9 @@ async function processURL(resource, url, time, pool) {
         if (format.filename === ResourceVersionType["ResourceVersionType"].RAW_HTML.filename) {
             let content;
             try {
-                a = Date.now();
+                //a = Date.now();
                 content = await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, ResourceVersionType["ResourceVersionType"].RAW_HTML);
-                updateMean("read", a);
+                //updateMean("read", a);
             }
             catch (e) {
                 Object(util["e" /* fancyLog */])("error while reading file");
@@ -3282,19 +3282,18 @@ async function processURL(resource, url, time, pool) {
                 common_processor["a" /* SAFELY_EXIT */][0] = true;
             }
             if (content) {
-                //console.log(`${time} ${url}`);
+                console.log(`${time} ${url}`);
                 let window;
                 let reDOM = true;
                 for (const processor of PROCESSORS) {
                     if (reDOM) {
-                        a = Date.now();
+                        //a = Date.now();
                         window = new external_jsdom_["JSDOM"](content, { url }).window;
-                        updateMean("redom", a);
+                        //updateMean("redom", a);
                     }
-                    //const name = (processor as any).__proto__.constructor.name;
-                    a = Date.now();
+                    //a = Date.now();
                     await pool.registerPromise(processor.apply(window, time));
-                    updateMean("promises", a);
+                    //updateMean("promises", a);
                     reDOM = !processor.ro();
                 }
             }
