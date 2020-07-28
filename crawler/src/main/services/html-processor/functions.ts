@@ -84,9 +84,6 @@ export async function process(lo: () => bigint, hi: () => bigint) {
     const rows = await selectResourcesNotProcessed();
     for (const row of rows) {
         const id = row.resource;
-        console.log(row);
-        console.log(lo());
-        console.log(hi());
         if (id >= lo() && id < hi())
             await processURL(id, row.url, row.time, pool);
     }
