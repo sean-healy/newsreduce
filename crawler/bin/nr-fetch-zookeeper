@@ -748,7 +748,7 @@ function start(birthLog, deathLog, idBytes) {
     const deathsSub = _Redis__WEBPACK_IMPORTED_MODULE_0__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_0__[/* REDIS_PARAMS */ "a"].local);
     deathsSub.client.subscribe(deathLog);
     deathsSub.client.on("message", (_, id) => retireWorker(id));
-    setInterval(() => {
+    Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* setImmediateInterval */ "g"])(() => {
         const now = Date.now();
         const toRetire = [];
         for (const [id, lastCheckup] of dob)
@@ -756,7 +756,7 @@ function start(birthLog, deathLog, idBytes) {
                 toRetire.push(id);
         if (toRetire.length !== 0)
             retireWorkers(toRetire);
-    }, 1000);
+    }, 10000);
     Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
 }
 

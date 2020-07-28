@@ -1,5 +1,5 @@
 import { Redis, REDIS_PARAMS } from "./Redis";
-import { fancyLog } from "./util";
+import { fancyLog, setImmediateInterval } from "./util";
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1)
@@ -42,13 +42,13 @@ export function start(birthLog: string, deathLog: string, idBytes: number) {
     deathsSub.client.subscribe(deathLog);
     deathsSub.client.on("message", (_, id) => retireWorker(id));
 
-    setInterval(() => {
+    setImmediateInterval(() => {
         const now = Date.now();
         const toRetire = [];
         for (const [id, lastCheckup] of dob)
             if (now - lastCheckup > 1000) toRetire.push(id);
         if (toRetire.length !== 0)
             retireWorkers(toRetire);
-    }, 1000);
+    }, 10000);
     fancyLog(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
 }
