@@ -35,7 +35,7 @@ function updateMean(task: string, a: number) {
     const time = b - a;
     if (task in means) {
         const [count, mean] = means[task];
-        means[task] = [count + 1, (count * mean + time) / count + 1];
+        means[task] = [count + 1, (count * mean + time) / (count + 1)];
     } else
         means[task] = [1, time];
     printMeans();
