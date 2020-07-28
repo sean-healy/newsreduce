@@ -45,3 +45,4 @@ systemctl restart mysql
 chown newsreduce:newsreduce /var/newsreduce/sql_password
 chown newsreduce:newsreduce /var/newsreduce/network
 chown newsreduce:newsreduce /var/newsreduce
+nr-net-agent
