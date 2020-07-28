@@ -120,15 +120,9 @@ export function App(props: Props) {
         formats: null,
         version: null,
     } as State);
-    console.log(state);
     if (state.breadcrumbs[2] && !state.version && formatPath(state.path)) toFormat(state.breadcrumbs[2], state, setState);
     else if (state.breadcrumbs[1] && !state.formats && timePath(state.path)) toTime(state.breadcrumbs[1], state, setState);
     else if (state.breadcrumbs[0] && !state.times && resourcePath(state.path)) toResource(state.breadcrumbs[0], state, setState);
-    window.onhashchange = () => {
-        const nextState = { ...state, path: window.location.hash.slice(1) };
-        console.log({ nextState });
-        setState(nextState);
-    };
     return <>
         <header>
         <form onChange={e => {
@@ -155,9 +149,8 @@ export function App(props: Props) {
             else {
                 const columns = { ...state.columns };
                 nextState = { ...state, columns };
-                if (value) columns[name] = value;
+                if (value || value === false) columns[name] = value;
                 else delete columns[name];
-                console.log({state, nextState});
             }
             setState(nextState);
             const whereClauses: string[] = [];
@@ -165,7 +158,7 @@ export function App(props: Props) {
                 const value = nextState.columns[key];
                 switch (typeof value) {
                     case "boolean":
-                        whereClauses.push(`${value ? "not " : ""}\`${key}\``);
+                        whereClauses.push(`${value ? "" : "not "}\`${key}\``);
                         break;
                     case "bigint":
                     case "number":
@@ -181,7 +174,6 @@ export function App(props: Props) {
             const sql =
                 `select * from ResourceSearch${whereClause ? ` where ${whereClause}` : ""}${order ? ` order by \`${order}\`` : ""} limit ${limit} offset ${offset};`;
             const encodedSQL = Buffer.from(sql).toString("hex");
-            console.log(sql);
             fetch(`http://newsreduce.org:9999/query?sql=${encodedSQL}`)
                 .then(response => response.json())
                 .then(results => setState({ ...nextState, results }));
@@ -205,7 +197,7 @@ export function App(props: Props) {
                 <option value="path">Path</option>
                 <option value="query">Query</option>
             </select>
-            <input name="limit" placeholder="Results per page" type="number"></input>
+            <input name="limit" placeholder="Rows per pg." type="number"></input>
             <input name="page" placeholder="Page" type="number"></input>
         </form>
         <nav>
