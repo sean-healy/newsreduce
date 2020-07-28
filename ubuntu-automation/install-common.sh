@@ -74,7 +74,8 @@ mk-daemon-script compressor
 mk-daemon-script fetch-zookeeper
 mk-daemon-script fetch-worker
 mk-daemon-script schedule
-mk-daemon-script html-process
+mk-daemon-script html-process-worker
+mk-daemon-script html-process-zookeeper
 mk-daemon-script compressor
 mk-daemon-script cold-start
 ln -sf /opt/newsreduce/ubuntu-automation/install-$env.sh /usr/bin/nr-update

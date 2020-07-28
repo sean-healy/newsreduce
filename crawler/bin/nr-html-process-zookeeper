@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 64);
+/******/ 	return __webpack_require__(__webpack_require__.s = 62);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -310,13 +310,6 @@ const SYNC_LOCK = "sync-lock";
 const BULK_INSERT_COMPLETE = "bulk-insert-complete";
 const FAILURE_CACHE = "failures";
 
-
-/***/ }),
-
-/***/ 13:
-/***/ (function(module, exports) {
-
-module.exports = require("crypto");
 
 /***/ }),
 
@@ -704,6 +697,72 @@ async function getParams() {
 
 /***/ }),
 
+/***/ 55:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return start; });
+/* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(0);
+
+
+const ZERO = BigInt(0);
+const ONE = BigInt(1);
+function start(birthLog, deathLog, idBytes) {
+    const MAX_ID = (ONE << BigInt(8 * idBytes));
+    let dob = new Map();
+    function sourceWorker(id) {
+        const old = dob.has(id);
+        dob.set(id, Date.now());
+        if (!old)
+            Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`new worker: ${id}`);
+        reAssemble();
+    }
+    function retireWorker(id) {
+        Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`retire worker ${id}`);
+        dob.delete(id);
+        reAssemble();
+    }
+    function retireWorkers(ids) {
+        Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`retire workers: ${JSON.stringify(ids)}`);
+        for (const id of ids)
+            dob.delete(id);
+        reAssemble();
+    }
+    function reAssemble() {
+        if (dob.size === 0)
+            return;
+        const idsPerWorker = MAX_ID / BigInt(dob.size);
+        let lo = ZERO;
+        for (const [id,] of dob) {
+            let hi = lo + idsPerWorker;
+            if (hi + idsPerWorker > MAX_ID)
+                hi = MAX_ID;
+            _Redis__WEBPACK_IMPORTED_MODULE_0__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_0__[/* REDIS_PARAMS */ "a"].local).publish(id, `${lo} ${hi}`);
+            lo += idsPerWorker;
+        }
+    }
+    const birthsSub = _Redis__WEBPACK_IMPORTED_MODULE_0__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_0__[/* REDIS_PARAMS */ "a"].local);
+    birthsSub.client.subscribe(birthLog);
+    birthsSub.client.on("message", (_, id) => sourceWorker(id));
+    const deathsSub = _Redis__WEBPACK_IMPORTED_MODULE_0__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_0__[/* REDIS_PARAMS */ "a"].local);
+    deathsSub.client.subscribe(deathLog);
+    deathsSub.client.on("message", (_, id) => retireWorker(id));
+    setInterval(() => {
+        const now = Date.now();
+        const toRetire = [];
+        for (const [id, lastCheckup] of dob)
+            if (now - lastCheckup > 1000)
+                toRetire.push(id);
+        if (toRetire.length !== 0)
+            retireWorkers(toRetire);
+    }, 1000);
+    Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
+}
+
+
+/***/ }),
+
 /***/ 6:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -727,61 +786,16 @@ async function log(...args) {
 
 /***/ }),
 
-/***/ 64:
+/***/ 62:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(13);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(2);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(0);
+/* harmony import */ var common_zookeeper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(55);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(12);
 
 
-
-
-
-
-
-async function watch() {
-    const client = common_Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newSub(common_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].local);
-    client.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_3__[/* DELETE_FILES */ "e"]);
-    Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])("Subscribed to channel: " + common_events__WEBPACK_IMPORTED_MODULE_3__[/* DELETE_FILES */ "e"]);
-    client.client.on("message", async (_, msg) => {
-        if (!msg) {
-            Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])("ERR: empty message");
-            return;
-        }
-        const lines = msg.split("\n").map(line => line.split(/\s+/, 2));
-        for (const [expectedChecksum, suffix] of lines) {
-            const cwd = await Object(common_config__WEBPACK_IMPORTED_MODULE_2__[/* tmpDirPromise */ "j"])();
-            const file = path__WEBPACK_IMPORTED_MODULE_0___default.a.join(cwd, suffix);
-            if (!fs__WEBPACK_IMPORTED_MODULE_4___default.a.existsSync(file)) {
-                Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])(`file already deleted: ${file}`);
-                continue;
-            }
-            const content = fs__WEBPACK_IMPORTED_MODULE_4___default.a.readFileSync(file);
-            const actualChecksum = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.createHash("md5").update(content).digest().toString("hex");
-            if (expectedChecksum === actualChecksum) {
-                Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])("Removing file: " + file);
-                fs__WEBPACK_IMPORTED_MODULE_4___default.a.unlink(file, err => {
-                    if (err)
-                        Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])(JSON.stringify(err));
-                });
-            }
-            else {
-                Object(common_util__WEBPACK_IMPORTED_MODULE_6__[/* fancyLog */ "e"])(`checksum mismatch ${actualChecksum} != ${expectedChecksum}`);
-            }
-        }
-    });
-}
-watch();
+Object(common_zookeeper__WEBPACK_IMPORTED_MODULE_0__[/* start */ "a"])(common_events__WEBPACK_IMPORTED_MODULE_1__[/* HTML_PROCESS_BIRTH_LOG */ "k"], common_events__WEBPACK_IMPORTED_MODULE_1__[/* HTML_PROCESS_DEATH_LOG */ "m"], 8);
 
 
 /***/ }),

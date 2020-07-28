@@ -5,7 +5,7 @@ const ZERO = BigInt(0);
 const ONE = BigInt(1)
 
 export function start(birthLog: string, deathLog: string, idBytes: number) {
-    const MAX_ID = (ONE << BigInt(12 * idBytes));
+    const MAX_ID = (ONE << BigInt(8 * idBytes));
     let dob = new Map<string, number>();
 
     function sourceWorker(id: string) {

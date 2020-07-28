@@ -41,7 +41,7 @@ function updateMean(task: string, a: number) {
     printMeans();
 }
 
-let a: number;
+//let a: number;
 export async function processURL(resource: bigint, url: string, time: number, pool: PromisePool) {
     let formats: ResourceVersionType[];
     try {
@@ -57,9 +57,7 @@ export async function processURL(resource: bigint, url: string, time: number, po
         if (format.filename === ResourceVersionType.RAW_HTML.filename) {
             let content: Buffer;
             try {
-                //a = Date.now();
                 content = await read(Entity.RESOURCE, resource, time, ResourceVersionType.RAW_HTML);
-                //updateMean("read", a);
             } catch (e) {
                 fancyLog("error while reading file");
                 fancyLog(JSON.stringify(e));
@@ -71,13 +69,9 @@ export async function processURL(resource: bigint, url: string, time: number, po
                 let reDOM = true;
                 for (const processor of PROCESSORS) {
                     if (reDOM) {
-                        //a = Date.now();
                         window = new JSDOM(content, { url }).window;
-                        //updateMean("redom", a);
                     }
-                    //a = Date.now();
                     await pool.registerPromise(processor.apply(window, time));
-                    //updateMean("promises", a);
                     reDOM = !processor.ro();
                 }
             }
@@ -85,10 +79,13 @@ export async function processURL(resource: bigint, url: string, time: number, po
     }
 }
 
-export async function process() {
+export async function process(lo: () => bigint, hi: () => bigint) {
     const pool = new PromisePool(50);
     const rows = await selectResourcesNotProcessed();
-    for (const row of rows)
-        await processURL(row.resource, row.url, row.time, pool);
+    for (const row of rows) {
+        const id = row.resource;
+        if (id >= lo() && id < hi())
+            await processURL(id, row.url, row.time, pool);
+    }
     pool.flush();
 }

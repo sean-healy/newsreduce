@@ -81,12 +81,12 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 55);
+/******/ 	return __webpack_require__(__webpack_require__.s = 61);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 1:
+/***/ 0:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -262,14 +262,65 @@ function sleep(ms) {
 
 /***/ }),
 
-/***/ 13:
+/***/ 10:
+/***/ (function(module, exports) {
+
+module.exports = require("node-fetch");
+
+/***/ }),
+
+/***/ 12:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_BIRTH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return HTML_PROCESS_DEATH_LOG; });
+/* unused harmony export NET_AGENT_LOG */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return SCHEDULE_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
+/* unused harmony export WIKI_PROCESS_COMPLETE */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return FETCH_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return HTML_PROCESS_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return COMPRESS_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
+/* unused harmony export UNLOCK_FILE */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return SYNC_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
+const EVENT_LOG = "event-log";
+const FETCHER_BIRTH_LOG = "fetcher-birth-log";
+const FETCHER_DEATH_LOG = "fetcher-death-log";
+const HTML_PROCESS_BIRTH_LOG = "html-process-birth-log";
+const HTML_PROCESS_DEATH_LOG = "html-process-death-log";
+const NET_AGENT_LOG = "net-agent-log";
+const SCHEDULE_COMPLETE = "schedule-complete";
+const COLD_START_COMPLETE = "cold-start-complete";
+const WIKI_PROCESS_COMPLETE = "wiki-process-complete";
+const FETCH_COMPLETE = "fetch-complete";
+const HTML_PROCESS_COMPLETE = "html-process-complete";
+const COMPRESS_COMPLETE = "compress-complete";
+const DELETE_FILES = "delete-files";
+const UNLOCK_FILE = "unlock-file";
+const COMPRESSOR_LOCK = "compressor-lock";
+const SYNC_LOCK = "sync-lock";
+const BULK_INSERT_COMPLETE = "bulk-insert-complete";
+const FAILURE_CACHE = "failures";
+
+
+/***/ }),
+
+/***/ 15:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
 /* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(10);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
 
 
@@ -306,11 +357,11 @@ class DNS {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return STATIC_CONNECTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return SUB_CONNECTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
-/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
+/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1);
-/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
+/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(0);
+/* harmony import */ var _logging__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(6);
 
 
 
@@ -539,44 +590,28 @@ Redis.defaultHostParams = (host) => ({
 
 /***/ }),
 
-/***/ 21:
+/***/ 3:
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ 31:
 /***/ (function(module, exports) {
 
 module.exports = require("dns");
 
 /***/ }),
 
-/***/ 26:
+/***/ 32:
 /***/ (function(module, exports) {
 
 module.exports = require("redis");
 
 /***/ }),
 
-/***/ 3:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return log; });
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-
-
-const TOGGLE = false;
-async function log(...args) {
-    if (TOGGLE) {
-        const now = Date.now();
-        const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
-        const logFile = `${varDir}/log`;
-        fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
-    }
-}
-
-
-/***/ }),
-
-/***/ 4:
+/***/ 5:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -596,13 +631,13 @@ async function log(...args) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return nullFilePromise; });
 /* unused harmony export myIP */
 /* unused harmony export getParams */
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
+/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(10);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
+/* harmony import */ var common_DNS__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(15);
 let ENV = ["prod"];
 
 
@@ -662,48 +697,34 @@ async function getParams() {
 
 /***/ }),
 
-/***/ 5:
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
-
 /***/ 55:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-// ESM COMPAT FLAG
-__webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(1);
-
-// CONCATENATED MODULE: ./dist/main/common/zookeeper.js
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return start; });
+/* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(0);
 
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1);
 function start(birthLog, deathLog, idBytes) {
-    const MAX_ID = (ONE << BigInt(12 * idBytes));
+    const MAX_ID = (ONE << BigInt(8 * idBytes));
     let dob = new Map();
     function sourceWorker(id) {
         const old = dob.has(id);
         dob.set(id, Date.now());
         if (!old)
-            Object(util["e" /* fancyLog */])(`new worker: ${id}`);
+            Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`new worker: ${id}`);
         reAssemble();
     }
     function retireWorker(id) {
-        Object(util["e" /* fancyLog */])(`retire worker ${id}`);
+        Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`retire worker ${id}`);
         dob.delete(id);
         reAssemble();
     }
     function retireWorkers(ids) {
-        Object(util["e" /* fancyLog */])(`retire workers: ${JSON.stringify(ids)}`);
+        Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`retire workers: ${JSON.stringify(ids)}`);
         for (const id of ids)
             dob.delete(id);
         reAssemble();
@@ -717,14 +738,14 @@ function start(birthLog, deathLog, idBytes) {
             let hi = lo + idsPerWorker;
             if (hi + idsPerWorker > MAX_ID)
                 hi = MAX_ID;
-            Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].local).publish(id, `${lo} ${hi}`);
+            _Redis__WEBPACK_IMPORTED_MODULE_0__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_0__[/* REDIS_PARAMS */ "a"].local).publish(id, `${lo} ${hi}`);
             lo += idsPerWorker;
         }
     }
-    const birthsSub = Redis["b" /* Redis */].newSub(Redis["a" /* REDIS_PARAMS */].local);
+    const birthsSub = _Redis__WEBPACK_IMPORTED_MODULE_0__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_0__[/* REDIS_PARAMS */ "a"].local);
     birthsSub.client.subscribe(birthLog);
     birthsSub.client.on("message", (_, id) => sourceWorker(id));
-    const deathsSub = Redis["b" /* Redis */].newSub(Redis["a" /* REDIS_PARAMS */].local);
+    const deathsSub = _Redis__WEBPACK_IMPORTED_MODULE_0__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_0__[/* REDIS_PARAMS */ "a"].local);
     deathsSub.client.subscribe(deathLog);
     deathsSub.client.on("message", (_, id) => retireWorker(id));
     setInterval(() => {
@@ -736,71 +757,53 @@ function start(birthLog, deathLog, idBytes) {
         if (toRetire.length !== 0)
             retireWorkers(toRetire);
     }, 1000);
-    Object(util["e" /* fancyLog */])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
+    Object(_util__WEBPACK_IMPORTED_MODULE_1__[/* fancyLog */ "e"])(`Zookeeper started watching events for ${birthLog} and ${deathLog}`);
 }
-
-// EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(9);
-
-// CONCATENATED MODULE: ./dist/main/services/fetcher/zookeeper.js
-
-
-start(events["h" /* FETCHER_BIRTH_LOG */], events["i" /* FETCHER_DEATH_LOG */], 8);
 
 
 /***/ }),
 
 /***/ 6:
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = require("path");
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return log; });
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+
+
+const TOGGLE = false;
+async function log(...args) {
+    if (TOGGLE) {
+        const now = Date.now();
+        const varDir = await Object(_config__WEBPACK_IMPORTED_MODULE_1__[/* varDirPromise */ "k"])();
+        const logFile = `${varDir}/log`;
+        fs__WEBPACK_IMPORTED_MODULE_0___default.a.appendFileSync(logFile, `${now}\t${args.join(" ")}\n`);
+    }
+}
+
+
+/***/ }),
+
+/***/ 61:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var common_zookeeper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(55);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(12);
+
+
+Object(common_zookeeper__WEBPACK_IMPORTED_MODULE_0__[/* start */ "a"])(common_events__WEBPACK_IMPORTED_MODULE_1__[/* FETCHER_BIRTH_LOG */ "h"], common_events__WEBPACK_IMPORTED_MODULE_1__[/* FETCHER_DEATH_LOG */ "i"], 12);
+
 
 /***/ }),
 
 /***/ 8:
 /***/ (function(module, exports) {
 
-module.exports = require("node-fetch");
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
-/* unused harmony export NET_AGENT_LOG */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
-/* unused harmony export WIKI_PROCESS_COMPLETE */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return FETCH_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return COMPRESS_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
-/* unused harmony export UNLOCK_FILE */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return SYNC_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
-const EVENT_LOG = "event-log";
-const FETCHER_BIRTH_LOG = "fetcher-birth-log";
-const FETCHER_DEATH_LOG = "fetcher-death-log";
-const NET_AGENT_LOG = "net-agent-log";
-const SCHEDULE_COMPLETE = "schedule-complete";
-const COLD_START_COMPLETE = "cold-start-complete";
-const HTML_PROCESS_COMPLETE = "html-process-complete";
-const WIKI_PROCESS_COMPLETE = "wiki-process-complete";
-const FETCH_COMPLETE = "fetch-complete";
-const COMPRESS_COMPLETE = "compress-complete";
-const DELETE_FILES = "delete-files";
-const UNLOCK_FILE = "unlock-file";
-const COMPRESSOR_LOCK = "compressor-lock";
-const SYNC_LOCK = "sync-lock";
-const BULK_INSERT_COMPLETE = "bulk-insert-complete";
-const FAILURE_CACHE = "failures";
-
+module.exports = require("path");
 
 /***/ })
 

@@ -979,12 +979,14 @@ module.exports = require("node-fetch");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
+/* unused harmony export HTML_PROCESS_BIRTH_LOG */
+/* unused harmony export HTML_PROCESS_DEATH_LOG */
 /* unused harmony export NET_AGENT_LOG */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return SCHEDULE_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
 /* unused harmony export WIKI_PROCESS_COMPLETE */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return FETCH_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return COMPRESS_COMPLETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
 /* unused harmony export UNLOCK_FILE */
@@ -995,12 +997,14 @@ module.exports = require("node-fetch");
 const EVENT_LOG = "event-log";
 const FETCHER_BIRTH_LOG = "fetcher-birth-log";
 const FETCHER_DEATH_LOG = "fetcher-death-log";
+const HTML_PROCESS_BIRTH_LOG = "html-process-birth-log";
+const HTML_PROCESS_DEATH_LOG = "html-process-death-log";
 const NET_AGENT_LOG = "net-agent-log";
 const SCHEDULE_COMPLETE = "schedule-complete";
 const COLD_START_COMPLETE = "cold-start-complete";
-const HTML_PROCESS_COMPLETE = "html-process-complete";
 const WIKI_PROCESS_COMPLETE = "wiki-process-complete";
 const FETCH_COMPLETE = "fetch-complete";
+const HTML_PROCESS_COMPLETE = "html-process-complete";
 const COMPRESS_COMPLETE = "compress-complete";
 const DELETE_FILES = "delete-files";
 const UNLOCK_FILE = "unlock-file";
@@ -3255,7 +3259,7 @@ function updateMean(task, a) {
         means[task] = [1, time];
     printMeans();
 }
-let a;
+//let a: number;
 async function processURL(resource, url, time, pool) {
     let formats;
     try {
@@ -3272,9 +3276,7 @@ async function processURL(resource, url, time, pool) {
         if (format.filename === ResourceVersionType["ResourceVersionType"].RAW_HTML.filename) {
             let content;
             try {
-                //a = Date.now();
                 content = await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, ResourceVersionType["ResourceVersionType"].RAW_HTML);
-                //updateMean("read", a);
             }
             catch (e) {
                 Object(util["e" /* fancyLog */])("error while reading file");
@@ -3287,24 +3289,23 @@ async function processURL(resource, url, time, pool) {
                 let reDOM = true;
                 for (const processor of PROCESSORS) {
                     if (reDOM) {
-                        //a = Date.now();
                         window = new external_jsdom_["JSDOM"](content, { url }).window;
-                        //updateMean("redom", a);
                     }
-                    //a = Date.now();
                     await pool.registerPromise(processor.apply(window, time));
-                    //updateMean("promises", a);
                     reDOM = !processor.ro();
                 }
             }
         }
     }
 }
-async function process() {
+async function process(lo, hi) {
     const pool = new PromisePool["a" /* PromisePool */](50);
     const rows = await Object(data["c" /* selectResourcesNotProcessed */])();
-    for (const row of rows)
-        await processURL(row.resource, row.url, row.time, pool);
+    for (const row of rows) {
+        const id = row.resource;
+        if (id >= lo() && id < hi())
+            await processURL(id, row.url, row.time, pool);
+    }
     pool.flush();
 }
 

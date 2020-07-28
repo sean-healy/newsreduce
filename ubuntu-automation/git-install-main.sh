@@ -42,9 +42,6 @@ END
 
 apt -y autoremove
 systemctl restart mysql
-nr-net-agent
-nr-inserter
-nr-schedule
 chown newsreduce:newsreduce /var/newsreduce/sql_password
 chown newsreduce:newsreduce /var/newsreduce/network
 chown newsreduce:newsreduce /var/newsreduce
