@@ -79,7 +79,7 @@ export async function processURL(resource: bigint, url: string, time: number, po
                     a = Date.now();
                     await pool.registerPromise(processor.apply(window, time));
                     updateMean("promises", a);
-                    reDOM = processor.ro();
+                    reDOM = !processor.ro();
                 }
             }
         }

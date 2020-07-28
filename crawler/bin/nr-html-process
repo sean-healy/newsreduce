@@ -3295,7 +3295,7 @@ async function processURL(resource, url, time, pool) {
                     a = Date.now();
                     await pool.registerPromise(processor.apply(window, time));
                     updateMean("promises", a);
-                    reDOM = processor.ro();
+                    reDOM = !processor.ro();
                 }
             }
         }
