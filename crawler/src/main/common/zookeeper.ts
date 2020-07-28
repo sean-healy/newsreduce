@@ -46,7 +46,7 @@ export function start(birthLog: string, deathLog: string, idBytes: number) {
         const now = Date.now();
         const toRetire = [];
         for (const [id, lastCheckup] of dob)
-            if (now - lastCheckup > 1000) toRetire.push(id);
+            if (now - lastCheckup > 10000) toRetire.push(id);
         if (toRetire.length !== 0)
             retireWorkers(toRetire);
     }, 10000);
