@@ -3471,9 +3471,12 @@ function getBagOfWords(window) {
     for (const item of queryItems)
         item.parentNode.removeChild(item);
     const bag = new BagOfWords_BagOfWords();
-    for (const item of queryItems)
-        for (const word of wordsFromNode(item, nodeToHitType(item)))
-            bag.register(word);
+    for (const item of queryItems) {
+        const words = wordsFromNode(item, nodeToHitType(item));
+        if (words)
+            for (const word of words)
+                bag.register(word);
+    }
     return bag;
 }
 class ExtractRepresentations_ExtractRepresentations extends HTMLDocumentProcessor {

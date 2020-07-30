@@ -27,9 +27,11 @@ export function getBagOfWords(window: DOMWindow) {
     for (const item of queryItems)
         item.parentNode.removeChild(item);
     const bag = new BagOfWords();
-    for (const item of queryItems)
-        for (const word of wordsFromNode(item, nodeToHitType(item)))
+    for (const item of queryItems) {
+        const words = wordsFromNode(item, nodeToHitType(item));
+        if (words) for (const word of words)
             bag.register(word);
+    }
 
     return bag;
 }
