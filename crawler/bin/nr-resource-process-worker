@@ -3278,6 +3278,9 @@ var external_jsdom_ = __webpack_require__(64);
 // CONCATENATED MODULE: ./dist/main/services/resource-processor/DOMPool.js
 
 class DOMPool_DOMPool {
+    constructor() {
+        this.pool = new Map();
+    }
     renew(resource, time, buffer) {
         let dom;
         const id = resource.getID();

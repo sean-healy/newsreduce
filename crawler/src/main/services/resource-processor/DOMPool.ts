@@ -2,7 +2,7 @@ import { JSDOM } from "jsdom";
 import { ResourceURL } from "types/objects/ResourceURL";
 
 export class DOMPool {
-    readonly pool: Map<bigint, Map<number, JSDOM>>;
+    readonly pool: Map<bigint, Map<number, JSDOM>> = new Map();
 
     renew(resource: ResourceURL, time: number, buffer: Buffer) {
         let dom: JSDOM;
