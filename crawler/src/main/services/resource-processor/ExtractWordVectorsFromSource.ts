@@ -18,8 +18,9 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
         inputStream.pipe(outputStream);
         await new Promise<void>(res => {
             outputStream.on("close", async () => {
-                const path = (await spawnPromise(() => spawn(UNZIP, ["-l", compressedTMP])))
-                    .toString()
+                const lsOutput = (await spawnPromise(() => spawn(UNZIP, ["-l", compressedTMP]))).toString();
+                console.log(lsOutput);
+                const path = lsOutput
                     .split("\n")
                     .map(line => line.match(/[^ ]+.vec$/))
                     .filter(notNull => notNull)
@@ -45,6 +46,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 res();
             })
         });
+        console.log("Done.");
     }
     hosts() {
         return new Set(["dl.fbaipublicfiles.com"]);
