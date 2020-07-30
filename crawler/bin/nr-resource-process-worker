@@ -3851,7 +3851,7 @@ class WordVectors_WordVectors extends GenericConstructor["a" /* GenericConstruct
         }
         return s;
     }
-    toBuffer() {
+    async toBuffer() {
         const file = Object(main_file["e" /* randomBufferFile */])();
         const dst = external_fs_default.a.createWriteStream(file);
         const ids = [...this.vectors.keys()].sort(util["a" /* CMP_BIG_INT */]);
@@ -3860,7 +3860,8 @@ class WordVectors_WordVectors extends GenericConstructor["a" /* GenericConstruct
             dst.write(Object(util["k" /* writeBigUInt96BE */])(id));
             dst.write(vector.vector.value);
         }
-        dst.close();
+        dst.end();
+        await new Promise(res => dst.on("finish", res));
         return file;
     }
     static async fromPath(path) {
@@ -3939,7 +3940,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 for (const wordVector of wordVectors.vectors.values())
                     wordVector.enqueueInsert({ recursive: true });
                 console.log("enqueued inserts");
-                const tmpFile = wordVectors.toBuffer();
+                const tmpFile = await wordVectors.toBuffer();
                 console.log("created buffer", tmpFile);
                 const stream = external_fs_default.a.createReadStream(tmpFile);
                 try {

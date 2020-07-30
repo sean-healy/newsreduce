@@ -19,7 +19,7 @@ export class WordVectors extends GenericConstructor<WordVectors> {
         return s;
     }
 
-    toBuffer() {
+    async toBuffer() {
         const file = randomBufferFile();
         const dst = fs.createWriteStream(file);
         const ids = [...this.vectors.keys()].sort(CMP_BIG_INT);
@@ -28,7 +28,8 @@ export class WordVectors extends GenericConstructor<WordVectors> {
             dst.write(writeBigUInt96BE(id))
             dst.write(vector.vector.value)
         }
-        dst.close();
+        dst.end();
+        await new Promise(res => dst.on("finish", res));
 
         return file;
     }

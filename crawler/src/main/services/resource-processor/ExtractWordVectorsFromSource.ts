@@ -37,7 +37,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 for (const wordVector of wordVectors.vectors.values())
                     wordVector.enqueueInsert({ recursive: true });
                 console.log("enqueued inserts")
-                const tmpFile = wordVectors.toBuffer();
+                const tmpFile = await wordVectors.toBuffer();
                 console.log("created buffer", tmpFile);
                 const stream = fs.createReadStream(tmpFile);
                 try {
