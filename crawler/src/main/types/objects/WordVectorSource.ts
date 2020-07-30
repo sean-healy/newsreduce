@@ -16,4 +16,8 @@ export class WordVectorSource extends DBObject<WordVectorSource> {
     hashSuffix(): string {
         return this.label;
     }
+
+    getDeps() {
+        return [this.resource];
+    }
 }

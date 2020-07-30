@@ -2762,6 +2762,9 @@ class WordVectorSource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
     hashSuffix() {
         return this.label;
     }
+    getDeps() {
+        return [this.resource];
+    }
 }
 
 
