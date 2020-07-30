@@ -3924,6 +3924,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
         inputStream.pipe(outputStream);
         await new Promise(res => {
             outputStream.on("close", async () => {
+                console.log("write complete");
                 const lsOutput = (await Object(util["h" /* spawnPromise */])(() => Object(external_child_process_["spawn"])(UNZIP, ["-l", compressedTMP]))).toString();
                 console.log(lsOutput);
                 const path = lsOutput
@@ -3951,7 +3952,8 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 external_fs_default.a.unlinkSync(compressedTMP);
                 res();
             });
-            outputStream.on("error", () => {
+            outputStream.on("error", e => {
+                Object(util["e" /* fancyLog */])(JSON.stringify(e));
                 external_fs_default.a.unlinkSync(compressedTMP);
                 res();
             });

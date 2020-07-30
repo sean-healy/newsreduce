@@ -21,6 +21,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
         inputStream.pipe(outputStream);
         await new Promise<void>(res => {
             outputStream.on("close", async () => {
+                console.log("write complete")
                 const lsOutput = (await spawnPromise(() => spawn(UNZIP, ["-l", compressedTMP]))).toString();
                 console.log(lsOutput);
                 const path = lsOutput
@@ -47,7 +48,8 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 fs.unlinkSync(compressedTMP);
                 res();
             });
-            outputStream.on("error", () => {
+            outputStream.on("error", e => {
+                fancyLog(JSON.stringify(e));
                 fs.unlinkSync(compressedTMP);
                 res();
             })
