@@ -1,12 +1,12 @@
-import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProcessor"
 import { ResourceURL } from "types/objects/ResourceURL";
-import { DOMWindow } from "jsdom";
+import { JSDOM } from "jsdom";
 import { HitType, nodeToHitType } from "types/HitType";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
 import { WordHits } from "types/WordHits";
 import { LinkHits } from "types/LinkHits";
-import { getAnchorsWithHREF, htmlCollectionToArray } from "services/html-processor/functions";
-import { wordsFromNode } from "services/html-processor/functions";
+import { getAnchorsWithHREF, htmlCollectionToArray } from "services/resource-processor/functions";
+import { wordsFromNode } from "services/resource-processor/functions";
+import { HTMLProcessor } from "./HTMLProcessor";
 
 const INCLUDE_TAGS = [
     "TITLE",
@@ -32,13 +32,13 @@ interface BlockData {
     items: string[];
 };
 
-export function getHits(window: DOMWindow) {
-    HTMLDocumentProcessor.removeExcludedNodes(window);
+export function getHits(dom: JSDOM) {
+    HTMLProcessor.removeExcludedNodes(dom);
     const queryItems =
-        htmlCollectionToArray(window.document.querySelectorAll(INCLUDE_TAGS.join(",")));
+        htmlCollectionToArray(dom.window.document.querySelectorAll(INCLUDE_TAGS.join(",")));
     const blockWordData: BlockData[] = [];
     const linksData: [string, HitType][] = [];
-    const truthyAnchors = getAnchorsWithHREF(window);
+    const truthyAnchors = getAnchorsWithHREF(dom);
     for (const anchor of truthyAnchors)
         linksData.push([anchor.href, nodeToHitType(anchor.parentElement)]);
     // Ensure no words are counted twice.
@@ -68,14 +68,20 @@ export function getHits(window: DOMWindow) {
     return { wordHits, linkHits };
 }
 
-export class ExtractHits extends HTMLDocumentProcessor {
+export class ExtractHits extends HTMLProcessor {
     ro() { return false; }
-    async apply(window: DOMWindow, time?: number) {
-        const resource = new ResourceURL(window.location.toString());
-        const { wordHits, linkHits } = getHits(window);
+    async applyToDOM(dom: JSDOM, time?: number) {
+        const resource = new ResourceURL(dom.window.location.toString());
+        const { wordHits, linkHits } = getHits(dom);
         await Promise.all([
             resource.writeVersion(time, ResourceVersionType.LINK_HITS, linkHits.toBuffer()),
             resource.writeVersion(time, ResourceVersionType.WORD_HITS, wordHits.toBuffer()),
         ]);
+    }
+    from() {
+        return new Set([ResourceVersionType.RAW_HTML_FILE]);
+    }
+    to() {
+        return new Set([ResourceVersionType.LINK_HITS_FILE, ResourceVersionType.WORD_HITS_FILE]);
     }
 }

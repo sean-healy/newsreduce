@@ -2,7 +2,7 @@ import { DBObject } from "types/DBObject";
 import { ResourceURLQuery } from "types/objects/ResourceURLQuery";
 import { ResourceURLPath } from "types/objects/ResourceURLPath";
 import { Host } from "types/objects/Host";
-import { write, read } from "file";
+import { write, read, stream } from "file";
 import { Entity, entityName } from "types/Entity";
 import { log } from "common/logging";
 import { Redis, REDIS_PARAMS } from "common/Redis";
@@ -179,8 +179,19 @@ export class ResourceURL extends DBObject<ResourceURL> {
     isValid() {
         return !this.isInvalid();
     }
-    read(time: number, format: ResourceVersionType) {
-        return read(Entity.RESOURCE, this.getID(), time, format);
+    async read(time: number, format: ResourceVersionType) {
+        try {
+            return read(Entity.RESOURCE, this.getID(), time, format);
+        } catch (e) {
+            return null;
+        }
+    }
+    async stream(time: number, format: ResourceVersionType) {
+        try {
+            return stream(Entity.RESOURCE, this.getID(), time, format);
+        } catch (e) {
+            return null;
+        }
     }
     static async popForProcessing() {
         const url = await Redis.renewRedis(REDIS_PARAMS.general).spop("html");

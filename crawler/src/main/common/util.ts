@@ -30,8 +30,10 @@ export function bytesToNumber(bytes: Buffer) {
     return result;
 }
 
-export function writeBigUInt96BE(n: bigint, buffer: Buffer, offset: number = 0) {
+export function writeBigUInt96BE(n: bigint, buffer: Buffer = Buffer.alloc(12), offset: number = 0) {
     writeAnyNumberBE(n, buffer, offset, 12);
+
+    return buffer;
 }
 export function writeAnyNumberBE(
     n: number | bigint,
@@ -45,6 +47,8 @@ export function writeAnyNumberBE(
         buffer[offset + bytes - 1 - i] = Number(byte);
         bigintN >>= BIGINT_EIGHT;
     }
+
+    return buffer;
 }
 
 export function iteratorToArray<T>(itr: IterableIterator<T>) {
@@ -169,3 +173,4 @@ export function sleep(ms: number) {
 }
 
 export type ConstructorArg0<T> = { [key in keyof T]?: T[key] };
+export type Dictionary<T> = { [key: string]: T };

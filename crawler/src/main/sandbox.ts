@@ -3,7 +3,7 @@ import { entityIDs, allVersions, read } from "./file";
 import { Entity } from "./types/Entity";
 import { FileFormat } from "./types/FileFormat";
 import { JSDOM } from "jsdom";
-import { process as extractHits } from "./html-processor/extract-hits";
+import { process as extractHits } from "./resource-processor/extract-hits";
 
 entityIDs(Entity.RESOURCE).then(async ids => {
     for (const id of ids) {

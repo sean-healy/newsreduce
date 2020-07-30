@@ -4,7 +4,7 @@ import { fancyLog } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 
-async function genericSQLPromise<From, To>(
+async function genericSQLPromise<From = { [key: string]: any }[], To = { [key: string]: any }[]>(
     query: string,
     params: any[] = [],
     mapper?: (v: From) => To
@@ -35,14 +35,37 @@ export async function schedule(items: Schedule[]) {
     await Promise.all(promises);
 }
 
-export async function selectResourcesNotProcessed() {
-    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
-    return genericSQLPromise<{ [key: string]: any }[], { [key: string]: any }[]>(query);
+export async function selectResourceVersions() {
+    const query = sql.SELECT_RESOURCE_VERSIONS;
+    const rows = await genericSQLPromise(query);
+    const resources: { [key: string]: Map<number, Set<string>> } = {};
+    for (const row of rows) {
+        const url: string = row.url;
+        const time: number = row.time;
+        const filename: string = row.filename;
+        let times: Map<number, Set<string>>;
+        if (url in resources)
+            times = resources[url];
+        else {
+            times = new Map();
+            resources[url] = times;
+        }
+        let formats: Set<string>;
+        if (times.has(time)) {
+            formats = times.get(time);
+        } else {
+            formats = new Set();
+            times.set(time, formats);
+        }
+        formats.add(filename);
+    }
+
+    return resources;
 }
 
 export async function selectBagOfWordsByHost() {
     const query = sql.SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS;
-    const rows = await genericSQLPromise<{ [key: string]: any }[], { [key: string]: any }[]>(query);
+    const rows = await genericSQLPromise(query);
     const hosts = new Map<bigint, [bigint, number][]>();
     for (const row of rows) {
         const resource: bigint = row.resource;

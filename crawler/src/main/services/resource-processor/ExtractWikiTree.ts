@@ -1,10 +1,11 @@
-import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProcessor"
 import { ResourceURL } from "types/objects/ResourceURL";
-import { DOMWindow } from "jsdom";
+import { JSDOM } from "jsdom";
 import { WikiCategory } from "types/objects/WikiCategory";
 import { WikiPage } from "types/objects/WikiPage";
 import { DBObject } from "types/DBObject";
 import { ResourceThrottle } from "types/objects/ResourceThrottle";
+import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { HTMLProcessor } from "./HTMLProcessor";
 
 const SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
 const CATEGORY_PAGE_SELECT = "#mw-pages .mw-category .mw-category-group li>a";
@@ -17,8 +18,8 @@ export function resourceIsWikiCategory(resource: ResourceURL) {
         && resource.query.value === "";
 }
 
-export function getHrefs(window: DOMWindow, selector: string) {
-    const node = window.document.querySelectorAll(selector);
+export function getHrefs(dom: JSDOM, selector: string) {
+    const node = dom.window.document.querySelectorAll(selector);
     const urls = new Array<string>(node.length);
     for (let i = 0; i < node.length; ++i) {
         const a = node.item(i) as HTMLAnchorElement;
@@ -28,20 +29,20 @@ export function getHrefs(window: DOMWindow, selector: string) {
     return urls;
 }
 
-export function getSubWikiPages(wikiDoc: DOMWindow) {
+export function getSubWikiPages(wikiDoc: JSDOM) {
     return getHrefs(wikiDoc, CATEGORY_PAGE_SELECT);
 }
 
-export function getSubWikiCategories(wikiDoc: DOMWindow) {
+export function getSubWikiCategories(wikiDoc: JSDOM) {
     return getHrefs(wikiDoc, SUBCATEGORY_SELECTOR);
 }
 
-export function getEntities(window: DOMWindow) {
-    const parent = new ResourceURL(window.location.toString());
+export function getEntities(dom: JSDOM) {
+    const parent = new ResourceURL(dom.window.location.toString());
     if (!resourceIsWikiCategory(parent)) return [];
 
-    const subWikiCategoryURLs = getSubWikiCategories(window);
-    const subWikiPageURLs = getSubWikiPages(window);
+    const subWikiCategoryURLs = getSubWikiCategories(dom);
+    const subWikiPageURLs = getSubWikiPages(dom);
     const children = subWikiPageURLs.concat(subWikiCategoryURLs);
     const relations: DBObject<any>[] = children
         .map(child => new ResourceURL(child))
@@ -53,11 +54,17 @@ export function getEntities(window: DOMWindow) {
     return relations.concat(pages).concat(throttles);
 }
 
-export class ExtractWikiTree extends HTMLDocumentProcessor {
+export class ExtractWikiTree extends HTMLProcessor {
     ro() { return true; }
-    async apply(window: DOMWindow) {
-        const entities = getEntities(window);
+    async applyToDOM(dom: JSDOM) {
+        const entities = getEntities(dom);
         const promises = entities.map(entity => entity.enqueueInsert({ recursive: true }));
         await Promise.all(promises);
+    }
+    from() {
+        return new Set([ResourceVersionType.RAW_HTML_FILE]);
+    }
+    to() {
+        return new Set([ResourceVersionType.WIKI_TREE_FILE]);
     }
 }

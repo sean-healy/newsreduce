@@ -1,10 +1,10 @@
-import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProcessor"
 import { ResourceURL } from "types/objects/ResourceURL";
-import { DOMWindow } from "jsdom";
+import { JSDOM } from "jsdom";
 import { nodeToHitType } from "types/HitType";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
-import { htmlCollectionToArray, wordsFromNode } from "services/html-processor/functions";
+import { htmlCollectionToArray, wordsFromNode } from "services/resource-processor/functions";
 import { BagOfWords } from "types/BagOfWords";
+import { HTMLProcessor } from "./HTMLProcessor";
 
 const INCLUDE_TAGS = [
     "TITLE",
@@ -19,10 +19,10 @@ const INCLUDE_TAGS = [
     "P",
 ];
 
-export function getBagOfWords(window: DOMWindow) {
-    HTMLDocumentProcessor.removeExcludedNodes(window);
+export function getBagOfWords(dom: JSDOM) {
+    HTMLProcessor.removeExcludedNodes(dom);
     const queryItems =
-        htmlCollectionToArray(window.document.querySelectorAll(INCLUDE_TAGS.join(",")));
+        htmlCollectionToArray(dom.window.document.querySelectorAll(INCLUDE_TAGS.join(",")));
     // Ensure no words are counted twice.
     for (const item of queryItems)
         item.parentNode.removeChild(item);
@@ -37,15 +37,21 @@ export function getBagOfWords(window: DOMWindow) {
     return bag;
 }
 
-export class ExtractRepresentations extends HTMLDocumentProcessor {
+export class ExtractRepresentations extends HTMLProcessor {
     ro() { return false; }
-    async apply(window: DOMWindow, time?: number) {
-        const resource = new ResourceURL(window.location.toString());
-        const bag = getBagOfWords(window);
+    async applyToDOM(dom: JSDOM, time?: number) {
+        const resource = new ResourceURL(dom.window.location.toString());
+        const bag = getBagOfWords(dom);
         const binaryBag = bag.toBinaryBag();
         await Promise.all([
             resource.writeVersion(time, ResourceVersionType.BAG_OF_WORDS, bag.toBuffer()),
             resource.writeVersion(time, ResourceVersionType.BINARY_BAG_OF_WORDS, binaryBag.toBuffer()),
         ]);
+    }
+    from() {
+        return new Set([ResourceVersionType.RAW_HTML_FILE]);
+    }
+    to() {
+        return new Set([ResourceVersionType.BAG_OF_WORDS_FILE, ResourceVersionType.BINARY_BAG_OF_WORDS_FILE]);
     }
 }

@@ -1,10 +1,10 @@
 import { JSDOM } from "jsdom";
 import fs from "fs";
 import path from "path";
-import { getLinks } from "services/html-processor/ExtractAHrefs";
-import { getHits } from "services/html-processor/ExtractHits";
-import { toRawText } from "services/html-processor/ExtractRawText";
-import { resourceIsWikiCategory, getEntities } from "services/html-processor/ExtractWikiTree";
+import { getLinks } from "services/resource-processor/ExtractAHrefs";
+import { getHits } from "services/resource-processor/ExtractHits";
+import { toRawText } from "services/resource-processor/ExtractRawText";
+import { resourceIsWikiCategory, getEntities } from "services/resource-processor/ExtractWikiTree";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { WikiCategory } from "types/objects/WikiCategory";
 import { WikiPage } from "types/objects/WikiPage";
@@ -19,8 +19,7 @@ test("extract hits works", async () => {
 <a href="mailto:sean@seanh.sh">Email</a>
     `;
     const doc = new JSDOM(html, { url: src });
-    const window = doc.window;
-    const { wordHits, linkHits } = getHits(window);
+    const { wordHits, linkHits } = getHits(doc);
     const buffer = wordHits.toBuffer();
     const actualHits = new WordHits().fromBuffer(buffer);
     expect(actualHits.toString()).toBe(wordHits.toString());
@@ -43,8 +42,7 @@ test("get links works", async () => {
 	<a href="mailto:sean@seanh.sh">Email</a>
     `;
     const doc = new JSDOM(html, { url: src });
-    const window = doc.window;
-    const linkObjects = getLinks(window);
+    const linkObjects = getLinks(doc);
     const links = linkObjects.map(obj => obj.toString());
     expect(links).toStrictEqual([
         'http://src.com/-->http://dst.com/1',
@@ -68,8 +66,7 @@ test("get raw text works", async () => {
 <a href="mailto:sean@seanh.sh">Email</a>
     `;
     const doc = new JSDOM(html, { url: src });
-    const window = doc.window;
-    const rawText = toRawText(window);
+    const rawText = toRawText(doc);
 
     const expected = `Title
 Historically, the British farthing was a continuation of the English farthing, a coin struck by English monarchs prior to the Act of Union 1707 that was worth a quarter of an old penny (​1⁄960 of a pound sterling). Only pattern farthings were struck under Queen Anne. The coin was struck intermittently through much of the 18th century, but counterfeits became so prevalent the Royal Mint ceased striking them after 1775. The next farthings were the first ones struck by steam power, in 1799 by Matthew Boulton at his Soho Mint. The Royal Mint resumed production in 1821. The farthing was struck regularly under George IV, William IV and in most years of Queen Victoria's long reign. The coin continued to be issued in most years of the first half of the 20th century, and in 1937 it finally received its own design, a wren (pictured). By the 1950s, inflation had eroded its value. It ceased to be struck after 1956 and was demonetised in 1961. (Full article...)
@@ -90,7 +87,7 @@ test("get wiki entities works", () => {
     const file = path.join(__dirname, "html/0001.html");
     const content = fs.readFileSync(file);
     const doc = new JSDOM(content, { url });
-    const entities = getEntities(doc.window);
+    const entities = getEntities(doc);
     expect(entities.filter(item => item instanceof WikiCategory).length).toBe(26);
     expect(entities.filter(item => item instanceof WikiPage).length).toBe(12);
 });

@@ -23,6 +23,10 @@ export async function entityIDs(entity: Entity) {
         .map(BigInt);
 }
 
+export function randomBufferFile() {
+    return path.join("/tmp", crypto.randomBytes(30).toString("hex"));
+}
+
 /**
  * @param entityID the ID of the resource to be saved (a hash of the URL)
  * @param version  the version of the resource to be saved (milliseconds
@@ -39,7 +43,7 @@ export async function write(
     format: ResourceVersionType,
     src: NodeJS.ReadableStream | string | Buffer
 ) {
-    const bufferFile = path.join("/tmp", crypto.randomBytes(30).toString("hex"));
+    const bufferFile = randomBufferFile();
     let bytesWritten: number;
     if (typeof src === "string" || src instanceof Buffer) {
         try {
@@ -178,6 +182,22 @@ export async function read(
     const params = [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath];
 
     return await spawnPromise(() => spawn(TAR, params));
+}
+
+export async function stream(
+    entity: Entity,
+    entityID: bigint,
+    time: number,
+    format: ResourceVersionType
+) {
+    const blobDir = await blobDirPromise();
+    const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
+    const tarPath = path.join(`${entityID}`, `${time}_${format.filename}`);
+    // Ignore files that are not written yet.
+    if (!fs.existsSync(compressedArc)) return null;
+    const params = [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath];
+
+    return spawn(TAR, params).stdout;
 }
 export async function findLatestVersion(
     entity: Entity,

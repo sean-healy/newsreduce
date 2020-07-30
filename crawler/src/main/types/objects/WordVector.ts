@@ -1,5 +1,7 @@
 import { DBObject } from "types/DBObject";
 import { Word } from "./Word";
+import { WordVectorSource } from "./WordVectorSource";
+import { Vector } from "./Vector";
 
 export const BYTES_PER_FLOAT = 2;
 const UNIQUE_VALUES = 1 << (BYTES_PER_FLOAT << 3);
@@ -8,15 +10,20 @@ const MAX_VALUE = (UNIQUE_VALUES >> 1) - 1;
 
 export class WordVector extends DBObject<WordVector> {
     readonly word: Word;
-    readonly v300_fast_text: Buffer;
+    readonly source: WordVectorSource;
+    readonly vector: Vector;
+
+    getDeps() {
+        return [this.word, this.source, this.vector];
+    }
     getInsertParams(): any[] {
-        return [this.word.getID(), this.v300_fast_text];
+        return [this.word.getID(), this.source.getID(), this.vector.getID()];
     }
     table(): string {
         return "WordVector";
     }
     insertCols(): string[] {
-        return ["word", "v300_fast_text"];
+        return ["word", "source", "vector"];
     }
 
     static vectorToBuffer(vector: number[], buffer = Buffer.alloc(vector.length * 2)) {
@@ -57,7 +64,7 @@ export class WordVector extends DBObject<WordVector> {
         let wordValue = tokens[0];
         if (wordValue === "") throw new Error(`word vector word empty: ${input}`);
         const word = new Word(wordValue.toLowerCase());
-        const vector = this.vectorToBuffer(tokens.slice(1).map(s => parseFloat(s)));
-        return new WordVector({ v300_fast_text: vector, word });
+        const vector = new Vector(this.vectorToBuffer(tokens.slice(1).map(s => parseFloat(s))));
+        return new WordVector({ vector, word });
     }
 }

@@ -30,6 +30,8 @@ export class ResourceVersionType extends DBObject<ResourceVersionType> {
     static RAW_HTML = new ResourceVersionType({ filename: ResourceVersionType.RAW_HTML_FILE });
     static RAW_ZIP_FILE = "raw.zip";
     static RAW_ZIP = new ResourceVersionType({ filename: ResourceVersionType.RAW_ZIP_FILE });
+    static WORD_EMBEDDINGS_FILE = "word-embeddings.bin";
+    static WORD_EMBEDDINGS = new ResourceVersionType({ filename: ResourceVersionType.WORD_EMBEDDINGS_FILE});
     static RAW_WORDS_TXT_FILE = "raw-words.txt";
     static RAW_WORDS_TXT = new ResourceVersionType({ filename: ResourceVersionType.RAW_WORDS_TXT_FILE });
     static RAW_LINKS_TXT_FILE = "raw-links.txt";
@@ -42,6 +44,8 @@ export class ResourceVersionType extends DBObject<ResourceVersionType> {
     static RAW_HEADERS = new ResourceVersionType({ filename: ResourceVersionType.RAW_HEADERS_FILE });
     static TITLE_FILE = "title.txt";
     static TITLE = new ResourceVersionType({ filename: ResourceVersionType.TITLE_FILE });
+    static WIKI_TREE_FILE = "wiki-tree.txt";
+    static WIKI_TREE = new ResourceVersionType({ filename: ResourceVersionType.WIKI_TREE_FILE });
     static BAG_OF_WORDS_FILE = "bow.bin";
     static BAG_OF_WORDS = new ResourceVersionType({ filename: ResourceVersionType.BAG_OF_WORDS_FILE });
     static BINARY_BAG_OF_WORDS_FILE = "bin-bow.bin";
