@@ -77,6 +77,7 @@ export async function processResource(
         if (bufferOrPath) dictionary[filenames[i]] = bufferOrPath;
     }
     const localFilenames = Object.keys(dictionary);
+    console.log({ localFilenames });
     const domPool = new DOMPool();
     let reDOM = true;
     for (const processor of processors) {

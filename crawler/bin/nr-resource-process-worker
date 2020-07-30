@@ -3383,6 +3383,7 @@ async function processResource(resource, time, formats, pool, processors) {
             dictionary[filenames[i]] = bufferOrPath;
     }
     const localFilenames = Object.keys(dictionary);
+    console.log({ localFilenames });
     const domPool = new DOMPool_DOMPool();
     let reDOM = true;
     for (const processor of processors) {
@@ -3914,9 +3915,12 @@ const UNZIP = "unzip";
 class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends ResourceProcessor {
     ro() { return true; }
     async apply(resource, input, time) {
+        console.log(resource.getID());
         const compressedTMP = Object(main_file["e" /* randomBufferFile */])();
+        console.log(compressedTMP);
         const outputStream = external_fs_default.a.createWriteStream(compressedTMP);
         const inputStream = await resource.stream(time, ResourceVersionType["ResourceVersionType"].RAW_ZIP);
+        console.log({ inputStream });
         inputStream.pipe(outputStream);
         await new Promise(res => {
             outputStream.on("close", async () => {

@@ -12,9 +12,12 @@ const UNZIP = "unzip"
 export class ExtractWordVectorsFromSource extends ResourceProcessor {
     ro() { return true; }
     async apply(resource: ResourceURL, input: Dictionary<ResourceURL>, time: number): Promise<void> {
+        console.log(resource.getID());
         const compressedTMP = randomBufferFile();
+        console.log(compressedTMP);
         const outputStream = fs.createWriteStream(compressedTMP);
         const inputStream = await resource.stream(time, ResourceVersionType.RAW_ZIP);
+        console.log({ inputStream });
         inputStream.pipe(outputStream);
         await new Promise<void>(res => {
             outputStream.on("close", async () => {
