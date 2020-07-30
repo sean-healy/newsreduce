@@ -25,8 +25,10 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                     .map(line => line.match(/[^ ]+.vec$/))
                     .filter(notNull => notNull)
                     .map(match => match[0])[0];
+                console.log(path);
                 const inputStream = spawn(UNZIP, ["-p", compressedTMP, path]).stdout;
                 const wordVectors = await WordVectors.fromStream(inputStream);
+                console.log(wordVectors);
                 for (const wordVector of wordVectors.vectors.values())
                     wordVector.enqueueInsert({ recursive: true });
                 const tmpFile = wordVectors.toBuffer();

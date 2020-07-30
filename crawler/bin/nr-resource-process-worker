@@ -3927,8 +3927,10 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                     .map(line => line.match(/[^ ]+.vec$/))
                     .filter(notNull => notNull)
                     .map(match => match[0])[0];
+                console.log(path);
                 const inputStream = Object(external_child_process_["spawn"])(UNZIP, ["-p", compressedTMP, path]).stdout;
                 const wordVectors = await WordVectors_WordVectors.fromStream(inputStream);
+                console.log(wordVectors);
                 for (const wordVector of wordVectors.vectors.values())
                     wordVector.enqueueInsert({ recursive: true });
                 const tmpFile = wordVectors.toBuffer();
