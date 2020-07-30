@@ -11,8 +11,9 @@ import { ExtractRawText } from "services/resource-processor/ExtractRawText";
 import { ExtractWikiTree } from "services/resource-processor/ExtractWikiTree";
 import { ExtractTitle } from "services/resource-processor/ExtractTitle";
 import { ExtractRepresentations } from "services/resource-processor/ExtractRepresentations";
+import { ExtractWordVectorsFromSource } from "./ExtractWordVectorsFromSource";
 
 const process = buildProcessFunction(
-    [ExtractAHrefs, ExtractTitle, ExtractWikiTree, ExtractRawText, ExtractHits, ExtractRepresentations].map(c => new c()))
+    [ExtractAHrefs, ExtractTitle, ExtractWikiTree, ExtractRawText, ExtractHits, ExtractRepresentations, ExtractWordVectorsFromSource].map(c => new c()))
 
 start(process, HTML_PROCESS_BIRTH_LOG, HTML_PROCESS_DEATH_LOG, null, HTML_PROCESS_COMPLETE);

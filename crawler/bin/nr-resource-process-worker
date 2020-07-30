@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 71);
+/******/ 	return __webpack_require__(__webpack_require__.s = 78);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -292,17 +292,8 @@ var Redis = __webpack_require__(2);
 // EXTERNAL MODULE: ./dist/main/common/SQL.js
 var SQL = __webpack_require__(12);
 
-// CONCATENATED MODULE: ./dist/main/types/GenericConstructor.js
-class GenericConstructor {
-    constructor(src) {
-        if (src) {
-            const dst = this;
-            for (const property in src) {
-                dst[property] = src[property];
-            }
-        }
-    }
-}
+// EXTERNAL MODULE: ./dist/main/types/GenericConstructor.js
+var GenericConstructor = __webpack_require__(71);
 
 // CONCATENATED MODULE: ./dist/main/types/DBObject.js
 
@@ -314,7 +305,7 @@ const ESCAPE = "ESCAPED BY '\\\\'";
 const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
 const LINE_TERM = "LINES TERMINATED BY '\\n'";
-class DBObject_DBObject extends GenericConstructor {
+class DBObject_DBObject extends GenericConstructor["a" /* GenericConstructor */] {
     getIDBytes() {
         const suffix = this.hashSuffix();
         return suffix === null ? null : defaultHash(this.table(), suffix);
@@ -942,7 +933,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
         if (typeof input === "string" || input instanceof Buffer) {
             let i = 0;
             for (i = 0; i < 10 && bytesWritten < 0; ++i)
-                bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "g"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
+                bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "h"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
             if (i > 1 && bytesWritten >= 0) {
                 Object(common_util__WEBPACK_IMPORTED_MODULE_9__[/* fancyLog */ "e"])(`wrote ${bytesWritten}b to ` +
                     `${Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE)} ${id} ` +
@@ -950,7 +941,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             }
         }
         else
-            bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "g"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
+            bytesWritten = await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* write */ "h"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, id, time, type, input);
         if (bytesWritten >= 0)
             new _ResourceVersion__WEBPACK_IMPORTED_MODULE_10__["ResourceVersion"]({
                 resource: this,
@@ -983,7 +974,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     }
     async read(time, format) {
         try {
-            return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* read */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), time, format);
+            return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* read */ "f"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), time, format);
         }
         catch (e) {
             return null;
@@ -991,7 +982,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     }
     async stream(time, format) {
         try {
-            return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* stream */ "f"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), time, format);
+            return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* stream */ "g"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), time, format);
         }
         catch (e) {
             return null;
@@ -1382,16 +1373,16 @@ class Word extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObj
 
 "use strict";
 /* unused harmony export entityIDs */
-/* unused harmony export randomBufferFile */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return write; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return randomBufferFile; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return write; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return lastChangedBefore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return lastChangedAfter; });
 /* unused harmony export compareVersionSignatures */
 /* unused harmony export findVersions */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return findTimes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return findFormats; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return read; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return stream; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return read; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return stream; });
 /* unused harmony export findLatestVersion */
 /* unused harmony export readLatestVersion */
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
@@ -3152,6 +3143,35 @@ module.exports = require("jsdom");
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return GenericConstructor; });
+class GenericConstructor {
+    constructor(src) {
+        if (src) {
+            const dst = this;
+            for (const property in src) {
+                dst[property] = src[property];
+            }
+        }
+    }
+}
+
+
+/***/ }),
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */,
+/* 77 */
+/***/ (function(module, exports) {
+
+module.exports = require("readline");
+
+/***/ }),
+/* 78 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
@@ -3794,6 +3814,154 @@ class ExtractRepresentations_ExtractRepresentations extends HTMLProcessor_HTMLPr
     }
 }
 
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __webpack_require__(3);
+var external_fs_default = /*#__PURE__*/__webpack_require__.n(external_fs_);
+
+// EXTERNAL MODULE: ./dist/main/file.js
+var main_file = __webpack_require__(18);
+
+// EXTERNAL MODULE: external "child_process"
+var external_child_process_ = __webpack_require__(24);
+
+// EXTERNAL MODULE: ./dist/main/types/GenericConstructor.js
+var GenericConstructor = __webpack_require__(71);
+
+// EXTERNAL MODULE: external "readline"
+var external_readline_ = __webpack_require__(77);
+var external_readline_default = /*#__PURE__*/__webpack_require__.n(external_readline_);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/WordVector.js
+var WordVector = __webpack_require__(51);
+
+// CONCATENATED MODULE: ./dist/main/types/WordVectors.js
+
+
+
+
+
+
+class WordVectors_WordVectors extends GenericConstructor["a" /* GenericConstructor */] {
+    toString() {
+        let s = "";
+        for (const id of [...this.vectors.keys()].sort(util["a" /* CMP_BIG_INT */])) {
+            s += `${id}`.padStart(29, "0") + " ";
+            s += " " + this.vectors.get(id).vector.value.toString("base64");
+            s += "\n";
+        }
+        return s;
+    }
+    toBuffer() {
+        const file = Object(main_file["e" /* randomBufferFile */])();
+        const dst = external_fs_default.a.createWriteStream(file);
+        const ids = [...this.vectors.keys()].sort(util["a" /* CMP_BIG_INT */]);
+        for (const id of ids) {
+            const vector = this.vectors.get(id);
+            dst.write(Object(util["k" /* writeBigUInt96BE */])(id));
+            dst.write(vector.vector.value);
+        }
+        dst.close();
+        return file;
+    }
+    static async fromPath(path) {
+        return this.fromStream(external_fs_default.a.createReadStream(path));
+    }
+    static async fromStream(input) {
+        const readInterface = external_readline_default.a.createInterface({ input });
+        const vectors = new Map();
+        let firstRowParsed = false;
+        let words;
+        let dimensions;
+        readInterface.on("line", line => {
+            if (firstRowParsed) {
+                const vector = WordVector["WordVector"].fromString(line);
+                const wordID = vector.word.getID();
+                vectors.set(wordID, vector);
+            }
+            else {
+                const parts = line.match("^([0-9]+) ([0-9]+)$");
+                if (parts) {
+                    firstRowParsed = true;
+                    words = parseInt(parts[1]);
+                    dimensions = parseInt(parts[2]);
+                }
+                else {
+                    const vector = WordVector["WordVector"].fromString(line);
+                    const wordID = vector.word.getID();
+                    vectors.set(wordID, vector);
+                }
+            }
+        });
+        await new Promise(res => readInterface.on("close", res));
+        if (vectors.size === 0)
+            throw new Error(`missing data in file: ${words}`);
+        for (const [wordID, vector] of vectors.entries())
+            if (vector.vector.value.length !== dimensions * WordVector["BYTES_PER_FLOAT"])
+                throw new Error(`invalid dimensions for wordID: ${wordID}`);
+        return new WordVectors_WordVectors({ vectors });
+    }
+}
+
+// CONCATENATED MODULE: ./dist/main/services/resource-processor/ExtractWordVectorsFromSource.js
+
+
+
+
+
+
+
+const UNZIP = "unzip";
+class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends ResourceProcessor {
+    ro() { return true; }
+    async apply(resource, input, time) {
+        const compressedTMP = Object(main_file["e" /* randomBufferFile */])();
+        const outputStream = external_fs_default.a.createWriteStream(compressedTMP);
+        const inputStream = await resource.stream(time, ResourceVersionType["ResourceVersionType"].RAW_ZIP);
+        inputStream.pipe(outputStream);
+        await new Promise(res => {
+            outputStream.on("close", async () => {
+                const lsOutput = (await Object(util["h" /* spawnPromise */])(() => Object(external_child_process_["spawn"])(UNZIP, ["-l", compressedTMP]))).toString();
+                console.log(lsOutput);
+                const path = lsOutput
+                    .split("\n")
+                    .map(line => line.match(/[^ ]+.vec$/))
+                    .filter(notNull => notNull)
+                    .map(match => match[0])[0];
+                const inputStream = Object(external_child_process_["spawn"])(UNZIP, ["-p", compressedTMP, path]).stdout;
+                const wordVectors = await WordVectors_WordVectors.fromStream(inputStream);
+                for (const wordVector of wordVectors.vectors.values())
+                    wordVector.enqueueInsert({ recursive: true });
+                const tmpFile = wordVectors.toBuffer();
+                const stream = external_fs_default.a.createReadStream(tmpFile);
+                try {
+                    await resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].WORD_EMBEDDINGS, stream);
+                }
+                catch (e) {
+                    Object(util["e" /* fancyLog */])("error writing word embedding file:");
+                    Object(util["e" /* fancyLog */])(JSON.stringify(e));
+                }
+                external_fs_default.a.unlinkSync(tmpFile);
+                external_fs_default.a.unlinkSync(compressedTMP);
+                res();
+            });
+            outputStream.on("error", () => {
+                external_fs_default.a.unlinkSync(compressedTMP);
+                res();
+            });
+        });
+        console.log("Done.");
+    }
+    hosts() {
+        return new Set(["dl.fbaipublicfiles.com"]);
+    }
+    from() {
+        return new Set([ResourceVersionType["ResourceVersionType"].RAW_ZIP_FILE]);
+    }
+    to() {
+        return new Set([ResourceVersionType["ResourceVersionType"].WORD_EMBEDDINGS_FILE]);
+    }
+}
+
 // CONCATENATED MODULE: ./dist/main/services/resource-processor/worker.js
 
 
@@ -3804,7 +3972,8 @@ class ExtractRepresentations_ExtractRepresentations extends HTMLProcessor_HTMLPr
 
 
 
-const worker_process = buildProcessFunction([ExtractAHrefs_ExtractAHrefs, ExtractTitle_ExtractTitle, ExtractWikiTree_ExtractWikiTree, ExtractRawText_ExtractRawText, ExtractHits_ExtractHits, ExtractRepresentations_ExtractRepresentations].map(c => new c()));
+
+const worker_process = buildProcessFunction([ExtractAHrefs_ExtractAHrefs, ExtractTitle_ExtractTitle, ExtractWikiTree_ExtractWikiTree, ExtractRawText_ExtractRawText, ExtractHits_ExtractHits, ExtractRepresentations_ExtractRepresentations, ExtractWordVectorsFromSource_ExtractWordVectorsFromSource].map(c => new c()));
 Object(worker["a" /* start */])(worker_process, events["k" /* HTML_PROCESS_BIRTH_LOG */], events["m" /* HTML_PROCESS_DEATH_LOG */], null, events["l" /* HTML_PROCESS_COMPLETE */]);
 
 
