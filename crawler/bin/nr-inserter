@@ -269,7 +269,7 @@ function sleep(ms) {
 __webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ DBObject_DBObject; });
 
 // EXTERNAL MODULE: external "crypto"
-var external_crypto_ = __webpack_require__(13);
+var external_crypto_ = __webpack_require__(14);
 var external_crypto_default = /*#__PURE__*/__webpack_require__.n(external_crypto_);
 
 // CONCATENATED MODULE: ./dist/main/common/hashing.js
@@ -1190,12 +1190,6 @@ const FAILURE_CACHE = "failures";
 
 /***/ }),
 /* 13 */
-/***/ (function(module, exports) {
-
-module.exports = require("crypto");
-
-/***/ }),
-/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1263,6 +1257,12 @@ ResourceVersionType.BINARY_BAG_OF_WORDS = new ResourceVersionType({
     filename: ResourceVersionType.BINARY_BAG_OF_WORDS_FILE,
 });
 
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+module.exports = require("crypto");
 
 /***/ }),
 /* 15 */
@@ -1528,14 +1528,14 @@ class Client extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ 
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
 /* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(0);
-/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(14);
+/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(13);
 
 
 
@@ -1881,6 +1881,22 @@ module.exports = require("redis");
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Word", function() { return Word; });
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+
+class Word extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
+    table() {
+        return "Word";
+    }
+}
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceThrottle", function() { return ResourceThrottle; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var _ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
@@ -1915,7 +1931,7 @@ class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1935,22 +1951,6 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
     }
     getDeps() {
         return [this.parent, this.child];
-    }
-}
-
-
-/***/ }),
-/* 35 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Word", function() { return Word; });
-/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-
-class Word extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
-    table() {
-        return "Word";
     }
 }
 
@@ -2324,7 +2324,7 @@ module.exports = require("mysql");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return startProcessor; });
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(13);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(12);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
@@ -2439,8 +2439,8 @@ var map = {
 	"./ResourceLink.js": 26,
 	"./ResourceLinkHash": 36,
 	"./ResourceLinkHash.js": 36,
-	"./ResourceThrottle": 33,
-	"./ResourceThrottle.js": 33,
+	"./ResourceThrottle": 34,
+	"./ResourceThrottle.js": 34,
 	"./ResourceTitle": 39,
 	"./ResourceTitle.js": 39,
 	"./ResourceURL": 7,
@@ -2451,18 +2451,18 @@ var map = {
 	"./ResourceURLQuery.js": 20,
 	"./ResourceVersion": 21,
 	"./ResourceVersion.js": 21,
-	"./ResourceVersionType": 14,
-	"./ResourceVersionType.js": 14,
+	"./ResourceVersionType": 13,
+	"./ResourceVersionType.js": 13,
 	"./SimpleHashObject": 4,
 	"./SimpleHashObject.js": 4,
 	"./Title": 27,
 	"./Title.js": 27,
-	"./WikiCategory": 34,
-	"./WikiCategory.js": 34,
+	"./WikiCategory": 35,
+	"./WikiCategory.js": 35,
 	"./WikiPage": 40,
 	"./WikiPage.js": 40,
-	"./Word": 35,
-	"./Word.js": 35
+	"./Word": 33,
+	"./Word.js": 33
 };
 
 
@@ -2525,7 +2525,7 @@ var external_path_ = __webpack_require__(8);
 var external_path_default = /*#__PURE__*/__webpack_require__.n(external_path_);
 
 // EXTERNAL MODULE: external "crypto"
-var external_crypto_ = __webpack_require__(13);
+var external_crypto_ = __webpack_require__(14);
 var external_crypto_default = /*#__PURE__*/__webpack_require__.n(external_crypto_);
 
 // EXTERNAL MODULE: ./dist/main/types/DBObject.js + 1 modules

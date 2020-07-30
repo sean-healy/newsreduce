@@ -269,7 +269,7 @@ function sleep(ms) {
 __webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ DBObject_DBObject; });
 
 // EXTERNAL MODULE: external "crypto"
-var external_crypto_ = __webpack_require__(13);
+var external_crypto_ = __webpack_require__(14);
 var external_crypto_default = /*#__PURE__*/__webpack_require__.n(external_crypto_);
 
 // CONCATENATED MODULE: ./dist/main/common/hashing.js
@@ -1190,12 +1190,6 @@ const FAILURE_CACHE = "failures";
 
 /***/ }),
 /* 13 */
-/***/ (function(module, exports) {
-
-module.exports = require("crypto");
-
-/***/ }),
-/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1263,6 +1257,12 @@ ResourceVersionType.BINARY_BAG_OF_WORDS = new ResourceVersionType({
     filename: ResourceVersionType.BINARY_BAG_OF_WORDS_FILE,
 });
 
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+module.exports = require("crypto");
 
 /***/ }),
 /* 15 */
@@ -1528,14 +1528,14 @@ class Client extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ 
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
 /* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(0);
-/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(14);
+/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(13);
 
 
 
@@ -1881,6 +1881,22 @@ module.exports = require("redis");
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Word", function() { return Word; });
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+
+class Word extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
+    table() {
+        return "Word";
+    }
+}
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceThrottle", function() { return ResourceThrottle; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var _ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
@@ -1915,7 +1931,7 @@ class ResourceThrottle extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1935,22 +1951,6 @@ class WikiCategory extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObje
     }
     getDeps() {
         return [this.parent, this.child];
-    }
-}
-
-
-/***/ }),
-/* 35 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Word", function() { return Word; });
-/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-
-class Word extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
-    table() {
-        return "Word";
     }
 }
 
@@ -2324,7 +2324,7 @@ module.exports = require("mysql");
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return startProcessor; });
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(13);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(12);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
@@ -2439,8 +2439,8 @@ var map = {
 	"./ResourceLink.js": 26,
 	"./ResourceLinkHash": 36,
 	"./ResourceLinkHash.js": 36,
-	"./ResourceThrottle": 33,
-	"./ResourceThrottle.js": 33,
+	"./ResourceThrottle": 34,
+	"./ResourceThrottle.js": 34,
 	"./ResourceTitle": 39,
 	"./ResourceTitle.js": 39,
 	"./ResourceURL": 7,
@@ -2451,18 +2451,18 @@ var map = {
 	"./ResourceURLQuery.js": 20,
 	"./ResourceVersion": 21,
 	"./ResourceVersion.js": 21,
-	"./ResourceVersionType": 14,
-	"./ResourceVersionType.js": 14,
+	"./ResourceVersionType": 13,
+	"./ResourceVersionType.js": 13,
 	"./SimpleHashObject": 4,
 	"./SimpleHashObject.js": 4,
 	"./Title": 27,
 	"./Title.js": 27,
-	"./WikiCategory": 34,
-	"./WikiCategory.js": 34,
+	"./WikiCategory": 35,
+	"./WikiCategory.js": 35,
 	"./WikiPage": 40,
 	"./WikiPage.js": 40,
-	"./Word": 35,
-	"./Word.js": 35
+	"./Word": 33,
+	"./Word.js": 33
 };
 
 
@@ -2487,90 +2487,6 @@ webpackContext.id = 51;
 
 /***/ }),
 /* 52 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ selectPreSchedule; });
-__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ schedule; });
-__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectResourcesNotProcessed; });
-
-// CONCATENATED MODULE: ./dist/main/sql.js
-/* harmony default export */ var sql = ({
-    // /home/sean/newsreduce/sql/BULK_INSERT.sql
-    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
-    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
-    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
-    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
-    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
-    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
-    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
-    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
-    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
-    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
-    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
-    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
-    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
-    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
-    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
-    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
-    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
-});
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
-var ResourceURL = __webpack_require__(7);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(0);
-
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./dist/main/common/SQL.js
-var SQL = __webpack_require__(11);
-
-// CONCATENATED MODULE: ./dist/main/data.js
-
-
-
-
-
-async function genericSQLPromise(query, params = [], mapper) {
-    let response = await SQL["b" /* SQL */].query(query, params);
-    if (mapper && response)
-        response = mapper(response);
-    return response;
-}
-function selectPreSchedule() {
-    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
-}
-async function schedule(items) {
-    Object(util["e" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
-    const promises = [];
-    let scheduled = 0;
-    for (const item of items) {
-        const resourceURL = new ResourceURL["ResourceURL"](item.url);
-        if (!await resourceURL.isFetchLocked()) {
-            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
-                .zincrby(resourceURL.host.name, 1, item.url));
-            ++scheduled;
-        }
-    }
-    if (scheduled)
-        Object(util["e" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
-    await Promise.all(promises);
-}
-async function selectResourcesNotProcessed() {
-    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
-    return genericSQLPromise(query);
-}
-
-
-/***/ }),
-/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2688,6 +2604,90 @@ class Hits_Hits {
 
 
 /***/ }),
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ selectPreSchedule; });
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ schedule; });
+__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectResourcesNotProcessed; });
+
+// CONCATENATED MODULE: ./dist/main/sql.js
+/* harmony default export */ var sql = ({
+    // /home/sean/newsreduce/sql/BULK_INSERT.sql
+    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
+    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
+    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
+    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
+    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
+    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
+    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
+    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
+    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
+    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
+    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
+    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
+    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
+    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
+    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
+    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
+    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
+});
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
+var ResourceURL = __webpack_require__(7);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(0);
+
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(2);
+
+// EXTERNAL MODULE: ./dist/main/common/SQL.js
+var SQL = __webpack_require__(11);
+
+// CONCATENATED MODULE: ./dist/main/data.js
+
+
+
+
+
+async function genericSQLPromise(query, params = [], mapper) {
+    let response = await SQL["b" /* SQL */].query(query, params);
+    if (mapper && response)
+        response = mapper(response);
+    return response;
+}
+function selectPreSchedule() {
+    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
+}
+async function schedule(items) {
+    Object(util["e" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
+    const promises = [];
+    let scheduled = 0;
+    for (const item of items) {
+        const resourceURL = new ResourceURL["ResourceURL"](item.url);
+        if (!await resourceURL.isFetchLocked()) {
+            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
+                .zincrby(resourceURL.host.name, 1, item.url));
+            ++scheduled;
+        }
+    }
+    if (scheduled)
+        Object(util["e" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
+    await Promise.all(promises);
+}
+async function selectResourcesNotProcessed() {
+    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
+    return genericSQLPromise(query);
+}
+
+
+/***/ }),
 /* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -2695,7 +2695,7 @@ class Hits_Hits {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return start; });
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 /* harmony import */ var _processor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(50);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
 
@@ -2722,46 +2722,6 @@ function start(f, birthLog, deathLog, preconditions, postcondition) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return WordHits; });
-/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
-/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(35);
-
-
-class WordHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
-    constructor(hits = new Map()) {
-        super(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value), 2, hits);
-    }
-    build(hits) {
-        return new WordHits(hits);
-    }
-}
-
-
-/***/ }),
-/* 57 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LinkHits; });
-/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
-/* harmony import */ var _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
-
-
-class LinkHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
-    constructor(hits = new Map()) {
-        super(value => new _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](value), 2, hits);
-    }
-    build(hits) {
-        return new LinkHits(hits);
-    }
-}
-
-
-/***/ }),
-/* 58 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PromisePool; });
 class PromisePool {
     constructor(threads) {
@@ -2781,6 +2741,46 @@ class PromisePool {
     async flush() {
         await Promise.all(this.promises);
         this.promises = [];
+    }
+}
+
+
+/***/ }),
+/* 57 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return WordHits; });
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
+/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+
+
+class WordHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
+    constructor(hits = new Map()) {
+        super(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value), 2, hits);
+    }
+    build(hits) {
+        return new WordHits(hits);
+    }
+}
+
+
+/***/ }),
+/* 58 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LinkHits; });
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
+/* harmony import */ var _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+
+
+class LinkHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
+    constructor(hits = new Map()) {
+        super(value => new _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceURL"](value), 2, hits);
+    }
+    build(hits) {
+        return new LinkHits(hits);
     }
 }
 
@@ -2820,7 +2820,7 @@ var file = __webpack_require__(23);
 var Entity = __webpack_require__(9);
 
 // EXTERNAL MODULE: ./dist/main/data.js + 1 modules
-var data = __webpack_require__(52);
+var data = __webpack_require__(53);
 
 // EXTERNAL MODULE: ./dist/main/common/util.js
 var util = __webpack_require__(0);
@@ -2829,10 +2829,10 @@ var util = __webpack_require__(0);
 var common_processor = __webpack_require__(50);
 
 // EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
-var ResourceVersionType = __webpack_require__(14);
+var ResourceVersionType = __webpack_require__(13);
 
 // EXTERNAL MODULE: ./dist/main/common/PromisePool.js
-var PromisePool = __webpack_require__(58);
+var PromisePool = __webpack_require__(56);
 
 // CONCATENATED MODULE: ./dist/main/types/HitType.js
 var HitType;
@@ -3077,10 +3077,10 @@ class HTMLDocumentProcessor {
 var ResourceURL = __webpack_require__(7);
 
 // EXTERNAL MODULE: ./dist/main/types/WordHits.js
-var WordHits = __webpack_require__(56);
+var WordHits = __webpack_require__(57);
 
 // EXTERNAL MODULE: ./dist/main/types/LinkHits.js
-var LinkHits = __webpack_require__(57);
+var LinkHits = __webpack_require__(58);
 
 // CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractHits.js
 
@@ -3235,13 +3235,13 @@ class ExtractRawText_ExtractRawText extends HTMLDocumentProcessor {
 }
 
 // EXTERNAL MODULE: ./dist/main/types/objects/WikiCategory.js
-var WikiCategory = __webpack_require__(34);
+var WikiCategory = __webpack_require__(35);
 
 // EXTERNAL MODULE: ./dist/main/types/objects/WikiPage.js
 var WikiPage = __webpack_require__(40);
 
 // EXTERNAL MODULE: ./dist/main/types/objects/ResourceThrottle.js
-var ResourceThrottle = __webpack_require__(33);
+var ResourceThrottle = __webpack_require__(34);
 
 // CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractWikiTree.js
 
@@ -3325,7 +3325,7 @@ class ExtractTitle_ExtractTitle extends HTMLDocumentProcessor {
 }
 
 // EXTERNAL MODULE: ./dist/main/types/objects/Word.js
-var Word = __webpack_require__(35);
+var Word = __webpack_require__(33);
 
 // CONCATENATED MODULE: ./dist/main/types/BinaryBag.js
 
