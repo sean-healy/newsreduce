@@ -58,10 +58,12 @@ export function getHits(window: DOMWindow) {
     for (const block of blockWordData)
         for (const word of block.items)
             wordHits.register(word, n++, wordsOnPage, block.hitType);
+    for (const word of wordHits.objects.values()) word.enqueueInsert({ recursive: true });
     n = 0;
     const linkHits = new LinkHits();
     for (const [url, hitType] of linksData)
         n = linkHits.register(url, n, linksData.length, hitType);
+    for (const link of linkHits.objects.values()) link.enqueueInsert({ recursive: true });
 
     return { wordHits, linkHits };
 }

@@ -5,6 +5,7 @@ import { ClientHeader } from "types/objects/ClientHeader";
 import { fancyLog } from "common/util";
 import { ResourceThrottle } from "types/objects/ResourceThrottle";
 import { NewsSourceWiki } from "types/objects/NewsSourceWiki";
+import { WordVectorSource } from "types/objects/WordVectorSource";
 
 export function getObjectsToInsert() {
     const origin = "https://en.wikipedia.org/wiki/Category:News_media";
@@ -15,6 +16,24 @@ export function getObjectsToInsert() {
         child: url,
     });
     const newsSourceWiki = new NewsSourceWiki("https://en.wikipedia.org/wiki/The_New_York_Times");
+    const wordVectorSources = [
+        new WordVectorSource({
+            resource: new ResourceURL("https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M.vec.zip"),
+            label: "fasttext_wiki-news-300d-1M",
+        }),
+        new WordVectorSource({
+            resource: new ResourceURL("https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M-subword.vec.zip"),
+            label: "fasttext_wiki-news-300d-1M-subw",
+        }),
+        new WordVectorSource({
+            resource: new ResourceURL("https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M.vec.zip"),
+            label: "fasttext_crawl-300d-2M",
+        }),
+        new WordVectorSource({
+            resource: new ResourceURL("https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M-subword.zip"),
+            label: "fasttext_crawl-300d-2M-subw",
+        }),
+    ];
     const client0: Client = new Client({
         name: "ubuntu-mozilla",
         httpVersion: "1.1",
@@ -58,7 +77,7 @@ export function getObjectsToInsert() {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
 
-    return [newsSourceWiki, wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders];
+    return [newsSourceWiki, wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders, ...wordVectorSources];
 }
 
 export async function insertColdStartObjects() {

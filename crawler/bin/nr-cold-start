@@ -290,7 +290,20 @@ var Redis = __webpack_require__(2);
 // EXTERNAL MODULE: ./dist/main/common/SQL.js
 var SQL = __webpack_require__(11);
 
+// CONCATENATED MODULE: ./dist/main/types/GenericConstructor.js
+class GenericConstructor {
+    constructor(src) {
+        if (src) {
+            const dst = this;
+            for (const property in src) {
+                dst[property] = src[property];
+            }
+        }
+    }
+}
+
 // CONCATENATED MODULE: ./dist/main/types/DBObject.js
+
 
 
 
@@ -299,17 +312,7 @@ const ESCAPE = "ESCAPED BY '\\\\'";
 const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
 const LINE_TERM = "LINES TERMINATED BY '\\n'";
-class DBObject_DBObject {
-    constructor(src) {
-        if (src) {
-            //fancyLog("constructing db object");
-            //console.log(src);
-            const dst = this;
-            for (const property in src) {
-                dst[property] = src[property];
-            }
-        }
-    }
+class DBObject_DBObject extends GenericConstructor {
     getIDBytes() {
         const suffix = this.hashSuffix();
         return suffix === null ? null : defaultHash(this.table(), suffix);
@@ -1192,41 +1195,25 @@ class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/*
     }
 }
 ResourceVersionType.RAW_HTML_FILE = "raw.html";
-ResourceVersionType.RAW_HTML = new ResourceVersionType({
-    filename: ResourceVersionType.RAW_HTML_FILE,
-});
+ResourceVersionType.RAW_HTML = new ResourceVersionType({ filename: ResourceVersionType.RAW_HTML_FILE });
+ResourceVersionType.RAW_ZIP_FILE = "raw.zip";
+ResourceVersionType.RAW_ZIP = new ResourceVersionType({ filename: ResourceVersionType.RAW_ZIP_FILE });
 ResourceVersionType.RAW_WORDS_TXT_FILE = "raw-words.txt";
-ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType({
-    filename: ResourceVersionType.RAW_WORDS_TXT_FILE,
-});
+ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType({ filename: ResourceVersionType.RAW_WORDS_TXT_FILE });
 ResourceVersionType.RAW_LINKS_TXT_FILE = "raw-links.txt";
-ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType({
-    filename: ResourceVersionType.RAW_LINKS_TXT_FILE,
-});
+ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType({ filename: ResourceVersionType.RAW_LINKS_TXT_FILE });
 ResourceVersionType.WORD_HITS_FILE = "word-hits.bin";
-ResourceVersionType.WORD_HITS = new ResourceVersionType({
-    filename: ResourceVersionType.WORD_HITS_FILE,
-});
+ResourceVersionType.WORD_HITS = new ResourceVersionType({ filename: ResourceVersionType.WORD_HITS_FILE });
 ResourceVersionType.LINK_HITS_FILE = "link-hits.bin";
-ResourceVersionType.LINK_HITS = new ResourceVersionType({
-    filename: ResourceVersionType.LINK_HITS_FILE,
-});
+ResourceVersionType.LINK_HITS = new ResourceVersionType({ filename: ResourceVersionType.LINK_HITS_FILE });
 ResourceVersionType.RAW_HEADERS_FILE = "headers.txt";
-ResourceVersionType.RAW_HEADERS = new ResourceVersionType({
-    filename: ResourceVersionType.RAW_HEADERS_FILE,
-});
+ResourceVersionType.RAW_HEADERS = new ResourceVersionType({ filename: ResourceVersionType.RAW_HEADERS_FILE });
 ResourceVersionType.TITLE_FILE = "title.txt";
-ResourceVersionType.TITLE = new ResourceVersionType({
-    filename: ResourceVersionType.TITLE_FILE,
-});
+ResourceVersionType.TITLE = new ResourceVersionType({ filename: ResourceVersionType.TITLE_FILE });
 ResourceVersionType.BAG_OF_WORDS_FILE = "bow.bin";
-ResourceVersionType.BAG_OF_WORDS = new ResourceVersionType({
-    filename: ResourceVersionType.BAG_OF_WORDS_FILE,
-});
+ResourceVersionType.BAG_OF_WORDS = new ResourceVersionType({ filename: ResourceVersionType.BAG_OF_WORDS_FILE });
 ResourceVersionType.BINARY_BAG_OF_WORDS_FILE = "bin-bow.bin";
-ResourceVersionType.BINARY_BAG_OF_WORDS = new ResourceVersionType({
-    filename: ResourceVersionType.BINARY_BAG_OF_WORDS_FILE,
-});
+ResourceVersionType.BINARY_BAG_OF_WORDS = new ResourceVersionType({ filename: ResourceVersionType.BINARY_BAG_OF_WORDS_FILE });
 
 
 /***/ }),
@@ -2398,7 +2385,11 @@ var map = {
 	"./WikiPage": 40,
 	"./WikiPage.js": 40,
 	"./Word": 30,
-	"./Word.js": 30
+	"./Word.js": 30,
+	"./WordVector": 74,
+	"./WordVector.js": 74,
+	"./WordVectorSource": 75,
+	"./WordVectorSource.js": 75
 };
 
 
@@ -2469,7 +2460,11 @@ var ResourceThrottle = __webpack_require__(34);
 // EXTERNAL MODULE: ./dist/main/types/objects/NewsSourceWiki.js
 var NewsSourceWiki = __webpack_require__(37);
 
+// EXTERNAL MODULE: ./dist/main/types/objects/WordVectorSource.js
+var WordVectorSource = __webpack_require__(75);
+
 // CONCATENATED MODULE: ./dist/main/services/cold-start/functions.js
+
 
 
 
@@ -2486,6 +2481,24 @@ function getObjectsToInsert() {
         child: url,
     });
     const newsSourceWiki = new NewsSourceWiki["NewsSourceWiki"]("https://en.wikipedia.org/wiki/The_New_York_Times");
+    const wordVectorSources = [
+        new WordVectorSource["WordVectorSource"]({
+            resource: new ResourceURL["ResourceURL"]("https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M.vec.zip"),
+            label: "fasttext_wiki-news-300d-1M",
+        }),
+        new WordVectorSource["WordVectorSource"]({
+            resource: new ResourceURL["ResourceURL"]("https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M-subword.vec.zip"),
+            label: "fasttext_wiki-news-300d-1M-subw",
+        }),
+        new WordVectorSource["WordVectorSource"]({
+            resource: new ResourceURL["ResourceURL"]("https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M.vec.zip"),
+            label: "fasttext_crawl-300d-2M",
+        }),
+        new WordVectorSource["WordVectorSource"]({
+            resource: new ResourceURL["ResourceURL"]("https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M-subword.zip"),
+            label: "fasttext_crawl-300d-2M-subw",
+        }),
+    ];
     const client0 = new Client["Client"]({
         name: "ubuntu-mozilla",
         httpVersion: "1.1",
@@ -2521,7 +2534,7 @@ function getObjectsToInsert() {
         new ClientHeader["ClientHeader"](client2.name, "upgrade-insecure-requests", "1"),
         new ClientHeader["ClientHeader"](client2.name, "user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
-    return [newsSourceWiki, wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders];
+    return [newsSourceWiki, wikiCategory, urlThrottle, client0, client1, client2, ...clientHeaders, ...wordVectorSources];
 }
 async function insertColdStartObjects() {
     const promises = [];
@@ -2544,6 +2557,106 @@ insertColdStartObjects().then(async () => {
     SQL["b" /* SQL */].destroy();
     process.exit(0);
 });
+
+
+/***/ }),
+/* 72 */,
+/* 73 */,
+/* 74 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BYTES_PER_FLOAT", function() { return BYTES_PER_FLOAT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WordVector", function() { return WordVector; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+/* harmony import */ var _Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+
+
+const BYTES_PER_FLOAT = 2;
+const UNIQUE_VALUES = 1 << (BYTES_PER_FLOAT << 3);
+const MIN_VALUE = -(UNIQUE_VALUES >> 1);
+const MAX_VALUE = (UNIQUE_VALUES >> 1) - 1;
+class WordVector extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    getInsertParams() {
+        return [this.word.getID(), this.v300_fast_text];
+    }
+    table() {
+        return "WordVector";
+    }
+    insertCols() {
+        return ["word", "v300_fast_text"];
+    }
+    static vectorToBuffer(vector, buffer = Buffer.alloc(vector.length * 2)) {
+        let offset = 0;
+        for (const value of vector)
+            offset = WordVector.floatToBytes(value, buffer, offset).offset;
+        return buffer;
+    }
+    static floatToBytes(float, buffer = Buffer.alloc(2), offset = 0) {
+        let integer = Math.round(float * 10000);
+        if (integer < MIN_VALUE)
+            integer = MIN_VALUE;
+        if (integer > MAX_VALUE)
+            integer = MAX_VALUE;
+        let naturalNumber = integer - MIN_VALUE;
+        buffer.writeUInt16BE(naturalNumber, offset);
+        offset += 2;
+        return { buffer, offset };
+    }
+    static floatFromBytes(buffer, offset = 0) {
+        const naturalNumber = buffer.readUInt16BE(offset);
+        offset += 2;
+        let integer = naturalNumber + MIN_VALUE;
+        if (integer < MIN_VALUE)
+            integer = MIN_VALUE;
+        if (integer > MAX_VALUE)
+            integer = MAX_VALUE;
+        return { integer, offset };
+    }
+    static fromString(input) {
+        if (input === null)
+            throw new Error(`word vector null: ${input}`);
+        if (input === undefined)
+            throw new Error(`word vector undefined: ${input}`);
+        if (input === "")
+            throw new Error(`word vector empty: ${input}`);
+        const tokens = input.split(" ");
+        if (tokens.length === 0)
+            throw new Error(`word vector tokens length empty: ${input}`);
+        let wordValue = tokens[0];
+        if (wordValue === "")
+            throw new Error(`word vector word empty: ${input}`);
+        const word = new _Word__WEBPACK_IMPORTED_MODULE_1__["Word"](wordValue.toLowerCase());
+        const vector = this.vectorToBuffer(tokens.slice(1).map(s => parseFloat(s)));
+        return new WordVector({ v300_fast_text: vector, word });
+    }
+}
+
+
+/***/ }),
+/* 75 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WordVectorSource", function() { return WordVectorSource; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+
+class WordVectorSource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    getInsertParams() {
+        return [this.resource.getID(), this.label];
+    }
+    table() {
+        return "WordVectorSource";
+    }
+    insertCols() {
+        return ["resource", "label"];
+    }
+    hashSuffix() {
+        return this.label;
+    }
+}
 
 
 /***/ })

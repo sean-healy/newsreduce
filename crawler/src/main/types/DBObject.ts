@@ -2,26 +2,17 @@ import { defaultHash } from "common/hashing";
 import { bytesToBigInt } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
+import { GenericConstructor } from "./GenericConstructor";
 
 const ESCAPE = "ESCAPED BY '\\\\'";
 const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
 const LINE_TERM = "LINES TERMINATED BY '\\n'";
 
-export abstract class DBObject<T extends DBObject<T>> {
+export abstract class DBObject<T extends DBObject<T>> extends GenericConstructor<T> {
     abstract getInsertParams(): any[];
     abstract table(): string;
     abstract insertCols(): string[];
-    constructor(src?: { [key in keyof T]?: T[key] }) {
-        if (src) {
-            //fancyLog("constructing db object");
-            //console.log(src);
-            const dst = this as DBObject<T> as T;
-            for (const property in src) {
-                dst[property] = src[property];
-            }
-        }
-    }
     getIDBytes() {
         const suffix = this.hashSuffix();
         return suffix === null ? null : defaultHash(this.table(), suffix);

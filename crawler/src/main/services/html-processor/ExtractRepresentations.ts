@@ -32,6 +32,7 @@ export function getBagOfWords(window: DOMWindow) {
         if (words) for (const word of words)
             bag.register(word);
     }
+    for (const word of bag.objects.values()) word.enqueueInsert({ recursive: true });
 
     return bag;
 }

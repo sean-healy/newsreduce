@@ -22,8 +22,10 @@ export function buildOnFetch(url: string) {
             if (key === "content-type") {
                 const mimeType = value.toLowerCase();
                 let type: ResourceVersionType = null;
-                if (mimeType.match(/^text\/html/))
+                if (mimeType.match(/^text\/html/i))
                     type = ResourceVersionType.RAW_HTML;
+                else if (mimeType.match(/^application\/zip/i))
+                    type = ResourceVersionType.RAW_ZIP;
                 if (type !== null)
                     await resource.writeVersion(time, type, response.body);
             }
