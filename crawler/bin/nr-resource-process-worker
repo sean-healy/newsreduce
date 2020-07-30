@@ -3399,7 +3399,7 @@ async function processResource(resource, time, formats, pool, processors) {
     }
 }
 const buildProcessFunction = (processors) => async function process(lo, hi) {
-    const pool = new PromisePool["a" /* PromisePool */](50);
+    const pool = new PromisePool["a" /* PromisePool */](1);
     const resources = await Object(data["d" /* selectResourceVersions */])();
     for (const url in resources) {
         const resource = new ResourceURL["ResourceURL"](url);

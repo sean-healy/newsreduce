@@ -95,7 +95,7 @@ export async function processResource(
 
 export const buildProcessFunction = (processors: ResourceProcessor[]) =>
     async function process(lo: () => bigint, hi: () => bigint) {
-        const pool = new PromisePool(50);
+        const pool = new PromisePool(1);
         const resources = await selectResourceVersions();
         for (const url in resources) {
             const resource = new ResourceURL(url);
