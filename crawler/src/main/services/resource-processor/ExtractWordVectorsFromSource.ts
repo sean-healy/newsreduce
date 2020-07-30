@@ -27,6 +27,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                     .map(match => match[0])[0];
                 console.log(path);
                 const inputStream = spawn(UNZIP, ["-p", compressedTMP, path]).stdout;
+                console.log("spawned")
                 const wordVectors = await WordVectors.fromStream(inputStream);
                 console.log(wordVectors);
                 for (const wordVector of wordVectors.vectors.values())
