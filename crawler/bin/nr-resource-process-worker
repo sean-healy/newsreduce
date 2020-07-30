@@ -3920,7 +3920,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
         console.log(compressedTMP);
         const outputStream = external_fs_default.a.createWriteStream(compressedTMP);
         const inputStream = await resource.stream(time, ResourceVersionType["ResourceVersionType"].RAW_ZIP);
-        console.log({ inputStream });
+        console.log({ inputStream: !!inputStream });
         inputStream.pipe(outputStream);
         await new Promise(res => {
             outputStream.on("close", async () => {

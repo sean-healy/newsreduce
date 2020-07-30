@@ -17,7 +17,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
         console.log(compressedTMP);
         const outputStream = fs.createWriteStream(compressedTMP);
         const inputStream = await resource.stream(time, ResourceVersionType.RAW_ZIP);
-        console.log({ inputStream });
+        console.log({ inputStream: !!inputStream });
         inputStream.pipe(outputStream);
         await new Promise<void>(res => {
             outputStream.on("close", async () => {
