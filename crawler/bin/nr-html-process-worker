@@ -1227,32 +1227,40 @@ class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/*
     }
 }
 ResourceVersionType.RAW_HTML_FILE = "raw.html";
-ResourceVersionType.RAW_HEADERS_FILE = "headers.txt";
-ResourceVersionType.RAW_WORDS_TXT_FILE = "raw-words.txt";
-ResourceVersionType.RAW_LINKS_TXT_FILE = "raw-links.txt";
-ResourceVersionType.WORD_HITS_FILE = "word-hits.bin";
-ResourceVersionType.LINK_HITS_FILE = "link-hits.bin";
-ResourceVersionType.TITLE_FILE = "title.txt";
 ResourceVersionType.RAW_HTML = new ResourceVersionType({
     filename: ResourceVersionType.RAW_HTML_FILE,
 });
+ResourceVersionType.RAW_WORDS_TXT_FILE = "raw-words.txt";
 ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType({
     filename: ResourceVersionType.RAW_WORDS_TXT_FILE,
 });
+ResourceVersionType.RAW_LINKS_TXT_FILE = "raw-links.txt";
 ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType({
     filename: ResourceVersionType.RAW_LINKS_TXT_FILE,
 });
+ResourceVersionType.WORD_HITS_FILE = "word-hits.bin";
 ResourceVersionType.WORD_HITS = new ResourceVersionType({
     filename: ResourceVersionType.WORD_HITS_FILE,
 });
+ResourceVersionType.LINK_HITS_FILE = "link-hits.bin";
 ResourceVersionType.LINK_HITS = new ResourceVersionType({
     filename: ResourceVersionType.LINK_HITS_FILE,
 });
+ResourceVersionType.RAW_HEADERS_FILE = "headers.txt";
 ResourceVersionType.RAW_HEADERS = new ResourceVersionType({
     filename: ResourceVersionType.RAW_HEADERS_FILE,
 });
+ResourceVersionType.TITLE_FILE = "title.txt";
 ResourceVersionType.TITLE = new ResourceVersionType({
     filename: ResourceVersionType.TITLE_FILE,
+});
+ResourceVersionType.BAG_OF_WORDS_FILE = "bow.bin";
+ResourceVersionType.BAG_OF_WORDS = new ResourceVersionType({
+    filename: ResourceVersionType.BAG_OF_WORDS_FILE,
+});
+ResourceVersionType.BINARY_BAG_OF_WORDS_FILE = "bin-bow.bin";
+ResourceVersionType.BINARY_BAG_OF_WORDS = new ResourceVersionType({
+    filename: ResourceVersionType.BINARY_BAG_OF_WORDS_FILE,
 });
 
 
@@ -2484,6 +2492,90 @@ webpackContext.id = 51;
 "use strict";
 
 // EXPORTS
+__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ selectPreSchedule; });
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ schedule; });
+__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectResourcesNotProcessed; });
+
+// CONCATENATED MODULE: ./dist/main/sql.js
+/* harmony default export */ var sql = ({
+    // /home/sean/newsreduce/sql/BULK_INSERT.sql
+    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
+    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
+    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
+    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
+    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
+    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
+    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
+    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
+    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
+    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
+    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
+    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
+    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
+    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
+    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
+    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
+    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
+});
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
+var ResourceURL = __webpack_require__(7);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(0);
+
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(2);
+
+// EXTERNAL MODULE: ./dist/main/common/SQL.js
+var SQL = __webpack_require__(11);
+
+// CONCATENATED MODULE: ./dist/main/data.js
+
+
+
+
+
+async function genericSQLPromise(query, params = [], mapper) {
+    let response = await SQL["b" /* SQL */].query(query, params);
+    if (mapper && response)
+        response = mapper(response);
+    return response;
+}
+function selectPreSchedule() {
+    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
+}
+async function schedule(items) {
+    Object(util["e" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
+    const promises = [];
+    let scheduled = 0;
+    for (const item of items) {
+        const resourceURL = new ResourceURL["ResourceURL"](item.url);
+        if (!await resourceURL.isFetchLocked()) {
+            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
+                .zincrby(resourceURL.host.name, 1, item.url));
+            ++scheduled;
+        }
+    }
+    if (scheduled)
+        Object(util["e" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
+    await Promise.all(promises);
+}
+async function selectResourcesNotProcessed() {
+    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
+    return genericSQLPromise(query);
+}
+
+
+/***/ }),
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
 __webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ Hits_Hits; });
 
 // CONCATENATED MODULE: ./dist/main/types/Hit.js
@@ -2596,90 +2688,6 @@ class Hits_Hits {
 
 
 /***/ }),
-/* 53 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ selectPreSchedule; });
-__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ schedule; });
-__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectResourcesNotProcessed; });
-
-// CONCATENATED MODULE: ./dist/main/sql.js
-/* harmony default export */ var sql = ({
-    // /home/sean/newsreduce/sql/BULK_INSERT.sql
-    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
-    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
-    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
-    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
-    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
-    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
-    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
-    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
-    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
-    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
-    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
-    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
-    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
-    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
-    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
-    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
-    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
-});
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
-var ResourceURL = __webpack_require__(7);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(0);
-
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./dist/main/common/SQL.js
-var SQL = __webpack_require__(11);
-
-// CONCATENATED MODULE: ./dist/main/data.js
-
-
-
-
-
-async function genericSQLPromise(query, params = [], mapper) {
-    let response = await SQL["b" /* SQL */].query(query, params);
-    if (mapper && response)
-        response = mapper(response);
-    return response;
-}
-function selectPreSchedule() {
-    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
-}
-async function schedule(items) {
-    Object(util["e" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
-    const promises = [];
-    let scheduled = 0;
-    for (const item of items) {
-        const resourceURL = new ResourceURL["ResourceURL"](item.url);
-        if (!await resourceURL.isFetchLocked()) {
-            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
-                .zincrby(resourceURL.host.name, 1, item.url));
-            ++scheduled;
-        }
-    }
-    if (scheduled)
-        Object(util["e" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
-    await Promise.all(promises);
-}
-async function selectResourcesNotProcessed() {
-    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
-    return genericSQLPromise(query);
-}
-
-
-/***/ }),
 /* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -2715,7 +2723,7 @@ function start(f, birthLog, deathLog, preconditions, postcondition) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return WordHits; });
-/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
 /* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(35);
 
 
@@ -2735,7 +2743,7 @@ class WordHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LinkHits; });
-/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
 /* harmony import */ var _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 
 
@@ -2811,30 +2819,20 @@ var file = __webpack_require__(23);
 // EXTERNAL MODULE: ./dist/main/types/Entity.js
 var Entity = __webpack_require__(9);
 
-// CONCATENATED MODULE: ./dist/main/services/html-processor/HTMLDocumentProcessor.js
-const EXCLUDE = [
-    "NOSCRIPT",
-    "SCRIPT",
-    "STYLE",
-    "FORM",
-    "INPUT",
-    "BUTTON",
-];
-class HTMLDocumentProcessor {
-    constructor() { }
-    static removeExcludedNodes(window) {
-        for (const tag of EXCLUDE) {
-            const items = window.document.querySelectorAll(tag);
-            for (let i = 0; i < items.length; ++i) {
-                const item = items.item(i);
-                item.parentElement.removeChild(item);
-            }
-        }
-    }
-}
+// EXTERNAL MODULE: ./dist/main/data.js + 1 modules
+var data = __webpack_require__(52);
 
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
-var ResourceURL = __webpack_require__(7);
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(0);
+
+// EXTERNAL MODULE: ./dist/main/common/processor.js
+var common_processor = __webpack_require__(50);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
+var ResourceVersionType = __webpack_require__(14);
+
+// EXTERNAL MODULE: ./dist/main/common/PromisePool.js
+var PromisePool = __webpack_require__(58);
 
 // CONCATENATED MODULE: ./dist/main/types/HitType.js
 var HitType;
@@ -2935,31 +2933,7 @@ function nodeToHitType(node) {
     return hitType;
 }
 
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
-var ResourceVersionType = __webpack_require__(14);
-
-// EXTERNAL MODULE: ./dist/main/types/WordHits.js
-var WordHits = __webpack_require__(56);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(0);
-
-// EXTERNAL MODULE: ./dist/main/types/LinkHits.js
-var LinkHits = __webpack_require__(57);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceLink.js
-var ResourceLink = __webpack_require__(26);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceLinkHash.js
-var ResourceLinkHash = __webpack_require__(36);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceHash.js
-var ResourceHash = __webpack_require__(25);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/Anchor.js
-var Anchor = __webpack_require__(24);
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractAHrefs.js
+// CONCATENATED MODULE: ./dist/main/services/html-processor/functions.js
 
 
 
@@ -2968,8 +2942,32 @@ var Anchor = __webpack_require__(24);
 
 
 
-const HASH = "#";
+
 const ANCHOR_TAG = "a";
+const means = {};
+function printMeans() {
+    const tmpMeans = [];
+    for (const task in means) {
+        const [count, mean] = means[task];
+        tmpMeans.push({
+            task,
+            count,
+            mean,
+        });
+    }
+    Object(util["i" /* tabulate */])(tmpMeans);
+}
+function updateMean(task, a) {
+    const b = Date.now();
+    const time = b - a;
+    if (task in means) {
+        const [count, mean] = means[task];
+        means[task] = [count + 1, (count * mean + time) / (count + 1)];
+    }
+    else
+        means[task] = [1, time];
+    printMeans();
+}
 function htmlCollectionToArray(coll) {
     const array = new Array(coll.length);
     for (let position = 0; position < coll.length; ++position)
@@ -2980,43 +2978,109 @@ function getAnchorsWithHREF(window) {
     const truthyAndFalseyAnchors = htmlCollectionToArray(window.document.getElementsByTagName(ANCHOR_TAG));
     return truthyAndFalseyAnchors.filter(a => a.href);
 }
-function getLinks(window) {
-    const parent = new ResourceURL["ResourceURL"](window.location.toString());
-    const links = [];
-    for (const anchor of getAnchorsWithHREF(window)) {
-        const parts = anchor.href.split(HASH, 2);
-        const url = parts[0];
-        const hash = parts.length > 1 ? parts[1] : "";
-        const value = new Anchor["Anchor"]({ value: anchor.innerHTML });
-        let child;
-        try {
-            child = new ResourceURL["ResourceURL"](url);
-        }
-        catch (e) {
-            Object(util["e" /* fancyLog */])("invalid url: " + url);
-            Object(util["e" /* fancyLog */])(JSON.stringify(e));
-            continue;
-        }
-        const link = new ResourceLink["ResourceLink"]({ parent, child, value });
-        if (hash)
-            links.push(new ResourceLinkHash["ResourceLinkHash"]({ link, hash: new ResourceHash["ResourceHash"](hash) }));
-        else
-            links.push(link);
+function contentFromNode(node, hitType) {
+    let content;
+    switch (hitType) {
+        case HitType.META_DATA:
+            content = node.getAttribute("content");
+            break;
+        case HitType.ACCESSABILITY_DATA:
+            content = node.getAttribute("title");
+            if (!content)
+                node.getAttribute("alt");
+            break;
+        default:
+            content = node.textContent;
     }
-    return links;
+    return content;
 }
-class ExtractAHrefs_ExtractAHrefs extends HTMLDocumentProcessor {
-    ro() { return true; }
-    async apply(window, time) {
-        const parent = new ResourceURL["ResourceURL"](window.location.toString());
-        const links = getLinks(window);
-        const urls = links.map(item => item instanceof ResourceLinkHash["ResourceLinkHash"] ? `${item.link.child.toURL()}#${item.hash.value}` : item.child.toURL());
-        const fsPromise = parent.writeVersion(time, ResourceVersionType["ResourceVersionType"].RAW_LINKS_TXT, urls.join("\n"));
-        const dbPromises = links.map(link => link.enqueueInsert({ recursive: true }));
-        const promises = [...dbPromises, fsPromise];
-        await Promise.all(promises);
+function wordsFromNode(node, hitType) {
+    const content = contentFromNode(node, hitType);
+    const lc = content.toLowerCase();
+    const normalised = lc.replace(/[–-]/g, "");
+    const words = normalised.match(/[^ \t\s!"'^&*();:@~#\n®.,<>?/\[\]\\{}“”‘’]+/g);
+    return words;
+}
+//let a: number;
+async function processURL(resource, url, time, pool, processors) {
+    let formats;
+    try {
+        //a = Date.now();
+        formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
+        //updateMean("findFormats", a);
+    }
+    catch (e) {
+        Object(util["e" /* fancyLog */])("error while listing formats");
+        Object(util["e" /* fancyLog */])(JSON.stringify(e));
+        common_processor["a" /* SAFELY_EXIT */][0] = true;
+    }
+    for (const format of formats) {
+        if (format.filename === ResourceVersionType["ResourceVersionType"].RAW_HTML.filename) {
+            let content;
+            try {
+                content = await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, ResourceVersionType["ResourceVersionType"].RAW_HTML);
+            }
+            catch (e) {
+                Object(util["e" /* fancyLog */])("error while reading file");
+                Object(util["e" /* fancyLog */])(JSON.stringify(e));
+                common_processor["a" /* SAFELY_EXIT */][0] = true;
+            }
+            if (content) {
+                console.log(`${time} ${url}`);
+                let window;
+                let reDOM = true;
+                for (const processor of processors) {
+                    if (reDOM) {
+                        window = new external_jsdom_["JSDOM"](content, { url }).window;
+                    }
+                    await pool.registerPromise(processor.apply(window, time));
+                    reDOM = !processor.ro();
+                }
+            }
+        }
     }
 }
+const buildProcessFunction = (processors) => async function process(lo, hi) {
+    const pool = new PromisePool["a" /* PromisePool */](50);
+    const rows = await Object(data["c" /* selectResourcesNotProcessed */])();
+    for (const row of rows) {
+        const id = row.resource;
+        if (id >= lo() && id < hi())
+            await processURL(id, row.url, row.time, pool, processors);
+    }
+    pool.flush();
+};
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/HTMLDocumentProcessor.js
+const EXCLUDE = [
+    "NOSCRIPT",
+    "SCRIPT",
+    "STYLE",
+    "FORM",
+    "INPUT",
+    "BUTTON",
+];
+class HTMLDocumentProcessor {
+    constructor() { }
+    static removeExcludedNodes(window) {
+        for (const tag of EXCLUDE) {
+            const items = window.document.querySelectorAll(tag);
+            for (let i = 0; i < items.length; ++i) {
+                const item = items.item(i);
+                item.parentElement.removeChild(item);
+            }
+        }
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
+var ResourceURL = __webpack_require__(7);
+
+// EXTERNAL MODULE: ./dist/main/types/WordHits.js
+var WordHits = __webpack_require__(56);
+
+// EXTERNAL MODULE: ./dist/main/types/LinkHits.js
+var LinkHits = __webpack_require__(57);
 
 // CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractHits.js
 
@@ -3045,47 +3109,6 @@ const INCLUDE_TAGS = [
     "P",
     "META",
 ];
-function contentFromNode(node, hitType) {
-    let content;
-    switch (hitType) {
-        case HitType.META_DATA:
-            content = node.getAttribute("content");
-            break;
-        case HitType.ACCESSABILITY_DATA:
-            content = node.getAttribute("title");
-            if (!content)
-                node.getAttribute("alt");
-            break;
-        default:
-            content = node.textContent;
-    }
-    return content;
-}
-function wordsFromNode(node, hitType) {
-    const content = contentFromNode(node, hitType);
-    const lc = content.toLowerCase();
-    const normalised = lc.replace(/[–-]/g, "");
-    const words = normalised.match(/[^ \t\s!"'^&*();:@~#\n®.,<>?/\[\]\\{}“”‘’]+/g);
-    return words;
-}
-function urlsFromNode(node) {
-    const anchors = node.querySelectorAll("a");
-    const length = anchors.length;
-    const urls = [];
-    for (let i = 0; i < length; ++i) {
-        const item = anchors.item(i);
-        const url = item.href;
-        try {
-            const resource = new ResourceURL["ResourceURL"](url);
-            urls.push(resource.toURL());
-        }
-        catch (e) {
-            Object(util["e" /* fancyLog */])(`unhandled url: ${url}`);
-            Object(util["e" /* fancyLog */])(JSON.stringify(e));
-        }
-    }
-    return urls;
-}
 ;
 function getHits(window) {
     HTMLDocumentProcessor.removeExcludedNodes(window);
@@ -3127,6 +3150,67 @@ class ExtractHits_ExtractHits extends HTMLDocumentProcessor {
             resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].LINK_HITS, linkHits.toBuffer()),
             resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].WORD_HITS, wordHits.toBuffer()),
         ]);
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceLink.js
+var ResourceLink = __webpack_require__(26);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceLinkHash.js
+var ResourceLinkHash = __webpack_require__(36);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceHash.js
+var ResourceHash = __webpack_require__(25);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/Anchor.js
+var Anchor = __webpack_require__(24);
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractAHrefs.js
+
+
+
+
+
+
+
+
+
+const HASH = "#";
+function getLinks(window) {
+    const parent = new ResourceURL["ResourceURL"](window.location.toString());
+    const links = [];
+    for (const anchor of getAnchorsWithHREF(window)) {
+        const parts = anchor.href.split(HASH, 2);
+        const url = parts[0];
+        const hash = parts.length > 1 ? parts[1] : "";
+        const value = new Anchor["Anchor"]({ value: anchor.innerHTML });
+        let child;
+        try {
+            child = new ResourceURL["ResourceURL"](url);
+        }
+        catch (e) {
+            Object(util["e" /* fancyLog */])("invalid url: " + url);
+            Object(util["e" /* fancyLog */])(JSON.stringify(e));
+            continue;
+        }
+        const link = new ResourceLink["ResourceLink"]({ parent, child, value });
+        if (hash)
+            links.push(new ResourceLinkHash["ResourceLinkHash"]({ link, hash: new ResourceHash["ResourceHash"](hash) }));
+        else
+            links.push(link);
+    }
+    return links;
+}
+class ExtractAHrefs_ExtractAHrefs extends HTMLDocumentProcessor {
+    ro() { return true; }
+    async apply(window, time) {
+        const parent = new ResourceURL["ResourceURL"](window.location.toString());
+        const links = getLinks(window);
+        const urls = links.map(item => item instanceof ResourceLinkHash["ResourceLinkHash"] ? `${item.link.child.toURL()}#${item.hash.value}` : item.child.toURL());
+        const fsPromise = parent.writeVersion(time, ResourceVersionType["ResourceVersionType"].RAW_LINKS_TXT, urls.join("\n"));
+        const dbPromises = links.map(link => link.enqueueInsert({ recursive: true }));
+        const promises = [...dbPromises, fsPromise];
+        await Promise.all(promises);
     }
 }
 
@@ -3214,12 +3298,6 @@ class ExtractWikiTree_ExtractWikiTree extends HTMLDocumentProcessor {
     }
 }
 
-// EXTERNAL MODULE: ./dist/main/data.js + 1 modules
-var data = __webpack_require__(53);
-
-// EXTERNAL MODULE: ./dist/main/common/processor.js
-var common_processor = __webpack_require__(50);
-
 // EXTERNAL MODULE: ./dist/main/types/objects/ResourceTitle.js
 var ResourceTitle = __webpack_require__(39);
 
@@ -3246,103 +3324,183 @@ class ExtractTitle_ExtractTitle extends HTMLDocumentProcessor {
     }
 }
 
-// EXTERNAL MODULE: ./dist/main/common/PromisePool.js
-var PromisePool = __webpack_require__(58);
+// EXTERNAL MODULE: ./dist/main/types/objects/Word.js
+var Word = __webpack_require__(35);
 
-// CONCATENATED MODULE: ./dist/main/services/html-processor/functions.js
-
-
+// CONCATENATED MODULE: ./dist/main/types/BinaryBag.js
 
 
-
-
-
-
-
-
-
-
-
-const PROCESSORS = [new ExtractAHrefs_ExtractAHrefs(), new ExtractTitle_ExtractTitle(), new ExtractWikiTree_ExtractWikiTree(), new ExtractRawText_ExtractRawText(), new ExtractHits_ExtractHits()];
-const means = {};
-function printMeans() {
-    const tmpMeans = [];
-    for (const task in means) {
-        const [count, mean] = means[task];
-        tmpMeans.push({
-            task,
-            count,
-            mean,
-        });
+class BinaryBag_BinaryBag {
+    constructor(builder, bag = new Set()) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
     }
-    Object(util["i" /* tabulate */])(tmpMeans);
-}
-function updateMean(task, a) {
-    const b = Date.now();
-    const time = b - a;
-    if (task in means) {
-        const [count, mean] = means[task];
-        means[task] = [count + 1, (count * mean + time) / (count + 1)];
+    register(value) {
+        const obj = this.builder(value);
+        const wordID = obj.getID();
+        this.bag.add(wordID);
     }
-    else
-        means[task] = [1, time];
-    printMeans();
-}
-//let a: number;
-async function processURL(resource, url, time, pool) {
-    let formats;
-    try {
-        //a = Date.now();
-        formats = await Object(file["a" /* findFormats */])(Entity["a" /* Entity */].RESOURCE, resource, time);
-        //updateMean("findFormats", a);
-    }
-    catch (e) {
-        Object(util["e" /* fancyLog */])("error while listing formats");
-        Object(util["e" /* fancyLog */])(JSON.stringify(e));
-        common_processor["a" /* SAFELY_EXIT */][0] = true;
-    }
-    for (const format of formats) {
-        if (format.filename === ResourceVersionType["ResourceVersionType"].RAW_HTML.filename) {
-            let content;
-            try {
-                content = await Object(file["e" /* read */])(Entity["a" /* Entity */].RESOURCE, resource, time, ResourceVersionType["ResourceVersionType"].RAW_HTML);
-            }
-            catch (e) {
-                Object(util["e" /* fancyLog */])("error while reading file");
-                Object(util["e" /* fancyLog */])(JSON.stringify(e));
-                common_processor["a" /* SAFELY_EXIT */][0] = true;
-            }
-            if (content) {
-                console.log(`${time} ${url}`);
-                let window;
-                let reDOM = true;
-                for (const processor of PROCESSORS) {
-                    if (reDOM) {
-                        window = new external_jsdom_["JSDOM"](content, { url }).window;
-                    }
-                    await pool.registerPromise(processor.apply(window, time));
-                    reDOM = !processor.ro();
-                }
-            }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(this.bag.size * 12);
+        let offset = 0;
+        for (const id of ids.sort(util["a" /* CMP_BIG_INT */])) {
+            Object(util["k" /* writeBigUInt96BE */])(id, fileData, offset);
+            offset += 12;
         }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Set();
+        const bufferLength = buffer.length;
+        let offset = 0;
+        while (offset < bufferLength) {
+            const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            bag.add(id);
+        }
+        return new BinaryBag_BinaryBag(this.builder, bag);
+    }
+    toString() {
+        const ids = Object(util["f" /* iteratorToArray */])(this.bag.keys()).sort(util["a" /* CMP_BIG_INT */]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + "\n";
+        return str;
+    }
+    static ofWords() {
+        return new BinaryBag_BinaryBag(value => new Word["Word"](value));
     }
 }
-async function process(lo, hi) {
-    const pool = new PromisePool["a" /* PromisePool */](50);
-    const rows = await Object(data["c" /* selectResourcesNotProcessed */])();
-    for (const row of rows) {
-        const id = row.resource;
-        if (id >= lo() && id < hi())
-            await processURL(id, row.url, row.time, pool);
+
+// CONCATENATED MODULE: ./dist/main/types/Bag.js
+
+
+class Bag_Bag {
+    constructor(builder, bag = new Map(), lengthBytes = 2) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
+        this.lengthBytes = lengthBytes;
     }
-    pool.flush();
+    register(value) {
+        const obj = this.builder(value);
+        const id = obj.getID();
+        this.objects.set(id, obj);
+        if (this.bag.has(id))
+            this.bag.set(id, this.bag.get(id) + 1);
+        else
+            this.bag.set(id, 1);
+    }
+    toBinaryBag() {
+        return new BinaryBag_BinaryBag(this.builder, new Set(this.bag.keys()));
+    }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(1 + this.bag.size * (12 + this.lengthBytes));
+        fileData[0] = this.lengthBytes;
+        let offset = 1;
+        for (const id of ids.sort(util["a" /* CMP_BIG_INT */])) {
+            Object(util["k" /* writeBigUInt96BE */])(id, fileData, offset);
+            offset += 12;
+            const count = Math.min(this.bag.get(id), (1 << this.lengthBytes * 8) - 1);
+            Object(util["j" /* writeAnyNumberBE */])(count, fileData, offset, this.lengthBytes);
+            offset += this.lengthBytes;
+        }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Map();
+        const bufferLength = buffer.length;
+        const lengthBytes = buffer[0];
+        let offset = 1;
+        while (offset < bufferLength) {
+            const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            const count = Object(util["d" /* bytesToNumber */])(buffer.slice(offset, offset + this.lengthBytes));
+            offset += this.lengthBytes;
+            bag.set(id, count);
+        }
+        return this.build(bag, lengthBytes);
+    }
+    toString() {
+        const ids = Object(util["f" /* iteratorToArray */])(this.bag.keys()).sort(util["a" /* CMP_BIG_INT */]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + " " + this.bag.get(id).toString(16).padStart(this.lengthBytes * 2, "0") + "\n";
+        return str;
+    }
+}
+
+// CONCATENATED MODULE: ./dist/main/types/BagOfWords.js
+
+
+class BagOfWords_BagOfWords extends Bag_Bag {
+    constructor(bag = new Map(), lengthBytes = 2) {
+        super(value => new Word["Word"](value), bag, lengthBytes);
+    }
+    build(bag, lengthBytes) {
+        return new BagOfWords_BagOfWords(bag, lengthBytes);
+    }
+}
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractRepresentations.js
+
+
+
+
+
+
+const ExtractRepresentations_INCLUDE_TAGS = [
+    "TITLE",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "FIGCAPTION",
+    "BLOCKQUOTE",
+    "P",
+];
+function getBagOfWords(window) {
+    HTMLDocumentProcessor.removeExcludedNodes(window);
+    const queryItems = htmlCollectionToArray(window.document.querySelectorAll(ExtractRepresentations_INCLUDE_TAGS.join(",")));
+    // Ensure no words are counted twice.
+    for (const item of queryItems)
+        item.parentNode.removeChild(item);
+    const bag = new BagOfWords_BagOfWords();
+    for (const item of queryItems)
+        for (const word of wordsFromNode(item, nodeToHitType(item)))
+            bag.register(word);
+    return bag;
+}
+class ExtractRepresentations_ExtractRepresentations extends HTMLDocumentProcessor {
+    ro() { return false; }
+    async apply(window, time) {
+        const resource = new ResourceURL["ResourceURL"](window.location.toString());
+        const bag = getBagOfWords(window);
+        const binaryBag = bag.toBinaryBag();
+        await Promise.all([
+            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].BAG_OF_WORDS, bag.toBuffer()),
+            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].BINARY_BAG_OF_WORDS, binaryBag.toBuffer()),
+        ]);
+    }
 }
 
 // CONCATENATED MODULE: ./dist/main/services/html-processor/worker.js
 
 
 
-Object(worker["a" /* start */])(process, events["k" /* HTML_PROCESS_BIRTH_LOG */], events["m" /* HTML_PROCESS_DEATH_LOG */], null, events["l" /* HTML_PROCESS_COMPLETE */]);
+
+
+
+
+
+
+const worker_process = buildProcessFunction([ExtractAHrefs_ExtractAHrefs, ExtractTitle_ExtractTitle, ExtractWikiTree_ExtractWikiTree, ExtractRawText_ExtractRawText, ExtractHits_ExtractHits, ExtractRepresentations_ExtractRepresentations].map(c => new c()));
+Object(worker["a" /* start */])(worker_process, events["k" /* HTML_PROCESS_BIRTH_LOG */], events["m" /* HTML_PROCESS_DEATH_LOG */], null, events["l" /* HTML_PROCESS_COMPLETE */]);
 
 
 /***/ })

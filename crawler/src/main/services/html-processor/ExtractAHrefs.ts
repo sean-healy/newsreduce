@@ -8,26 +8,9 @@ import { ResourceHash } from "types/objects/ResourceHash";
 import { Anchor } from "types/objects/Anchor";
 import { fancyLog } from "common/util";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { getAnchorsWithHREF } from "services/html-processor/functions";
 
 const HASH = "#";
-const ANCHOR_TAG = "a";
-
-export function htmlCollectionToArray<T extends Element>(
-    coll: HTMLCollectionOf<T> | NodeListOf<T>
-) {
-    const array = new Array<T>(coll.length);
-    for (let position = 0; position < coll.length; ++position)
-        array[position] = coll.item(position);
-
-    return array;
-}
-
-export function getAnchorsWithHREF(window: DOMWindow) {
-    const truthyAndFalseyAnchors =
-        htmlCollectionToArray(window.document.getElementsByTagName(ANCHOR_TAG));
-
-    return truthyAndFalseyAnchors.filter(a => a.href);
-}
 
 export function getLinks(window: DOMWindow) {
     const parent = new ResourceURL(window.location.toString());

@@ -1227,32 +1227,40 @@ class ResourceVersionType extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/*
     }
 }
 ResourceVersionType.RAW_HTML_FILE = "raw.html";
-ResourceVersionType.RAW_HEADERS_FILE = "headers.txt";
-ResourceVersionType.RAW_WORDS_TXT_FILE = "raw-words.txt";
-ResourceVersionType.RAW_LINKS_TXT_FILE = "raw-links.txt";
-ResourceVersionType.WORD_HITS_FILE = "word-hits.bin";
-ResourceVersionType.LINK_HITS_FILE = "link-hits.bin";
-ResourceVersionType.TITLE_FILE = "title.txt";
 ResourceVersionType.RAW_HTML = new ResourceVersionType({
     filename: ResourceVersionType.RAW_HTML_FILE,
 });
+ResourceVersionType.RAW_WORDS_TXT_FILE = "raw-words.txt";
 ResourceVersionType.RAW_WORDS_TXT = new ResourceVersionType({
     filename: ResourceVersionType.RAW_WORDS_TXT_FILE,
 });
+ResourceVersionType.RAW_LINKS_TXT_FILE = "raw-links.txt";
 ResourceVersionType.RAW_LINKS_TXT = new ResourceVersionType({
     filename: ResourceVersionType.RAW_LINKS_TXT_FILE,
 });
+ResourceVersionType.WORD_HITS_FILE = "word-hits.bin";
 ResourceVersionType.WORD_HITS = new ResourceVersionType({
     filename: ResourceVersionType.WORD_HITS_FILE,
 });
+ResourceVersionType.LINK_HITS_FILE = "link-hits.bin";
 ResourceVersionType.LINK_HITS = new ResourceVersionType({
     filename: ResourceVersionType.LINK_HITS_FILE,
 });
+ResourceVersionType.RAW_HEADERS_FILE = "headers.txt";
 ResourceVersionType.RAW_HEADERS = new ResourceVersionType({
     filename: ResourceVersionType.RAW_HEADERS_FILE,
 });
+ResourceVersionType.TITLE_FILE = "title.txt";
 ResourceVersionType.TITLE = new ResourceVersionType({
     filename: ResourceVersionType.TITLE_FILE,
+});
+ResourceVersionType.BAG_OF_WORDS_FILE = "bow.bin";
+ResourceVersionType.BAG_OF_WORDS = new ResourceVersionType({
+    filename: ResourceVersionType.BAG_OF_WORDS_FILE,
+});
+ResourceVersionType.BINARY_BAG_OF_WORDS_FILE = "bin-bow.bin";
+ResourceVersionType.BINARY_BAG_OF_WORDS = new ResourceVersionType({
+    filename: ResourceVersionType.BINARY_BAG_OF_WORDS_FILE,
 });
 
 

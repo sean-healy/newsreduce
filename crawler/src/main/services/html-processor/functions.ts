@@ -1,19 +1,15 @@
 import { JSDOM, DOMWindow } from "jsdom";
 import { read, findFormats } from "file";
 import { Entity } from "types/Entity";
-import { ExtractHits } from "./ExtractHits";
-import { ExtractAHrefs } from "services/html-processor/ExtractAHrefs";
-import { ExtractRawText } from "services/html-processor/ExtractRawText";
-import { ExtractWikiTree } from "services/html-processor/ExtractWikiTree";
 import { HTMLDocumentProcessor } from "services/html-processor/HTMLDocumentProcessor";
 import { selectResourcesNotProcessed } from "data";
 import { fancyLog, tabulate } from "common/util";
 import { SAFELY_EXIT } from "common/processor";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
-import { ExtractTitle } from "./ExtractTitle";
 import { PromisePool } from "common/PromisePool";
-const PROCESSORS: HTMLDocumentProcessor[] =
-    [new ExtractAHrefs(), new ExtractTitle(), new ExtractWikiTree(), new ExtractRawText(), new ExtractHits()];
+import { HitType } from "types/HitType";
+
+const ANCHOR_TAG = "a";
 
 const means: { [key: string]: [number, number] } = {};
 
@@ -41,8 +37,55 @@ function updateMean(task: string, a: number) {
     printMeans();
 }
 
+export function htmlCollectionToArray<T extends Element>(
+    coll: HTMLCollectionOf<T> | NodeListOf<T>
+) {
+    const array = new Array<T>(coll.length);
+    for (let position = 0; position < coll.length; ++position)
+        array[position] = coll.item(position);
+
+    return array;
+}
+
+export function getAnchorsWithHREF(window: DOMWindow) {
+    const truthyAndFalseyAnchors =
+        htmlCollectionToArray(window.document.getElementsByTagName(ANCHOR_TAG));
+
+    return truthyAndFalseyAnchors.filter(a => a.href);
+}
+
+export function contentFromNode(node: Element, hitType: HitType) {
+    let content: string;
+    switch (hitType) {
+        case HitType.META_DATA:
+            content = node.getAttribute("content");
+            break;
+        case HitType.ACCESSABILITY_DATA:
+            content = node.getAttribute("title");
+            if (!content) node.getAttribute("alt");
+            break;
+        default:
+            content = node.textContent;
+    }
+
+    return content;
+}
+export function wordsFromNode(node: Element, hitType: HitType) {
+    const content = contentFromNode(node, hitType);
+    const lc = content.toLowerCase();
+    const normalised = lc.replace(/[–-]/g, "");
+    const words = normalised.match(/[^ \t\s!"'^&*();:@~#\n®.,<>?/\[\]\\{}“”‘’]+/g);
+    return words;
+}
+
 //let a: number;
-export async function processURL(resource: bigint, url: string, time: number, pool: PromisePool) {
+export async function processURL(
+    resource: bigint,
+    url: string,
+    time: number,
+    pool: PromisePool,
+    processors: HTMLDocumentProcessor[]
+) {
     let formats: ResourceVersionType[];
     try {
         //a = Date.now();
@@ -67,7 +110,7 @@ export async function processURL(resource: bigint, url: string, time: number, po
                 console.log(`${time} ${url}`);
                 let window: DOMWindow;
                 let reDOM = true;
-                for (const processor of PROCESSORS) {
+                for (const processor of processors) {
                     if (reDOM) {
                         window = new JSDOM(content, { url }).window;
                     }
@@ -79,13 +122,14 @@ export async function processURL(resource: bigint, url: string, time: number, po
     }
 }
 
-export async function process(lo: () => bigint, hi: () => bigint) {
-    const pool = new PromisePool(50);
-    const rows = await selectResourcesNotProcessed();
-    for (const row of rows) {
-        const id = row.resource;
-        if (id >= lo() && id < hi())
-            await processURL(id, row.url, row.time, pool);
+export const buildProcessFunction = (processors: HTMLDocumentProcessor[]) =>
+    async function process(lo: () => bigint, hi: () => bigint) {
+        const pool = new PromisePool(50);
+        const rows = await selectResourcesNotProcessed();
+        for (const row of rows) {
+            const id = row.resource;
+            if (id >= lo() && id < hi())
+                await processURL(id, row.url, row.time, pool, processors);
+        }
+        pool.flush();
     }
-    pool.flush();
-}

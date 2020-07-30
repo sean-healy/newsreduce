@@ -4,9 +4,9 @@ import { DOMWindow } from "jsdom";
 import { HitType, nodeToHitType } from "types/HitType";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
 import { WordHits } from "types/WordHits";
-import { fancyLog } from "common/util";
 import { LinkHits } from "types/LinkHits";
-import { getAnchorsWithHREF, htmlCollectionToArray } from "./ExtractAHrefs";
+import { getAnchorsWithHREF, htmlCollectionToArray } from "services/html-processor/functions";
+import { wordsFromNode } from "services/html-processor/functions";
 
 const INCLUDE_TAGS = [
     "TITLE",
@@ -27,59 +27,16 @@ const INCLUDE_TAGS = [
     "META",
 ];
 
-function contentFromNode(node: Element, hitType: HitType) {
-    let content: string;
-    switch (hitType) {
-        case HitType.META_DATA:
-            content = node.getAttribute("content");
-            break;
-        case HitType.ACCESSABILITY_DATA:
-            content = node.getAttribute("title");
-            if (!content) node.getAttribute("alt");
-            break;
-        default:
-            content = node.textContent;
-    }
-
-    return content;
-}
-function wordsFromNode(node: Element, hitType: HitType) {
-    const content = contentFromNode(node, hitType);
-    const lc = content.toLowerCase();
-    const normalised = lc.replace(/[–-]/g, "");
-    const words = normalised.match(/[^ \t\s!"'^&*();:@~#\n®.,<>?/\[\]\\{}“”‘’]+/g);
-    return words;
-}
-
-function urlsFromNode(node: Element) {
-    const anchors = node.querySelectorAll("a");
-    const length = anchors.length;
-    const urls: string[] = [];
-    for (let i = 0; i < length; ++i) {
-        const item = anchors.item(i);
-        const url = item.href;
-        try {
-            const resource = new ResourceURL(url);
-            urls.push(resource.toURL());
-        } catch (e) {
-            fancyLog(`unhandled url: ${url}`);
-            fancyLog(JSON.stringify(e));
-        }
-    }
-
-    return urls;
-}
-
-interface BlockData<T> {
+interface BlockData {
     hitType: HitType;
-    items: T[];
+    items: string[];
 };
 
 export function getHits(window: DOMWindow) {
     HTMLDocumentProcessor.removeExcludedNodes(window);
     const queryItems =
         htmlCollectionToArray(window.document.querySelectorAll(INCLUDE_TAGS.join(",")));
-    const blockWordData: BlockData<string>[] = [];
+    const blockWordData: BlockData[] = [];
     const linksData: [string, HitType][] = [];
     const truthyAnchors = getAnchorsWithHREF(window);
     for (const anchor of truthyAnchors)
