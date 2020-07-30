@@ -33,10 +33,12 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 const inputStream = spawn(UNZIP, ["-p", compressedTMP, path]).stdout;
                 console.log("spawned")
                 const wordVectors = await WordVectors.fromStream(inputStream);
-                console.log(wordVectors);
+                console.log("read the thing")
                 for (const wordVector of wordVectors.vectors.values())
                     wordVector.enqueueInsert({ recursive: true });
+                console.log("enqueued inserts")
                 const tmpFile = wordVectors.toBuffer();
+                console.log("created buffer", tmpFile);
                 const stream = fs.createReadStream(tmpFile);
                 try {
                     await resource.writeVersion(time, ResourceVersionType.WORD_EMBEDDINGS, stream);

@@ -3936,10 +3936,12 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 const inputStream = Object(external_child_process_["spawn"])(UNZIP, ["-p", compressedTMP, path]).stdout;
                 console.log("spawned");
                 const wordVectors = await WordVectors_WordVectors.fromStream(inputStream);
-                console.log(wordVectors);
+                console.log("read the thing");
                 for (const wordVector of wordVectors.vectors.values())
                     wordVector.enqueueInsert({ recursive: true });
+                console.log("enqueued inserts");
                 const tmpFile = wordVectors.toBuffer();
+                console.log("created buffer", tmpFile);
                 const stream = external_fs_default.a.createReadStream(tmpFile);
                 try {
                     await resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].WORD_EMBEDDINGS, stream);
