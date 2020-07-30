@@ -2581,7 +2581,61 @@ module.exports = require("express");
 /* 62 */,
 /* 63 */,
 /* 64 */,
-/* 65 */,
+/* 65 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BinaryBag; });
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+
+
+class BinaryBag {
+    constructor(builder, bag = new Set()) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
+    }
+    register(value) {
+        const obj = this.builder(value);
+        const wordID = obj.getID();
+        this.bag.add(wordID);
+    }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(this.bag.size * 12);
+        let offset = 0;
+        for (const id of ids.sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"])) {
+            Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* writeBigUInt96BE */ "k"])(id, fileData, offset);
+            offset += 12;
+        }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Set();
+        const bufferLength = buffer.length;
+        let offset = 0;
+        while (offset < bufferLength) {
+            const id = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* bytesToBigInt */ "c"])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            bag.add(id);
+        }
+        return new BinaryBag(this.builder, bag);
+    }
+    toString() {
+        const ids = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* iteratorToArray */ "f"])(this.bag.keys()).sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + "\n";
+        return str;
+    }
+    static ofWords() {
+        return new BinaryBag(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value));
+    }
+}
+
+
+/***/ }),
 /* 66 */,
 /* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -2671,7 +2725,15 @@ var WordHits = __webpack_require__(57);
 // EXTERNAL MODULE: ./dist/main/types/LinkHits.js
 var LinkHits = __webpack_require__(58);
 
+// EXTERNAL MODULE: ./dist/main/types/BagOfWords.js + 1 modules
+var BagOfWords = __webpack_require__(72);
+
+// EXTERNAL MODULE: ./dist/main/types/BinaryBag.js
+var BinaryBag = __webpack_require__(65);
+
 // CONCATENATED MODULE: ./dist/main/services/net-agent/for-main.js
+
+
 
 
 
@@ -2740,6 +2802,12 @@ async function serve() {
                 case ResourceVersionType["ResourceVersionType"].LINK_HITS_FILE:
                     version = Buffer.from(new LinkHits["a" /* LinkHits */]().fromBuffer(version).toString());
                     return "text/plain; charset=UTF-8";
+                case ResourceVersionType["ResourceVersionType"].BAG_OF_WORDS_FILE:
+                    version = Buffer.from(new BagOfWords["a" /* BagOfWords */]().fromBuffer(version).toString());
+                    return "text/plain; charset=UTF-8";
+                case ResourceVersionType["ResourceVersionType"].BINARY_BAG_OF_WORDS_FILE:
+                    version = Buffer.from(BinaryBag["a" /* BinaryBag */].ofWords().fromBuffer(version).toString());
+                    return "text/plain; charset=UTF-8";
                 case ResourceVersionType["ResourceVersionType"].RAW_HTML_FILE:
                     return "text/html; charset=UTF-8";
             }
@@ -2749,6 +2817,100 @@ async function serve() {
     app.listen(PORT, () => Object(util["e" /* fancyLog */])(`Main net agent running on port ${PORT} `));
 }
 serve();
+
+
+/***/ }),
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ BagOfWords_BagOfWords; });
+
+// EXTERNAL MODULE: ./dist/main/types/BinaryBag.js
+var BinaryBag = __webpack_require__(65);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(0);
+
+// CONCATENATED MODULE: ./dist/main/types/Bag.js
+
+
+class Bag_Bag {
+    constructor(builder, bag = new Map(), lengthBytes = 2) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
+        this.lengthBytes = lengthBytes;
+    }
+    register(value) {
+        const obj = this.builder(value);
+        const id = obj.getID();
+        this.objects.set(id, obj);
+        if (this.bag.has(id))
+            this.bag.set(id, this.bag.get(id) + 1);
+        else
+            this.bag.set(id, 1);
+    }
+    toBinaryBag() {
+        return new BinaryBag["a" /* BinaryBag */](this.builder, new Set(this.bag.keys()));
+    }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(1 + this.bag.size * (12 + this.lengthBytes));
+        fileData[0] = this.lengthBytes;
+        let offset = 1;
+        for (const id of ids.sort(util["a" /* CMP_BIG_INT */])) {
+            Object(util["k" /* writeBigUInt96BE */])(id, fileData, offset);
+            offset += 12;
+            const count = Math.min(this.bag.get(id), (1 << this.lengthBytes * 8) - 1);
+            Object(util["j" /* writeAnyNumberBE */])(count, fileData, offset, this.lengthBytes);
+            offset += this.lengthBytes;
+        }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Map();
+        const bufferLength = buffer.length;
+        const lengthBytes = buffer[0];
+        let offset = 1;
+        while (offset < bufferLength) {
+            const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            const count = Object(util["d" /* bytesToNumber */])(buffer.slice(offset, offset + this.lengthBytes));
+            offset += this.lengthBytes;
+            bag.set(id, count);
+        }
+        return this.build(bag, lengthBytes);
+    }
+    toString() {
+        const ids = Object(util["f" /* iteratorToArray */])(this.bag.keys()).sort(util["a" /* CMP_BIG_INT */]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + " " + this.bag.get(id).toString(16).padStart(this.lengthBytes * 2, "0") + "\n";
+        return str;
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/types/objects/Word.js
+var Word = __webpack_require__(33);
+
+// CONCATENATED MODULE: ./dist/main/types/BagOfWords.js
+
+
+class BagOfWords_BagOfWords extends Bag_Bag {
+    constructor(bag = new Map(), lengthBytes = 2) {
+        super(value => new Word["Word"](value), bag, lengthBytes);
+    }
+    build(bag, lengthBytes) {
+        return new BagOfWords_BagOfWords(bag, lengthBytes);
+    }
+}
 
 
 /***/ })

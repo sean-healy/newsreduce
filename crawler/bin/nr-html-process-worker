@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 65);
+/******/ 	return __webpack_require__(__webpack_require__.s = 71);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2801,6 +2801,66 @@ module.exports = require("jsdom");
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BinaryBag; });
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+
+
+class BinaryBag {
+    constructor(builder, bag = new Set()) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
+    }
+    register(value) {
+        const obj = this.builder(value);
+        const wordID = obj.getID();
+        this.bag.add(wordID);
+    }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(this.bag.size * 12);
+        let offset = 0;
+        for (const id of ids.sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"])) {
+            Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* writeBigUInt96BE */ "k"])(id, fileData, offset);
+            offset += 12;
+        }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Set();
+        const bufferLength = buffer.length;
+        let offset = 0;
+        while (offset < bufferLength) {
+            const id = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* bytesToBigInt */ "c"])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            bag.add(id);
+        }
+        return new BinaryBag(this.builder, bag);
+    }
+    toString() {
+        const ids = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* iteratorToArray */ "f"])(this.bag.keys()).sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + "\n";
+        return str;
+    }
+    static ofWords() {
+        return new BinaryBag(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value));
+    }
+}
+
+
+/***/ }),
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
@@ -3324,55 +3384,84 @@ class ExtractTitle_ExtractTitle extends HTMLDocumentProcessor {
     }
 }
 
-// EXTERNAL MODULE: ./dist/main/types/objects/Word.js
-var Word = __webpack_require__(33);
+// EXTERNAL MODULE: ./dist/main/types/BagOfWords.js + 1 modules
+var BagOfWords = __webpack_require__(72);
 
-// CONCATENATED MODULE: ./dist/main/types/BinaryBag.js
+// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractRepresentations.js
 
 
-class BinaryBag_BinaryBag {
-    constructor(builder, bag = new Set()) {
-        this.bag = bag;
-        this.builder = builder;
-        this.objects = new Map();
+
+
+
+
+const ExtractRepresentations_INCLUDE_TAGS = [
+    "TITLE",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "FIGCAPTION",
+    "BLOCKQUOTE",
+    "P",
+];
+function getBagOfWords(window) {
+    HTMLDocumentProcessor.removeExcludedNodes(window);
+    const queryItems = htmlCollectionToArray(window.document.querySelectorAll(ExtractRepresentations_INCLUDE_TAGS.join(",")));
+    // Ensure no words are counted twice.
+    for (const item of queryItems)
+        item.parentNode.removeChild(item);
+    const bag = new BagOfWords["a" /* BagOfWords */]();
+    for (const item of queryItems) {
+        const words = wordsFromNode(item, nodeToHitType(item));
+        if (words)
+            for (const word of words)
+                bag.register(word);
     }
-    register(value) {
-        const obj = this.builder(value);
-        const wordID = obj.getID();
-        this.bag.add(wordID);
-    }
-    toBuffer() {
-        const ids = [...this.bag.keys()];
-        const fileData = Buffer.alloc(this.bag.size * 12);
-        let offset = 0;
-        for (const id of ids.sort(util["a" /* CMP_BIG_INT */])) {
-            Object(util["k" /* writeBigUInt96BE */])(id, fileData, offset);
-            offset += 12;
-        }
-        return fileData;
-    }
-    fromBuffer(buffer) {
-        const bag = new Set();
-        const bufferLength = buffer.length;
-        let offset = 0;
-        while (offset < bufferLength) {
-            const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(offset, offset + 12));
-            offset += 12;
-            bag.add(id);
-        }
-        return new BinaryBag_BinaryBag(this.builder, bag);
-    }
-    toString() {
-        const ids = Object(util["f" /* iteratorToArray */])(this.bag.keys()).sort(util["a" /* CMP_BIG_INT */]);
-        let str = "";
-        for (const id of ids)
-            str += `${id}`.padStart(29, "0") + "\n";
-        return str;
-    }
-    static ofWords() {
-        return new BinaryBag_BinaryBag(value => new Word["Word"](value));
+    return bag;
+}
+class ExtractRepresentations_ExtractRepresentations extends HTMLDocumentProcessor {
+    ro() { return false; }
+    async apply(window, time) {
+        const resource = new ResourceURL["ResourceURL"](window.location.toString());
+        const bag = getBagOfWords(window);
+        const binaryBag = bag.toBinaryBag();
+        await Promise.all([
+            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].BAG_OF_WORDS, bag.toBuffer()),
+            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].BINARY_BAG_OF_WORDS, binaryBag.toBuffer()),
+        ]);
     }
 }
+
+// CONCATENATED MODULE: ./dist/main/services/html-processor/worker.js
+
+
+
+
+
+
+
+
+
+const worker_process = buildProcessFunction([ExtractAHrefs_ExtractAHrefs, ExtractTitle_ExtractTitle, ExtractWikiTree_ExtractWikiTree, ExtractRawText_ExtractRawText, ExtractHits_ExtractHits, ExtractRepresentations_ExtractRepresentations].map(c => new c()));
+Object(worker["a" /* start */])(worker_process, events["k" /* HTML_PROCESS_BIRTH_LOG */], events["m" /* HTML_PROCESS_DEATH_LOG */], null, events["l" /* HTML_PROCESS_COMPLETE */]);
+
+
+/***/ }),
+/* 72 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ BagOfWords_BagOfWords; });
+
+// EXTERNAL MODULE: ./dist/main/types/BinaryBag.js
+var BinaryBag = __webpack_require__(65);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(0);
 
 // CONCATENATED MODULE: ./dist/main/types/Bag.js
 
@@ -3394,7 +3483,7 @@ class Bag_Bag {
             this.bag.set(id, 1);
     }
     toBinaryBag() {
-        return new BinaryBag_BinaryBag(this.builder, new Set(this.bag.keys()));
+        return new BinaryBag["a" /* BinaryBag */](this.builder, new Set(this.bag.keys()));
     }
     toBuffer() {
         const ids = [...this.bag.keys()];
@@ -3433,6 +3522,9 @@ class Bag_Bag {
     }
 }
 
+// EXTERNAL MODULE: ./dist/main/types/objects/Word.js
+var Word = __webpack_require__(33);
+
 // CONCATENATED MODULE: ./dist/main/types/BagOfWords.js
 
 
@@ -3444,66 +3536,6 @@ class BagOfWords_BagOfWords extends Bag_Bag {
         return new BagOfWords_BagOfWords(bag, lengthBytes);
     }
 }
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractRepresentations.js
-
-
-
-
-
-
-const ExtractRepresentations_INCLUDE_TAGS = [
-    "TITLE",
-    "H1",
-    "H2",
-    "H3",
-    "H4",
-    "H5",
-    "H6",
-    "FIGCAPTION",
-    "BLOCKQUOTE",
-    "P",
-];
-function getBagOfWords(window) {
-    HTMLDocumentProcessor.removeExcludedNodes(window);
-    const queryItems = htmlCollectionToArray(window.document.querySelectorAll(ExtractRepresentations_INCLUDE_TAGS.join(",")));
-    // Ensure no words are counted twice.
-    for (const item of queryItems)
-        item.parentNode.removeChild(item);
-    const bag = new BagOfWords_BagOfWords();
-    for (const item of queryItems) {
-        const words = wordsFromNode(item, nodeToHitType(item));
-        if (words)
-            for (const word of words)
-                bag.register(word);
-    }
-    return bag;
-}
-class ExtractRepresentations_ExtractRepresentations extends HTMLDocumentProcessor {
-    ro() { return false; }
-    async apply(window, time) {
-        const resource = new ResourceURL["ResourceURL"](window.location.toString());
-        const bag = getBagOfWords(window);
-        const binaryBag = bag.toBinaryBag();
-        await Promise.all([
-            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].BAG_OF_WORDS, bag.toBuffer()),
-            resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].BINARY_BAG_OF_WORDS, binaryBag.toBuffer()),
-        ]);
-    }
-}
-
-// CONCATENATED MODULE: ./dist/main/services/html-processor/worker.js
-
-
-
-
-
-
-
-
-
-const worker_process = buildProcessFunction([ExtractAHrefs_ExtractAHrefs, ExtractTitle_ExtractTitle, ExtractWikiTree_ExtractWikiTree, ExtractRawText_ExtractRawText, ExtractHits_ExtractHits, ExtractRepresentations_ExtractRepresentations].map(c => new c()));
-Object(worker["a" /* start */])(worker_process, events["k" /* HTML_PROCESS_BIRTH_LOG */], events["m" /* HTML_PROCESS_DEATH_LOG */], null, events["l" /* HTML_PROCESS_COMPLETE */]);
 
 
 /***/ })
