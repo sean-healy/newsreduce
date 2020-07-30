@@ -7,6 +7,8 @@ export default {
 	DELETE_SCHEDULE: "delete from Schedule where resource = ?",
 	// /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
 	DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
+	// /home/sean/newsreduce/sql/SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS.sql
+	SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS: "select u.id resource, max(v.time) time, u.host from Host h inner join ResourceURL u on u.host = h.id inner join ResourceVersion v on v.resource = u.id inner join ResourceVersionType t on t.id = v.type where t.filename = 'bow.bin' group by v.resource, v.type;",
 	// /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
 	SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
 	// /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql

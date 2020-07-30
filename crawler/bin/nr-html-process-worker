@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 71);
+/******/ 	return __webpack_require__(__webpack_require__.s = 68);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -416,7 +416,7 @@ class DBObject_DBObject {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return STATIC_CONNECTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return SUB_CONNECTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Redis; });
-/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
+/* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(33);
 /* harmony import */ var redis__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(redis__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(0);
@@ -797,15 +797,16 @@ async function log(...args) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceURL", function() { return ResourceURL; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceID", function() { return ResourceID; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var types_objects_ResourceURLQuery__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
 /* harmony import */ var types_objects_ResourceURLPath__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 /* harmony import */ var types_objects_Host__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(17);
-/* harmony import */ var file__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(23);
+/* harmony import */ var file__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(18);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
 /* harmony import */ var common_logging__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(6);
 /* harmony import */ var common_Redis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(12);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(13);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(0);
 /* harmony import */ var _ResourceVersion__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(21);
 
@@ -975,6 +976,9 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
     isValid() {
         return !this.isInvalid();
     }
+    read(time, format) {
+        return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* read */ "e"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), time, format);
+    }
     static async popForProcessing() {
         const url = await common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* Redis */ "b"].renewRedis(common_Redis__WEBPACK_IMPORTED_MODULE_7__[/* REDIS_PARAMS */ "a"].general).spop("html");
         if (!url)
@@ -986,6 +990,16 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             await new _ResourceVersion__WEBPACK_IMPORTED_MODULE_10__["ResourceVersion"]({ resource, time, type, length })
                 .enqueueInsert({ recursive: true });
     }
+}
+class ResourceID extends ResourceURL {
+    constructor(id) {
+        super();
+        this.id = id;
+    }
+    getID() {
+        return this.id;
+    }
+    async enqueueInsert() { }
 }
 
 
@@ -1150,49 +1164,6 @@ class SQL {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_BIRTH_LOG; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return HTML_PROCESS_DEATH_LOG; });
-/* unused harmony export NET_AGENT_LOG */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return SCHEDULE_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
-/* unused harmony export WIKI_PROCESS_COMPLETE */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return FETCH_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return HTML_PROCESS_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return COMPRESS_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
-/* unused harmony export UNLOCK_FILE */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return SYNC_LOCK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
-const EVENT_LOG = "event-log";
-const FETCHER_BIRTH_LOG = "fetcher-birth-log";
-const FETCHER_DEATH_LOG = "fetcher-death-log";
-const HTML_PROCESS_BIRTH_LOG = "html-process-birth-log";
-const HTML_PROCESS_DEATH_LOG = "html-process-death-log";
-const NET_AGENT_LOG = "net-agent-log";
-const SCHEDULE_COMPLETE = "schedule-complete";
-const COLD_START_COMPLETE = "cold-start-complete";
-const WIKI_PROCESS_COMPLETE = "wiki-process-complete";
-const FETCH_COMPLETE = "fetch-complete";
-const HTML_PROCESS_COMPLETE = "html-process-complete";
-const COMPRESS_COMPLETE = "compress-complete";
-const DELETE_FILES = "delete-files";
-const UNLOCK_FILE = "unlock-file";
-const COMPRESSOR_LOCK = "compressor-lock";
-const SYNC_LOCK = "sync-lock";
-const BULK_INSERT_COMPLETE = "bulk-insert-complete";
-const FAILURE_CACHE = "failures";
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersionType", function() { return ResourceVersionType; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
@@ -1259,6 +1230,49 @@ ResourceVersionType.BINARY_BAG_OF_WORDS = new ResourceVersionType({
 
 
 /***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return EVENT_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return FETCHER_BIRTH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return FETCHER_DEATH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return HTML_PROCESS_BIRTH_LOG; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return HTML_PROCESS_DEATH_LOG; });
+/* unused harmony export NET_AGENT_LOG */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return SCHEDULE_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return COLD_START_COMPLETE; });
+/* unused harmony export WIKI_PROCESS_COMPLETE */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return FETCH_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return HTML_PROCESS_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return COMPRESS_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return DELETE_FILES; });
+/* unused harmony export UNLOCK_FILE */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return COMPRESSOR_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return SYNC_LOCK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BULK_INSERT_COMPLETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return FAILURE_CACHE; });
+const EVENT_LOG = "event-log";
+const FETCHER_BIRTH_LOG = "fetcher-birth-log";
+const FETCHER_DEATH_LOG = "fetcher-death-log";
+const HTML_PROCESS_BIRTH_LOG = "html-process-birth-log";
+const HTML_PROCESS_DEATH_LOG = "html-process-death-log";
+const NET_AGENT_LOG = "net-agent-log";
+const SCHEDULE_COMPLETE = "schedule-complete";
+const COLD_START_COMPLETE = "cold-start-complete";
+const WIKI_PROCESS_COMPLETE = "wiki-process-complete";
+const FETCH_COMPLETE = "fetch-complete";
+const HTML_PROCESS_COMPLETE = "html-process-complete";
+const COMPRESS_COMPLETE = "compress-complete";
+const DELETE_FILES = "delete-files";
+const UNLOCK_FILE = "unlock-file";
+const COMPRESSOR_LOCK = "compressor-lock";
+const SYNC_LOCK = "sync-lock";
+const BULK_INSERT_COMPLETE = "bulk-insert-complete";
+const FAILURE_CACHE = "failures";
+
+
+/***/ }),
 /* 14 */
 /***/ (function(module, exports) {
 
@@ -1270,7 +1284,7 @@ module.exports = require("crypto");
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DNS; });
-/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
 /* harmony import */ var dns__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(dns__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(10);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_1__);
@@ -1395,124 +1409,6 @@ class Host extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClientHeader", function() { return ClientHeader; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var types_objects_Client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
-/* harmony import */ var types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
-
-
-
-class ClientHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    constructor(clientName, headerName, value) {
-        if (clientName && headerName && value)
-            super({
-                client: new types_objects_Client__WEBPACK_IMPORTED_MODULE_1__["Client"]({ name: clientName }),
-                header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](headerName.toLowerCase(), value),
-            });
-    }
-    insertCols() {
-        return ["client", "header"];
-    }
-    getInsertParams() {
-        return [this.client.getID(), this.header.getID()];
-    }
-    table() {
-        return "ClientHeader";
-    }
-    getDeps() {
-        return [this.client, this.header];
-    }
-}
-
-
-/***/ }),
-/* 19 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceURLPath", function() { return ResourceURLPath; });
-/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-
-class ResourceURLPath extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
-    table() {
-        return "ResourceURLPath";
-    }
-}
-
-
-/***/ }),
-/* 20 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceURLQuery", function() { return ResourceURLQuery; });
-/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-
-class ResourceURLQuery extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
-    table() {
-        return "ResourceURLQuery";
-    }
-}
-
-
-/***/ }),
-/* 21 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersion", function() { return ResourceVersion; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-
-class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    insertCols() {
-        return ["resource", "time", "type", "length"];
-    }
-    getInsertParams() {
-        return [this.resource.getID(), this.time, this.type.getID(), this.length];
-    }
-    table() {
-        return "ResourceVersion";
-    }
-    getDeps() {
-        return [this.resource, this.type];
-    }
-}
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Client", function() { return Client; });
-/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-
-class Client extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
-    hashSuffix() {
-        return this.name;
-    }
-    insertCols() {
-        return ["id", "name", "httpVersion"];
-    }
-    getInsertParams() {
-        return [this.getID(), this.name, this.httpVersion];
-    }
-    table() {
-        return "Client";
-    }
-}
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* unused harmony export entityIDs */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return write; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return lastChangedBefore; });
@@ -1530,12 +1426,12 @@ class Client extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ 
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(31);
 /* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
 /* harmony import */ var types_Entity__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(0);
-/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(13);
+/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(12);
 
 
 
@@ -1698,7 +1594,7 @@ async function read(entity, entityID, time, format) {
     const blobDir = await Object(common_config__WEBPACK_IMPORTED_MODULE_4__[/* blobDirPromise */ "f"])();
     const compressedArc = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(blobDir, Object(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* entityName */ "b"])(entity), `${entityID}.tzst`);
     const tarPath = path__WEBPACK_IMPORTED_MODULE_1___default.a.join(`${entityID}`, `${time}_${format.filename}`);
-    // Ignore files that are not written yet, or that have been written too recently.
+    // Ignore files that are not written yet.
     if (!fs__WEBPACK_IMPORTED_MODULE_0___default.a.existsSync(compressedArc))
         return null;
     const params = [TAR_CAT_PARAMS_BEFORE_FILE, compressedArc, TAR_CAT_PARAMS_AFTER_FILE, tarPath];
@@ -1730,6 +1626,124 @@ async function readLatestVersion(entity, entityID, format) {
     if (latestVersion === -1)
         return null;
     return await read(entity, entityID, latestVersion, format);
+}
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceURLPath", function() { return ResourceURLPath; });
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+
+class ResourceURLPath extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
+    table() {
+        return "ResourceURLPath";
+    }
+}
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceURLQuery", function() { return ResourceURLQuery; });
+/* harmony import */ var _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+
+class ResourceURLQuery extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObject"] {
+    table() {
+        return "ResourceURLQuery";
+    }
+}
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResourceVersion", function() { return ResourceVersion; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+
+class ResourceVersion extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    insertCols() {
+        return ["resource", "time", "type", "length"];
+    }
+    getInsertParams() {
+        return [this.resource.getID(), this.time, this.type.getID(), this.length];
+    }
+    table() {
+        return "ResourceVersion";
+    }
+    getDeps() {
+        return [this.resource, this.type];
+    }
+}
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClientHeader", function() { return ClientHeader; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+/* harmony import */ var types_objects_Client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+/* harmony import */ var types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
+
+
+
+class ClientHeader extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    constructor(clientName, headerName, value) {
+        if (clientName && headerName && value)
+            super({
+                client: new types_objects_Client__WEBPACK_IMPORTED_MODULE_1__["Client"]({ name: clientName }),
+                header: new types_objects_HTTPHeader__WEBPACK_IMPORTED_MODULE_2__["HTTPHeader"](headerName.toLowerCase(), value),
+            });
+    }
+    insertCols() {
+        return ["client", "header"];
+    }
+    getInsertParams() {
+        return [this.client.getID(), this.header.getID()];
+    }
+    table() {
+        return "ClientHeader";
+    }
+    getDeps() {
+        return [this.client, this.header];
+    }
+}
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Client", function() { return Client; });
+/* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+
+class Client extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
+    hashSuffix() {
+        return this.name;
+    }
+    insertCols() {
+        return ["id", "name", "httpVersion"];
+    }
+    getInsertParams() {
+        return [this.getID(), this.name, this.httpVersion];
+    }
+    table() {
+        return "Client";
+    }
 }
 
 
@@ -1859,24 +1873,6 @@ class HTTPHeaderValue extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["Si
 
 /***/ }),
 /* 30 */
-/***/ (function(module, exports) {
-
-module.exports = require("child_process");
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports) {
-
-module.exports = require("dns");
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports) {
-
-module.exports = require("redis");
-
-/***/ }),
-/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1890,6 +1886,24 @@ class Word extends _SimpleHashObject__WEBPACK_IMPORTED_MODULE_0__["SimpleHashObj
     }
 }
 
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports) {
+
+module.exports = require("child_process");
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports) {
+
+module.exports = require("dns");
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports) {
+
+module.exports = require("redis");
 
 /***/ }),
 /* 34 */
@@ -2326,7 +2340,7 @@ module.exports = require("mysql");
 /* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(12);
+/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 /* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
 /* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(0);
 /* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(2);
@@ -2401,12 +2415,12 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
 var map = {
 	"./Anchor": 24,
 	"./Anchor.js": 24,
-	"./Client": 22,
-	"./Client.js": 22,
+	"./Client": 23,
+	"./Client.js": 23,
 	"./ClientCookie": 41,
 	"./ClientCookie.js": 41,
-	"./ClientHeader": 18,
-	"./ClientHeader.js": 18,
+	"./ClientHeader": 22,
+	"./ClientHeader.js": 22,
 	"./HTMLAttribute": 42,
 	"./HTMLAttribute.js": 42,
 	"./HTMLAttributeName": 43,
@@ -2451,8 +2465,8 @@ var map = {
 	"./ResourceURLQuery.js": 20,
 	"./ResourceVersion": 21,
 	"./ResourceVersion.js": 21,
-	"./ResourceVersionType": 13,
-	"./ResourceVersionType.js": 13,
+	"./ResourceVersionType": 12,
+	"./ResourceVersionType.js": 12,
 	"./SimpleHashObject": 4,
 	"./SimpleHashObject.js": 4,
 	"./Title": 27,
@@ -2461,8 +2475,8 @@ var map = {
 	"./WikiCategory.js": 35,
 	"./WikiPage": 40,
 	"./WikiPage.js": 40,
-	"./Word": 33,
-	"./Word.js": 33
+	"./Word": 30,
+	"./Word.js": 30
 };
 
 
@@ -2487,6 +2501,164 @@ webpackContext.id = 51;
 
 /***/ }),
 /* 52 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BinaryBag; });
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+
+
+class BinaryBag {
+    constructor(builder, bag = new Set()) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
+    }
+    register(value) {
+        const obj = this.builder(value);
+        const wordID = obj.getID();
+        this.bag.add(wordID);
+    }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(this.bag.size * 12);
+        let offset = 0;
+        for (const id of ids.sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"])) {
+            Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* writeBigUInt96BE */ "k"])(id, fileData, offset);
+            offset += 12;
+        }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Set();
+        const bufferLength = buffer.length;
+        let offset = 0;
+        while (offset < bufferLength) {
+            const id = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* bytesToBigInt */ "c"])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            bag.add(id);
+        }
+        return new BinaryBag(this.builder, bag);
+    }
+    toString() {
+        const ids = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* iteratorToArray */ "f"])(this.bag.keys()).sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + "\n";
+        return str;
+    }
+    static ofWords() {
+        return new BinaryBag(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value));
+    }
+}
+
+
+/***/ }),
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectPreSchedule; });
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ schedule; });
+__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectResourcesNotProcessed; });
+__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ selectBagOfWordsByHost; });
+
+// CONCATENATED MODULE: ./dist/main/sql.js
+/* harmony default export */ var sql = ({
+    // /home/sean/newsreduce/sql/BULK_INSERT.sql
+    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
+    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
+    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
+    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
+    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
+    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
+    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
+    // /home/sean/newsreduce/sql/SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS.sql
+    SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS: "select u.id resource, max(v.time) time, u.host from Host h inner join ResourceURL u on u.host = h.id inner join ResourceVersion v on v.resource = u.id inner join ResourceVersionType t on t.id = v.type where t.filename = 'bow.bin' group by v.resource, v.type;",
+    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
+    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
+    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
+    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
+    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
+    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
+    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
+    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
+    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
+    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
+});
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
+var ResourceURL = __webpack_require__(7);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(0);
+
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(2);
+
+// EXTERNAL MODULE: ./dist/main/common/SQL.js
+var SQL = __webpack_require__(11);
+
+// CONCATENATED MODULE: ./dist/main/data.js
+
+
+
+
+
+async function genericSQLPromise(query, params = [], mapper) {
+    let response = await SQL["b" /* SQL */].query(query, params);
+    if (mapper && response)
+        response = mapper(response);
+    return response;
+}
+function selectPreSchedule() {
+    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
+}
+async function schedule(items) {
+    Object(util["e" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
+    const promises = [];
+    let scheduled = 0;
+    for (const item of items) {
+        const resourceURL = new ResourceURL["ResourceURL"](item.url);
+        if (!await resourceURL.isFetchLocked()) {
+            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
+                .zincrby(resourceURL.host.name, 1, item.url));
+            ++scheduled;
+        }
+    }
+    if (scheduled)
+        Object(util["e" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
+    await Promise.all(promises);
+}
+async function selectResourcesNotProcessed() {
+    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
+    return genericSQLPromise(query);
+}
+async function selectBagOfWordsByHost() {
+    const query = sql.SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS;
+    const rows = await genericSQLPromise(query);
+    const hosts = new Map();
+    for (const row of rows) {
+        const resource = row.resource;
+        const time = row.time;
+        const host = row.host;
+        const version = [resource, time];
+        if (hosts.has(host))
+            hosts.get(host).push(version);
+        else
+            hosts.set(host, [version]);
+    }
+    return hosts;
+}
+
+
+/***/ }),
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2604,91 +2776,97 @@ class Hits_Hits {
 
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 
 // EXPORTS
-__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ selectPreSchedule; });
-__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ schedule; });
-__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectResourcesNotProcessed; });
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ BagOfWords_BagOfWords; });
 
-// CONCATENATED MODULE: ./dist/main/sql.js
-/* harmony default export */ var sql = ({
-    // /home/sean/newsreduce/sql/BULK_INSERT.sql
-    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
-    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
-    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
-    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
-    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
-    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
-    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
-    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
-    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
-    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
-    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
-    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
-    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
-    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
-    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
-    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
-    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
-    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
-});
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
-var ResourceURL = __webpack_require__(7);
+// EXTERNAL MODULE: ./dist/main/types/BinaryBag.js
+var BinaryBag = __webpack_require__(52);
 
 // EXTERNAL MODULE: ./dist/main/common/util.js
 var util = __webpack_require__(0);
 
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./dist/main/common/SQL.js
-var SQL = __webpack_require__(11);
-
-// CONCATENATED MODULE: ./dist/main/data.js
+// CONCATENATED MODULE: ./dist/main/types/Bag.js
 
 
-
-
-
-async function genericSQLPromise(query, params = [], mapper) {
-    let response = await SQL["b" /* SQL */].query(query, params);
-    if (mapper && response)
-        response = mapper(response);
-    return response;
-}
-function selectPreSchedule() {
-    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
-}
-async function schedule(items) {
-    Object(util["e" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
-    const promises = [];
-    let scheduled = 0;
-    for (const item of items) {
-        const resourceURL = new ResourceURL["ResourceURL"](item.url);
-        if (!await resourceURL.isFetchLocked()) {
-            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
-                .zincrby(resourceURL.host.name, 1, item.url));
-            ++scheduled;
-        }
+class Bag_Bag {
+    constructor(builder, bag = new Map(), lengthBytes = 2) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
+        this.lengthBytes = lengthBytes;
     }
-    if (scheduled)
-        Object(util["e" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
-    await Promise.all(promises);
+    register(value) {
+        const obj = this.builder(value);
+        const id = obj.getID();
+        this.objects.set(id, obj);
+        if (this.bag.has(id))
+            this.bag.set(id, this.bag.get(id) + 1);
+        else
+            this.bag.set(id, 1);
+    }
+    toBinaryBag() {
+        return new BinaryBag["a" /* BinaryBag */](this.builder, new Set(this.bag.keys()));
+    }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(1 + this.bag.size * (12 + this.lengthBytes));
+        fileData[0] = this.lengthBytes;
+        let offset = 1;
+        for (const id of ids.sort(util["a" /* CMP_BIG_INT */])) {
+            Object(util["k" /* writeBigUInt96BE */])(id, fileData, offset);
+            offset += 12;
+            const count = Math.min(this.bag.get(id), (1 << this.lengthBytes * 8) - 1);
+            Object(util["j" /* writeAnyNumberBE */])(count, fileData, offset, this.lengthBytes);
+            offset += this.lengthBytes;
+        }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Map();
+        const bufferLength = buffer.length;
+        const lengthBytes = buffer[0];
+        let offset = 1;
+        while (offset < bufferLength) {
+            const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            const count = Object(util["d" /* bytesToNumber */])(buffer.slice(offset, offset + this.lengthBytes));
+            offset += this.lengthBytes;
+            bag.set(id, count);
+        }
+        return this.build(bag, lengthBytes);
+    }
+    toString() {
+        const ids = Object(util["f" /* iteratorToArray */])(this.bag.keys()).sort(util["a" /* CMP_BIG_INT */]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + " " + this.bag.get(id).toString(16).padStart(this.lengthBytes * 2, "0") + "\n";
+        return str;
+    }
 }
-async function selectResourcesNotProcessed() {
-    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
-    return genericSQLPromise(query);
+
+// EXTERNAL MODULE: ./dist/main/types/objects/Word.js
+var Word = __webpack_require__(30);
+
+// CONCATENATED MODULE: ./dist/main/types/BagOfWords.js
+
+
+class BagOfWords_BagOfWords extends Bag_Bag {
+    constructor(bag = new Map(), lengthBytes = 2) {
+        super(value => new Word["Word"](value), bag, lengthBytes);
+    }
+    build(bag, lengthBytes) {
+        return new BagOfWords_BagOfWords(bag, lengthBytes);
+    }
 }
 
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2717,8 +2895,8 @@ function start(f, birthLog, deathLog, preconditions, postcondition) {
 
 
 /***/ }),
-/* 55 */,
-/* 56 */
+/* 57 */,
+/* 58 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2746,13 +2924,13 @@ class PromisePool {
 
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return WordHits; });
-/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
-/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(54);
+/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
 
 
 class WordHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
@@ -2766,12 +2944,12 @@ class WordHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
 
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LinkHits; });
-/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
+/* harmony import */ var _Hits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(54);
 /* harmony import */ var _objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 
 
@@ -2786,78 +2964,19 @@ class LinkHits extends _Hits__WEBPACK_IMPORTED_MODULE_0__[/* Hits */ "a"] {
 
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports) {
 
 module.exports = require("jsdom");
 
 /***/ }),
-/* 60 */,
-/* 61 */,
 /* 62 */,
 /* 63 */,
 /* 64 */,
-/* 65 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BinaryBag; });
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
-
-
-class BinaryBag {
-    constructor(builder, bag = new Set()) {
-        this.bag = bag;
-        this.builder = builder;
-        this.objects = new Map();
-    }
-    register(value) {
-        const obj = this.builder(value);
-        const wordID = obj.getID();
-        this.bag.add(wordID);
-    }
-    toBuffer() {
-        const ids = [...this.bag.keys()];
-        const fileData = Buffer.alloc(this.bag.size * 12);
-        let offset = 0;
-        for (const id of ids.sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"])) {
-            Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* writeBigUInt96BE */ "k"])(id, fileData, offset);
-            offset += 12;
-        }
-        return fileData;
-    }
-    fromBuffer(buffer) {
-        const bag = new Set();
-        const bufferLength = buffer.length;
-        let offset = 0;
-        while (offset < bufferLength) {
-            const id = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* bytesToBigInt */ "c"])(buffer.slice(offset, offset + 12));
-            offset += 12;
-            bag.add(id);
-        }
-        return new BinaryBag(this.builder, bag);
-    }
-    toString() {
-        const ids = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* iteratorToArray */ "f"])(this.bag.keys()).sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"]);
-        let str = "";
-        for (const id of ids)
-            str += `${id}`.padStart(29, "0") + "\n";
-        return str;
-    }
-    static ofWords() {
-        return new BinaryBag(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value));
-    }
-}
-
-
-/***/ }),
+/* 65 */,
 /* 66 */,
 /* 67 */,
-/* 68 */,
-/* 69 */,
-/* 70 */,
-/* 71 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2865,16 +2984,16 @@ class BinaryBag {
 __webpack_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(12);
+var events = __webpack_require__(13);
 
 // EXTERNAL MODULE: ./dist/main/common/worker.js
-var worker = __webpack_require__(54);
+var worker = __webpack_require__(56);
 
 // EXTERNAL MODULE: external "jsdom"
-var external_jsdom_ = __webpack_require__(59);
+var external_jsdom_ = __webpack_require__(61);
 
 // EXTERNAL MODULE: ./dist/main/file.js
-var file = __webpack_require__(23);
+var file = __webpack_require__(18);
 
 // EXTERNAL MODULE: ./dist/main/types/Entity.js
 var Entity = __webpack_require__(9);
@@ -2889,10 +3008,10 @@ var util = __webpack_require__(0);
 var common_processor = __webpack_require__(50);
 
 // EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
-var ResourceVersionType = __webpack_require__(13);
+var ResourceVersionType = __webpack_require__(12);
 
 // EXTERNAL MODULE: ./dist/main/common/PromisePool.js
-var PromisePool = __webpack_require__(56);
+var PromisePool = __webpack_require__(58);
 
 // CONCATENATED MODULE: ./dist/main/types/HitType.js
 var HitType;
@@ -3102,7 +3221,7 @@ async function processURL(resource, url, time, pool, processors) {
 }
 const buildProcessFunction = (processors) => async function process(lo, hi) {
     const pool = new PromisePool["a" /* PromisePool */](50);
-    const rows = await Object(data["c" /* selectResourcesNotProcessed */])();
+    const rows = await Object(data["d" /* selectResourcesNotProcessed */])();
     for (const row of rows) {
         const id = row.resource;
         if (id >= lo() && id < hi())
@@ -3137,10 +3256,10 @@ class HTMLDocumentProcessor {
 var ResourceURL = __webpack_require__(7);
 
 // EXTERNAL MODULE: ./dist/main/types/WordHits.js
-var WordHits = __webpack_require__(57);
+var WordHits = __webpack_require__(59);
 
 // EXTERNAL MODULE: ./dist/main/types/LinkHits.js
-var LinkHits = __webpack_require__(58);
+var LinkHits = __webpack_require__(60);
 
 // CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractHits.js
 
@@ -3385,7 +3504,7 @@ class ExtractTitle_ExtractTitle extends HTMLDocumentProcessor {
 }
 
 // EXTERNAL MODULE: ./dist/main/types/BagOfWords.js + 1 modules
-var BagOfWords = __webpack_require__(72);
+var BagOfWords = __webpack_require__(55);
 
 // CONCATENATED MODULE: ./dist/main/services/html-processor/ExtractRepresentations.js
 
@@ -3446,96 +3565,6 @@ class ExtractRepresentations_ExtractRepresentations extends HTMLDocumentProcesso
 
 const worker_process = buildProcessFunction([ExtractAHrefs_ExtractAHrefs, ExtractTitle_ExtractTitle, ExtractWikiTree_ExtractWikiTree, ExtractRawText_ExtractRawText, ExtractHits_ExtractHits, ExtractRepresentations_ExtractRepresentations].map(c => new c()));
 Object(worker["a" /* start */])(worker_process, events["k" /* HTML_PROCESS_BIRTH_LOG */], events["m" /* HTML_PROCESS_DEATH_LOG */], null, events["l" /* HTML_PROCESS_COMPLETE */]);
-
-
-/***/ }),
-/* 72 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ BagOfWords_BagOfWords; });
-
-// EXTERNAL MODULE: ./dist/main/types/BinaryBag.js
-var BinaryBag = __webpack_require__(65);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(0);
-
-// CONCATENATED MODULE: ./dist/main/types/Bag.js
-
-
-class Bag_Bag {
-    constructor(builder, bag = new Map(), lengthBytes = 2) {
-        this.bag = bag;
-        this.builder = builder;
-        this.objects = new Map();
-        this.lengthBytes = lengthBytes;
-    }
-    register(value) {
-        const obj = this.builder(value);
-        const id = obj.getID();
-        this.objects.set(id, obj);
-        if (this.bag.has(id))
-            this.bag.set(id, this.bag.get(id) + 1);
-        else
-            this.bag.set(id, 1);
-    }
-    toBinaryBag() {
-        return new BinaryBag["a" /* BinaryBag */](this.builder, new Set(this.bag.keys()));
-    }
-    toBuffer() {
-        const ids = [...this.bag.keys()];
-        const fileData = Buffer.alloc(1 + this.bag.size * (12 + this.lengthBytes));
-        fileData[0] = this.lengthBytes;
-        let offset = 1;
-        for (const id of ids.sort(util["a" /* CMP_BIG_INT */])) {
-            Object(util["k" /* writeBigUInt96BE */])(id, fileData, offset);
-            offset += 12;
-            const count = Math.min(this.bag.get(id), (1 << this.lengthBytes * 8) - 1);
-            Object(util["j" /* writeAnyNumberBE */])(count, fileData, offset, this.lengthBytes);
-            offset += this.lengthBytes;
-        }
-        return fileData;
-    }
-    fromBuffer(buffer) {
-        const bag = new Map();
-        const bufferLength = buffer.length;
-        const lengthBytes = buffer[0];
-        let offset = 1;
-        while (offset < bufferLength) {
-            const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(offset, offset + 12));
-            offset += 12;
-            const count = Object(util["d" /* bytesToNumber */])(buffer.slice(offset, offset + this.lengthBytes));
-            offset += this.lengthBytes;
-            bag.set(id, count);
-        }
-        return this.build(bag, lengthBytes);
-    }
-    toString() {
-        const ids = Object(util["f" /* iteratorToArray */])(this.bag.keys()).sort(util["a" /* CMP_BIG_INT */]);
-        let str = "";
-        for (const id of ids)
-            str += `${id}`.padStart(29, "0") + " " + this.bag.get(id).toString(16).padStart(this.lengthBytes * 2, "0") + "\n";
-        return str;
-    }
-}
-
-// EXTERNAL MODULE: ./dist/main/types/objects/Word.js
-var Word = __webpack_require__(33);
-
-// CONCATENATED MODULE: ./dist/main/types/BagOfWords.js
-
-
-class BagOfWords_BagOfWords extends Bag_Bag {
-    constructor(bag = new Map(), lengthBytes = 2) {
-        super(value => new Word["Word"](value), bag, lengthBytes);
-    }
-    build(bag, lengthBytes) {
-        return new BagOfWords_BagOfWords(bag, lengthBytes);
-    }
-}
 
 
 /***/ })

@@ -2,7 +2,7 @@ import { DBObject } from "./DBObject";
 import { BinaryBag } from "./BinaryBag";
 import { writeBigUInt96BE, CMP_BIG_INT, writeAnyNumberBE, bytesToBigInt, bytesToNumber, iteratorToArray } from "common/util";
 
-export abstract class Bag<T extends DBObject<T>> {
+export abstract class Bag<B extends Bag<B, T>, T extends DBObject<T>> {
     readonly bag: Map<bigint, number>;
     readonly objects: Map<bigint, T>;
     readonly builder: (value: string) => T;
@@ -45,7 +45,7 @@ export abstract class Bag<T extends DBObject<T>> {
 
         return fileData;
     }
-    abstract build(bag: Map<bigint, number>, lengthBytes: number): Bag<T>;
+    abstract build(bag: Map<bigint, number>, lengthBytes: number): B;
     fromBuffer(buffer: Buffer) {
         const bag = new Map<bigint, number>();
         const bufferLength = buffer.length;

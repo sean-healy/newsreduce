@@ -39,3 +39,19 @@ export async function selectResourcesNotProcessed() {
     const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
     return genericSQLPromise<{ [key: string]: any }[], { [key: string]: any }[]>(query);
 }
+
+export async function selectBagOfWordsByHost() {
+    const query = sql.SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS;
+    const rows = await genericSQLPromise<{ [key: string]: any }[], { [key: string]: any }[]>(query);
+    const hosts = new Map<bigint, [bigint, number][]>();
+    for (const row of rows) {
+        const resource: bigint = row.resource;
+        const time: number = row.time;
+        const host = row.host;
+        const version: [bigint, number] = [resource, time];
+        if (hosts.has(host)) hosts.get(host).push(version);
+        else hosts.set(host, [version]);
+    }
+
+    return hosts;
+}

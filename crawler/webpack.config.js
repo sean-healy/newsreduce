@@ -26,6 +26,7 @@ module.exports = {
       'cold-start':             './dist/main/services/cold-start/main.js',
       'inserter':               './dist/main/services/inserter/main.js',
       'compressor':             './dist/main/services/compressor/main.js',
+      'bulk-processors':        './dist/main/services/bulk-processors/main.js',
   },
   externals: [
       //"jsdom",

@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 69);
+/******/ 	return __webpack_require__(__webpack_require__.s = 67);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2330,85 +2330,7 @@ class ResourceHTMLHead extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DB
 module.exports = require("mysql");
 
 /***/ }),
-/* 50 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SAFELY_EXIT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return startProcessor; });
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var common_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
-/* harmony import */ var common_config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
-/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(0);
-/* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(2);
-/* harmony import */ var common_SQL__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(11);
-
-
-
-
-
-
-
-function dangerouslyExit() {
-    Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* fancyLog */ "e"])("Safety procedure activated. Exiting.");
-    for (const connection of Object.values(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* STATIC_CONNECTIONS */ "c"]))
-        if (connection && connection.connected)
-            connection.quit();
-    for (const connection of _Redis__WEBPACK_IMPORTED_MODULE_5__[/* SUB_CONNECTIONS */ "d"])
-        if (connection && connection.connected)
-            connection.quit();
-    if (common_SQL__WEBPACK_IMPORTED_MODULE_6__[/* DB_CLIENT */ "a"])
-        common_SQL__WEBPACK_IMPORTED_MODULE_6__[/* DB_CLIENT */ "a"].destroy();
-    if (INTERVAL)
-        clearInterval(INTERVAL);
-    if (SAFETY_INTERVAL)
-        clearInterval(SAFETY_INTERVAL);
-}
-let LOCKS = {};
-async function synchronised(name, f, postcondition) {
-    if (name in LOCKS)
-        return;
-    if (SAFELY_EXIT[0])
-        dangerouslyExit();
-    LOCKS[name] = true;
-    f().then(() => {
-        delete LOCKS[name];
-        _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events).publish(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"], postcondition);
-        if (SAFELY_EXIT[0])
-            dangerouslyExit();
-    });
-}
-let INTERVAL = undefined;
-let SAFETY_INTERVAL = undefined;
-let SAFELY_EXIT = [false];
-function startProcessor(f, preconditions, postcondition, options = { interval: true, period: 2000 }) {
-    const name = crypto__WEBPACK_IMPORTED_MODULE_1___default.a.randomBytes(30).toString("base64");
-    if (options.interval || options.interval === undefined)
-        INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "g"])(() => synchronised(name, f, postcondition), options.period ? options.period : 2000);
-    let events;
-    if (preconditions && preconditions.size > 0) {
-        events = _Redis__WEBPACK_IMPORTED_MODULE_5__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_5__[/* REDIS_PARAMS */ "a"].events);
-        events.client.subscribe(common_events__WEBPACK_IMPORTED_MODULE_2__[/* EVENT_LOG */ "f"]);
-        events.client.on("message", (_, msg) => {
-            if (preconditions.has(msg))
-                synchronised(name, f, postcondition);
-        });
-    }
-    else
-        events = null;
-    SAFETY_INTERVAL = Object(common_util__WEBPACK_IMPORTED_MODULE_4__[/* setImmediateInterval */ "g"])(async () => {
-        const content = fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFileSync(await Object(common_config__WEBPACK_IMPORTED_MODULE_3__[/* safetyFilePromise */ "i"])()).toString();
-        if (content.match(/1/))
-            SAFELY_EXIT[0] = true;
-    }, 1000);
-    return { interval: INTERVAL, events };
-}
-
-
-/***/ }),
+/* 50 */,
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2500,39 +2422,256 @@ module.exports = webpackContext;
 webpackContext.id = 51;
 
 /***/ }),
-/* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */,
-/* 56 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return start; });
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var _processor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(50);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(14);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _Redis__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BinaryBag; });
+/* harmony import */ var common_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _objects_Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
 
 
-
-
-function start(f, birthLog, deathLog, preconditions, postcondition) {
-    const workerID = Object(crypto__WEBPACK_IMPORTED_MODULE_2__["randomBytes"])(30).toString("hex");
-    let lo;
-    let hi;
-    Object(_util__WEBPACK_IMPORTED_MODULE_0__[/* setImmediateInterval */ "g"])(() => _Redis__WEBPACK_IMPORTED_MODULE_3__[/* Redis */ "b"].renewRedis(_Redis__WEBPACK_IMPORTED_MODULE_3__[/* REDIS_PARAMS */ "a"].local).publish(birthLog, workerID), 400);
-    const listen = _Redis__WEBPACK_IMPORTED_MODULE_3__[/* Redis */ "b"].newSub(_Redis__WEBPACK_IMPORTED_MODULE_3__[/* REDIS_PARAMS */ "a"].local);
-    listen.client.subscribe(workerID);
-    listen.client.on("message", (_, msg) => {
-        [lo, hi] = msg.split(" ", 2).map(BigInt);
-    });
-    Object(_processor__WEBPACK_IMPORTED_MODULE_1__[/* startProcessor */ "b"])(async () => f(() => lo, () => hi), preconditions, postcondition);
+class BinaryBag {
+    constructor(builder, bag = new Set()) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
+    }
+    register(value) {
+        const obj = this.builder(value);
+        const wordID = obj.getID();
+        this.bag.add(wordID);
+    }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(this.bag.size * 12);
+        let offset = 0;
+        for (const id of ids.sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"])) {
+            Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* writeBigUInt96BE */ "k"])(id, fileData, offset);
+            offset += 12;
+        }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Set();
+        const bufferLength = buffer.length;
+        let offset = 0;
+        while (offset < bufferLength) {
+            const id = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* bytesToBigInt */ "c"])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            bag.add(id);
+        }
+        return new BinaryBag(this.builder, bag);
+    }
+    toString() {
+        const ids = Object(common_util__WEBPACK_IMPORTED_MODULE_0__[/* iteratorToArray */ "f"])(this.bag.keys()).sort(common_util__WEBPACK_IMPORTED_MODULE_0__[/* CMP_BIG_INT */ "a"]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + "\n";
+        return str;
+    }
+    static ofWords() {
+        return new BinaryBag(value => new _objects_Word__WEBPACK_IMPORTED_MODULE_1__["Word"](value));
+    }
 }
 
 
 /***/ }),
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "c", function() { return /* binding */ selectPreSchedule; });
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ schedule; });
+__webpack_require__.d(__webpack_exports__, "d", function() { return /* binding */ selectResourcesNotProcessed; });
+__webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ selectBagOfWordsByHost; });
+
+// CONCATENATED MODULE: ./dist/main/sql.js
+/* harmony default export */ var sql = ({
+    // /home/sean/newsreduce/sql/BULK_INSERT.sql
+    BULK_INSERT: "LOAD DATA INFILE ? IGNORE INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY ''' ESCAPED BY '\\' LINES TERMINATED BY '\n' ?",
+    // /home/sean/newsreduce/sql/DELETE_RESOURCE_HEADERS.sql
+    DELETE_RESOURCE_HEADERS: "delete from ResourceHeader where resource = ? and header not in ?",
+    // /home/sean/newsreduce/sql/DELETE_SCHEDULE.sql
+    DELETE_SCHEDULE: "delete from Schedule where resource = ?",
+    // /home/sean/newsreduce/sql/DELETE_WIKI_CATEGORIES_FOR_PARENTS.sql
+    DELETE_WIKI_CATEGORIES_FOR_PARENTS: "delete from WikiCategory where parent = ? and child not in ?",
+    // /home/sean/newsreduce/sql/SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS.sql
+    SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS: "select u.id resource, max(v.time) time, u.host from Host h inner join ResourceURL u on u.host = h.id inner join ResourceVersion v on v.resource = u.id inner join ResourceVersionType t on t.id = v.type where t.filename = 'bow.bin' group by v.resource, v.type;",
+    // /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
+    SELECT_HEADERS_FOR_RESOURCE: "select header from ResourceHeader r where r.resource = ?",
+    // /home/sean/newsreduce/sql/SELECT_PRIORITY_RESOURCE_PER_HOST.sql
+    SELECT_PRIORITY_RESOURCE_PER_HOST: "select min(priority) as priority, r.*, h.throttle, h.name as hostname from Schedule s inner join ResourceURL r on r.id = s.resource inner join Host h on h.id = r.host group by r.host;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_NOT_PROCESSED.sql
+    SELECT_RESOURCES_NOT_PROCESSED: "select u.*, time from ( select count(*) as formats, resource, time from ResourceVersion v inner join ResourceVersionType t on t.id = v.type group by resource, time ) ResourcesVersionCounts inner join URLView u on u.resource = ResourcesVersionCounts.resource where formats <= 2;",
+    // /home/sean/newsreduce/sql/SELECT_RESOURCES_TO_FETCH.sql
+    SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
+    // /home/sean/newsreduce/sql/SELECT_TABLES.sql
+    SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
+    // /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
+    SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
+});
+
+// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
+var ResourceURL = __webpack_require__(7);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(0);
+
+// EXTERNAL MODULE: ./dist/main/common/Redis.js
+var Redis = __webpack_require__(2);
+
+// EXTERNAL MODULE: ./dist/main/common/SQL.js
+var SQL = __webpack_require__(11);
+
+// CONCATENATED MODULE: ./dist/main/data.js
+
+
+
+
+
+async function genericSQLPromise(query, params = [], mapper) {
+    let response = await SQL["b" /* SQL */].query(query, params);
+    if (mapper && response)
+        response = mapper(response);
+    return response;
+}
+function selectPreSchedule() {
+    return genericSQLPromise(sql.SELECT_RESOURCES_TO_FETCH);
+}
+async function schedule(items) {
+    Object(util["e" /* fancyLog */])(`Attempting to schedule ${items.length} URLs.`);
+    const promises = [];
+    let scheduled = 0;
+    for (const item of items) {
+        const resourceURL = new ResourceURL["ResourceURL"](item.url);
+        if (!await resourceURL.isFetchLocked()) {
+            promises.push(Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule)
+                .zincrby(resourceURL.host.name, 1, item.url));
+            ++scheduled;
+        }
+    }
+    if (scheduled)
+        Object(util["e" /* fancyLog */])(`Scheduled ${scheduled} URLs.`);
+    await Promise.all(promises);
+}
+async function selectResourcesNotProcessed() {
+    const query = sql.SELECT_RESOURCES_NOT_PROCESSED;
+    return genericSQLPromise(query);
+}
+async function selectBagOfWordsByHost() {
+    const query = sql.SELECT_BAG_OF_WORDS_RESOURCE_HOST_PAIRS;
+    const rows = await genericSQLPromise(query);
+    const hosts = new Map();
+    for (const row of rows) {
+        const resource = row.resource;
+        const time = row.time;
+        const host = row.host;
+        const version = [resource, time];
+        if (hosts.has(host))
+            hosts.get(host).push(version);
+        else
+            hosts.set(host, [version]);
+    }
+    return hosts;
+}
+
+
+/***/ }),
+/* 54 */,
+/* 55 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ BagOfWords_BagOfWords; });
+
+// EXTERNAL MODULE: ./dist/main/types/BinaryBag.js
+var BinaryBag = __webpack_require__(52);
+
+// EXTERNAL MODULE: ./dist/main/common/util.js
+var util = __webpack_require__(0);
+
+// CONCATENATED MODULE: ./dist/main/types/Bag.js
+
+
+class Bag_Bag {
+    constructor(builder, bag = new Map(), lengthBytes = 2) {
+        this.bag = bag;
+        this.builder = builder;
+        this.objects = new Map();
+        this.lengthBytes = lengthBytes;
+    }
+    register(value) {
+        const obj = this.builder(value);
+        const id = obj.getID();
+        this.objects.set(id, obj);
+        if (this.bag.has(id))
+            this.bag.set(id, this.bag.get(id) + 1);
+        else
+            this.bag.set(id, 1);
+    }
+    toBinaryBag() {
+        return new BinaryBag["a" /* BinaryBag */](this.builder, new Set(this.bag.keys()));
+    }
+    toBuffer() {
+        const ids = [...this.bag.keys()];
+        const fileData = Buffer.alloc(1 + this.bag.size * (12 + this.lengthBytes));
+        fileData[0] = this.lengthBytes;
+        let offset = 1;
+        for (const id of ids.sort(util["a" /* CMP_BIG_INT */])) {
+            Object(util["k" /* writeBigUInt96BE */])(id, fileData, offset);
+            offset += 12;
+            const count = Math.min(this.bag.get(id), (1 << this.lengthBytes * 8) - 1);
+            Object(util["j" /* writeAnyNumberBE */])(count, fileData, offset, this.lengthBytes);
+            offset += this.lengthBytes;
+        }
+        return fileData;
+    }
+    fromBuffer(buffer) {
+        const bag = new Map();
+        const bufferLength = buffer.length;
+        const lengthBytes = buffer[0];
+        let offset = 1;
+        while (offset < bufferLength) {
+            const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(offset, offset + 12));
+            offset += 12;
+            const count = Object(util["d" /* bytesToNumber */])(buffer.slice(offset, offset + this.lengthBytes));
+            offset += this.lengthBytes;
+            bag.set(id, count);
+        }
+        return this.build(bag, lengthBytes);
+    }
+    toString() {
+        const ids = Object(util["f" /* iteratorToArray */])(this.bag.keys()).sort(util["a" /* CMP_BIG_INT */]);
+        let str = "";
+        for (const id of ids)
+            str += `${id}`.padStart(29, "0") + " " + this.bag.get(id).toString(16).padStart(this.lengthBytes * 2, "0") + "\n";
+        return str;
+    }
+}
+
+// EXTERNAL MODULE: ./dist/main/types/objects/Word.js
+var Word = __webpack_require__(30);
+
+// CONCATENATED MODULE: ./dist/main/types/BagOfWords.js
+
+
+class BagOfWords_BagOfWords extends Bag_Bag {
+    constructor(bag = new Map(), lengthBytes = 2) {
+        super(value => new Word["Word"](value), bag, lengthBytes);
+    }
+    build(bag, lengthBytes) {
+        return new BagOfWords_BagOfWords(bag, lengthBytes);
+    }
+}
+
+
+/***/ }),
+/* 56 */,
 /* 57 */,
 /* 58 */,
 /* 59 */,
@@ -2543,131 +2682,33 @@ function start(f, birthLog, deathLog, preconditions, postcondition) {
 /* 64 */,
 /* 65 */,
 /* 66 */,
-/* 67 */,
-/* 68 */,
-/* 69 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-// ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./dist/main/common/events.js
-var events = __webpack_require__(13);
-
-// EXTERNAL MODULE: ./dist/main/common/worker.js
-var worker = __webpack_require__(56);
-
-// EXTERNAL MODULE: external "node-fetch"
-var external_node_fetch_ = __webpack_require__(10);
-var external_node_fetch_default = /*#__PURE__*/__webpack_require__.n(external_node_fetch_);
-
-// EXTERNAL MODULE: ./dist/main/common/logging.js
-var logging = __webpack_require__(6);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceURL.js
-var ResourceURL = __webpack_require__(7);
-
-// CONCATENATED MODULE: ./dist/main/common/time.js
-function milliTimestamp() {
-    return Date.now();
-}
-
-// EXTERNAL MODULE: ./dist/main/types/objects/Host.js
-var Host = __webpack_require__(17);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceHeader.js
-var ResourceHeader = __webpack_require__(38);
-
-// EXTERNAL MODULE: ./dist/main/common/Redis.js
-var Redis = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./dist/main/common/util.js
-var util = __webpack_require__(0);
-
-// EXTERNAL MODULE: ./dist/main/types/objects/ResourceVersionType.js
-var ResourceVersionType = __webpack_require__(12);
-
-// CONCATENATED MODULE: ./dist/main/services/fetcher/functions.js
+/* harmony import */ var data__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
+/* harmony import */ var types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(12);
+/* harmony import */ var types_BagOfWords__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(55);
 
 
 
 
-
-
-
-
-
-function buildOnFetch(url) {
-    return async (response) => {
-        const resource = new ResourceURL["ResourceURL"](url);
-        const time = milliTimestamp();
-        let headers = [];
-        let objects = [];
-        response.headers.forEach(async (value, anyCaseKey) => {
-            headers.push(`${anyCaseKey}: ${value}`);
-            const key = anyCaseKey.toLowerCase();
-            objects.push(new ResourceHeader["ResourceHeader"](url, key, value));
-            if (key === "content-type") {
-                const mimeType = value.toLowerCase();
-                let type = null;
-                if (mimeType.match(/^text\/html/))
-                    type = ResourceVersionType["ResourceVersionType"].RAW_HTML;
-                if (type !== null)
-                    await resource.writeVersion(time, type, response.body);
+async function main() {
+    const bags = await Object(data__WEBPACK_IMPORTED_MODULE_0__[/* selectBagOfWordsByHost */ "b"])();
+    for (const host of bags.keys()) {
+        const hostBags = bags.get(host);
+        for (const [resource, time] of hostBags) {
+            const bowBuffer = (await new types_objects_ResourceURL__WEBPACK_IMPORTED_MODULE_1__["ResourceID"](resource).read(time, types_objects_ResourceVersionType__WEBPACK_IMPORTED_MODULE_2__["ResourceVersionType"].BAG_OF_WORDS));
+            if (bowBuffer) {
+                const bag = new types_BagOfWords__WEBPACK_IMPORTED_MODULE_3__[/* BagOfWords */ "a"]().fromBuffer(bowBuffer);
+                console.log(bag.toString());
             }
-        });
-        const headerContent = headers.join("\n");
-        if (!headerContent) {
-            Object(logging["a" /* log */])("header issue");
-            Object(logging["a" /* log */])(JSON.stringify(headers));
         }
-        await resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].RAW_HEADERS, headerContent);
-        await Promise.all(objects.map(obj => obj.enqueueInsert({ recursive: true })));
-    };
+    }
 }
-async function fetchAndWrite(url) {
-    await external_node_fetch_default()(url).then(buildOnFetch(url));
-}
-async function pollAndFetch(lo, hi) {
-    let hostnames;
-    let fetched = new Set();
-    do {
-        hostnames = await Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].fetchSchedule).keys();
-        const hostIDs = hostnames.map(hostname => new Host["Host"]({ name: hostname }).getID());
-        const throttleList = (await new Host["Host"]().bulkSelect(hostIDs, ["name", "throttle"]));
-        const throttles = {};
-        for (const row of throttleList)
-            throttles[row.name] = Number(row.throttle);
-        for (const hostname of hostnames) {
-            const host = new Host["Host"]({ name: hostname, throttle: throttles[hostname] });
-            const id = host.getID();
-            if (id >= lo() && id < hi()) {
-                const allowed = await host.crawlAllowed();
-                if (allowed) {
-                    const resource = new ResourceURL["ResourceURL"](await host.popURLForFetching());
-                    if (resource.isValid()) {
-                        await resource.setFetchLock();
-                        const url = resource.toURL();
-                        await host.applyThrottle();
-                        await fetchAndWrite(url);
-                        Object(util["e" /* fancyLog */])(url);
-                        Redis["b" /* Redis */].renewRedis(Redis["a" /* REDIS_PARAMS */].general).sadd("html", url);
-                        fetched.add(url);
-                    }
-                }
-            }
-            ;
-        }
-    } while (hostnames.length !== 0);
-    return fetched;
-}
-
-// CONCATENATED MODULE: ./dist/main/services/fetcher/worker.js
-
-
-
-Object(worker["a" /* start */])(pollAndFetch, events["h" /* FETCHER_BIRTH_LOG */], events["i" /* FETCHER_DEATH_LOG */], null, events["j" /* FETCH_COMPLETE */]);
+main();
 
 
 /***/ })

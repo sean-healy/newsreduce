@@ -1,7 +1,7 @@
 import { Bag } from "types/Bag";
 import { ResourceURL } from "types/objects/ResourceURL";
 
-export class BagOfURLs extends Bag<ResourceURL> {
+export class BagOfURLs extends Bag<BagOfURLs, ResourceURL> {
     constructor(bag: Map<bigint, number> = new Map(), lengthBytes: number = 2) {
         super(value => new ResourceURL(value), bag, lengthBytes);
     }
