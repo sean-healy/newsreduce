@@ -3411,7 +3411,7 @@ const buildProcessFunction = (processors) => async function process(lo, hi) {
             await processResource(resource, time, filenames, pool, processors);
         }
     }
-    pool.flush();
+    await pool.flush();
 };
 
 // EXTERNAL MODULE: ./dist/main/types/WordHits.js

@@ -106,5 +106,5 @@ export const buildProcessFunction = (processors: ResourceProcessor[]) =>
                 await processResource(resource, time, filenames, pool, processors);
             }
         }
-        pool.flush();
+        await pool.flush();
     }
