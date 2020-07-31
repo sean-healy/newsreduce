@@ -42,10 +42,14 @@ export class GlobalConfig {
 
 export class GeneralConfig {
     environment: string = "production";
+    user: string = "newsreduce";
+    role: string = "main";
 
     constructor(arg?: any) {
         if (arg) {
             if (arg.environment) this.environment = arg.environment;
+            if (arg.user) this.user = arg.user;
+            if (arg.role) this.user = arg.role;
         }
     }
 }

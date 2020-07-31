@@ -29,15 +29,20 @@ echo "grant all privileges on newsreduce.* to 'newsreduce'@'%';flush privileges;
 echo "set global sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';"  | mysql
 echo "set session sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';" | mysql
 echo "set session sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';" | mysql
-echo "grant file on *.* to 'newsreduce'@'%';flush privileges;"                                                                    | mysql
+echo "grant file on *.* to newsreduce;flush privileges;"                                                                    | mysql
 
 cat > /etc/mysql/conf.d/performance-tuning.cnf << END
 [mysqld]
-secure-file-priv = "/tmp"
+local-infile = 1 
+secure-file-priv = "/tmp/"
 innodb_doublewrite = 0
 innodb_buffer_pool_size = 20G
 innodb_log_file_size = 1G
 innodb_flush_log_at_trx_commit = 0
+END
+cat > /etc/mysql/mysql.conf.d/performance-tuning.cnf << END
+[mysql]
+local-infile = 1 
 END
 
 apt -y autoremove

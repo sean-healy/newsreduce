@@ -16,7 +16,14 @@ debs=(
     tar
     zstd
 )
-apt-get install -y ${debs[*]}
+cacheDir=/var/newsreduce/cache
+mkdir -p $cacheDir
+checksum=$(echo "${debs[*]}" | md5sum | cut -d' ' -f1)
+check="$cacheDir/$checksum"
+if [ ! -f $check ]; then
+    apt-get install -y ${debs[*]}
+    touch $check
+fi
 if [ ! -d /opt/newsreduce ]; then
     git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
 fi
@@ -40,7 +47,13 @@ mkdir -p /var/newsreduce/blobs/resource
 mkdir -p /var/newsreduce/null
 mkdir -p /var/newsreduce/.ssh
 echo 0 > /var/newsreduce/safety
-curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+nodeSrc="https://deb.nodesource.com/setup_14.x"
+checksum=$(echo "$(date -Idate)$nodeSrc" | md5sum | cut -d' ' -f1)
+check="$cacheDir/$checksum"
+if [ ! -f $check ]; then
+    curl -sL "$nodeSrc" | sudo -E bash -
+    touch $check
+fi
 if [ ! -f /var/newsreduce/.ssh/id_rsa ]; then
     sudo -u $user ssh-keygen -q -t rsa -N '' -f /var/newsreduce/.ssh/id_rsa <<<y 2>&1 >/dev/null
 fi
@@ -52,13 +65,20 @@ if [ ! -f /etc/redis/redis.conf ]; then
     chown redis:redis /etc/redis/redis.conf
     chmod 640 /etc/redis/redis.conf
 fi
-awk -f redis.conf.awk /etc/redis/redis.conf > /etc/redis/redis.conf.tmp
-awk -f sudoers.awk /etc/sudoers > /etc/sudoers.tmp
-cat /etc/sudoers.tmp > /etc/sudoers
-cat /etc/redis/redis.conf.tmp > /etc/redis/redis.conf
-rm /etc/redis/redis.conf.tmp
+awk -f /opt/newsreduce/ubuntu-automation/redis.conf.awk /etc/redis/redis.conf > /etc/redis/redis.conf.tmp
+awk -f /opt/newsreduce/ubuntu-automation/sudoers.awk /etc/sudoers > /etc/sudoers.tmp
+if [ "$(diff /etc/sudoers.tmp /etc/sudoers)" ]; then
+    cat /etc/sudoers.tmp > /etc/sudoers
+fi
 rm /etc/sudoers.tmp
-systemctl restart redis
+if [ "$(diff /etc/redis/redis.conf.tmp /etc/redis/redis.conf)" ]; then
+    cat /etc/redis/redis.conf.tmp > /etc/redis/redis.conf
+    systemctl restart redis
+fi
+rm /etc/redis/redis.conf.tmp
+if [ ! "$env" ]; then
+    env=$role
+fi
 cat crontab-$env.cron | sudo -u $user crontab -
 function mk-daemon-script() {
 node_script=$1

@@ -51,7 +51,7 @@ export abstract class DBObject<T extends DBObject<T>> extends GenericConstructor
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
         const table = this.table();
         const query =
-            `LOAD DATA INFILE ? ` +
+            `LOAD DATA LOCAL INFILE ? ` +
             `IGNORE INTO TABLE \`${table}\` ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
         await SQL.query(query, [csvFile])
