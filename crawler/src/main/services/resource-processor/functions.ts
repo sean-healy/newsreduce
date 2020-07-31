@@ -68,32 +68,32 @@ export async function processResource(
 ) {
     const url = resource.toURL();
     console.log(`${time} ${url}`);
-    try {
+    const dictionary: Dictionary<Buffer | ResourceURL> = {};
         const filenames = [...formats];
+    try {
         const buffersOrPaths = await Promise.all(filenames.map(filename => filenameToBufferOrPath(resource, time, filename)));
-        const dictionary: Dictionary<Buffer | ResourceURL> = {};
         const length = buffersOrPaths.length;
         for (let i = 0; i < length; ++i) {
             const bufferOrPath = buffersOrPaths[i];
             if (bufferOrPath) dictionary[filenames[i]] = bufferOrPath;
         }
-        const localFilenames = Object.keys(dictionary);
-        const domPool = new DOMPool();
-        let reDOM = true;
-        for (const processor of processors) {
-            if (processor.appliesTo(localFilenames, resource)) {
-                const from = processor.from();
-                const inputFilenames = [...from];
-                let input: Dictionary<Buffer | ResourceURL> = {}
-                const length = inputFilenames.length;
-                for (let i = 0; i < length; ++i)
-                    input[inputFilenames[i]] = dictionary[i];
-                await pool.registerPromise(processor.apply(resource, input, time, domPool, reDOM));
-            }
-            reDOM = !processor.ro();
-        }
     } catch (e) {
         fancyLog(e.toString());
+    }
+    const localFilenames = Object.keys(dictionary);
+    const domPool = new DOMPool();
+    let reDOM = true;
+    for (const processor of processors) {
+        if (processor.appliesTo(localFilenames, resource)) {
+            const from = processor.from();
+            const inputFilenames = [...from];
+            let input: Dictionary<Buffer | ResourceURL> = {}
+            const length = inputFilenames.length;
+            for (let i = 0; i < length; ++i)
+                input[inputFilenames[i]] = dictionary[i];
+            await pool.registerPromise(processor.apply(resource, input, time, domPool, reDOM));
+        }
+        reDOM = !processor.ro();
     }
 }
 
