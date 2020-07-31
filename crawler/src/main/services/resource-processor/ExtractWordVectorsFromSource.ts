@@ -35,7 +35,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 fancyLog(`vectors: ${wordVectors.vectors.size}`);
                 fancyLog("read the thing")
                 for (const wordVector of wordVectors.vectors.values()) {
-                    wordVector.enqueueInsert({ recursive: true });
+                    await wordVector.enqueueInsert({ recursive: true });
                 }
                 fancyLog("enqueued inserts")
                 const tmpFile = await wordVectors.toBuffer();

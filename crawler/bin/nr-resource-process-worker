@@ -3942,7 +3942,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 Object(util["e" /* fancyLog */])(`vectors: ${wordVectors.vectors.size}`);
                 Object(util["e" /* fancyLog */])("read the thing");
                 for (const wordVector of wordVectors.vectors.values()) {
-                    wordVector.enqueueInsert({ recursive: true });
+                    await wordVector.enqueueInsert({ recursive: true });
                 }
                 Object(util["e" /* fancyLog */])("enqueued inserts");
                 const tmpFile = await wordVectors.toBuffer();
