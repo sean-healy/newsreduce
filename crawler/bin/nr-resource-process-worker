@@ -977,7 +977,6 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             return await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* read */ "f"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), time, format);
         }
         catch (e) {
-            Object(common_util__WEBPACK_IMPORTED_MODULE_9__[/* fancyLog */ "e"])(JSON.stringify(e));
             return null;
         }
     }
@@ -986,7 +985,6 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             return await Object(file__WEBPACK_IMPORTED_MODULE_4__[/* stream */ "g"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), time, format);
         }
         catch (e) {
-            Object(common_util__WEBPACK_IMPORTED_MODULE_9__[/* fancyLog */ "e"])(JSON.stringify(e));
             return null;
         }
     }
@@ -3996,11 +3994,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                     Object(util["e" /* fancyLog */])("writing CSV");
                     Object(util["e" /* fancyLog */])(JSON.stringify({ vectorCSV, wordVectorCSV }));
                     const sourceID = resource.getID();
-                    let lines = 0;
                     for (let read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
-                        if (!(lines & 0b1111111111111))
-                            Object(util["e" /* fancyLog */])(JSON.stringify({ lines: lines, read }));
-                        lines++;
                         const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(0, 12));
                         const tail = buffer.slice(12, buffer.length);
                         const vector = new Vector["Vector"](tail);
@@ -4010,18 +4004,17 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                         vectorCSVWrite.write(vectorRow + "\n");
                         wordVectorCSVWrite.write(wordVectorRow + "\n");
                     }
-                    Object(util["e" /* fancyLog */])("closing read stream");
+                    console.log("closing read stream");
                     external_fs_default.a.closeSync(fd);
-                    Object(util["e" /* fancyLog */])("ending write stream.");
+                    console.log("ending write stream.");
                     vectorCSVWrite.end();
                     wordVectorCSVWrite.end();
-                    Object(util["e" /* fancyLog */])("awaiting finish");
+                    console.log("awaiting finish");
                     await finish;
-                    Object(util["e" /* fancyLog */])("bulk insert word vec CSV");
+                    console.log("bulk insert word vec CSV");
                     await new WordVector["WordVector"]().bulkInsert(wordVectorCSV);
-                    Object(util["e" /* fancyLog */])("bulk insert vector CSV");
+                    console.log("bulk insert vector CSV");
                     await new Vector["Vector"]().bulkInsert(vectorCSV);
-                    Object(util["e" /* fancyLog */])("cleanup");
                     external_fs_default.a.unlinkSync(tmpFile);
                     external_fs_default.a.unlinkSync(compressedTMP);
                     external_fs_default.a.unlinkSync(vectorCSV);
@@ -4029,7 +4022,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                     res();
                 }
                 catch (e) {
-                    Object(util["e" /* fancyLog */])(JSON.stringify(e));
+                    console.log(JSON.stringify(e));
                     res();
                 }
             });
@@ -4039,7 +4032,6 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 res();
             });
         });
-        console.log("Done.");
     }
     hosts() {
         return new Set(["dl.fbaipublicfiles.com"]);

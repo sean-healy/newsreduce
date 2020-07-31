@@ -63,10 +63,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                     fancyLog("writing CSV");
                     fancyLog(JSON.stringify({ vectorCSV, wordVectorCSV }));
                     const sourceID = resource.getID();
-                    let lines = 0;
                     for (let read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
-                        if (!(lines & 0b1111111111111)) fancyLog(JSON.stringify({lines: lines, read}))
-                        lines++;
                         const id = bytesToBigInt(buffer.slice(0, 12));
                         const tail = buffer.slice(12, buffer.length)
                         const vector = new Vector(tail);
@@ -76,25 +73,24 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                         vectorCSVWrite.write(vectorRow + "\n");
                         wordVectorCSVWrite.write(wordVectorRow + "\n");
                     }
-                    fancyLog("closing read stream");
+                    console.log("closing read stream");
                     fs.closeSync(fd);
-                    fancyLog("ending write stream.");
+                    console.log("ending write stream.");
                     vectorCSVWrite.end();
                     wordVectorCSVWrite.end();
-                    fancyLog("awaiting finish")
+                    console.log("awaiting finish")
                     await finish;
-                    fancyLog("bulk insert word vec CSV");
+                    console.log("bulk insert word vec CSV");
                     await new WordVector().bulkInsert(wordVectorCSV);
-                    fancyLog("bulk insert vector CSV");
+                    console.log("bulk insert vector CSV");
                     await new Vector().bulkInsert(vectorCSV);
-                    fancyLog("cleanup");
                     fs.unlinkSync(tmpFile);
                     fs.unlinkSync(compressedTMP);
                     fs.unlinkSync(vectorCSV);
                     fs.unlinkSync(wordVectorCSV);
                     res();
                 } catch (e) {
-                    fancyLog(JSON.stringify(e));
+                    console.log(JSON.stringify(e));
                     res();
                 }
             });
@@ -104,7 +100,6 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 res();
             })
         });
-        console.log("Done.");
     }
     hosts() {
         return new Set(["dl.fbaipublicfiles.com"]);
