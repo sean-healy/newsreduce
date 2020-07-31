@@ -2,25 +2,30 @@ export let ENV: ["prod" | "test"] = ["prod"];
 
 import fs from "fs";
 import path from "path";
-import fetch from "node-fetch";
 
-import { DNS } from "common/DNS";
-
-export const LOCALHOST = DNS.ipv4AsIpv6("127.0.0.1");
-export const MAIN_HOSTNAME = "newsreduce.org";
-export const NET_AGENT_ENDPOINT = `http://${MAIN_HOSTNAME}:9999`;
+import { GlobalConfig } from "./GlobalConfig";
 
 export const TAR = "tar";
 export const FIND = "find";
 
-export async function varDirPromise() {
-    const varDir = ENV[0] === "prod" ? "/var/newsreduce" : "/var/newsreduce/test";
+export async function getVarDir() {
+    let varDir: string;
+    const environment = GlobalConfig.softFetch().general.environment;
+    switch (environment) {
+        case "production":
+            varDir = "/var/newsreduce";
+            break;
+        case "test":
+            varDir = "/var/newsreduce/test";
+            break;
+        default: throw new Error(`env not handled in varDirPromise: ${environment}`);
+    }
     await safeMkdir(varDir);
 
     return varDir;
 }
-export async function safetyFilePromise() {
-    const safetyFile = path.join(await varDirPromise(), "safety");
+export async function getSafetyFile() {
+    const safetyFile = path.join(await getVarDir(), "safety");
     const exists = fs.existsSync(safetyFile);
     if (!exists) fs.writeFileSync(safetyFile, "0");
 
@@ -31,39 +36,26 @@ export async function safeMkdir(dir: string) {
     return fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
 }
 
-export async function varDirChildPromise(child: string) {
-    const dir = path.join(await varDirPromise(), child);
+export async function varDirChild(child: string) {
+    const dir = path.join(await getVarDir(), child);
     const exists = fs.existsSync(dir);
     if (!exists) await safeMkdir(dir);
 
     return dir;
 }
-export function tmpDirPromise() {
-    return varDirChildPromise("tmp");
+export function getRawDir() {
+    return varDirChild("raw");
 }
-export function nullDirPromise() {
-    return varDirChildPromise("null");
+export function getPreBlobDir() {
+    return varDirChild("pre-blob");
 }
-export function blobDirPromise() {
-    return varDirChildPromise("blobs");
+export function getNullDir() {
+    return varDirChild("null");
 }
-export async function nullFilePromise(path: string) {
+export function getBlobDir() {
+    return varDirChild("blobs");
+}
+export async function nullFile(path: string) {
     const safePath = path.replace(/[\/.]/g, "_");
-    return `${await nullDirPromise()}/${safePath}-${Date.now()}`;
-}
-export async function myIP() {
-    const ip = await fetch("http://newsreduce.org:9999/ip").then(response => response.text());
-
-    return ip;
-}
-
-
-interface Params {
-    sql: string;
-}
-let params: Params = null;
-export async function getParams() {
-    if (!params) params = await fetch(NET_AGENT_ENDPOINT).then(res => res.json());
-
-    return params;
+    return `${await getNullDir()}/${safePath}-${Date.now()}`;
 }

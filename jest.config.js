@@ -6,8 +6,9 @@ module.exports = {
   "transform": {
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
-  moduleDirectories: ['node_modules', 'src/main'],
+  moduleDirectories: ["node_modules", "src/main/ts"],
   "collectCoverageFrom": [
     "**/*.ts"
-  ]
+  ],
+  setupFiles: ["<rootDir>/.jest/setEnvVars.js"]
 }

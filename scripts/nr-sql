@@ -1,11 +1,14 @@
 #!/usr/bin/bash
-pass=$(curl -s http://newsreduce.org:9999 | cut -d'"' -f4)
+source <(gawk '$0=="[database]"{block=1;next}$0~/^\[/{block=0;next}block{print}' /etc/newsreduce.ini)
+if [ "$1" == "--nodb" ]; then
+    database=""
+fi
 if [ "$1" == "--noerr" ]; then
-    mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -p$pass -A --column-names=false 2>/dev/null
+    mysql -h $host -P 3306 -u $user $database -p$password -A --column-names=false 2>/dev/null
 else
     if [ "$1" == "--colnames" ]; then
-        mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -p$pass -A
+        mysql -h $host -P $port -u $user $database -p$password -A
     else
-        mysql -h seanh.sh -P 3306 -u newsreduce newsreduce -p$pass -A --column-names=false
+        mysql -h $host -P $port -u $user $database -p$password -A --column-names=false
     fi
 fi

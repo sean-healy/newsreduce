@@ -1,10 +1,12 @@
 import "./setup.ts";
 import { compress, SAFETY_PERIOD_MS } from "services/compressor/functions";
 import { write, findVersions, readLatestVersion } from "file";
+import path from "path"
 import fs from "fs";
 import { Entity } from "types/Entity";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
-import { sleep } from "common/util";
+import { sleep, spawnPromise } from "common/util";
+import { spawn } from "child_process";
 
 test("compress should work", async () => {
     jest.setTimeout(6000);
@@ -21,6 +23,8 @@ test("compress should work", async () => {
     // since the file version hasn't been written before, it should return bytes written.
     expect(htmlBytes).toBe(html.length);
     expect(headerBytes).toBe(header.length);
+    const script = path.join(__dirname, "../main/bash/pull-remote-files.sh");
+    await spawnPromise(() => spawn(script, { env: process.env }));
     await sleep(SAFETY_PERIOD_MS);
     await compress();
     htmlBytes =

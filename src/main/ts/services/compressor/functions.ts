@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { tmpDirPromise, TAR, nullFilePromise, safeMkdir, blobDirPromise } from "common/config";
+import { getPreBlobDir, TAR, nullFile, safeMkdir, getBlobDir } from "common/config";
 import { spawn } from "child_process";
 import { COMPRESSOR_LOCK, SYNC_LOCK } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
@@ -22,8 +22,8 @@ export async function compress() {
     }
     redis.setex(SYNC_LOCK, 3600);
     fancyLog("Placed sync lock.");
-    const tmpDir = await tmpDirPromise();
-    const blobDir = await blobDirPromise();
+    const tmpDir = await getPreBlobDir();
+    const blobDir = await getBlobDir();
     const entities = fs.readdirSync(tmpDir);
     const promises = new PromisePool(50);
     let newArcs = 0;
@@ -87,7 +87,7 @@ export async function compress() {
                         return;
                     }
                     if (fs.existsSync(arc))
-                        fs.renameSync(arc, await nullFilePromise(arc));
+                        fs.renameSync(arc, await nullFile(arc));
                     ++oldArcs;
                 } else {
                     try {
@@ -108,7 +108,7 @@ export async function compress() {
                 try {
                     if (fs.existsSync(tmpEntityDir) &&
                         lastChangedBefore(tmpEntityDir, SAFETY_PERIOD_MS))
-                        fs.renameSync(tmpEntityDir, await nullFilePromise(tmpEntityDir));
+                        fs.renameSync(tmpEntityDir, await nullFile(tmpEntityDir));
                 } catch (e) {
                     fancyLog("exception during exists and stat");
                     fancyLog(JSON.stringify(e));

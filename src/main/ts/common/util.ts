@@ -2,9 +2,9 @@ import { ChildProcessWithoutNullStreams } from "child_process";
 
 export const CMP_BIG_INT = (a: bigint, b: bigint) => a < b ? -1 : a > b ? 1 : 0;
 
-export function setImmediateInterval(f: () => void, ms: number) {
+export function setImmediateInterval(f: () => void, ms: number): NodeJS.Timeout {
     setImmediate(f);
-    return setInterval(f, ms);
+    return setInterval(f, ms) as any as NodeJS.Timeout;
 }
 
 export const STR_ONE = "1";

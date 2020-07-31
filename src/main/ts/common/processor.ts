@@ -1,7 +1,7 @@
 import fs from "fs";
 import crypto from "crypto";
 import { EVENT_LOG } from "common/events";
-import { safetyFilePromise } from "common/config";
+import { getSafetyFile } from "common/config";
 import { setImmediateInterval, fancyLog } from "common/util";
 import { Redis, REDIS_PARAMS, STATIC_CONNECTIONS, SUB_CONNECTIONS } from "./Redis";
 import { DB_CLIENT } from "common/SQL";
@@ -58,7 +58,7 @@ export function startProcessor(
         });
     } else events = null;
     SAFETY_INTERVAL = setImmediateInterval(async () => {
-        const content = fs.readFileSync(await safetyFilePromise()).toString();
+        const content = fs.readFileSync(await getSafetyFile()).toString();
         if (content.match(/1/)) SAFELY_EXIT[0] = true;
     }, 1000);
     return { interval: INTERVAL, events };

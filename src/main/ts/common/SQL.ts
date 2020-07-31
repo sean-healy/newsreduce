@@ -1,30 +1,20 @@
 import { DNS } from "common/DNS";
 import { createConnection, Connection } from "mysql";
-import { NET_AGENT_ENDPOINT } from "common/config";
 import { log } from "common/logging";
-import { MAIN_HOSTNAME, LOCALHOST } from "common/config";
-import fetch from "node-fetch";
 import { fancyLog } from "./util";
-
-export const SQL_PARAMS = {
-    user: "newsreduce",
-    database: "newsreduce",
-    supportBigNumbers: true,
-};
+import { GlobalConfig } from "./GlobalConfig";
 
 export let DB_CLIENT: Connection = null;
-let SQL_PASSWORD: string = null;
 export class SQL {
     static async db() {
         if (DB_CLIENT === null) {
-            let ip = await DNS.lookup(MAIN_HOSTNAME);
+            let ip = await DNS.lookup(GlobalConfig.softFetch().database.host);
             const myIP = await DNS.whoami();
-            if (ip === myIP) ip = LOCALHOST;
-            log("Fetching SQL config.");
-            const params = await fetch(NET_AGENT_ENDPOINT).then(res => res.json()).catch(_ => null);
-            if (params) SQL_PASSWORD = params.sql
-            log("Fetched SQL config.");
-            const sqlParams = { ...SQL_PARAMS, password: SQL_PASSWORD, host: ip };
+            if (ip === myIP) ip = DNS.LOCALHOST;
+            const sqlParams = { 
+                ...GlobalConfig.hardFetch().database,
+                supportBigNumbers: true,
+            }
             let newClient = createConnection(sqlParams);
             newClient.on("error", async error => {
                 const oldDB = DB_CLIENT;

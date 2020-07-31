@@ -1,7 +1,7 @@
 import redis, { RedisClient } from "redis";
-import { ENV } from "common/config";
 import { STR_ONE, fancyLog } from "./util";
 import { log } from "./logging";
+import { GlobalConfig } from "./GlobalConfig";
 
 const MAIN_HOST = "newsreduce.org";
 const LOCALHOST = "127.0.0.1";
@@ -307,9 +307,10 @@ export class Redis {
     });
     static newRedis(paramsOrHost: RedisParamsValueType | string) {
         const params = this.computeParams(paramsOrHost);
+        const env = GlobalConfig.softFetch().general.environment;
         const client = redis.createClient({
-            host: ENV[0] === "prod" ? params.host : LOCALHOST,
-            port: ENV[0] === "prod" ? params.port : 1111,
+            host: env === "production" ? params.host : LOCALHOST,
+            port: env === "production" ? params.port : 1111,
             db: params.db,
         }) as ExtendedRedisClient;
         client.on("error", (error, msg) => {

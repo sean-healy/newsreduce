@@ -1,6 +1,6 @@
 import path from "path";
 import crypto from "crypto";
-import { tmpDirPromise } from "common/config";
+import { getRawDir } from "common/config";
 import { DELETE_FILES } from "common/events";
 import fs from "fs";
 import { Redis, REDIS_PARAMS } from "common/Redis";
@@ -17,7 +17,7 @@ async function watch() {
         }
         const lines: [string, string][] = msg.split("\n").map(line => line.split(/\s+/, 2) as any);
         for (const [expectedChecksum, suffix] of lines) {
-            const cwd = await tmpDirPromise();
+            const cwd = await getRawDir();
             const file = path.join(cwd, suffix);
             if (!fs.existsSync(file)) {
                 fancyLog(`file already deleted: ${file}`);

@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `newsreduce`;
+USE `newsreduce`;
 -- MySQL dump 10.13  Distrib 8.0.20, for Linux (x86_64)
 --
 -- Host: localhost    Database: newsreduce

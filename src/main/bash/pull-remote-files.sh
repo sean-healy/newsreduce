@@ -1,13 +1,24 @@
 #!/usr/bin/bash
+if [ "$TEST" ]; then
+    lockFile=/tmp/test-pull-remote-files
+    localRawDir=/var/newsreduce/test/raw 
+    preBlobDir=/var/newsreduce/test/pre-blob
+    incomingDir=/var/newsreduce/test/incoming
+else
+    lockFile=/tmp/pull-remote-files
+    localRawDir=/var/newsreduce/raw 
+    preBlobDir=/var/newsreduce/pre-blob
+    incomingDir=/var/newsreduce/incoming
+fi
 # Ensure this script never has multiple concurrent instances.
-if [ -f /tmp/pull-remote-files ]; then
+if [ -f $lockFile ]; then
     echo Script already running elsewhere.
     exit
 fi
 # Ensure this script never has multiple concurrent instances.
-touch /tmp/pull-remote-files
+touch $lockFile
 # Create an incoming dir.
-mkdir -p /var/newsreduce/incoming/
+mkdir -p $incomingDir
 function sync-host() {
     host=$1
     if [ $host != newsreduce.org ] && [[ "$host" =~ newsreduce ]]; then
@@ -17,12 +28,12 @@ function sync-host() {
 	# Log which host is being synced.
 	echo $host
 	# Rsync files from remote servers, and output the list of fetched files to a buffer.
-	(rsync -alrpgoDuzhtv newsreduce@$host:/var/newsreduce/tmp/ /var/newsreduce/incoming/\
+	(rsync -alrpgoDuzhtv newsreduce@$host:/var/newsreduce/raw/ $incomingDir/\
 	    | awk -F/ '$1=="resource"&&$2~/^[0-9]+$/&&$0~/[^\/]$/{print}'\
 	    2>/dev/null > $fileList)
 	# Log how many files were transferred.
 	echo $(wc -l $fileList | cut -d' ' -f1) files transferred.
-	(cd /var/newsreduce/tmp && cat $fileList | while read file; do
+	(cd $incomingDir && cat $fileList | while read file; do
 	    md5sum "$file"
 	done > $checksums)
 	# Log how many checksums were created.
@@ -54,13 +65,23 @@ lock="1"
 while [[ "$lock" =~ "1" ]]; do
     lock=$(redis-cli get sync-lock)
 done
+# Don't forget to copy locally fetched files.
+mkdir -p $localRawDir
+while read localSuffix; do
+	if [ ! $localSuffix ]; then continue; fi
+	echo $localSuffix
+	dst=$incomingDir$localSuffix
+	mkdir -p $(dirname $dst)
+	echo mv $localRawDir$localSuffix $dst
+	mv $localRawDir$localSuffix $dst
+done <<<$(cd $localRawDir && find -maxdepth 2 -regex '\./[^/]+/[0-9]+$' | cut -d. -f2)
 # Place a lock, so that the compressor doesn't run concurrently with this script.
-echo "setex compressor-lock 3600 1" | redis-cli
+echo "setex compressor-lock 3600 1" | redis-cli > /dev/null
 # Move files to the tmp dir.
-rsync -alrpgoDuzhtv /var/newsreduce/incoming/ /var/newsreduce/tmp/
+rsync -alrpgoDuzhtv $incomingDir/ $preBlobDir > /dev/null
 # Remove the incoming dir.
-rm -rf /var/newsreduce/incoming/
+rm -rf $incomingDir
 # Let compressor do its job (safely) again.
-echo "del compressor-lock" | redis-cli
+echo "del compressor-lock" | redis-cli > /dev/null
 # Unlock this script.
-rm -f /tmp/pull-remote-files
+rm -f $lockFile

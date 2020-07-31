@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { spawn } from "child_process";
-import { blobDirPromise, tmpDirPromise, TAR, safeMkdir } from "common/config";
+import { getBlobDir, TAR, safeMkdir, getRawDir } from "common/config";
 import { Entity, entityName } from "types/Entity";
 import { fancyLog, spawnPromise } from "common/util";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
@@ -14,7 +14,7 @@ const TAR_CAT_PARAMS_BEFORE_FILE = "-axf";
 const TAR_CAT_PARAMS_AFTER_FILE = "-O";
 
 export async function entityIDs(entity: Entity) {
-    const entityDir = path.join(await blobDirPromise(), entityName(entity));
+    const entityDir = path.join(await getBlobDir(), entityName(entity));
     const files = fs.readdirSync(entityDir);
     return files
         .map(file => file.match(/^([0-9]+)\.tzst$/))
@@ -75,6 +75,7 @@ export async function write(
             versions.find(vAndFormat =>
                 vAndFormat[0] === version && vAndFormat[1].filename === format.filename)
         if (found) {
+            fancyLog(`file already exists: ${entityID}(v${version})`);
             bytesWritten = -1;
             if (fs.existsSync(bufferFile)) {
                 try {
@@ -82,11 +83,10 @@ export async function write(
                 } catch (e) {
                     fancyLog("exception while removing file.");
                     fancyLog(JSON.stringify(e));
-                    bytesWritten = -1;
                 }
             }
         } else {
-            const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
+            const dir = path.join(await getRawDir(), entityName(entity), `${entityID}`);
             const tmpFile = path.join(dir, `${version}_${format.filename}`);
             await safeMkdir(dir);
             try {
@@ -140,7 +140,7 @@ export const compareVersionSignatures = (v1: VersionSignature, v2: VersionSignat
 };
 
 export async function findVersions(entity: Entity, entityID: bigint) {
-    const blobDir = await blobDirPromise();
+    const blobDir = await getBlobDir();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     // Ignore files that have not been written yet.
     if (!fs.existsSync(compressedArc)) return [];
@@ -172,7 +172,7 @@ export async function read(
     time: number,
     format: ResourceVersionType
 ) {
-    const blobDir = await blobDirPromise();
+    const blobDir = await getBlobDir();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     const tarPath = path.join(`${entityID}`, `${time}_${format.filename}`);
     // Ignore files that are not written yet.
@@ -188,7 +188,7 @@ export async function stream(
     time: number,
     format: ResourceVersionType
 ) {
-    const blobDir = await blobDirPromise();
+    const blobDir = await getBlobDir();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
     const tarPath = path.join(`${entityID}`, `${time}_${format.filename}`);
     // Ignore files that are not written yet.
