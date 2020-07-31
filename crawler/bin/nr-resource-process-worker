@@ -3972,52 +3972,58 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                     Object(util["e" /* fancyLog */])("error writing word embedding file:");
                     Object(util["e" /* fancyLog */])(JSON.stringify(e));
                 }
-                Object(util["e" /* fancyLog */])("wrote embeddings to file for " + resource.getID());
-                const fd = external_fs_default.a.openSync(tmpFile, "r");
-                const CHUNK_SIZE = 612;
-                const buffer = Buffer.alloc(CHUNK_SIZE);
-                const vectorCSV = Object(main_file["e" /* randomBufferFile */])();
-                const wordVectorCSV = Object(main_file["e" /* randomBufferFile */])();
-                const vectorCSVWrite = external_fs_default.a.createWriteStream(vectorCSV);
-                const wordVectorCSVWrite = external_fs_default.a.createWriteStream(wordVectorCSV);
-                const finish = Promise.all([
-                    new Promise(res => vectorCSVWrite.on("finish", res)),
-                    new Promise(res => wordVectorCSVWrite.on("finish", res)),
-                ]);
-                Object(util["e" /* fancyLog */])("writing CSV");
-                Object(util["e" /* fancyLog */])(JSON.stringify({ vectorCSV, wordVectorCSV }));
-                const sourceID = resource.getID();
-                let lines = 0;
-                for (let read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
-                    if (!(lines & 0b1111111111111))
-                        Object(util["e" /* fancyLog */])(JSON.stringify({ lines: lines, read }));
-                    lines++;
-                    const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(0, 12));
-                    const tail = buffer.slice(12, buffer.length);
-                    const vector = new Vector["Vector"](tail);
-                    const vectorID = vector.getID();
-                    const vectorRow = SQL["b" /* SQL */].csvRow([vectorID, vector.value]);
-                    const wordVectorRow = SQL["b" /* SQL */].csvRow([id, sourceID, vectorID]);
-                    vectorCSVWrite.write(vectorRow + "\n");
-                    wordVectorCSVWrite.write(wordVectorRow + "\n");
+                try {
+                    Object(util["e" /* fancyLog */])("wrote embeddings to file for " + resource.getID());
+                    const fd = external_fs_default.a.openSync(tmpFile, "r");
+                    const CHUNK_SIZE = 612;
+                    const buffer = Buffer.alloc(CHUNK_SIZE);
+                    const vectorCSV = Object(main_file["e" /* randomBufferFile */])();
+                    const wordVectorCSV = Object(main_file["e" /* randomBufferFile */])();
+                    const vectorCSVWrite = external_fs_default.a.createWriteStream(vectorCSV);
+                    const wordVectorCSVWrite = external_fs_default.a.createWriteStream(wordVectorCSV);
+                    const finish = Promise.all([
+                        new Promise(res => vectorCSVWrite.on("finish", res)),
+                        new Promise(res => wordVectorCSVWrite.on("finish", res)),
+                    ]);
+                    Object(util["e" /* fancyLog */])("writing CSV");
+                    Object(util["e" /* fancyLog */])(JSON.stringify({ vectorCSV, wordVectorCSV }));
+                    const sourceID = resource.getID();
+                    let lines = 0;
+                    for (let read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
+                        if (!(lines & 0b1111111111111))
+                            Object(util["e" /* fancyLog */])(JSON.stringify({ lines: lines, read }));
+                        lines++;
+                        const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(0, 12));
+                        const tail = buffer.slice(12, buffer.length);
+                        const vector = new Vector["Vector"](tail);
+                        const vectorID = vector.getID();
+                        const vectorRow = SQL["b" /* SQL */].csvRow([vectorID, vector.value]);
+                        const wordVectorRow = SQL["b" /* SQL */].csvRow([id, sourceID, vectorID]);
+                        vectorCSVWrite.write(vectorRow + "\n");
+                        wordVectorCSVWrite.write(wordVectorRow + "\n");
+                    }
+                    Object(util["e" /* fancyLog */])("closing read stream");
+                    external_fs_default.a.closeSync(fd);
+                    Object(util["e" /* fancyLog */])("ending write stream.");
+                    vectorCSVWrite.end();
+                    wordVectorCSVWrite.end();
+                    Object(util["e" /* fancyLog */])("awaiting finish");
+                    await finish;
+                    Object(util["e" /* fancyLog */])("bulk insert word vec CSV");
+                    await new WordVector["WordVector"]().bulkInsert(wordVectorCSV);
+                    Object(util["e" /* fancyLog */])("bulk insert vector CSV");
+                    await new Vector["Vector"]().bulkInsert(vectorCSV);
+                    Object(util["e" /* fancyLog */])("cleanup");
+                    external_fs_default.a.unlinkSync(tmpFile);
+                    external_fs_default.a.unlinkSync(compressedTMP);
+                    external_fs_default.a.unlinkSync(vectorCSV);
+                    external_fs_default.a.unlinkSync(wordVectorCSV);
+                    res();
                 }
-                Object(util["e" /* fancyLog */])("closing read stream");
-                external_fs_default.a.closeSync(fd);
-                Object(util["e" /* fancyLog */])("ending write stream.");
-                vectorCSVWrite.end();
-                wordVectorCSVWrite.end();
-                Object(util["e" /* fancyLog */])("awaiting finish");
-                await finish;
-                Object(util["e" /* fancyLog */])("bulk insert word vec CSV");
-                await new WordVector["WordVector"]().bulkInsert(wordVectorCSV);
-                Object(util["e" /* fancyLog */])("bulk insert vector CSV");
-                await new Vector["Vector"]().bulkInsert(vectorCSV);
-                Object(util["e" /* fancyLog */])("cleanup");
-                external_fs_default.a.unlinkSync(tmpFile);
-                external_fs_default.a.unlinkSync(compressedTMP);
-                external_fs_default.a.unlinkSync(vectorCSV);
-                external_fs_default.a.unlinkSync(wordVectorCSV);
-                res();
+                catch (e) {
+                    Object(util["e" /* fancyLog */])(JSON.stringify(e));
+                    res();
+                }
             });
             outputStream.on("error", e => {
                 Object(util["e" /* fancyLog */])(JSON.stringify(e));
