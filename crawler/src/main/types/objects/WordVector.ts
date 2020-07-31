@@ -10,7 +10,7 @@ const MAX_VALUE = (UNIQUE_VALUES >> 1) - 1;
 
 export class WordVector extends DBObject<WordVector> {
     readonly word: Word;
-    readonly source: WordVectorSource;
+    source: WordVectorSource;
     readonly vector: Vector;
 
     getDeps() {

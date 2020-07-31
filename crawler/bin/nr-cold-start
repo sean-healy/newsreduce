@@ -1983,13 +1983,13 @@ __webpack_require__.r(__webpack_exports__);
 
 class WordVectorSource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     getInsertParams() {
-        return [this.resource.getID(), this.label];
+        return [this.getID(), this.resource.getID(), this.label];
     }
     table() {
         return "WordVectorSource";
     }
     insertCols() {
-        return ["resource", "label"];
+        return ["id", "resource", "label"];
     }
     hashSuffix() {
         return this.label;

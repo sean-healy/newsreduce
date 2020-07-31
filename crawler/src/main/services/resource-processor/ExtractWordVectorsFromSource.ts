@@ -23,7 +23,6 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
             outputStream.on("close", async () => {
                 console.log("write complete")
                 const lsOutput = (await spawnPromise(() => spawn(UNZIP, ["-l", compressedTMP]))).toString();
-                console.log(lsOutput);
                 const path = lsOutput
                     .split("\n")
                     .map(line => line.match(/[^ ]+.vec$/))
@@ -37,6 +36,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 fancyLog("read the thing")
                 for (const wordVector of wordVectors.vectors.values()) {
                     fancyLog(JSON.stringify(wordVector));
+                    wordVector.source = null;
                     wordVector.enqueueInsert({ recursive: true });
                 }
                 fancyLog("enqueued inserts")

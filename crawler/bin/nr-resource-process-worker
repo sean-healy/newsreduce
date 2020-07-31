@@ -1983,13 +1983,13 @@ __webpack_require__.r(__webpack_exports__);
 
 class WordVectorSource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     getInsertParams() {
-        return [this.resource.getID(), this.label];
+        return [this.getID(), this.resource.getID(), this.label];
     }
     table() {
         return "WordVectorSource";
     }
     insertCols() {
-        return ["resource", "label"];
+        return ["id", "resource", "label"];
     }
     hashSuffix() {
         return this.label;
@@ -3926,7 +3926,6 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
             outputStream.on("close", async () => {
                 console.log("write complete");
                 const lsOutput = (await Object(util["h" /* spawnPromise */])(() => Object(external_child_process_["spawn"])(UNZIP, ["-l", compressedTMP]))).toString();
-                console.log(lsOutput);
                 const path = lsOutput
                     .split("\n")
                     .map(line => line.match(/[^ ]+.vec$/))
@@ -3940,6 +3939,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 Object(util["e" /* fancyLog */])("read the thing");
                 for (const wordVector of wordVectors.vectors.values()) {
                     Object(util["e" /* fancyLog */])(JSON.stringify(wordVector));
+                    wordVector.source = null;
                     wordVector.enqueueInsert({ recursive: true });
                 }
                 Object(util["e" /* fancyLog */])("enqueued inserts");
