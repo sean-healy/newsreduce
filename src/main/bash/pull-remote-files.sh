@@ -2,12 +2,12 @@
 if [ "$TEST" ]; then
     lockFile=/tmp/test-pull-remote-files
     localRawDir=/var/newsreduce/test/raw 
-    preBlobDir=/var/newsreduce/test/pre-blob
+    preBlobDir=/var/newsreduce/test/pre-blobs
     incomingDir=/var/newsreduce/test/incoming
 else
     lockFile=/tmp/pull-remote-files
     localRawDir=/var/newsreduce/raw 
-    preBlobDir=/var/newsreduce/pre-blob
+    preBlobDir=/var/newsreduce/pre-blobs
     incomingDir=/var/newsreduce/incoming
 fi
 # Ensure this script never has multiple concurrent instances.

@@ -15,21 +15,32 @@ export function buildOnFetch(url: string) {
         const time = milliTimestamp();
         let headers = [];
         let objects: DBObject<any>[] = [];
-        response.headers.forEach(async (value, anyCaseKey) => {
-            headers.push(`${anyCaseKey}: ${value}`);
-            const key = anyCaseKey.toLowerCase();
-            objects.push(new ResourceHeader(url, key, value));
-            if (key === "content-type") {
-                const mimeType = value.toLowerCase();
-                let type: ResourceVersionType = null;
-                if (mimeType.match(/^text\/html/i))
-                    type = ResourceVersionType.RAW_HTML;
-                else if (mimeType.match(/^application\/zip/i))
-                    type = ResourceVersionType.RAW_ZIP;
-                if (type !== null)
-                    await resource.writeVersion(time, type, response.body);
-            }
-        });
+        await new Promise<void>(res => {
+            let typeSeen = false;
+            response.headers.forEach((value, anyCaseKey) => {
+                headers.push(`${anyCaseKey}: ${value}`);
+                const key = anyCaseKey.toLowerCase();
+                objects.push(new ResourceHeader(url, key, value));
+                if (key === "content-type") {
+                    const mimeType = value.toLowerCase();
+                    let type: ResourceVersionType = null;
+                    if (mimeType.match(/^text\/html/i))
+                        type = ResourceVersionType.RAW_HTML;
+                    else if (mimeType.match(/^application\/zip/i))
+                        type = ResourceVersionType.RAW_ZIP;
+                    if (type !== null) {
+                        typeSeen = true;
+                        console.log("Writing to file.");
+                        resource.writeVersion(time, type, response.body)
+                            .then(bytes => {
+                                console.log(bytes, "bytes written.");
+                                res();
+                            });
+                    }
+                }
+            });
+            if (!typeSeen) res();
+        })
         const headerContent = headers.join("\n");
         if (!headerContent) {
             log("header issue");
@@ -41,7 +52,8 @@ export function buildOnFetch(url: string) {
 }
 
 export async function fetchAndWrite(url: string) {
-    await fetch(url).then(buildOnFetch(url));
+    const response = await fetch(url);
+    await buildOnFetch(url)(response);
 }
 
 export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
@@ -66,7 +78,6 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
                         await host.applyThrottle();
                         await fetchAndWrite(url);
                         fancyLog(url);
-                        Redis.renewRedis(REDIS_PARAMS.general).sadd("html", url)
                         fetched.add(url);
                     }
                 }

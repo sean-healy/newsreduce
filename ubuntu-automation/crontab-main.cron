@@ -1,5 +1,5 @@
 #* * * * * /usr/bin/sudo /usr/bin/nr-update
-*/10 * * * * /opt/newsreduce/crawler/src/main/bash/cleanup-fs.sh
-* * * * * /opt/newsreduce/crawler/src/main/bash/pull-remote-files.sh
-*/3 * * * * /opt/newsreduce/crawler/src/main/bash/service-status.sh
+*/10 * * * * /opt/newsreduce/src/main/bash/cleanup-fs.sh
+* * * * * /opt/newsreduce/src/main/bash/pull-remote-files.sh
+#*/3 * * * * /opt/newsreduce/crawler/src/main/bash/service-status.sh
 

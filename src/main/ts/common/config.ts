@@ -47,7 +47,7 @@ export function getRawDir() {
     return varDirChild("raw");
 }
 export function getPreBlobDir() {
-    return varDirChild("pre-blob");
+    return varDirChild("pre-blobs");
 }
 export function getNullDir() {
     return varDirChild("null");

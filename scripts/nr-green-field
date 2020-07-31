@@ -1,0 +1,61 @@
+#!/usr/bin/bash
+function wait-all() {
+	for child in "${children[@]}"; do
+	    wait $child
+	done
+}
+
+echo Killing local sessions.
+tmux kill-session -t compressor
+tmux kill-session -t html-process-worker
+tmux kill-session -t html-process-zookeeper
+tmux kill-session -t inserter
+tmux kill-session -t net-agent
+tmux kill-session -t schedule
+
+#echo Killing remote sessions.
+#children=()
+#for i in $(seq 1 20); do
+#	ssh nr$i.newsreduce.org 'tmux kill-session -t fetch-zookeeper; tmux kill-session -t net-agent; tmux kill-session -t fetch-worker' &
+#	children+=($!)
+#done
+#wait-all
+
+echo Emptying local redis.
+children=()
+for i in $(seq 0 16); do
+	for key in $(redis-cli -n $i keys \*); do
+		redis-cli -n $i del $key &
+		children+=($!)
+	done
+done
+wait-all
+#echo Emptying remote redis.
+#children=()
+#for h in $(seq 1 20); do
+#	for i in $(seq 0 16); do
+#		for key in $(redis-cli -n $i keys \*); do
+#			redis-cli -h nr$h.newsreduce.org -n $i del $key &
+#			children+=($!)
+#		done
+#	done
+#done
+#wait-all
+
+echo Deleting local files.
+rm -rf /var/newsreduce/raw /var/newsreduce/pre-blobs /var/newsreduce/blobs
+
+echo Truncating tables.
+children=()
+for table in $(echo show tables | nr-sql | grep -v View | grep -vi "Tables_in_"); do
+	(echo truncate $table | nr-sql)&
+	children+=($!)
+done
+wait-all
+#echo Deleting remote files.
+#children=()
+#for i in $(seq 1 20); do
+#	ssh nr$i.newsreduce.org 'rm -rf /var/newsreduce/raw /var/newsreduce/pre-blobs /var/newsreduce/blobs' &
+#	children+=($!)
+#done
+#wait-all

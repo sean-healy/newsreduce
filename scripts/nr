@@ -11,10 +11,13 @@ case $1 in
         node dist/nr-cold-start.js
         ;;
     inserter)
-        npx node dist/nr-inserter.js
+        node dist/nr-inserter.js
         ;;
     scheduler)
         npx nodemon dist/nr-scheduler.js
+        ;;
+    compressor)
+        node dist/nr-compressor.js
         ;;
     *)
         cat $0
