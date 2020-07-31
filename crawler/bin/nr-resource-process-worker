@@ -3983,9 +3983,9 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 const vectorCSVWrite = external_fs_default.a.createWriteStream(vectorCSV);
                 const wordVectorCSVWrite = external_fs_default.a.createWriteStream(wordVectorCSV);
                 Object(util["e" /* fancyLog */])("writing CSV");
+                Object(util["e" /* fancyLog */])(JSON.stringify({ vectorCSV, wordVectorCSV }));
                 const sourceID = resource.getID();
-                do {
-                    read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null);
+                for (let read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
                     const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(0, 12));
                     const tail = buffer.slice(12, buffer.length);
                     const vector = new Vector["Vector"](tail);
@@ -3994,7 +3994,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                     const wordVectorRow = SQL["b" /* SQL */].csvRow([id, sourceID, vectorID]);
                     vectorCSVWrite.write(vectorRow + "\n");
                     wordVectorCSVWrite.write(wordVectorRow + "\n");
-                } while (read > 0);
+                }
                 vectorCSVWrite.end();
                 wordVectorCSVWrite.end();
                 await new Promise(res => vectorCSVWrite.on("finish", res));

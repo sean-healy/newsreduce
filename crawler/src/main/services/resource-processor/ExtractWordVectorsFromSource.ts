@@ -59,9 +59,9 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 const vectorCSVWrite = fs.createWriteStream(vectorCSV);
                 const wordVectorCSVWrite = fs.createWriteStream(wordVectorCSV);
                 fancyLog("writing CSV");
+                fancyLog(JSON.stringify({ vectorCSV, wordVectorCSV }));
                 const sourceID = resource.getID();
-                do {
-                    read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null);
+                for (let read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
                     const id = bytesToBigInt(buffer.slice(0, 12));
                     const tail = buffer.slice(12, buffer.length)
                     const vector = new Vector(tail);
@@ -70,7 +70,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                     const wordVectorRow = SQL.csvRow([id, sourceID, vectorID]);
                     vectorCSVWrite.write(vectorRow + "\n");
                     wordVectorCSVWrite.write(wordVectorRow + "\n");
-                } while (read > 0)
+                }
                 vectorCSVWrite.end();
                 wordVectorCSVWrite.end();
                 await new Promise(res => vectorCSVWrite.on("finish", res));
