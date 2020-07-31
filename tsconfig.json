@@ -1,12 +1,10 @@
 {
 	"compilerOptions": {
-		"noImplicitAny": true,
-        "allowSyntheticDefaultImports": true,
+		"noImplicitAny": false,
 		"preserveConstEnums": true,
 		"downlevelIteration": true,
-		"sourceMap": true,
+		"sourceMap": false,
         "outDir": "dist",
-        "strictNullChecks": false,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "declaration": false,
@@ -22,9 +20,10 @@
         "jsx": "react"
 	},
     "include": [
-        "src/main/ts/**.ts",
-        "src/test/ts/**.ts",
-        "src/main/ts/**.tsx",
-        "src/test/ts/**.tsx"
+        "src/**.ts",
+        "src/**/**.ts",
+        "src/**.tsx",
+        "src/**/**.tsx"
     ]
 }
+
