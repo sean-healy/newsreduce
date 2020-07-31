@@ -29,16 +29,19 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                     .map(line => line.match(/[^ ]+.vec$/))
                     .filter(notNull => notNull)
                     .map(match => match[0])[0];
-                console.log(path);
+                fancyLog(path);
                 const inputStream = spawn(UNZIP, ["-p", compressedTMP, path]).stdout;
-                console.log("spawned")
+                fancyLog("spawned")
                 const wordVectors = await WordVectors.fromStream(inputStream);
-                console.log("read the thing")
-                for (const wordVector of wordVectors.vectors.values())
+                fancyLog(`vectors: ${wordVectors.vectors.size}`);
+                fancyLog("read the thing")
+                for (const wordVector of wordVectors.vectors.values()) {
+                    fancyLog(JSON.stringify(wordVector));
                     wordVector.enqueueInsert({ recursive: true });
-                console.log("enqueued inserts")
+                }
+                fancyLog("enqueued inserts")
                 const tmpFile = await wordVectors.toBuffer();
-                console.log("created buffer", tmpFile);
+                fancyLog("created buffer " + tmpFile);
                 const stream = fs.createReadStream(tmpFile);
                 try {
                     await resource.writeVersion(time, ResourceVersionType.WORD_EMBEDDINGS, stream);

@@ -3932,16 +3932,19 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                     .map(line => line.match(/[^ ]+.vec$/))
                     .filter(notNull => notNull)
                     .map(match => match[0])[0];
-                console.log(path);
+                Object(util["e" /* fancyLog */])(path);
                 const inputStream = Object(external_child_process_["spawn"])(UNZIP, ["-p", compressedTMP, path]).stdout;
-                console.log("spawned");
+                Object(util["e" /* fancyLog */])("spawned");
                 const wordVectors = await WordVectors_WordVectors.fromStream(inputStream);
-                console.log("read the thing");
-                for (const wordVector of wordVectors.vectors.values())
+                Object(util["e" /* fancyLog */])(`vectors: ${wordVectors.vectors.size}`);
+                Object(util["e" /* fancyLog */])("read the thing");
+                for (const wordVector of wordVectors.vectors.values()) {
+                    Object(util["e" /* fancyLog */])(JSON.stringify(wordVector));
                     wordVector.enqueueInsert({ recursive: true });
-                console.log("enqueued inserts");
+                }
+                Object(util["e" /* fancyLog */])("enqueued inserts");
                 const tmpFile = await wordVectors.toBuffer();
-                console.log("created buffer", tmpFile);
+                Object(util["e" /* fancyLog */])("created buffer " + tmpFile);
                 const stream = external_fs_default.a.createReadStream(tmpFile);
                 try {
                     await resource.writeVersion(time, ResourceVersionType["ResourceVersionType"].WORD_EMBEDDINGS, stream);

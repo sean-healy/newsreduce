@@ -2,7 +2,7 @@ import { GenericConstructor } from "./GenericConstructor";
 import readline from "readline";
 import fs from "fs";
 import { WordVector, BYTES_PER_FLOAT } from "./objects/WordVector";
-import { CMP_BIG_INT, writeAnyNumberBE, writeBigUInt96BE } from "common/util";
+import { CMP_BIG_INT, writeBigUInt96BE } from "common/util";
 import { randomBufferFile } from "file";
 
 export class WordVectors extends GenericConstructor<WordVectors> {
