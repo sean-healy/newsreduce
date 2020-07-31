@@ -3961,7 +3961,6 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 Object(util["e" /* fancyLog */])("spawned");
                 const wordVectors = await WordVectors_WordVectors.fromStream(inputStream, resource);
                 Object(util["e" /* fancyLog */])(`vectors: ${wordVectors.vectors.size}`);
-                Object(util["e" /* fancyLog */])("read the thing");
                 const tmpFile = await wordVectors.toBuffer();
                 Object(util["e" /* fancyLog */])("created buffer " + tmpFile);
                 let stream = external_fs_default.a.createReadStream(tmpFile);
@@ -3972,12 +3971,10 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                     Object(util["e" /* fancyLog */])("error writing word embedding file:");
                     Object(util["e" /* fancyLog */])(JSON.stringify(e));
                 }
-                stream = external_fs_default.a.createReadStream(tmpFile);
-                stream.read;
+                Object(util["e" /* fancyLog */])("wrote embeddings to file for " + resource.getID());
                 const fd = external_fs_default.a.openSync(tmpFile, "r");
                 const CHUNK_SIZE = 612;
                 const buffer = Buffer.alloc(CHUNK_SIZE);
-                let read;
                 const vectorCSV = Object(main_file["e" /* randomBufferFile */])();
                 const wordVectorCSV = Object(main_file["e" /* randomBufferFile */])();
                 const vectorCSVWrite = external_fs_default.a.createWriteStream(vectorCSV);
@@ -3991,7 +3988,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 const sourceID = resource.getID();
                 let lines = 0;
                 for (let read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
-                    if (!(lines & 0b1111111111))
+                    if (!(lines & 0b1111111111111))
                         Object(util["e" /* fancyLog */])(JSON.stringify({ lines: lines, read }));
                     lines++;
                     const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(0, 12));
@@ -4010,9 +4007,11 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 wordVectorCSVWrite.end();
                 Object(util["e" /* fancyLog */])("awaiting finish");
                 await finish;
-                Object(util["e" /* fancyLog */])("bulk insert CSV");
+                Object(util["e" /* fancyLog */])("bulk insert word vec CSV");
                 await new WordVector["WordVector"]().bulkInsert(wordVectorCSV);
+                Object(util["e" /* fancyLog */])("bulk insert vector CSV");
                 await new Vector["Vector"]().bulkInsert(vectorCSV);
+                Object(util["e" /* fancyLog */])("cleanup");
                 external_fs_default.a.unlinkSync(tmpFile);
                 external_fs_default.a.unlinkSync(compressedTMP);
                 external_fs_default.a.unlinkSync(vectorCSV);

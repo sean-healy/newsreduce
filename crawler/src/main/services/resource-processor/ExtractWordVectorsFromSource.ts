@@ -38,7 +38,6 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 fancyLog("spawned")
                 const wordVectors = await WordVectors.fromStream(inputStream, resource);
                 fancyLog(`vectors: ${wordVectors.vectors.size}`);
-                fancyLog("read the thing")
                 const tmpFile = await wordVectors.toBuffer();
                 fancyLog("created buffer " + tmpFile);
                 let stream = fs.createReadStream(tmpFile);
@@ -48,12 +47,10 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                     fancyLog("error writing word embedding file:")
                     fancyLog(JSON.stringify(e));
                 }
-                stream = fs.createReadStream(tmpFile);
-                stream.read
+                fancyLog("wrote embeddings to file for " + resource.getID());
                 const fd = fs.openSync(tmpFile, "r");
                 const CHUNK_SIZE = 612;
                 const buffer = Buffer.alloc(CHUNK_SIZE);
-                let read: number;
                 const vectorCSV = randomBufferFile();
                 const wordVectorCSV = randomBufferFile();
                 const vectorCSVWrite = fs.createWriteStream(vectorCSV);
@@ -67,7 +64,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 const sourceID = resource.getID();
                 let lines = 0;
                 for (let read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
-                    if (!(lines & 0b1111111111)) fancyLog(JSON.stringify({lines: lines, read}))
+                    if (!(lines & 0b1111111111111)) fancyLog(JSON.stringify({lines: lines, read}))
                     lines++;
                     const id = bytesToBigInt(buffer.slice(0, 12));
                     const tail = buffer.slice(12, buffer.length)
@@ -85,9 +82,11 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 wordVectorCSVWrite.end();
                 fancyLog("awaiting finish")
                 await finish;
-                fancyLog("bulk insert CSV");
+                fancyLog("bulk insert word vec CSV");
                 await new WordVector().bulkInsert(wordVectorCSV);
+                fancyLog("bulk insert vector CSV");
                 await new Vector().bulkInsert(vectorCSV);
+                fancyLog("cleanup");
                 fs.unlinkSync(tmpFile);
                 fs.unlinkSync(compressedTMP);
                 fs.unlinkSync(vectorCSV);

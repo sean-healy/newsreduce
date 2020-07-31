@@ -6,7 +6,7 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 import { tabulate, fancyLog } from "common/util";
 
-const BATCH_SIZE = 50000;
+export const BATCH_SIZE = 50000;
 
 const KEY_LOCK = new Set<string>();
 
