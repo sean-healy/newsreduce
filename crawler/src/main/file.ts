@@ -85,8 +85,7 @@ export async function write(
                     bytesWritten = -1;
                 }
             }
-        }
-        else {
+        } else {
             const dir = path.join(await tmpDirPromise(), entityName(entity), `${entityID}`);
             const tmpFile = path.join(dir, `${version}_${format.filename}`);
             await safeMkdir(dir);
@@ -98,8 +97,7 @@ export async function write(
                 bytesWritten = -1;
             }
         }
-    }
-    else if (fs.existsSync(bufferFile)) {
+    } else if (fs.existsSync(bufferFile)) {
         try {
             fs.unlinkSync(bufferFile);
         } catch (e) {
