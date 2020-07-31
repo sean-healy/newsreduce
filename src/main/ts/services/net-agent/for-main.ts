@@ -9,9 +9,9 @@ import { Entity } from "types/Entity";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
 import { WordHits } from "types/WordHits";
 import { LinkHits } from "types/LinkHits";
-import { BagOfURLs } from "types/BagOfURLs";
 import { BagOfWords } from "types/BagOfWords";
 import { BinaryBag } from "types/BinaryBag";
+import { GlobalConfig } from "common/GlobalConfig";
 
 const PORT = 9999;
 
@@ -19,9 +19,7 @@ async function serve() {
     const app = await newFilteredServer();
     app.get("", (req, res) => {
         log(`Request for parameters from ${req.ip}.`);
-        res.send({
-            sql: fs.readFileSync("/var/newsreduce/sql_password").toString().replace(/\n$/g, ""),
-        })
+        res.send(GlobalConfig.hardFetch());
     });
     app.get("/net", (req, res) => {
         log(`Request for network info from ${req.ip}.`);

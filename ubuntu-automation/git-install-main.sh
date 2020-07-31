@@ -42,6 +42,12 @@ END
 
 apt -y autoremove
 systemctl restart mysql
-chown newsreduce:newsreduce /var/newsreduce/sql_password
-chown newsreduce:newsreduce /var/newsreduce/network
-chown newsreduce:newsreduce /var/newsreduce
+if [ -f /etc/newsreduce.ini ]; then
+    source <(gawk '$0=="[general]"{block=1;next}$0~/^\[/{block=0;next}block&&$0{print}' /etc/newsreduce.ini)
+fi
+if [ ! "$user" ]; then
+    user=newsreduce
+fi
+chown $user:$user /var/newsreduce/sql_password
+chown $user:$user /var/newsreduce/network
+chown $user:$user /var/newsreduce

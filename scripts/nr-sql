@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-source <(gawk '$0=="[database]"{block=1;next}$0~/^\[/{block=0;next}block{print}' /etc/newsreduce.ini)
+source <(gawk '$0=="[database]"{block=1;next}$0~/^\[/{block=0;next}block&&$0{print}' /etc/newsreduce.ini)
 if [ "$1" == "--nodb" ]; then
     database=""
 fi

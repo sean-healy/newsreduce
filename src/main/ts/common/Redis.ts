@@ -2,11 +2,11 @@ import redis, { RedisClient } from "redis";
 import { STR_ONE, fancyLog } from "./util";
 import { log } from "./logging";
 import { GlobalConfig } from "./GlobalConfig";
+import { DNS } from "./DNS";
 
-const MAIN_HOST = "newsreduce.org";
-const LOCALHOST = "127.0.0.1";
-const DEFAULT_REDIS_PORT = 6379;
 const DEFAULT_REDIS_DB = 0;
+
+const { host: MAIN_HOST, port: DEFAULT_REDIS_PORT } = GlobalConfig.softFetch().mainRedis;
 
 export interface RedisParamsValueType {
     host: string;
@@ -16,7 +16,7 @@ export interface RedisParamsValueType {
 }
 export const REDIS_PARAMS = {
     local: {
-        host: LOCALHOST,
+        host: DNS.LOCALHOST,
         port: DEFAULT_REDIS_PORT,
         db: DEFAULT_REDIS_DB,
     } as RedisParamsValueType,
@@ -309,7 +309,7 @@ export class Redis {
         const params = this.computeParams(paramsOrHost);
         const env = GlobalConfig.softFetch().general.environment;
         const client = redis.createClient({
-            host: env === "production" ? params.host : LOCALHOST,
+            host: env === "production" ? params.host : DNS.LOCALHOST,
             port: env === "production" ? params.port : 1111,
             db: params.db,
         }) as ExtendedRedisClient;

@@ -3,13 +3,6 @@ if [ $USER != root ]; then
     sudo $0 $@
     exit
 fi
-if [ ! -d /opt/newsreduce ]; then
-    git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
-fi
-useradd newsreduce
-chsh newsreduce -s /usr/bin/bash
-mkdir -p /var/newsreduce
-usermod -d /var/newsreduce newsreduce
 debs=(
     bind9-dnsutils
     build-essential
@@ -23,6 +16,24 @@ debs=(
     tar
     zstd
 )
+apt-get install -y ${debs[*]}
+if [ ! -d /opt/newsreduce ]; then
+    git clone https://github.com/sean-healy/newsreduce /opt/newsreduce
+fi
+if [ -f /etc/newsreduce.ini ]; then
+    source <(gawk '$0=="[general]"{block=1;next}$0~/^\[/{block=0;next}block&&$0{print}' /etc/newsreduce.ini)
+fi
+if [ ! "$user" ]; then
+    user=newsreduce
+fi
+if [ ! "$(id -u $user 2>/dev/null)" ]; then
+    useradd $user
+fi
+chsh $user -s /usr/bin/zsh
+mkdir -p /var/newsreduce
+if [ $user = newsreduce ]; then
+    usermod -d /var/newsreduce $user
+fi
 mkdir -p /var/newsreduce/blobs/host
 mkdir -p /var/newsreduce/blobs/word
 mkdir -p /var/newsreduce/blobs/resource
@@ -31,9 +42,8 @@ mkdir -p /var/newsreduce/.ssh
 echo 0 > /var/newsreduce/safety
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 if [ ! -f /var/newsreduce/.ssh/id_rsa ]; then
-    sudo -u newsreduce ssh-keygen -q -t rsa -N '' -f /var/newsreduce/.ssh/id_rsa <<<y 2>&1 >/dev/null
+    sudo -u $user ssh-keygen -q -t rsa -N '' -f /var/newsreduce/.ssh/id_rsa <<<y 2>&1 >/dev/null
 fi
-apt-get install -y ${debs[*]}
 
 bash "$(dirname $0)/firewall.sh"
 
@@ -49,7 +59,7 @@ cat /etc/redis/redis.conf.tmp > /etc/redis/redis.conf
 rm /etc/redis/redis.conf.tmp
 rm /etc/sudoers.tmp
 systemctl restart redis
-cat crontab-$env.cron | sudo -u newsreduce crontab -
+cat crontab-$env.cron | sudo -u $user crontab -
 function mk-daemon-script() {
 node_script=$1
 daemon_script=$1
@@ -57,7 +67,7 @@ daemon_script=$1
 cat > /usr/bin/nr-$daemon_script << END
 #!/usr/bin/bash
 if [ "\$USER" != newsreduce ]; then
-    sudo -u newsreduce \$0 \$@
+    sudo -u $user \$0 \$@
     exit
 fi
 if [ "\$TMUX" ]; then
@@ -79,11 +89,11 @@ mk-daemon-script html-process-zookeeper
 mk-daemon-script compressor
 mk-daemon-script cold-start
 ln -sf /opt/newsreduce/ubuntu-automation/install-$env.sh /usr/bin/nr-update
-chown newsreduce:newsreduce /var/newsreduce
-chown -R newsreduce:newsreduce /opt/newsreduce
-chown newsreduce:newsreduce /var/newsreduce/blobs
-chown newsreduce:newsreduce /var/newsreduce/blobs/host
-chown newsreduce:newsreduce /var/newsreduce/blobs/word
-chown newsreduce:newsreduce /var/newsreduce/blobs/resource
-chown newsreduce:newsreduce /var/newsreduce/null
-chown newsreduce:newsreduce /var/newsreduce/safety
+chown $user:$user /var/newsreduce
+chown -R $user:$user /opt/newsreduce
+chown $user:$user /var/newsreduce/blobs
+chown $user:$user /var/newsreduce/blobs/host
+chown $user:$user /var/newsreduce/blobs/word
+chown $user:$user /var/newsreduce/blobs/resource
+chown $user:$user /var/newsreduce/null
+chown $user:$user /var/newsreduce/safety

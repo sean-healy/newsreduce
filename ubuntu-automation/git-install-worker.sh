@@ -4,10 +4,15 @@ if [ $USER != root ]; then
     exit
 fi
 mkdir -p /var/newsreduce
-curl http://newsreduce.org:9999/net > /var/newsreduce/network
+if [ -f /etc/newsreduce.ini ]; then
+    source <(gawk '$0=="[mainNetAgent]"{block=1;next}$0~/^\[/{block=0;next}block&&$0{print}' /etc/newsreduce.ini)
+fi
+if [ ! "$host" ]; then host=newsreduce.org; fi
+if [ ! "$port" ]; then port=9999; fi
+curl http://$host:$port/net > /var/newsreduce/network
 export env=worker
 bash "$(dirname $0)/install-common.sh"
-access_key="$(curl http://newsreduce.org:9999/public-key)"
+access_key="$(curl http://$host:$port/public-key)"
 ssh_dir="/var/newsreduce/.ssh"
 mkdir -p "$ssh_dir"
 ssh_authorized_keys="$ssh_dir/authorized_keys"
@@ -27,9 +32,12 @@ debs=(
 apt-get update
 apt-get -y install ${debs[*]}
 apt -y autoremove
-chown newsreduce:newsreduce /var/newsreduce
-chown newsreduce:newsreduce /var/newsreduce/network
-chown -R newsreduce:newsreduce /var/newsreduce/.ssh
-nr-net-agent
-nr-fetch-zookeeper
-nr-fetch-worker
+if [ -f /etc/newsreduce.ini ]; then
+    source <(gawk '$0=="[general]"{block=1;next}$0~/^\[/{block=0;next}block&&$0{print}' /etc/newsreduce.ini)
+fi
+if [ ! "$user" ]; then
+    user=newsreduce
+fi
+chown $user:$user /var/newsreduce
+chown $user:$user /var/newsreduce/network
+chown -R $user:$user /var/newsreduce/.ssh

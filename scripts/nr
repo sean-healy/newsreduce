@@ -5,16 +5,16 @@ case $1 in
         node dist/nr-fetcher-zookeeper.js
         ;;
     net-agent-main)
-        node dist/nr-main-net-agent.js
+        npx nodemon dist/nr-main-net-agent.js
         ;;
     cold)
         node dist/nr-cold-start.js
         ;;
     inserter)
-        node dist/nr-inserter.js
+        npx node dist/nr-inserter.js
         ;;
     scheduler)
-        node dist/nr-scheduler.js
+        npx nodemon dist/nr-scheduler.js
         ;;
     *)
         cat $0
