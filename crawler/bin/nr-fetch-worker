@@ -985,6 +985,7 @@ class ResourceURL extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObjec
             return Object(file__WEBPACK_IMPORTED_MODULE_4__[/* stream */ "g"])(types_Entity__WEBPACK_IMPORTED_MODULE_5__[/* Entity */ "a"].RESOURCE, this.getID(), time, format);
         }
         catch (e) {
+            Object(common_util__WEBPACK_IMPORTED_MODULE_9__[/* fancyLog */ "e"])(JSON.stringify(e));
             return null;
         }
     }

@@ -190,6 +190,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
         try {
             return stream(Entity.RESOURCE, this.getID(), time, format);
         } catch (e) {
+            fancyLog(JSON.stringify(e));
             return null;
         }
     }
