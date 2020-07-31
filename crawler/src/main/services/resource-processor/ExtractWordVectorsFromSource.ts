@@ -35,7 +35,7 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 const wordVectors = await WordVectors.fromStream(inputStream, resource);
                 fancyLog(`vectors: ${wordVectors.vectors.size}`);
                 fancyLog("read the thing")
-                const pool = new PromisePool(1000);
+                const pool = new PromisePool(20000);
                 for (const wordVector of wordVectors.vectors.values())
                     await pool.registerPromise(wordVector.enqueueInsert({ recursive: true }));
                 await pool.flush();

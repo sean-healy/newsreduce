@@ -3947,7 +3947,7 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 const wordVectors = await WordVectors_WordVectors.fromStream(inputStream, resource);
                 Object(util["e" /* fancyLog */])(`vectors: ${wordVectors.vectors.size}`);
                 Object(util["e" /* fancyLog */])("read the thing");
-                const pool = new PromisePool["a" /* PromisePool */](1000);
+                const pool = new PromisePool["a" /* PromisePool */](20000);
                 for (const wordVector of wordVectors.vectors.values())
                     await pool.registerPromise(wordVector.enqueueInsert({ recursive: true }));
                 await pool.flush();
