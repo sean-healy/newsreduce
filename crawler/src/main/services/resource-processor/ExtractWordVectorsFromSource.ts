@@ -63,7 +63,8 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 const sourceID = resource.getID();
                 let lines = 0;
                 for (let read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
-                    fancyLog(JSON.stringify({lines: lines++, read}))
+                    if (!(lines & 0b1111111111)) fancyLog(JSON.stringify({lines: lines, read}))
+                    lines++;
                     const id = bytesToBigInt(buffer.slice(0, 12));
                     const tail = buffer.slice(12, buffer.length)
                     const vector = new Vector(tail);
