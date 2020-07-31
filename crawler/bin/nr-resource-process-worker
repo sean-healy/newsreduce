@@ -3985,7 +3985,9 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 Object(util["e" /* fancyLog */])("writing CSV");
                 Object(util["e" /* fancyLog */])(JSON.stringify({ vectorCSV, wordVectorCSV }));
                 const sourceID = resource.getID();
+                let lines = 0;
                 for (let read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = external_fs_default.a.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
+                    Object(util["e" /* fancyLog */])(JSON.stringify({ lines: lines++, read }));
                     const id = Object(util["c" /* bytesToBigInt */])(buffer.slice(0, 12));
                     const tail = buffer.slice(12, buffer.length);
                     const vector = new Vector["Vector"](tail);

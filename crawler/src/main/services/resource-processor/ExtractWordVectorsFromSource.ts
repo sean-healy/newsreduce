@@ -61,7 +61,9 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 fancyLog("writing CSV");
                 fancyLog(JSON.stringify({ vectorCSV, wordVectorCSV }));
                 const sourceID = resource.getID();
+                let lines = 0;
                 for (let read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null); read > 0; read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null)) {
+                    fancyLog(JSON.stringify({lines: lines++, read}))
                     const id = bytesToBigInt(buffer.slice(0, 12));
                     const tail = buffer.slice(12, buffer.length)
                     const vector = new Vector(tail);
