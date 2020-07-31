@@ -88,9 +88,7 @@ export class SQL {
         if (param === null || param === undefined) stringified = "NULL";
         else if (typeof param === "boolean") {
             const paramAsTinyint = param ? 1 : 0;
-            stringified = `"${paramAsTinyint}"`
-        } else if (param instanceof Buffer) {
-                param.toString("base64")
+            stringified = `"${paramAsTinyint}"`;
         } else {
             const paramAsString = param.toString();
             const escapedParam = paramAsString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');

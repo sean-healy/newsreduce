@@ -35,6 +35,17 @@ export class WordVector extends DBObject<WordVector> {
         return buffer;
     }
 
+    static bufferToVector(buffer: Buffer) {
+        let offset = 0;
+        const floats = new Array<number>(buffer.length >> 1);
+        while (offset < buffer.length) {
+            floats[offset >> 1] = this.floatFromBytes(buffer, offset).float;
+            offset += 2;
+        }
+
+        return floats;
+    }
+
     static floatToBytes(float: number, buffer = Buffer.alloc(2), offset = 0) {
         let integer = Math.round(float * 10000)
         if (integer < MIN_VALUE) integer = MIN_VALUE;
@@ -52,8 +63,9 @@ export class WordVector extends DBObject<WordVector> {
         let integer = naturalNumber + MIN_VALUE;
         if (integer < MIN_VALUE) integer = MIN_VALUE;
         if (integer > MAX_VALUE) integer = MAX_VALUE;
+        const float = integer / 10000;
 
-        return { integer, offset };
+        return { float, offset };
     }
 
     static fromString(input: string, source: ResourceURL) {

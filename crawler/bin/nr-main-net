@@ -1213,9 +1213,6 @@ class SQL {
             const paramAsTinyint = param ? 1 : 0;
             stringified = `"${paramAsTinyint}"`;
         }
-        else if (param instanceof Buffer) {
-            param.toString("base64");
-        }
         else {
             const paramAsString = param.toString();
             const escapedParam = paramAsString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
@@ -2421,6 +2418,15 @@ class WordVector extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject
             offset = WordVector.floatToBytes(value, buffer, offset).offset;
         return buffer;
     }
+    static bufferToVector(buffer) {
+        let offset = 0;
+        const floats = new Array(buffer.length >> 1);
+        while (offset < buffer.length) {
+            floats[offset >> 1] = this.floatFromBytes(buffer, offset).float;
+            offset += 2;
+        }
+        return floats;
+    }
     static floatToBytes(float, buffer = Buffer.alloc(2), offset = 0) {
         let integer = Math.round(float * 10000);
         if (integer < MIN_VALUE)
@@ -2440,7 +2446,8 @@ class WordVector extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject
             integer = MIN_VALUE;
         if (integer > MAX_VALUE)
             integer = MAX_VALUE;
-        return { integer, offset };
+        const float = integer / 10000;
+        return { float, offset };
     }
     static fromString(input, source) {
         if (input === null)

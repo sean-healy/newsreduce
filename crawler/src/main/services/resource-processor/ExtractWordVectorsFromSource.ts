@@ -1,12 +1,16 @@
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
 import { ResourceURL } from "types/objects/ResourceURL";
 import { ResourceProcessor } from "./ResourceProcessor";
-import { Dictionary, spawnPromise, fancyLog } from "common/util";
+import { Dictionary, spawnPromise, fancyLog, bytesToBigInt } from "common/util";
 import fs from "fs";
 import { randomBufferFile } from "file";
 import { spawn } from "child_process";
 import { WordVectors } from "types/WordVectors";
 import { PromisePool } from "common/PromisePool";
+import { WordVector } from "types/objects/WordVector";
+import { SQL } from "common/SQL";
+import { bulkInsert } from "services/inserter/functions";
+import { Vector } from "types/objects/Vector";
 
 const UNZIP = "unzip"
 
@@ -35,22 +39,49 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 const wordVectors = await WordVectors.fromStream(inputStream, resource);
                 fancyLog(`vectors: ${wordVectors.vectors.size}`);
                 fancyLog("read the thing")
-                const pool = new PromisePool(20000);
-                for (const wordVector of wordVectors.vectors.values())
-                    await pool.registerPromise(wordVector.enqueueInsert({ recursive: true }));
-                await pool.flush();
-                fancyLog("enqueued inserts")
                 const tmpFile = await wordVectors.toBuffer();
                 fancyLog("created buffer " + tmpFile);
-                const stream = fs.createReadStream(tmpFile);
+                let stream = fs.createReadStream(tmpFile);
                 try {
                     await resource.writeVersion(time, ResourceVersionType.WORD_EMBEDDINGS, stream);
                 } catch (e) {
                     fancyLog("error writing word embedding file:")
                     fancyLog(JSON.stringify(e));
                 }
+                stream = fs.createReadStream(tmpFile);
+                stream.read
+                const fd = fs.openSync(tmpFile, "r");
+                const CHUNK_SIZE = 612;
+                const buffer = Buffer.alloc(CHUNK_SIZE);
+                let read: number;
+                const vectorCSV = randomBufferFile();
+                const wordVectorCSV = randomBufferFile();
+                const vectorCSVWrite = fs.createWriteStream(vectorCSV);
+                const wordVectorCSVWrite = fs.createWriteStream(wordVectorCSV);
+                fancyLog("writing CSV");
+                const sourceID = resource.getID();
+                do {
+                    read = fs.readSync(fd, buffer, 0, CHUNK_SIZE, null);
+                    const id = bytesToBigInt(buffer.slice(0, 12));
+                    const tail = buffer.slice(12, buffer.length)
+                    const vector = new Vector(tail);
+                    const vectorID = vector.getID();
+                    const vectorRow = SQL.csvRow([vectorID, vector.value]);
+                    const wordVectorRow = SQL.csvRow([id, sourceID, vectorID]);
+                    vectorCSVWrite.write(vectorRow + "\n");
+                    wordVectorCSVWrite.write(wordVectorRow + "\n");
+                } while (read > 0)
+                vectorCSVWrite.end();
+                wordVectorCSVWrite.end();
+                await new Promise(res => vectorCSVWrite.on("finish", res));
+                await new Promise(res => wordVectorCSVWrite.on("finish", res));
+                fancyLog("bulk insert CSV");
+                await new WordVector().bulkInsert(wordVectorCSV);
+                await new Vector().bulkInsert(vectorCSV);
                 fs.unlinkSync(tmpFile);
                 fs.unlinkSync(compressedTMP);
+                fs.unlinkSync(vectorCSV);
+                fs.unlinkSync(wordVectorCSV);
                 res();
             });
             outputStream.on("error", e => {
