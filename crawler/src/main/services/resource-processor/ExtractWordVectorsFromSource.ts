@@ -58,6 +58,10 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 const wordVectorCSV = randomBufferFile();
                 const vectorCSVWrite = fs.createWriteStream(vectorCSV);
                 const wordVectorCSVWrite = fs.createWriteStream(wordVectorCSV);
+                const finish = Promise.all([
+                    new Promise(res => vectorCSVWrite.on("finish", res)),
+                    new Promise(res => wordVectorCSVWrite.on("finish", res)),
+                ]);
                 fancyLog("writing CSV");
                 fancyLog(JSON.stringify({ vectorCSV, wordVectorCSV }));
                 const sourceID = resource.getID();
@@ -74,10 +78,13 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                     vectorCSVWrite.write(vectorRow + "\n");
                     wordVectorCSVWrite.write(wordVectorRow + "\n");
                 }
+                fancyLog("closing read stream");
+                fs.closeSync(fd);
+                fancyLog("ending write stream.");
                 vectorCSVWrite.end();
                 wordVectorCSVWrite.end();
-                await new Promise(res => vectorCSVWrite.on("finish", res));
-                await new Promise(res => wordVectorCSVWrite.on("finish", res));
+                fancyLog("awaiting finish")
+                await finish;
                 fancyLog("bulk insert CSV");
                 await new WordVector().bulkInsert(wordVectorCSV);
                 await new Vector().bulkInsert(vectorCSV);

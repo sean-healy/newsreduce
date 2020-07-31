@@ -3982,6 +3982,10 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 const wordVectorCSV = Object(main_file["e" /* randomBufferFile */])();
                 const vectorCSVWrite = external_fs_default.a.createWriteStream(vectorCSV);
                 const wordVectorCSVWrite = external_fs_default.a.createWriteStream(wordVectorCSV);
+                const finish = Promise.all([
+                    new Promise(res => vectorCSVWrite.on("finish", res)),
+                    new Promise(res => wordVectorCSVWrite.on("finish", res)),
+                ]);
                 Object(util["e" /* fancyLog */])("writing CSV");
                 Object(util["e" /* fancyLog */])(JSON.stringify({ vectorCSV, wordVectorCSV }));
                 const sourceID = resource.getID();
@@ -3999,10 +4003,13 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                     vectorCSVWrite.write(vectorRow + "\n");
                     wordVectorCSVWrite.write(wordVectorRow + "\n");
                 }
+                Object(util["e" /* fancyLog */])("closing read stream");
+                external_fs_default.a.closeSync(fd);
+                Object(util["e" /* fancyLog */])("ending write stream.");
                 vectorCSVWrite.end();
                 wordVectorCSVWrite.end();
-                await new Promise(res => vectorCSVWrite.on("finish", res));
-                await new Promise(res => wordVectorCSVWrite.on("finish", res));
+                Object(util["e" /* fancyLog */])("awaiting finish");
+                await finish;
                 Object(util["e" /* fancyLog */])("bulk insert CSV");
                 await new WordVector["WordVector"]().bulkInsert(wordVectorCSV);
                 await new Vector["Vector"]().bulkInsert(vectorCSV);
