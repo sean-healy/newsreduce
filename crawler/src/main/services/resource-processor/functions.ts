@@ -1,7 +1,7 @@
 import { JSDOM } from "jsdom";
 import { ResourceProcessor } from "services/resource-processor/ResourceProcessor";
 import { selectResourceVersions } from "data";
-import { Dictionary } from "common/util";
+import { Dictionary, fancyLog } from "common/util";
 import { ResourceVersionType } from "types/objects/ResourceVersionType";
 import { PromisePool } from "common/PromisePool";
 import { HitType } from "types/HitType";
@@ -68,28 +68,32 @@ export async function processResource(
 ) {
     const url = resource.toURL();
     console.log(`${time} ${url}`);
-    const filenames = [...formats];
-    const buffersOrPaths = await Promise.all(filenames.map(filename => filenameToBufferOrPath(resource, time, filename)));
-    const dictionary: Dictionary<Buffer | ResourceURL> = {};
-    const length = buffersOrPaths.length;
-    for (let i = 0; i < length; ++i) {
-        const bufferOrPath = buffersOrPaths[i];
-        if (bufferOrPath) dictionary[filenames[i]] = bufferOrPath;
-    }
-    const localFilenames = Object.keys(dictionary);
-    const domPool = new DOMPool();
-    let reDOM = true;
-    for (const processor of processors) {
-        if (processor.appliesTo(localFilenames, resource)) {
-            const from = processor.from();
-            const inputFilenames = [...from];
-            let input: Dictionary<Buffer | ResourceURL> = {}
-            const length = inputFilenames.length;
-            for (let i = 0; i < length; ++i)
-                input[inputFilenames[i]] = dictionary[i];
-            await pool.registerPromise(processor.apply(resource, input, time, domPool, reDOM));
+    try {
+        const filenames = [...formats];
+        const buffersOrPaths = await Promise.all(filenames.map(filename => filenameToBufferOrPath(resource, time, filename)));
+        const dictionary: Dictionary<Buffer | ResourceURL> = {};
+        const length = buffersOrPaths.length;
+        for (let i = 0; i < length; ++i) {
+            const bufferOrPath = buffersOrPaths[i];
+            if (bufferOrPath) dictionary[filenames[i]] = bufferOrPath;
         }
-        reDOM = !processor.ro();
+        const localFilenames = Object.keys(dictionary);
+        const domPool = new DOMPool();
+        let reDOM = true;
+        for (const processor of processors) {
+            if (processor.appliesTo(localFilenames, resource)) {
+                const from = processor.from();
+                const inputFilenames = [...from];
+                let input: Dictionary<Buffer | ResourceURL> = {}
+                const length = inputFilenames.length;
+                for (let i = 0; i < length; ++i)
+                    input[inputFilenames[i]] = dictionary[i];
+                await pool.registerPromise(processor.apply(resource, input, time, domPool, reDOM));
+            }
+            reDOM = !processor.ro();
+        }
+    } catch (e) {
+        fancyLog(JSON.stringify(e));
     }
 }
 
