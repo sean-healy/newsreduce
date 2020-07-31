@@ -1213,17 +1213,18 @@ class SQL {
             const paramAsTinyint = param ? 1 : 0;
             stringified = `"${paramAsTinyint}"`;
         }
+        else if (param instanceof Buffer) {
+            param.toString("base64");
+        }
         else {
             const paramAsString = param.toString();
-            const escapedParam = paramAsString.replace(/"/g, '\\"');
+            const escapedParam = paramAsString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
             stringified = `"${escapedParam}"`;
         }
         return stringified;
     }
     static csvRow(params) {
-        const csvRow = params.map(SQL.csvField).join(",");
-        console.log(csvRow);
-        return csvRow;
+        return params.map(SQL.csvField).join(",");
     }
 }
 
@@ -3068,6 +3069,8 @@ function start(f, birthLog, deathLog, preconditions, postcondition) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PromisePool; });
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
 class PromisePool {
     constructor(threads) {
         this.promises = [];
@@ -3080,8 +3083,10 @@ class PromisePool {
     }
     async registerPromise(promise) {
         this.promises.push(promise);
-        if (this.promises.length === this.threads)
+        if (this.promises.length === this.threads) {
             await this.flush();
+            Object(_util__WEBPACK_IMPORTED_MODULE_0__[/* fancyLog */ "e"])("promise pool flush");
+        }
     }
     async flush() {
         await Promise.all(this.promises);
@@ -3915,6 +3920,7 @@ class WordVectors_WordVectors extends GenericConstructor["a" /* GenericConstruct
 
 
 
+
 const UNZIP = "unzip";
 class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends ResourceProcessor {
     ro() { return true; }
@@ -3941,9 +3947,10 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 const wordVectors = await WordVectors_WordVectors.fromStream(inputStream, resource);
                 Object(util["e" /* fancyLog */])(`vectors: ${wordVectors.vectors.size}`);
                 Object(util["e" /* fancyLog */])("read the thing");
-                for (const wordVector of wordVectors.vectors.values()) {
-                    await wordVector.enqueueInsert({ recursive: true });
-                }
+                const pool = new PromisePool["a" /* PromisePool */](1000);
+                for (const wordVector of wordVectors.vectors.values())
+                    await pool.registerPromise(wordVector.enqueueInsert({ recursive: true }));
+                await pool.flush();
                 Object(util["e" /* fancyLog */])("enqueued inserts");
                 const tmpFile = await wordVectors.toBuffer();
                 Object(util["e" /* fancyLog */])("created buffer " + tmpFile);

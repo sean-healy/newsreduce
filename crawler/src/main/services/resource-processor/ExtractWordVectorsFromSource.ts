@@ -6,6 +6,7 @@ import fs from "fs";
 import { randomBufferFile } from "file";
 import { spawn } from "child_process";
 import { WordVectors } from "types/WordVectors";
+import { PromisePool } from "common/PromisePool";
 
 const UNZIP = "unzip"
 
@@ -34,9 +35,10 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 const wordVectors = await WordVectors.fromStream(inputStream, resource);
                 fancyLog(`vectors: ${wordVectors.vectors.size}`);
                 fancyLog("read the thing")
-                for (const wordVector of wordVectors.vectors.values()) {
-                    await wordVector.enqueueInsert({ recursive: true });
-                }
+                const pool = new PromisePool(1000);
+                for (const wordVector of wordVectors.vectors.values())
+                    await pool.registerPromise(wordVector.enqueueInsert({ recursive: true }));
+                await pool.flush();
                 fancyLog("enqueued inserts")
                 const tmpFile = await wordVectors.toBuffer();
                 fancyLog("created buffer " + tmpFile);

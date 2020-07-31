@@ -1,3 +1,5 @@
+import { fancyLog } from "./util";
+
 export class PromisePool {
     promises: Promise<void>[];
     threads: number;
@@ -14,7 +16,10 @@ export class PromisePool {
 
     async registerPromise(promise: Promise<any>) {
         this.promises.push(promise);
-        if (this.promises.length === this.threads) await this.flush();
+        if (this.promises.length === this.threads) {
+            await this.flush();
+            fancyLog("promise pool flush");
+        }
     }
 
     async flush() {

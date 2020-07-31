@@ -89,18 +89,17 @@ export class SQL {
         else if (typeof param === "boolean") {
             const paramAsTinyint = param ? 1 : 0;
             stringified = `"${paramAsTinyint}"`
+        } else if (param instanceof Buffer) {
+                param.toString("base64")
         } else {
             const paramAsString = param.toString();
-            const escapedParam = paramAsString.replace(/"/g, '\\"');
+            const escapedParam = paramAsString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
             stringified = `"${escapedParam}"`
         }
 
         return stringified;
     }
     static csvRow(params: any[]) {
-        const csvRow = params.map(SQL.csvField).join(",");
-        console.log(csvRow);
-
-        return csvRow;
+        return params.map(SQL.csvField).join(",");
     }
 }

@@ -1213,17 +1213,18 @@ class SQL {
             const paramAsTinyint = param ? 1 : 0;
             stringified = `"${paramAsTinyint}"`;
         }
+        else if (param instanceof Buffer) {
+            param.toString("base64");
+        }
         else {
             const paramAsString = param.toString();
-            const escapedParam = paramAsString.replace(/"/g, '\\"');
+            const escapedParam = paramAsString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
             stringified = `"${escapedParam}"`;
         }
         return stringified;
     }
     static csvRow(params) {
-        const csvRow = params.map(SQL.csvField).join(",");
-        console.log(csvRow);
-        return csvRow;
+        return params.map(SQL.csvField).join(",");
     }
 }
 
@@ -2655,6 +2656,8 @@ function startProcessor(f, preconditions, postcondition, options = { interval: t
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PromisePool; });
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+
 class PromisePool {
     constructor(threads) {
         this.promises = [];
@@ -2667,8 +2670,10 @@ class PromisePool {
     }
     async registerPromise(promise) {
         this.promises.push(promise);
-        if (this.promises.length === this.threads)
+        if (this.promises.length === this.threads) {
             await this.flush();
+            Object(_util__WEBPACK_IMPORTED_MODULE_0__[/* fancyLog */ "e"])("promise pool flush");
+        }
     }
     async flush() {
         await Promise.all(this.promises);
