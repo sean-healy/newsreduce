@@ -3421,7 +3421,7 @@ async function processResource(resource, time, formats, pool, processors) {
         }
     }
     catch (e) {
-        Object(util["e" /* fancyLog */])(JSON.stringify(e));
+        Object(util["e" /* fancyLog */])(e.toString());
     }
 }
 const buildProcessFunction = (processors) => async function process(lo, hi) {

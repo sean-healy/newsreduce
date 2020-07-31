@@ -93,7 +93,7 @@ export async function processResource(
             reDOM = !processor.ro();
         }
     } catch (e) {
-        fancyLog(JSON.stringify(e));
+        fancyLog(e.toString());
     }
 }
 
