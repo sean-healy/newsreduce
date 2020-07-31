@@ -1221,7 +1221,9 @@ class SQL {
         return stringified;
     }
     static csvRow(params) {
-        return params.map(SQL.csvField).join(",");
+        const csvRow = params.map(SQL.csvField).join(",");
+        console.log(csvRow);
+        return csvRow;
     }
 }
 
@@ -3940,7 +3942,6 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 Object(util["e" /* fancyLog */])(`vectors: ${wordVectors.vectors.size}`);
                 Object(util["e" /* fancyLog */])("read the thing");
                 for (const wordVector of wordVectors.vectors.values()) {
-                    Object(util["e" /* fancyLog */])(JSON.stringify(wordVector));
                     wordVector.enqueueInsert({ recursive: true });
                 }
                 Object(util["e" /* fancyLog */])("enqueued inserts");

@@ -98,6 +98,9 @@ export class SQL {
         return stringified;
     }
     static csvRow(params: any[]) {
-        return params.map(SQL.csvField).join(",");
+        const csvRow = params.map(SQL.csvField).join(",");
+        console.log(csvRow);
+
+        return csvRow;
     }
 }
