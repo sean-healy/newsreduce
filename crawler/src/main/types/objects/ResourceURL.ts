@@ -181,7 +181,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
     }
     async read(time: number, format: ResourceVersionType) {
         try {
-            return read(Entity.RESOURCE, this.getID(), time, format);
+            return await read(Entity.RESOURCE, this.getID(), time, format);
         } catch (e) {
             fancyLog(JSON.stringify(e));
             return null;
@@ -189,7 +189,7 @@ export class ResourceURL extends DBObject<ResourceURL> {
     }
     async stream(time: number, format: ResourceVersionType) {
         try {
-            return stream(Entity.RESOURCE, this.getID(), time, format);
+            return await stream(Entity.RESOURCE, this.getID(), time, format);
         } catch (e) {
             fancyLog(JSON.stringify(e));
             return null;

@@ -69,16 +69,17 @@ export async function processResource(
     const url = resource.toURL();
     console.log(`${time} ${url}`);
     const dictionary: Dictionary<Buffer | ResourceURL> = {};
-        const filenames = [...formats];
+    const filenames = [...formats];
+    let buffersOrPaths: (ResourceURL | Buffer)[];
     try {
-        const buffersOrPaths = await Promise.all(filenames.map(filename => filenameToBufferOrPath(resource, time, filename)));
-        const length = buffersOrPaths.length;
-        for (let i = 0; i < length; ++i) {
-            const bufferOrPath = buffersOrPaths[i];
-            if (bufferOrPath) dictionary[filenames[i]] = bufferOrPath;
-        }
+        buffersOrPaths = await Promise.all(filenames.map(filename => filenameToBufferOrPath(resource, time, filename)));
     } catch (e) {
         fancyLog(e.toString());
+    }
+    const length = buffersOrPaths.length;
+    for (let i = 0; i < length; ++i) {
+        const bufferOrPath = buffersOrPaths[i];
+        if (bufferOrPath) dictionary[filenames[i]] = bufferOrPath;
     }
     const localFilenames = Object.keys(dictionary);
     const domPool = new DOMPool();
