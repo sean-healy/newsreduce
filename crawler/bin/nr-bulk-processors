@@ -2407,7 +2407,7 @@ class WordVector extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject
         return [this.word, this.source, this.vector];
     }
     getInsertParams() {
-        return [this.word.getID(), this.source.getID(), this.vector.getID()];
+        return [this.word.getID(), this.source.resource.getID(), this.vector.getID()];
     }
     table() {
         return "WordVector";

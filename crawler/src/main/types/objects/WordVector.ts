@@ -18,7 +18,7 @@ export class WordVector extends DBObject<WordVector> {
         return [this.word, this.source, this.vector];
     }
     getInsertParams(): any[] {
-        return [this.word.getID(), this.source.getID(), this.vector.getID()];
+        return [this.word.getID(), this.source.resource.getID(), this.vector.getID()];
     }
     table(): string {
         return "WordVector";
