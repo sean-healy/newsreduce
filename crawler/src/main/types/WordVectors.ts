@@ -4,6 +4,7 @@ import fs from "fs";
 import { WordVector, BYTES_PER_FLOAT } from "./objects/WordVector";
 import { CMP_BIG_INT, writeBigUInt96BE } from "common/util";
 import { randomBufferFile } from "file";
+import { ResourceURL } from "./objects/ResourceURL";
 
 export class WordVectors extends GenericConstructor<WordVectors> {
     readonly vectors: Map<bigint, WordVector>;
@@ -34,10 +35,10 @@ export class WordVectors extends GenericConstructor<WordVectors> {
         return file;
     }
 
-    static async fromPath(path: string) {
-        return this.fromStream(fs.createReadStream(path));
+    static async fromPath(path: string, source: ResourceURL) {
+        return this.fromStream(fs.createReadStream(path), source);
     }
-    static async fromStream(input: NodeJS.ReadableStream) {
+    static async fromStream(input: NodeJS.ReadableStream, source: ResourceURL) {
         const readInterface = readline.createInterface({ input });
         const vectors = new Map<bigint, WordVector>();
         let firstRowParsed = false;
@@ -45,7 +46,7 @@ export class WordVectors extends GenericConstructor<WordVectors> {
         let dimensions: number;
         readInterface.on("line", line => {
             if (firstRowParsed) {
-                const vector = WordVector.fromString(line);
+                const vector = WordVector.fromString(line, source);
                 const wordID = vector.word.getID();
                 vectors.set(wordID, vector);
             } else {
@@ -55,7 +56,7 @@ export class WordVectors extends GenericConstructor<WordVectors> {
                     words = parseInt(parts[1]);
                     dimensions = parseInt(parts[2]);
                 } else {
-                    const vector = WordVector.fromString(line);
+                    const vector = WordVector.fromString(line, source);
                     const wordID = vector.word.getID();
                     vectors.set(wordID, vector);
                 }

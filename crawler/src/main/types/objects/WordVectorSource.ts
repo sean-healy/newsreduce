@@ -5,16 +5,16 @@ export class WordVectorSource extends DBObject<WordVectorSource> {
     readonly resource: ResourceURL;
     readonly label: string;
     getInsertParams(): any[] {
-        return [this.getID(), this.resource.getID(), this.label];
+        return [this.resource.getID(), this.label];
     }
     table(): string {
         return "WordVectorSource";
     }
     insertCols(): string[] {
-        return ["id", "resource", "label"];
+        return ["resource", "label"];
     }
-    hashSuffix(): string {
-        return this.label;
+    idCol() {
+        return "resource"
     }
 
     getDeps() {

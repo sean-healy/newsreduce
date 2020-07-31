@@ -1983,16 +1983,16 @@ __webpack_require__.r(__webpack_exports__);
 
 class WordVectorSource extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject */ "a"] {
     getInsertParams() {
-        return [this.getID(), this.resource.getID(), this.label];
+        return [this.resource.getID(), this.label];
     }
     table() {
         return "WordVectorSource";
     }
     insertCols() {
-        return ["id", "resource", "label"];
+        return ["resource", "label"];
     }
-    hashSuffix() {
-        return this.label;
+    idCol() {
+        return "resource";
     }
     getDeps() {
         return [this.resource];
@@ -2389,7 +2389,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WordVector", function() { return WordVector; });
 /* harmony import */ var types_DBObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var _Word__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(17);
-/* harmony import */ var _Vector__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(32);
+/* harmony import */ var _WordVectorSource__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(36);
+/* harmony import */ var _Vector__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(32);
+
 
 
 
@@ -2437,7 +2439,7 @@ class WordVector extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject
             integer = MAX_VALUE;
         return { integer, offset };
     }
-    static fromString(input) {
+    static fromString(input, source) {
         if (input === null)
             throw new Error(`word vector null: ${input}`);
         if (input === undefined)
@@ -2451,8 +2453,8 @@ class WordVector extends types_DBObject__WEBPACK_IMPORTED_MODULE_0__[/* DBObject
         if (wordValue === "")
             throw new Error(`word vector word empty: ${input}`);
         const word = new _Word__WEBPACK_IMPORTED_MODULE_1__["Word"](wordValue.toLowerCase());
-        const vector = new _Vector__WEBPACK_IMPORTED_MODULE_2__["Vector"](this.vectorToBuffer(tokens.slice(1).map(s => parseFloat(s))));
-        return new WordVector({ vector, word });
+        const vector = new _Vector__WEBPACK_IMPORTED_MODULE_3__["Vector"](this.vectorToBuffer(tokens.slice(1).map(s => parseFloat(s))));
+        return new WordVector({ vector, word, source: new _WordVectorSource__WEBPACK_IMPORTED_MODULE_2__["WordVectorSource"]({ resource: source }) });
     }
 }
 
@@ -3864,10 +3866,10 @@ class WordVectors_WordVectors extends GenericConstructor["a" /* GenericConstruct
         await new Promise(res => dst.on("finish", res));
         return file;
     }
-    static async fromPath(path) {
-        return this.fromStream(external_fs_default.a.createReadStream(path));
+    static async fromPath(path, source) {
+        return this.fromStream(external_fs_default.a.createReadStream(path), source);
     }
-    static async fromStream(input) {
+    static async fromStream(input, source) {
         const readInterface = external_readline_default.a.createInterface({ input });
         const vectors = new Map();
         let firstRowParsed = false;
@@ -3875,7 +3877,7 @@ class WordVectors_WordVectors extends GenericConstructor["a" /* GenericConstruct
         let dimensions;
         readInterface.on("line", line => {
             if (firstRowParsed) {
-                const vector = WordVector["WordVector"].fromString(line);
+                const vector = WordVector["WordVector"].fromString(line, source);
                 const wordID = vector.word.getID();
                 vectors.set(wordID, vector);
             }
@@ -3887,7 +3889,7 @@ class WordVectors_WordVectors extends GenericConstructor["a" /* GenericConstruct
                     dimensions = parseInt(parts[2]);
                 }
                 else {
-                    const vector = WordVector["WordVector"].fromString(line);
+                    const vector = WordVector["WordVector"].fromString(line, source);
                     const wordID = vector.word.getID();
                     vectors.set(wordID, vector);
                 }
@@ -3934,12 +3936,11 @@ class ExtractWordVectorsFromSource_ExtractWordVectorsFromSource extends Resource
                 Object(util["e" /* fancyLog */])(path);
                 const inputStream = Object(external_child_process_["spawn"])(UNZIP, ["-p", compressedTMP, path]).stdout;
                 Object(util["e" /* fancyLog */])("spawned");
-                const wordVectors = await WordVectors_WordVectors.fromStream(inputStream);
+                const wordVectors = await WordVectors_WordVectors.fromStream(inputStream, resource);
                 Object(util["e" /* fancyLog */])(`vectors: ${wordVectors.vectors.size}`);
                 Object(util["e" /* fancyLog */])("read the thing");
                 for (const wordVector of wordVectors.vectors.values()) {
                     Object(util["e" /* fancyLog */])(JSON.stringify(wordVector));
-                    wordVector.source = null;
                     wordVector.enqueueInsert({ recursive: true });
                 }
                 Object(util["e" /* fancyLog */])("enqueued inserts");

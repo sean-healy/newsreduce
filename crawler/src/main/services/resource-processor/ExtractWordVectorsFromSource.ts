@@ -31,12 +31,11 @@ export class ExtractWordVectorsFromSource extends ResourceProcessor {
                 fancyLog(path);
                 const inputStream = spawn(UNZIP, ["-p", compressedTMP, path]).stdout;
                 fancyLog("spawned")
-                const wordVectors = await WordVectors.fromStream(inputStream);
+                const wordVectors = await WordVectors.fromStream(inputStream, resource);
                 fancyLog(`vectors: ${wordVectors.vectors.size}`);
                 fancyLog("read the thing")
                 for (const wordVector of wordVectors.vectors.values()) {
                     fancyLog(JSON.stringify(wordVector));
-                    wordVector.source = null;
                     wordVector.enqueueInsert({ recursive: true });
                 }
                 fancyLog("enqueued inserts")

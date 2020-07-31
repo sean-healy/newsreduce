@@ -2,6 +2,7 @@ import { DBObject } from "types/DBObject";
 import { Word } from "./Word";
 import { WordVectorSource } from "./WordVectorSource";
 import { Vector } from "./Vector";
+import { ResourceURL } from "./ResourceURL";
 
 export const BYTES_PER_FLOAT = 2;
 const UNIQUE_VALUES = 1 << (BYTES_PER_FLOAT << 3);
@@ -55,7 +56,7 @@ export class WordVector extends DBObject<WordVector> {
         return { integer, offset };
     }
 
-    static fromString(input: string) {
+    static fromString(input: string, source: ResourceURL) {
         if (input === null) throw new Error(`word vector null: ${input}`);
         if (input === undefined) throw new Error(`word vector undefined: ${input}`);
         if (input === "") throw new Error(`word vector empty: ${input}`);
@@ -65,6 +66,6 @@ export class WordVector extends DBObject<WordVector> {
         if (wordValue === "") throw new Error(`word vector word empty: ${input}`);
         const word = new Word(wordValue.toLowerCase());
         const vector = new Vector(this.vectorToBuffer(tokens.slice(1).map(s => parseFloat(s))));
-        return new WordVector({ vector, word });
+        return new WordVector({ vector, word, source: new WordVectorSource({ resource: source }) });
     }
 }
