@@ -72,7 +72,7 @@ export abstract class Hits<T extends DBObject<T>> {
             const hits = this.hits.get(id).sort().slice(0, (1 << this.lengthBytes * 8) - 1)
                 .map(hit => hit.toByte());
             const length = Math.min(hits.length, (1 << this.lengthBytes * 8) - 1);
-            writeAnyNumberBE(length, fileData, offset, this.lengthBytes);
+            writeAnyNumberBE(length, this.lengthBytes, fileData, offset);
             offset += this.lengthBytes;
             Buffer.from(hits).copy(fileData, offset);
             offset += hits.length;

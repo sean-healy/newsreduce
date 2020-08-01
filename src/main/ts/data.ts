@@ -68,7 +68,7 @@ export async function selectBagOfWordsByHost() {
     const rows = await genericSQLPromise(query);
     const hosts = new Map<bigint, [bigint, number][]>();
     for (const row of rows) {
-        const resource: bigint = row.resource;
+        const resource: bigint = BigInt(row.resource);
         const time: number = row.time;
         const host = row.host;
         const version: [bigint, number] = [resource, time];

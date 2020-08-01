@@ -20,7 +20,7 @@ export class WordVectors extends GenericConstructor<WordVectors> {
         return s;
     }
 
-    async toBuffer() {
+    async toBufferFile() {
         const file = randomBufferFile();
         const dst = fs.createWriteStream(file);
         const ids = [...this.vectors.keys()].sort(CMP_BIG_INT);

@@ -46,6 +46,9 @@ export async function varDirChild(child: string) {
 export function getRawDir() {
     return varDirChild("raw");
 }
+export function getWordVectorDir() {
+    return varDirChild("word-vectors");
+}
 export function getPreBlobDir() {
     return varDirChild("pre-blobs");
 }

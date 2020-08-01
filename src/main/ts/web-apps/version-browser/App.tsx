@@ -24,6 +24,8 @@ interface State {
     version: string;
 }
 
+const api = "http://127.0.0.1:9999"
+
 const resourcePath = (path: string) => !!path.match(/^[0-9A-F]{24}$/);
 const timePath = (path: string) => !!path.match(/^[0-9A-F]{24}\/[0-9]+$/);
 const formatPath = (path: string) => !!path.match(/^[0-9A-F]{24}\/[0-9]+\/.+$/);
@@ -41,7 +43,7 @@ const toResource = (next: string, state: State, setState: React.Dispatch<React.S
     const path = breadcrumbs.slice(0, 1).map(crumb => `${crumb}`).join("/");
     const nextState: State = { ...state, path, breadcrumbs, times: prev !== next ? null : state.times };
     if (prev !== next || !state.times) {
-        const url = `http://newsreduce.org:9999/resource-times?id=${BigInt(`0x${breadcrumbs[0]}`)}`;
+        const url = `${api}/resource-times?id=${BigInt(`0x${breadcrumbs[0]}`)}`;
         fetch(url)
             .then(response => response.json())
             .then(versions => setState({ ...nextState, times: versions }));
@@ -56,7 +58,7 @@ const toTime = (next: number, state: State, setState: React.Dispatch<React.SetSt
     const path = breadcrumbs.slice(0, 2).map(crumb => `${crumb}`).join("/");
     const nextState: State = { ...state, path, breadcrumbs, formats: prev !== next ? null : state.formats };
     if (prev !== next || !state.formats) {
-        const url = `http://newsreduce.org:9999/resource-formats?id=${BigInt(`0x${breadcrumbs[0]}`)}&time=${breadcrumbs[1]}`
+        const url = `${api}/resource-formats?id=${BigInt(`0x${breadcrumbs[0]}`)}&time=${breadcrumbs[1]}`
         fetch(url)
             .then(response => response.json())
             .then(formats => setState({ ...nextState, formats }));
@@ -71,7 +73,7 @@ const toFormat = (next: string, state: State, setState: React.Dispatch<React.Set
     const path = breadcrumbs.slice(0, 3).map(crumb => `${crumb}`).join("/");
     const nextState: State = { ...state, path, breadcrumbs, version: prev !== next ? null : state.version };
     if (prev !== next || !state.version ) {
-        const version = `http://newsreduce.org:9999/resource-version?id=${BigInt(`0x${breadcrumbs[0]}`)}&time=${breadcrumbs[1]}&format=${breadcrumbs[2]}`;
+        const version = `${api}/resource-version?id=${BigInt(`0x${breadcrumbs[0]}`)}&time=${breadcrumbs[1]}&format=${breadcrumbs[2]}`;
         setState({ ...nextState, version });
     } else setState(nextState)
 }
@@ -174,7 +176,7 @@ export function App(props: Props) {
             const sql =
                 `select * from ResourceSearch${whereClause ? ` where ${whereClause}` : ""}${order ? ` order by \`${order}\`` : ""} limit ${limit} offset ${offset};`;
             const encodedSQL = Buffer.from(sql).toString("hex");
-            fetch(`http://newsreduce.org:9999/query?sql=${encodedSQL}`)
+            fetch(`${api}/query?sql=${encodedSQL}`)
                 .then(response => response.json())
                 .then(results => setState({ ...nextState, results }));
         }}>

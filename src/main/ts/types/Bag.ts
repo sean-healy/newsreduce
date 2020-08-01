@@ -1,15 +1,17 @@
 import { DBObject } from "./DBObject";
 import { BinaryBag } from "./BinaryBag";
-import { writeBigUInt96BE, CMP_BIG_INT, writeAnyNumberBE, bytesToBigInt, bytesToNumber, iteratorToArray } from "common/util";
+import { writeBigUInt96BE, CMP_BIG_INT, writeAnyNumberBE, bytesToBigInt, bytesToNumber, iteratorToArray, fancyLog } from "common/util";
+import { randomBufferFile } from "file";
+import fs from "fs";
 
-export abstract class Bag<B extends Bag<B, T>, T extends DBObject<T>> {
+export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any> {
     readonly bag: Map<bigint, number>;
     readonly objects: Map<bigint, T>;
-    readonly builder: (value: string) => T;
+    readonly builder: (value: V) => T;
     readonly lengthBytes: number;
 
     constructor(
-        builder: (value: string) => T,
+        builder: (value: V) => T,
         bag: Map<bigint, number> = new Map(),
         lengthBytes: number = 2,
     ) {
@@ -19,7 +21,7 @@ export abstract class Bag<B extends Bag<B, T>, T extends DBObject<T>> {
         this.lengthBytes = lengthBytes;
     }
 
-    register(value: string) {
+    register(value: V) {
         const obj = this.builder(value);
         const id = obj.getID();
         this.objects.set(id, obj);
@@ -39,13 +41,41 @@ export abstract class Bag<B extends Bag<B, T>, T extends DBObject<T>> {
             writeBigUInt96BE(id, fileData, offset);
             offset += 12;
             const count = Math.min(this.bag.get(id), (1 << this.lengthBytes * 8) - 1);
-            writeAnyNumberBE(count, fileData, offset, this.lengthBytes);
+            writeAnyNumberBE(count, this.lengthBytes, fileData, offset);
             offset += this.lengthBytes;
         }
 
         return fileData;
     }
-    abstract build(bag: Map<bigint, number>, lengthBytes: number): B;
+    toBufferFile() {
+        let length = 0;
+        let file: string;
+        try {
+            file = randomBufferFile();
+            const fd = fs.openSync(file, "w");
+            fs.writeSync(fd, Buffer.of(this.lengthBytes));
+            length += 1;
+            const ids = [...this.bag.keys()];
+            for (const id of ids.sort(CMP_BIG_INT)) {
+                fs.writeSync(fd, writeBigUInt96BE(id));
+                length += 12;
+                const count = Math.min(this.bag.get(id), (1 << this.lengthBytes * 8) - 1);
+                writeAnyNumberBE(count, this.lengthBytes);
+                length += this.lengthBytes;
+            }
+            fs.closeSync(fd);
+        } catch (e) {
+            fancyLog("error during BOW to file:");
+            fancyLog(JSON.stringify(e));
+            length = -1;
+            file = null;
+        }
+
+        return { length, file };
+    }
+    build(bag: Map<bigint, number>, lengthBytes: number): B {
+        return new Bag(this.builder, bag, lengthBytes) as B;
+    }
     fromBuffer(buffer: Buffer) {
         const bag = new Map<bigint, number>();
         const bufferLength = buffer.length;

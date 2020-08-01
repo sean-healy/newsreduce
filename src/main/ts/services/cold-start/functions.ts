@@ -34,7 +34,6 @@ export function getObjectsToInsert() {
             label: "fasttext_crawl-300d-2M-subw",
         }),
     ];
-    const wordVectorThrottles = wordVectorSources.map(src => new ResourceThrottle(src.resource.toURL(), 0xFFFFFFFF));
     const clients = [
         new Client({ name: "ubuntu-mozilla", httpVersion: "1.1" }),
         new Client({ name: "mac-chrome", httpVersion: "1.1" }),
@@ -78,7 +77,6 @@ export function getObjectsToInsert() {
         ...clients,
         ...clientHeaders,
         ...wordVectorSources,
-        ...wordVectorThrottles
     ];
 }
 

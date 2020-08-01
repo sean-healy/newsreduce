@@ -2,7 +2,7 @@ import { JSDOM } from "jsdom";
 import { ResourceProcessor } from "services/resource-processor/ResourceProcessor";
 import { selectResourceVersions } from "data";
 import { Dictionary, fancyLog } from "common/util";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { PromisePool } from "common/PromisePool";
 import { HitType } from "types/HitType";
 import { ResourceURL } from "types/objects/ResourceURL";
@@ -53,9 +53,9 @@ export function wordsFromNode(node: Element, hitType: HitType) {
 
 function filenameToBufferOrPath(resource: ResourceURL, time: number, filename: string): Promise<Buffer | ResourceURL> {
     switch (filename) {
-        case ResourceVersionType.RAW_ZIP_FILE:
+        case VersionType.RAW_ZIP_FILE:
             return new Promise<ResourceURL>(res => res(resource));
-        default: return resource.read(time, new ResourceVersionType(filename))
+        default: return resource.read(time, new VersionType(filename))
     }
 
 }
@@ -90,8 +90,11 @@ export async function processResource(
             const inputFilenames = [...from];
             let input: Dictionary<Buffer | ResourceURL> = {}
             const length = inputFilenames.length;
-            for (let i = 0; i < length; ++i)
-                input[inputFilenames[i]] = dictionary[i];
+            for (let i = 0; i < length; ++i) {
+                const inputFilename = inputFilenames[i];
+                input[inputFilename] = dictionary[inputFilename];
+            }
+            console.log(input);
             await pool.registerPromise(processor.apply(resource, input, time, domPool, reDOM));
         }
         reDOM = !processor.ro();

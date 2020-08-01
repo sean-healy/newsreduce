@@ -9,7 +9,7 @@ const ENCLOSE = `ENCLOSED BY '"'`;
 const FIELD_TERM = "FIELDS TERMINATED BY ','";
 const LINE_TERM = "LINES TERMINATED BY '\\n'";
 
-export abstract class DBObject<T extends DBObject<T>> extends GenericConstructor<T> {
+export abstract class DBObject<T extends DBObject<T> = any> extends GenericConstructor<T> {
     abstract getInsertParams(): any[];
     abstract table(): string;
     abstract insertCols(): string[];

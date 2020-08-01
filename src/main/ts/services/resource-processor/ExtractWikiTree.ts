@@ -4,7 +4,7 @@ import { WikiCategory } from "types/objects/WikiCategory";
 import { WikiPage } from "types/objects/WikiPage";
 import { DBObject } from "types/DBObject";
 import { ResourceThrottle } from "types/objects/ResourceThrottle";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { HTMLProcessor } from "./HTMLProcessor";
 
 const SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
@@ -62,9 +62,9 @@ export class ExtractWikiTree extends HTMLProcessor {
         await Promise.all(promises);
     }
     from() {
-        return new Set([ResourceVersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML_FILE]);
     }
     to() {
-        return new Set([ResourceVersionType.WIKI_TREE_FILE]);
+        return new Set([VersionType.WIKI_TREE_FILE]);
     }
 }

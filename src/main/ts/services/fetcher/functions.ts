@@ -6,7 +6,7 @@ import { Host } from "types/objects/Host";
 import { ResourceHeader } from "types/objects/ResourceHeader";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog } from "common/util";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { DBObject } from "types/DBObject";
 
 export function buildOnFetch(url: string) {
@@ -23,11 +23,11 @@ export function buildOnFetch(url: string) {
                 objects.push(new ResourceHeader(url, key, value));
                 if (key === "content-type") {
                     const mimeType = value.toLowerCase();
-                    let type: ResourceVersionType = null;
+                    let type: VersionType = null;
                     if (mimeType.match(/^text\/html/i))
-                        type = ResourceVersionType.RAW_HTML;
+                        type = VersionType.RAW_HTML;
                     else if (mimeType.match(/^application\/zip/i))
-                        type = ResourceVersionType.RAW_ZIP;
+                        type = VersionType.RAW_ZIP;
                     if (type !== null) {
                         typeSeen = true;
                         console.log("Writing to file.");
@@ -46,7 +46,7 @@ export function buildOnFetch(url: string) {
             log("header issue");
             log(JSON.stringify(headers));
         }
-        await resource.writeVersion(time, ResourceVersionType.RAW_HEADERS, headerContent)
+        await resource.writeVersion(time, VersionType.RAW_HEADERS, headerContent)
         await Promise.all(objects.map(obj => obj.enqueueInsert({ recursive: true })));
     };
 }

@@ -2,14 +2,13 @@ import { DBObject } from "types/DBObject";
 import { ResourceURLQuery } from "types/objects/ResourceURLQuery";
 import { ResourceURLPath } from "types/objects/ResourceURLPath";
 import { Host } from "types/objects/Host";
-import { write, read, stream } from "file";
-import { Entity, entityName } from "types/Entity";
 import { log } from "common/logging";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { FAILURE_CACHE } from "common/events";
-import { fancyLog } from "common/util";
-import { ResourceVersionType } from "./ResourceVersionType";
+import { VersionType } from "./VersionType";
 import { ResourceVersion } from "./ResourceVersion";
+import { EntityObject } from "./EntityObject";
+import { Entity } from "types/Entity";
 
 const URL_ENCODING = "utf8";
 const PORT_BASE = 10;
@@ -19,7 +18,7 @@ const URL =
 type ConstructorParam =
     string | { [key in keyof ResourceURL]?: string | number | boolean }
 
-export class ResourceURL extends DBObject<ResourceURL> {
+export class ResourceURL extends EntityObject<ResourceURL> {
     readonly ssl: boolean;
     readonly host: Host;
     readonly port: number;
@@ -127,37 +126,6 @@ export class ResourceURL extends DBObject<ResourceURL> {
     getDeps() {
         return [this.host, this.path, this.query];
     }
-    async writeVersion(
-        time: number,
-        type: ResourceVersionType,
-        input: string | Buffer | NodeJS.ReadableStream
-    ) {
-        const id = this.getID();
-        let bytesWritten: number = -1;
-        if (typeof input === "string" || input instanceof Buffer) {
-            let i = 0;
-            for (i = 0; i < 10 && bytesWritten < 0; ++i)
-                bytesWritten = await write(Entity.RESOURCE, id, time, type, input);
-            if (i > 1 && bytesWritten >= 0) {
-                fancyLog(
-                    `wrote ${bytesWritten}b to ` +
-                    `${entityName(Entity.RESOURCE)} ${id} ` +
-                    `(${type.filename}, v${time}) on attempt ${i}.`
-                );
-            }
-        } else
-            bytesWritten = await write(Entity.RESOURCE, id, time, type, input);
-
-        if (bytesWritten >= 0)
-            new ResourceVersion({
-                resource: this,
-                time,
-                type,
-                length: bytesWritten,
-            }).enqueueInsert({ recursive: true });
-
-        return bytesWritten;
-    }
     isFetchLocked() {
         return Redis.renewRedis(REDIS_PARAMS.fetchLock).eq(this.toURL());
     }
@@ -179,20 +147,6 @@ export class ResourceURL extends DBObject<ResourceURL> {
     isValid() {
         return !this.isInvalid();
     }
-    async read(time: number, format: ResourceVersionType) {
-        try {
-            return await read(Entity.RESOURCE, this.getID(), time, format);
-        } catch (e) {
-            return null;
-        }
-    }
-    async stream(time: number, format: ResourceVersionType) {
-        try {
-            return await stream(Entity.RESOURCE, this.getID(), time, format);
-        } catch (e) {
-            return null;
-        }
-    }
     static async popForProcessing() {
         const url = await Redis.renewRedis(REDIS_PARAMS.general).spop("html");
         if (!url) return null;
@@ -200,14 +154,18 @@ export class ResourceURL extends DBObject<ResourceURL> {
         return new ResourceURL(url);
     }
     static async registerVersionIfSuccessful(
-        resource: ResourceURL,
+        entity: ResourceURL,
         time: number,
-        type: ResourceVersionType,
+        type: VersionType,
         length: number,
     ) {
         if (length >= 0)
-            await new ResourceVersion({ resource, time, type, length })
+            await new ResourceVersion({ entity, time, type, length })
                 .enqueueInsert({ recursive: true });
+    }
+    entity() { return Entity.RESOURCE; }
+    versionObject(time: number, type: VersionType, length: number) {
+        return new ResourceVersion({ time, type, length, entity: this });
     }
 }
 

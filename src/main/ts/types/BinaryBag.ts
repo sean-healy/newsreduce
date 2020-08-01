@@ -2,13 +2,13 @@ import { DBObject } from "./DBObject";
 import { CMP_BIG_INT, writeBigUInt96BE, bytesToBigInt, iteratorToArray } from "common/util";
 import { Word } from "./objects/Word";
 
-export class BinaryBag<T extends DBObject<T>> {
+export class BinaryBag<T extends DBObject<T>, V = string> {
     readonly bag: Set<bigint>;
     readonly objects: Map<bigint, T>;
-    readonly builder: (value: string) => T;
+    readonly builder: (value: V) => T;
 
     constructor(
-        builder: (value: string) => T,
+        builder: (value: V) => T,
         bag: Set<bigint> = new Set(),
     ) {
         this.bag = bag;
@@ -16,7 +16,7 @@ export class BinaryBag<T extends DBObject<T>> {
         this.objects = new Map();
     }
 
-    register(value: string) {
+    register(value: V) {
         const obj = this.builder(value);
         const wordID = obj.getID();
         this.bag.add(wordID);

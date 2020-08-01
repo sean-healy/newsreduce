@@ -6,7 +6,7 @@ import { ResourceURL } from "types/objects/ResourceURL";
 test("word vector stuff works", async () => {
     const file = path.join(__dirname, "vectors/crawl-300d-2M-subword.vec");
     const wordVectors = await WordVectors.fromPath(file, new ResourceURL("http://example123.org"));
-    const tmpFile = await wordVectors.toBuffer();
+    const tmpFile = await wordVectors.toBufferFile();
     console.log(tmpFile);
     const content = fs.readFileSync(tmpFile);
     console.log(content);

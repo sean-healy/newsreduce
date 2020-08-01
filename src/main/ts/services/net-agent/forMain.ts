@@ -6,7 +6,7 @@ import { SQL } from "common/SQL";
 import { DBObject } from "types/DBObject";
 import { findTimes, findFormats, read } from "file";
 import { Entity } from "types/Entity";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { WordHits } from "types/WordHits";
 import { LinkHits } from "types/LinkHits";
 import { BagOfWords } from "types/BagOfWords";
@@ -55,27 +55,27 @@ async function serve() {
         const id = BigInt(req.query.id);
         const time = Number(req.query.time);
         const format = req.query.format as string;
-        let version = await read(Entity.RESOURCE, id, time, new ResourceVersionType(format));
+        let version = await read(Entity.RESOURCE, id, time, new VersionType(format));
         const contentType = (() => {
             switch (format) {
-                case ResourceVersionType.RAW_HEADERS_FILE:
-                case ResourceVersionType.RAW_WORDS_TXT_FILE:
-                case ResourceVersionType.RAW_LINKS_TXT_FILE:
-                case ResourceVersionType.TITLE_FILE:
+                case VersionType.RAW_HEADERS_FILE:
+                case VersionType.RAW_WORDS_TXT_FILE:
+                case VersionType.RAW_LINKS_TXT_FILE:
+                case VersionType.TITLE_FILE:
                     return "text/plain; charset=UTF-8";
-                case ResourceVersionType.WORD_HITS_FILE:
+                case VersionType.WORD_HITS_FILE:
                     version = Buffer.from(new WordHits().fromBuffer(version).toString());
                     return "text/plain; charset=UTF-8";
-                case ResourceVersionType.LINK_HITS_FILE:
+                case VersionType.LINK_HITS_FILE:
                     version = Buffer.from(new LinkHits().fromBuffer(version).toString());
                     return "text/plain; charset=UTF-8";
-                case ResourceVersionType.BAG_OF_WORDS_FILE:
+                case VersionType.BAG_OF_WORDS_FILE:
                     version = Buffer.from(new BagOfWords().fromBuffer(version).toString());
                     return "text/plain; charset=UTF-8";
-                case ResourceVersionType.BINARY_BAG_OF_WORDS_FILE:
+                case VersionType.BINARY_BAG_OF_WORDS_FILE:
                     version = Buffer.from(BinaryBag.ofWords().fromBuffer(version).toString());
                     return "text/plain; charset=UTF-8";
-                case ResourceVersionType.RAW_HTML_FILE:
+                case VersionType.RAW_HTML_FILE:
                     return "text/html; charset=UTF-8";
 
             }

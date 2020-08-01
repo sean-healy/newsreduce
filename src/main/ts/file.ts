@@ -5,7 +5,7 @@ import { spawn } from "child_process";
 import { getBlobDir, TAR, safeMkdir, getRawDir } from "common/config";
 import { Entity, entityName } from "types/Entity";
 import { fancyLog, spawnPromise } from "common/util";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 
 const FINISH = "finish";
 const ERROR = "error";
@@ -40,7 +40,7 @@ export async function write(
     entity: Entity,
     entityID: bigint,
     version: number,
-    format: ResourceVersionType,
+    format: VersionType,
     src: NodeJS.ReadableStream | string | Buffer
 ) {
     const bufferFile = randomBufferFile();
@@ -69,39 +69,42 @@ export async function write(
             bytesWritten = -1;
         }
     }
-    if (bytesWritten >= 0) {
-        const versions = await findVersions(entity, entityID);
-        const found =
-            versions.find(vAndFormat =>
-                vAndFormat[0] === version && vAndFormat[1].filename === format.filename)
-        if (found) {
-            fancyLog(`file already exists: ${entityID}(v${version})`);
-            bytesWritten = -1;
-            if (fs.existsSync(bufferFile)) {
-                try {
-                    fs.unlinkSync(bufferFile);
-                } catch (e) {
-                    fancyLog("exception while removing file.");
-                    fancyLog(JSON.stringify(e));
-                }
-            }
-        } else {
-            const dir = path.join(await getRawDir(), entityName(entity), `${entityID}`);
-            const tmpFile = path.join(dir, `${version}_${format.filename}`);
-            await safeMkdir(dir);
+
+    return replace(entity, entityID, version, format, bufferFile, bytesWritten);
+}
+
+export async function replace(
+    entity: Entity,
+    entityID: bigint,
+    version: number,
+    format: VersionType,
+    bufferFile: string,
+    length: number,
+) {
+    let bytesWritten = length;
+    const versions = await findVersions(entity, entityID);
+    const found =
+        versions.find(vAndFormat =>
+            vAndFormat[0] === version && vAndFormat[1].filename === format.filename)
+    if (found) {
+        fancyLog(`file already exists: ${entityID}(v${version})`);
+        bytesWritten = -1;
+        if (fs.existsSync(bufferFile)) {
             try {
-                fs.renameSync(bufferFile, tmpFile);
+                fs.unlinkSync(bufferFile);
             } catch (e) {
-                fancyLog("exception while renaming file.");
+                fancyLog("exception while removing file.");
                 fancyLog(JSON.stringify(e));
-                bytesWritten = -1;
             }
         }
-    } else if (fs.existsSync(bufferFile)) {
+    } else {
+        const dir = path.join(await getRawDir(), entityName(entity), `${entityID}`);
+        const tmpFile = path.join(dir, `${version}_${format.filename}`);
+        await safeMkdir(dir);
         try {
-            fs.unlinkSync(bufferFile);
+            fs.renameSync(bufferFile, tmpFile);
         } catch (e) {
-            fancyLog("exception while removing file.");
+            fancyLog("exception while renaming file.");
             fancyLog(JSON.stringify(e));
             bytesWritten = -1;
         }
@@ -126,7 +129,7 @@ export function lastChangedAfter(path: string, ms: number) {
     return !lastChangedBefore(path, ms);
 }
 
-type VersionSignature = [number, ResourceVersionType];
+type VersionSignature = [number, VersionType];
 export const compareVersionSignatures = (v1: VersionSignature, v2: VersionSignature) => {
     const vID1 = v1[0];
     const vID2 = v2[0];
@@ -153,7 +156,7 @@ export async function findVersions(entity: Entity, entityID: bigint) {
         .map(line => line.split(/[/_]/, 2))         // Split on spaces and underscore.
         .map(arr => [
             parseInt(arr[0]),
-            new ResourceVersionType(arr[1])
+            new VersionType(arr[1])
         ] as VersionSignature)
         .sort(compareVersionSignatures);
 }
@@ -170,7 +173,7 @@ export async function read(
     entity: Entity,
     entityID: bigint,
     time: number,
-    format: ResourceVersionType
+    format: VersionType
 ) {
     const blobDir = await getBlobDir();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
@@ -186,7 +189,7 @@ export async function stream(
     entity: Entity,
     entityID: bigint,
     time: number,
-    format: ResourceVersionType
+    format: VersionType
 ) {
     const blobDir = await getBlobDir();
     const compressedArc = path.join(blobDir, entityName(entity), `${entityID}.tzst`);
@@ -200,7 +203,7 @@ export async function stream(
 export async function findLatestVersion(
     entity: Entity,
     entityID: bigint,
-    format: ResourceVersionType
+    format: VersionType
 ) {
     const versions = await findVersions(entity, entityID);
     const sorted = versions
@@ -221,7 +224,7 @@ export async function findLatestVersion(
 export async function readLatestVersion(
     entity: Entity,
     entityID: bigint,
-    format: ResourceVersionType,
+    format: VersionType,
 ) {
     const latestVersion = await findLatestVersion(entity, entityID, format);
     if (latestVersion === -1) return null;

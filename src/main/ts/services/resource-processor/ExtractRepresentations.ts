@@ -1,7 +1,7 @@
 import { ResourceURL } from "types/objects/ResourceURL";
 import { JSDOM } from "jsdom";
 import { nodeToHitType } from "types/HitType";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { htmlCollectionToArray, wordsFromNode } from "services/resource-processor/functions";
 import { BagOfWords } from "types/BagOfWords";
 import { HTMLProcessor } from "./HTMLProcessor";
@@ -44,14 +44,14 @@ export class ExtractRepresentations extends HTMLProcessor {
         const bag = getBagOfWords(dom);
         const binaryBag = bag.toBinaryBag();
         await Promise.all([
-            resource.writeVersion(time, ResourceVersionType.BAG_OF_WORDS, bag.toBuffer()),
-            resource.writeVersion(time, ResourceVersionType.BINARY_BAG_OF_WORDS, binaryBag.toBuffer()),
+            resource.writeVersion(time, VersionType.BAG_OF_WORDS, bag.toBuffer()),
+            resource.writeVersion(time, VersionType.BINARY_BAG_OF_WORDS, binaryBag.toBuffer()),
         ]);
     }
     from() {
-        return new Set([ResourceVersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML_FILE]);
     }
     to() {
-        return new Set([ResourceVersionType.BAG_OF_WORDS_FILE, ResourceVersionType.BINARY_BAG_OF_WORDS_FILE]);
+        return new Set([VersionType.BAG_OF_WORDS_FILE, VersionType.BINARY_BAG_OF_WORDS_FILE]);
     }
 }

@@ -19,6 +19,13 @@ case $1 in
     compressor)
         node dist/nr-compressor.js
         ;;
+    processor)
+        tmux split-window "node dist/nr-resource-processor-worker.js; zsh -i"
+        node dist/nr-resource-processor-zookeeper.js
+        ;;
+    bow)
+        node dist/nr-process-bows.js
+        ;;
     *)
         cat $0
         ;;

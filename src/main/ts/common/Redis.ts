@@ -3,6 +3,7 @@ import { STR_ONE, fancyLog } from "./util";
 import { log } from "./logging";
 import { GlobalConfig } from "./GlobalConfig";
 import { DNS } from "./DNS";
+import { PromisePool } from "./PromisePool";
 
 const DEFAULT_REDIS_DB = 0;
 
@@ -332,5 +333,12 @@ export class Redis {
         SUB_CONNECTIONS.push(redis.client);
 
         return redis;
+    }
+    static async quit() {
+        const connections = Object.values(STATIC_CONNECTIONS).concat(Object.values(SUB_CONNECTIONS));
+        const promises = new PromisePool(100);
+        for (const connection of connections)
+            if (connection) await promises.registerFn((res: () => void) => connection.quit(res));
+        await promises.flush();
     }
 }

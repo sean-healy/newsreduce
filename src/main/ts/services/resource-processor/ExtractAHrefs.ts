@@ -6,7 +6,7 @@ import { ResourceURL } from "types/objects/ResourceURL";
 import { ResourceHash } from "types/objects/ResourceHash";
 import { Anchor } from "types/objects/Anchor";
 import { fancyLog } from "common/util";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { getAnchorsWithHREF } from "services/resource-processor/functions";
 import { HTMLProcessor } from "./HTMLProcessor";
 
@@ -39,17 +39,17 @@ export function getLinks(dom: JSDOM) {
 export class ExtractAHrefs extends HTMLProcessor {
     ro() { return true; }
     from() {
-        return new Set([ResourceVersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML_FILE]);
     }
     to() {
-        return new Set([ResourceVersionType.RAW_LINKS_TXT_FILE]);
+        return new Set([VersionType.RAW_LINKS_TXT_FILE]);
     }
     async applyToDOM(dom: JSDOM, time: number) {
         const parent = new ResourceURL(dom.window.location.toString());
         const links = getLinks(dom);
         const urls = links.map(item =>
             item instanceof ResourceLinkHash ? `${item.link.child.toURL()}#${item.hash.value}` : (item as ResourceLink).child.toURL());
-        const fsPromise = parent.writeVersion(time, ResourceVersionType.RAW_LINKS_TXT, urls.join("\n"));
+        const fsPromise = parent.writeVersion(time, VersionType.RAW_LINKS_TXT, urls.join("\n"));
         const dbPromises = links.map(link => link.enqueueInsert({ recursive: true }));
         const promises: Promise<any>[] = [...dbPromises, fsPromise];
         await Promise.all(promises);

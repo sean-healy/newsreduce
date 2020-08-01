@@ -31,15 +31,15 @@ export function bytesToNumber(bytes: Buffer) {
 }
 
 export function writeBigUInt96BE(n: bigint, buffer: Buffer = Buffer.alloc(12), offset: number = 0) {
-    writeAnyNumberBE(n, buffer, offset, 12);
+    writeAnyNumberBE(n, 12, buffer, offset);
 
     return buffer;
 }
 export function writeAnyNumberBE(
     n: number | bigint,
-    buffer: Buffer,
-    offset: number,
-    bytes: number
+    bytes: number,
+    buffer: Buffer = Buffer.alloc(bytes),
+    offset: number = 0,
 ) {
     let bigintN = BigInt(n);
     for (let i = 0; i < bytes; ++i) {

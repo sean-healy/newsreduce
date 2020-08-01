@@ -9,14 +9,16 @@ const basenames = files.map(file => file.replace(/\..*$/, ""));
 basenames.forEach(basename => alias[basename] = path.join(...dir, basename));
 console.log(alias);
 
+const externals = [nodeExternals()];
+console.log(externals);
+
 module.exports = {
   target: 'node',
   mode: 'production',
-  devtool: "inline-source-map",
   module: {
       rules: [
           {
-              test: /\.tsx?$/,
+              test: /\.ts$/,
               use: "ts-loader",
               exclude: /node_modules/,
           },
@@ -28,21 +30,21 @@ module.exports = {
     'resource-processor-worker':    './src/main/ts/services/resource-processor/worker.ts',
     'resource-processor-zookeeper': './src/main/ts/services/resource-processor/zookeeper.ts',
     'scheduler':                    './src/main/ts/services/scheduler.ts',
-    'main-net-agent':               './src/main/ts/services/net-agent/for-main.ts',
-    'worker-net-agent':             './src/main/ts/services/net-agent/for-worker.ts',
+    'main-net-agent':               './src/main/ts/services/net-agent/forMain.ts',
+    'worker-net-agent':             './src/main/ts/services/net-agent/forWorker.ts',
     'cold-start':                   './src/main/ts/services/cold-start/main.ts',
     'inserter':                     './src/main/ts/services/inserter/main.ts',
     'compressor':                   './src/main/ts/services/compressor/main.ts',
-    'bulk-processors':              './src/main/ts/services/bulk-processors/main.ts',
-    'version-browser':              './src/main/ts/web-apps/version-browser/index.tsx',
+    'process-word-vectors':         './src/main/ts/services/bulk-processors/processWordVectors.ts',
+    'process-bows':                 './src/main/ts/services/bulk-processors/processBagsOfWords.ts'
   },
-  externals: [nodeExternals()],
+  externals,
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'nr-[name].js',
   },
   resolve: {
     alias,
-    extensions: [ ".tsx", ".ts", ".js" ],
+    extensions: [ ".ts", ".js" ],
   },
 };

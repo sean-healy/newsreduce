@@ -1,6 +1,6 @@
 import { ResourceURL } from "types/objects/ResourceURL";
 import { JSDOM } from "jsdom";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { HTMLProcessor } from "./HTMLProcessor";
 
 export function toRawText(dom: JSDOM) {
@@ -17,12 +17,12 @@ export class ExtractRawText extends HTMLProcessor {
     async applyToDOM(dom: JSDOM, time?: number) {
         const rawText = toRawText(dom);
         const resource = new ResourceURL(dom.window.location.toString());
-        await resource.writeVersion(time, ResourceVersionType.RAW_WORDS_TXT, rawText);
+        await resource.writeVersion(time, VersionType.RAW_WORDS_TXT, rawText);
     }
     from() {
-        return new Set([ResourceVersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML_FILE]);
     }
     to() {
-        return new Set([ResourceVersionType.RAW_WORDS_TXT_FILE]);
+        return new Set([VersionType.RAW_WORDS_TXT_FILE]);
     }
 }

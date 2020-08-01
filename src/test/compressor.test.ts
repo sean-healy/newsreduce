@@ -4,7 +4,7 @@ import { write, findVersions, readLatestVersion } from "file";
 import path from "path"
 import fs from "fs";
 import { Entity } from "types/Entity";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { sleep, spawnPromise } from "common/util";
 import { spawn } from "child_process";
 
@@ -16,9 +16,9 @@ test("compress should work", async () => {
     const html = "Hello world!"
     const header = "Content-Type: null";
     let htmlBytes =
-        await write(Entity.RESOURCE, BigInt(123), 456, ResourceVersionType.RAW_HTML, html);
+        await write(Entity.RESOURCE, BigInt(123), 456, VersionType.RAW_HTML, html);
     let headerBytes =
-        await write(Entity.RESOURCE, BigInt(123), 456, ResourceVersionType.RAW_HEADERS, header);
+        await write(Entity.RESOURCE, BigInt(123), 456, VersionType.RAW_HEADERS, header);
 
     // since the file version hasn't been written before, it should return bytes written.
     expect(htmlBytes).toBe(html.length);
@@ -28,9 +28,9 @@ test("compress should work", async () => {
     await sleep(SAFETY_PERIOD_MS);
     await compress();
     htmlBytes =
-        await write(Entity.RESOURCE, BigInt(123), 456, ResourceVersionType.RAW_HTML, html);
+        await write(Entity.RESOURCE, BigInt(123), 456, VersionType.RAW_HTML, html);
     headerBytes =
-        await write(Entity.RESOURCE, BigInt(123), 456, ResourceVersionType.RAW_HEADERS, header);
+        await write(Entity.RESOURCE, BigInt(123), 456, VersionType.RAW_HEADERS, header);
 
     // if a file version is already in the archive, bytes written should be -1.
     expect(htmlBytes).toBe(-1);
@@ -38,15 +38,15 @@ test("compress should work", async () => {
     expect(fs.existsSync(tzst)).toBe(true);
     const versions = await findVersions(Entity.RESOURCE, BigInt(123));
     expect(versions).toStrictEqual([
-        [456, ResourceVersionType.RAW_HEADERS],
-        [456, ResourceVersionType.RAW_HTML],
+        [456, VersionType.RAW_HEADERS],
+        [456, VersionType.RAW_HTML],
     ]);
 
     // ensure we can actually read the content written to the archive.
     const htmlContent =
-        await readLatestVersion(Entity.RESOURCE, BigInt(123), ResourceVersionType.RAW_HTML);
+        await readLatestVersion(Entity.RESOURCE, BigInt(123), VersionType.RAW_HTML);
     const headerContent =
-        await readLatestVersion(Entity.RESOURCE, BigInt(123), ResourceVersionType.RAW_HEADERS);
+        await readLatestVersion(Entity.RESOURCE, BigInt(123), VersionType.RAW_HEADERS);
     expect(htmlContent.toString()).toBe(html);
     expect(headerContent.toString()).toBe(header);
 

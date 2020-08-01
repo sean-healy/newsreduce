@@ -1,7 +1,7 @@
 import { ResourceURL } from "types/objects/ResourceURL";
 import { JSDOM } from "jsdom";
 import { HitType, nodeToHitType } from "types/HitType";
-import { ResourceVersionType } from "types/objects/ResourceVersionType";
+import { VersionType } from "types/objects/VersionType";
 import { WordHits } from "types/WordHits";
 import { LinkHits } from "types/LinkHits";
 import { getAnchorsWithHREF, htmlCollectionToArray } from "services/resource-processor/functions";
@@ -74,14 +74,14 @@ export class ExtractHits extends HTMLProcessor {
         const resource = new ResourceURL(dom.window.location.toString());
         const { wordHits, linkHits } = getHits(dom);
         await Promise.all([
-            resource.writeVersion(time, ResourceVersionType.LINK_HITS, linkHits.toBuffer()),
-            resource.writeVersion(time, ResourceVersionType.WORD_HITS, wordHits.toBuffer()),
+            resource.writeVersion(time, VersionType.LINK_HITS, linkHits.toBuffer()),
+            resource.writeVersion(time, VersionType.WORD_HITS, wordHits.toBuffer()),
         ]);
     }
     from() {
-        return new Set([ResourceVersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML_FILE]);
     }
     to() {
-        return new Set([ResourceVersionType.LINK_HITS_FILE, ResourceVersionType.WORD_HITS_FILE]);
+        return new Set([VersionType.LINK_HITS_FILE, VersionType.WORD_HITS_FILE]);
     }
 }
