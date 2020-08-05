@@ -1,6 +1,6 @@
 import "./setup.ts";
-import { ResourceLink } from "types/objects/ResourceLink";
-import { Word } from "types/objects/Word";
+import { ResourceLink } from "types/db-objects/ResourceLink";
+import { Word } from "types/db-objects/Word";
 
 const url = "https://en.wikipedia.org/wiki/Main_Page";
 const link = new ResourceLink(url, url, "Main page");

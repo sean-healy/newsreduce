@@ -21,7 +21,9 @@ module.exports = {
       ],
   },
   entry: {
-    'version-browser': './src/main/ts/web-apps/version-browser/index.tsx',
+    'resource-version-browser':  './src/main/ts/web-apps/resource-version-browser/index.tsx',
+    'host-version-browser':      './src/main/ts/web-apps/host-version-browser/index.tsx',
+    'predicate-version-browser': './src/main/ts/web-apps/predicate-version-browser/index.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

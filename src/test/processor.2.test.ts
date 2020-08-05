@@ -15,8 +15,7 @@ test("standard processor should work as expected without interval", async () => 
         const redisCLI = Redis.newSub(REDIS_PARAMS.events);
         redisCLI.client.subscribe(EVENT_LOG);
         redisCLI.client.on("message", (_, msg) => msg === AFTER_EVENT ? res(true) : undefined);
-        const { interval } = startProcessor(f, PRE, AFTER_EVENT);
-        clearInterval(interval);
+        startProcessor(f, PRE, AFTER_EVENT, { interval: false });
         const trigger = Redis.renewRedis(REDIS_PARAMS.events);
         setTimeout(() => trigger.publish(EVENT_LOG, BEFORE_EVENT), 100);
     });

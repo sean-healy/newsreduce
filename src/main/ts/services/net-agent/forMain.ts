@@ -1,19 +1,64 @@
 import fs from "fs";
+import crypto from "crypto";
 import { log } from "common/logging";
 import { newFilteredServer } from "./functions";
-import { fancyLog } from "common/util";
+import { fancyLog, bytesToBigInt } from "common/util";
 import { SQL } from "common/SQL";
 import { DBObject } from "types/DBObject";
 import { findTimes, findFormats, read } from "file";
 import { Entity } from "types/Entity";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 import { WordHits } from "types/WordHits";
 import { LinkHits } from "types/LinkHits";
-import { BagOfWords } from "types/BagOfWords";
-import { BinaryBag } from "types/BinaryBag";
+import { BagOfWords } from "types/ml/BagOfWords";
+import { BinaryBag } from "types/ml/BinaryBag";
 import { GlobalConfig } from "common/GlobalConfig";
+import { ResourceBinaryRelation } from "types/db-objects/ResourceBinaryRelation";
+import { ResourceID, ResourceURL } from "types/db-objects/ResourceURL";
+import { Predicate } from "types/db-objects/Predicate";
 
 const PORT = 9999;
+
+async function versionAndContentType(params: {
+    entity: Entity,
+    format: string,
+    id: bigint,
+    time: number
+}) {
+    const { entity, format, id, time } = params;
+    let version = await read(entity, id, time, new VersionType(format));
+    let contentType: string;
+    switch (format) {
+        case VersionType.RAW_HEADERS.filename:
+        case VersionType.RAW_WORDS_TXT.filename:
+        case VersionType.RAW_LINKS_TXT.filename:
+        case VersionType.TITLE.filename:
+            contentType = "text/plain; charset=UTF-8";
+            break;
+        case VersionType.WORD_HITS.filename:
+            version = Buffer.from(new WordHits().fromBuffer(version).toString());
+            contentType = "text/plain; charset=UTF-8";
+            break;
+        case VersionType.LINK_HITS.filename:
+            version = Buffer.from(new LinkHits().fromBuffer(version).toString());
+            contentType = "text/plain; charset=UTF-8";
+            break;
+        case VersionType.BAG_OF_WORDS.filename:
+        case VersionType.TRUE_BAG_OF_WORDS.filename:
+        case VersionType.FALSE_BAG_OF_WORDS.filename:
+            version = Buffer.from(new BagOfWords().fromBuffer(version).toString());
+            contentType = "text/plain; charset=UTF-8";
+            break;
+        case VersionType.BINARY_BAG_OF_WORDS.filename:
+            version = Buffer.from(BinaryBag.ofWords().fromBuffer(version).toString());
+            contentType = "text/plain; charset=UTF-8";
+            break;
+        case VersionType.RAW_HTML.filename:
+            contentType = "text/html; charset=UTF-8";
+            break;
+    }
+    return { version, contentType };
+};
 
 async function serve() {
     const app = await newFilteredServer();
@@ -55,35 +100,72 @@ async function serve() {
         const id = BigInt(req.query.id);
         const time = Number(req.query.time);
         const format = req.query.format as string;
-        let version = await read(Entity.RESOURCE, id, time, new VersionType(format));
-        const contentType = (() => {
-            switch (format) {
-                case VersionType.RAW_HEADERS_FILE:
-                case VersionType.RAW_WORDS_TXT_FILE:
-                case VersionType.RAW_LINKS_TXT_FILE:
-                case VersionType.TITLE_FILE:
-                    return "text/plain; charset=UTF-8";
-                case VersionType.WORD_HITS_FILE:
-                    version = Buffer.from(new WordHits().fromBuffer(version).toString());
-                    return "text/plain; charset=UTF-8";
-                case VersionType.LINK_HITS_FILE:
-                    version = Buffer.from(new LinkHits().fromBuffer(version).toString());
-                    return "text/plain; charset=UTF-8";
-                case VersionType.BAG_OF_WORDS_FILE:
-                    version = Buffer.from(new BagOfWords().fromBuffer(version).toString());
-                    return "text/plain; charset=UTF-8";
-                case VersionType.BINARY_BAG_OF_WORDS_FILE:
-                    version = Buffer.from(BinaryBag.ofWords().fromBuffer(version).toString());
-                    return "text/plain; charset=UTF-8";
-                case VersionType.RAW_HTML_FILE:
-                    return "text/html; charset=UTF-8";
-
-            }
-        })();
+        const { version, contentType } =
+            await versionAndContentType({ entity: Entity.RESOURCE, id, time, format });
+        res.contentType(contentType).send(version.toString());
         res.contentType(contentType).send(version.toString());
     });
+    app.get("/host-times", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const times = await findTimes(Entity.HOST, id);
+        res.send(JSON.stringify(times));
+    });
+    app.get("/host-formats", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const time = Number(req.query.time);
+        const formats = (await findFormats(Entity.HOST, id, time)).map(format => format.filename);
+        res.send(JSON.stringify(formats));
+    });
+    app.get("/host-version", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const time = Number(req.query.time);
+        const format = req.query.format as string;
+        const { version, contentType } =
+            await versionAndContentType({ entity: Entity.HOST, id, time, format });
+        res.contentType(contentType).send(version.toString());
+    });
+    app.get("/predicate-times", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const times = await findTimes(Entity.PREDICATE, id);
+        res.send(JSON.stringify(times));
+    });
+    app.get("/predicate-formats", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const time = Number(req.query.time);
+        const formats = (await findFormats(Entity.PREDICATE, id, time)).map(format => format.filename);
+        res.send(JSON.stringify(formats));
+    });
+    app.get("/predicate-version", async (req, res) => {
+        const id = BigInt(req.query.id);
+        const time = Number(req.query.time);
+        const format = req.query.format as string;
+        const { version, contentType } =
+            await versionAndContentType({ entity: Entity.PREDICATE, id, time, format });
+        res.contentType(contentType).send(version.toString());
+    });
+    app.get("/rand-html", async (req, res) => {
+        const id = bytesToBigInt(crypto.randomBytes(12));
+        const query = `select * from `
+            + `(select rv.resource, rv.time, filename `
+            + `from VersionType vt `
+            + `inner join ResourceVersion rv on rv.type = vt.id `
+            + `where filename = "raw.html") t where resource >= ${id} `
+            + `order by resource limit 1`;
+        console.log(query);
+        res.send((await SQL.query<any>(query))[0]);
+    });
+    app.post("/wiki-news-source", (req, res) => {
+        const { resource, polarity } = req.body;
+        console.log(req.body);
+        new ResourceBinaryRelation({
+            resource: new ResourceID(resource),
+            relation: Predicate.RES_IS_NEWS_SOURCE_WIKI,
+            polarity
+        }).enqueueInsert({ recursive: true });
+        res.status(200).send();
+    })
 
-    app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT} `));
+    app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT}`));
 }
 
 serve();

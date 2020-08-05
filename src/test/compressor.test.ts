@@ -4,7 +4,7 @@ import { write, findVersions, readLatestVersion } from "file";
 import path from "path"
 import fs from "fs";
 import { Entity } from "types/Entity";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 import { sleep, spawnPromise } from "common/util";
 import { spawn } from "child_process";
 

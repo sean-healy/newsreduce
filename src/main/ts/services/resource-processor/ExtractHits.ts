@@ -1,7 +1,7 @@
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { JSDOM } from "jsdom";
 import { HitType, nodeToHitType } from "types/HitType";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 import { WordHits } from "types/WordHits";
 import { LinkHits } from "types/LinkHits";
 import { getAnchorsWithHREF, htmlCollectionToArray } from "services/resource-processor/functions";
@@ -79,9 +79,9 @@ export class ExtractHits extends HTMLProcessor {
         ]);
     }
     from() {
-        return new Set([VersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML.filename]);
     }
     to() {
-        return new Set([VersionType.LINK_HITS_FILE, VersionType.WORD_HITS_FILE]);
+        return new Set([VersionType.LINK_HITS.filename, VersionType.WORD_HITS.filename]);
     }
 }

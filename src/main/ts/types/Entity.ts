@@ -2,6 +2,7 @@ export enum Entity {
     RESOURCE,
     HOST,
     WORD,
+    PREDICATE,
 }
 
 export function entityName(entity: Entity) {
@@ -9,5 +10,6 @@ export function entityName(entity: Entity) {
         case Entity.RESOURCE: return "resource";
         case Entity.HOST: return "host";
         case Entity.WORD: return "word";
+        case Entity.PREDICATE: return "predicate";
     }
 }

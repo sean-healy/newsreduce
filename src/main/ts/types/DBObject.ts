@@ -1,5 +1,5 @@
 import { defaultHash } from "common/hashing";
-import { bytesToBigInt } from "common/util";
+import { bytesToBigInt, Dictionary } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 import { GenericConstructor } from "./GenericConstructor";
@@ -49,10 +49,10 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
     async bulkInsert(csvFile: string) {
         if (!csvFile) return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
-        const table = this.table();
+        const table = `\`${this.table()}\``;
         const query =
             `LOAD DATA LOCAL INFILE ? ` +
-            `IGNORE INTO TABLE \`${table}\` ` +
+            `REPLACE INTO TABLE ${table} ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
         await SQL.query(query, [csvFile])
     }
@@ -82,16 +82,24 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
     }
     async singularSelect(columns?: (keyof T | "*")[]) {
         let cols: string;
-        if (columns) cols = columns.map(column => "`" + column + "`").join(", ");
+        if (columns) cols = columns.map(column => `\`${column}\``).join(",");
         else cols = "*";
-        const query = `select ${cols} from ${this.table()} where ${this.idCol()} = ?`;
+        const idCol = `\`${this.idCol()}\``;
+        const query = `select ${cols} from ${this.table()} where ${idCol} = ?`;
         return await SQL.query(query, [this.getID()])[0];
     }
     async bulkSelect(ids: bigint[], columns: (keyof T)[]): Promise<{ [key: string]: string }[]> {
         if (!ids || ids.length === 0) return [];
-        const idCol = this.idCol();
-        const query = `select ${idCol}, ${columns.join(", ")} from ${this.table()} where ${idCol} in ?`;
+        const idCol = `\`${this.idCol()}\``;
+        const otherCols = columns.map(col => `\`${col}\``).join(",");
+        const query = `select ${idCol},${otherCols} from \`${this.table()}\` where ${idCol} in ?`;
         const response = await SQL.query<{ [key: string]: string }[]>(query, [[ids]]);
+
+        return response;
+    }
+    async selectAll(): Promise<Dictionary<any>[]> {
+        const query = `select * from \`${this.table()}\``;
+        const response = await SQL.query<Dictionary<string>[]>(query);
 
         return response;
     }
@@ -102,7 +110,7 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
         return null;
     }
     static forTable(table: string): DBObject<any> {
-        const DBObjectT = require(`types/objects/${table}`)[table];
+        const DBObjectT = require(`types/db-objects/${table}`)[table];
 
         return new DBObjectT()
     }

@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+input="$1"
+isHex="$(echo "$input" | grep -m 1 -io '[a-f]')"
+if [ "$isHex" ]; then
+    echo "print(0x$input)" | python3
+else
+    echo "obase=16;$input" | bc
+fi

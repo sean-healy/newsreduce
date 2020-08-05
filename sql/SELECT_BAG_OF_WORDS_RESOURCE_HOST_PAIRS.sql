@@ -5,6 +5,6 @@ select
 from Host h
 inner join ResourceURL u on u.host = h.id
 inner join ResourceVersion v on v.resource = u.id
-inner join ResourceVersionType t on t.id = v.type
+inner join VersionType t on t.id = v.type
 where t.filename = "bow.bin"
 group by v.resource, v.type;

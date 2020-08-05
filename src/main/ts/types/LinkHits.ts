@@ -1,5 +1,5 @@
 import { Hits } from "./Hits";
-import { ResourceURL } from "./objects/ResourceURL";
+import { ResourceURL } from "./db-objects/ResourceURL";
 import { HitList } from "./HitList";
 
 export class LinkHits extends Hits<ResourceURL> {

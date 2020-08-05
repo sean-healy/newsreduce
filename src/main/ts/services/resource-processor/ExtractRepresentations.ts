@@ -1,9 +1,9 @@
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { JSDOM } from "jsdom";
 import { nodeToHitType } from "types/HitType";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 import { htmlCollectionToArray, wordsFromNode } from "services/resource-processor/functions";
-import { BagOfWords } from "types/BagOfWords";
+import { BagOfWords } from "types/ml/BagOfWords";
 import { HTMLProcessor } from "./HTMLProcessor";
 
 const INCLUDE_TAGS = [
@@ -49,9 +49,9 @@ export class ExtractRepresentations extends HTMLProcessor {
         ]);
     }
     from() {
-        return new Set([VersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML.filename]);
     }
     to() {
-        return new Set([VersionType.BAG_OF_WORDS_FILE, VersionType.BINARY_BAG_OF_WORDS_FILE]);
+        return new Set([VersionType.BAG_OF_WORDS.filename, VersionType.BINARY_BAG_OF_WORDS.filename]);
     }
 }

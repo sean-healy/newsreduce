@@ -1,12 +1,12 @@
 import fetch, { Response } from "node-fetch";
 import { log } from "common/logging";
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { milliTimestamp } from "common/time";
-import { Host } from "types/objects/Host";
-import { ResourceHeader } from "types/objects/ResourceHeader";
+import { Host } from "types/db-objects/Host";
+import { ResourceHeader } from "types/db-objects/ResourceHeader";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog } from "common/util";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 import { DBObject } from "types/DBObject";
 
 export function buildOnFetch(url: string) {

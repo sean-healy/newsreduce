@@ -1,10 +1,12 @@
 import { GenericConstructor } from "./GenericConstructor";
 import readline from "readline";
 import fs from "fs";
-import { WordVector, BYTES_PER_FLOAT } from "./objects/WordVector";
-import { CMP_BIG_INT, writeBigUInt96BE } from "common/util";
+import { WordVector, BYTES_PER_FLOAT } from "./db-objects/WordVector";
+import { CMP_BIG_INT, writeBigUInt96BE, bytesToBigInt, fancyLog } from "common/util";
 import { randomBufferFile } from "file";
-import { ResourceURL } from "./objects/ResourceURL";
+import { ResourceURL } from "./db-objects/ResourceURL";
+
+type SimpleWordVector = [bigint, number[]];
 
 export class WordVectors extends GenericConstructor<WordVectors> {
     readonly vectors: Map<bigint, WordVector>;
@@ -35,10 +37,10 @@ export class WordVectors extends GenericConstructor<WordVectors> {
         return file;
     }
 
-    static async fromPath(path: string, source: ResourceURL) {
-        return this.fromStream(fs.createReadStream(path), source);
+    static async fromTextPath(path: string, source: ResourceURL) {
+        return this.fromTextStream(fs.createReadStream(path), source);
     }
-    static async fromStream(input: NodeJS.ReadableStream, source: ResourceURL) {
+    static async fromTextStream(input: NodeJS.ReadableStream, source: ResourceURL) {
         const readInterface = readline.createInterface({ input });
         const vectors = new Map<bigint, WordVector>();
         let firstRowParsed = false;
@@ -65,8 +67,39 @@ export class WordVectors extends GenericConstructor<WordVectors> {
         await new Promise(res => readInterface.on("close", res));
         if (vectors.size === 0) throw new Error(`missing data in file: ${words}`);
         for (const [wordID, vector] of vectors.entries())
-            if (vector.vector.value.length !== dimensions * BYTES_PER_FLOAT) throw new Error(`invalid dimensions for wordID: ${wordID}`);
+            if (vector.vector.value.length !== dimensions * BYTES_PER_FLOAT)
+                throw new Error(`invalid dimensions for wordID: ${wordID}`);
 
         return new WordVectors({ vectors });
+    }
+
+    static fromBinaryPath(path: string) {
+        const fd = fs.openSync(path, "r");
+        const idBuffer = Buffer.alloc(12);
+        const vectorBuffer = Buffer.alloc(600);
+        const vectors: SimpleWordVector[] = [];
+        let offset = 0;
+        let mean = 0;
+        let i = 0;
+        while (true) {
+            const read = fs.readSync(fd, idBuffer, 0, 12, offset);
+            offset += 12;
+            if (read <= 0) {
+                console.log({ read })
+                break;
+            }
+            fs.readSync(fd, vectorBuffer, 0, 600, offset);
+            offset += 600;
+            const vector = WordVector.bufferToVector(vectorBuffer);
+            const id = bytesToBigInt(idBuffer);
+            const row: SimpleWordVector = [id, vector];
+            const length = Math.sqrt(vector.map(d => d * d).reduce((a, b) => a + b));
+            mean = (mean * i + length) / (i + 1);
+            i++;
+            console.log(id, mean);
+            //vectors.push(row);
+        }
+
+        return vectors;
     }
 }

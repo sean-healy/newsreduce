@@ -1,5 +1,5 @@
 import sql from "sql";
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { fancyLog } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
@@ -77,4 +77,16 @@ export async function selectBagOfWordsByHost() {
     }
 
     return hosts;
+}
+
+export async function selectBacklinks() {
+    const query = sql.SELECT_BACKLINKS;
+    const rows = await genericSQLPromise(query);
+    
+    return rows.map(({parent, child}) => [BigInt(parent), BigInt(child)]);
+}
+
+export async function selectBOWsForRelation(relation: bigint, polarity: boolean) {
+    const rows = await genericSQLPromise(sql.SELECT_BOW_FOR_RELATION, [relation, polarity]);
+    return rows.map(({resource, time}) => [BigInt(resource), time]);
 }

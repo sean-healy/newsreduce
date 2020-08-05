@@ -9,13 +9,13 @@ for statementFileName in $(ls "$projectDir/sql/"); do
     echo   "	// $statementFileLoc"
     printf "	$statementConstantName: "'"'
     sqlformat --strip-comments "$statementFileLoc"\
-        | awk '{printf gensub("[[:blank:]]+", " ", "1", $0" ")" "}'\
+        | awk '{printf "%s",gensub("[[:blank:]]+", " ", "1", $0" ")" "}'\
         | awk '{gsub(/[[:blank:]]+/," ");gsub(/[[:blank:]]+$/,"");print $0}'\
         | sed 's/"/'"'"'/g'\
         | sed 's/$/",/g'
 done
 echo "};") > "$tmpFileTS"
-srcDir="$projectDir/crawler/src/main"
+srcDir="$projectDir/src/main/ts"
 if [ ! -d "$srcDir" ]; then mkdir -p "$srcDir"; fi
 cp "$tmpFileTS" "$srcDir/sql.ts"
 rm "$tmpFileTS"

@@ -1,6 +1,7 @@
 import { ChildProcessWithoutNullStreams } from "child_process";
 
 export const CMP_BIG_INT = (a: bigint, b: bigint) => a < b ? -1 : a > b ? 1 : 0;
+export const CMP_INT = (a: number, b: number) => a - b;
 
 export function setImmediateInterval(f: () => void, ms: number): NodeJS.Timeout {
     setImmediate(f);
@@ -24,8 +25,9 @@ export function bytesToBigInt(bytes: Buffer) {
 export function bytesToNumber(bytes: Buffer) {
     if (!bytes) return bytes as (null | undefined);
     let result = 0;
-    for (const byte of bytes)
-        result = (result << 8) | byte;
+    for (const byte of bytes) {
+        result = (result * 256) + byte;
+    }
 
     return result;
 }
@@ -174,3 +176,12 @@ export function sleep(ms: number) {
 
 export type ConstructorArg0<T> = { [key in keyof T]?: T[key] };
 export type Dictionary<T> = { [key: string]: T };
+export function bytesNeeded(n: number) {
+    let bytes = 0;
+    while (n) {
+        ++bytes;
+        n = (n >> 8);
+    }
+
+    return bytes;
+}

@@ -5,10 +5,12 @@ import { spawn } from "child_process";
 import { COMPRESSOR_LOCK, SYNC_LOCK } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog, spawnPromise } from "common/util";
-import { lastChangedAfter, lastChangedBefore } from "file";
+import { lastChangedAfter, lastChangedBefore, randomBufferFile, safeExists } from "file";
 import { PromisePool } from "common/PromisePool";
+import { string } from "yargs";
 
 const ZSTD = "zstd";
+const RSYNC = "rsync";
 const MK_TAR_ARGS = ["--zstd", "-cvf"];
 // Only compress files not touched in past 5s.
 export const SAFETY_PERIOD_MS = 5000;
@@ -21,106 +23,65 @@ export async function compress() {
         return;
     }
     redis.setex(SYNC_LOCK, 3600);
-    fancyLog("Placed sync lock.");
-    const tmpDir = await getPreBlobDir();
+    const preBlobDir = await getPreBlobDir();
     const blobDir = await getBlobDir();
-    const entities = fs.readdirSync(tmpDir);
+    const entities = fs.readdirSync(preBlobDir);
     const promises = new PromisePool(50);
     let newArcs = 0;
     let oldArcs = 0;
     for (const entity of entities) {
-        console.log(entity);
-        const tmpEntitiesDir = path.join(tmpDir, entity);
-        const tmpEntityIDs = fs.readdirSync(tmpEntitiesDir).filter(dir => dir.match(/^[0-9]+$/));
-        if (!tmpEntityIDs.length) continue;
-        fancyLog(`compressing ${tmpEntityIDs.length} entities.`);
-        const entitiesDir = path.join(blobDir, entity);
-        await safeMkdir(entitiesDir);
-        for (const entityID of tmpEntityIDs) {
-            console.log(entityID);
-            const tmpEntityDir = path.join(tmpEntitiesDir, entityID);
-            const compressedSrc = `${tmpEntityDir}.tzst`
-            const compressedDst = path.join(entitiesDir, `${entityID}.tzst`);
-            const arc = `${tmpEntityDir}.tar`
-            const cwd = { cwd: tmpEntitiesDir };
+        const preBlobEntityDir = path.join(preBlobDir, entity);
+        const preBlobEntityIDs = fs.readdirSync(preBlobEntityDir).filter(dir => dir.match(/^[0-9]+$/));
+        if (!preBlobEntityIDs.length) continue;
+        fancyLog(`compressing ${preBlobEntityIDs.length} entities.`);
+        const blobEntityDir = path.join(blobDir, entity);
+        await safeMkdir(blobEntityDir);
+        for (const preBlobEntityID of preBlobEntityIDs) {
+            console.log(preBlobEntityID);
+            const preBlobObjectDir = path.join(preBlobEntityDir, preBlobEntityID);
+            const compressedSrc = path.join(preBlobEntityDir, `${preBlobEntityID}.tzst`);
+            const compressedDst = path.join(blobEntityDir, `${preBlobEntityID}.tzst`);
             await promises.registerFn(async res => {
-                try {
-                    if (lastChangedAfter(tmpEntityDir, SAFETY_PERIOD_MS)) {
-                        fancyLog("entity modified too recently.");
-                        res();
-                        return;
+                if (lastChangedAfter(preBlobObjectDir, SAFETY_PERIOD_MS)) res();
+                else {
+                    let compressFrom: string;
+                    const tmp = randomBufferFile();
+                    const rsyncParams = ["-r", preBlobObjectDir, tmp];
+                    try {
+                        const update = safeExists(compressedDst);
+                        if (update) {
+                            await safeMkdir(tmp);
+                            compressFrom = path.join(tmp, preBlobEntityID);
+                            await spawnPromise(() => spawn(TAR, ["-xf", compressedDst, "-C", tmp]));
+                            await spawnPromise(() => spawn(RSYNC, rsyncParams));
+                            ++oldArcs;
+                        } else {
+                            compressFrom = preBlobObjectDir;
+                            ++newArcs
+                        }
+                        const params = [...MK_TAR_ARGS, compressedSrc, path.basename(compressFrom)];
+                        await spawnPromise(() => spawn(TAR, params, { cwd: path.dirname(compressFrom) }));
+                        if (safeExists(compressedSrc)) fs.renameSync(compressedSrc, compressedDst);
+                        if (update)
+                            if (safeExists(tmp)) fs.renameSync(tmp, await nullFile(tmp));
+                        if (safeExists(preBlobObjectDir) && lastChangedBefore(preBlobObjectDir, SAFETY_PERIOD_MS))
+                            fs.renameSync(preBlobObjectDir, await nullFile(preBlobObjectDir));
+                    } catch (e) {
+                        fancyLog("error during compress");
+                        fancyLog(JSON.stringify(e));
+                        if (safeExists(tmp)) fs.renameSync(tmp, await nullFile(tmp));
+                        if (safeExists(compressedSrc)) fs.unlinkSync(compressedSrc);
                     }
-                } catch (e) {
-                    fancyLog("exception during stat");
-                    fancyLog(JSON.stringify(e));
                     res();
-                    return;
                 }
-                const compressedArcExists = fs.existsSync(compressedDst);
-                if (compressedArcExists) {
-                    try {
-                        await spawnPromise(() => spawn(ZSTD, ["-df", compressedDst, "-o", arc]));
-                    } catch (e) {
-                        fancyLog("error decompressing");
-                        fancyLog(JSON.stringify(e));
-                        if (fs.existsSync(arc)) fs.unlinkSync(arc);
-                        res();
-                        return;
-                    }
-                    try {
-                        await spawnPromise(() => spawn(TAR, ["-uvf", arc, entityID], cwd));
-                    } catch (e) {
-                        fancyLog("error updating tar");
-                        fancyLog(JSON.stringify(e));
-                        if (fs.existsSync(arc)) fs.unlinkSync(arc);
-                        res();
-                        return;
-                    }
-                    try {
-                        await spawnPromise(() => spawn(ZSTD, ["-f", arc, "-o", compressedSrc]));
-                    } catch (e) {
-                        fancyLog("error recompressing tar");
-                        fancyLog(JSON.stringify(e));
-                        if (fs.existsSync(arc)) fs.unlinkSync(arc);
-                        if (fs.existsSync(compressedSrc)) fs.unlinkSync(compressedSrc);
-                        res();
-                        return;
-                    }
-                    if (fs.existsSync(arc))
-                        fs.renameSync(arc, await nullFile(arc));
-                    ++oldArcs;
-                } else {
-                    try {
-                        await spawnPromise(() =>
-                            spawn(TAR, [...MK_TAR_ARGS, compressedSrc, entityID], cwd));
-                    } catch (e) {
-                        fancyLog("error creating tar");
-                        fancyLog(JSON.stringify(e));
-                        if (fs.existsSync(compressedSrc)) fs.unlinkSync(compressedSrc);
-                        res();
-                        return;
-                    }
-                    ++newArcs
-                }
-                if (fs.existsSync(compressedSrc))
-                    fs.renameSync(compressedSrc, compressedDst);
-                // Recheck last changed time, in case of concurrency bugs.
-                try {
-                    if (fs.existsSync(tmpEntityDir) &&
-                        lastChangedBefore(tmpEntityDir, SAFETY_PERIOD_MS))
-                        fs.renameSync(tmpEntityDir, await nullFile(tmpEntityDir));
-                } catch (e) {
-                    fancyLog("exception during exists and stat");
-                    fancyLog(JSON.stringify(e));
-                }
-                res();
             });
         }
     }
 
     await promises.flush();
     redis.del(SYNC_LOCK);
-    fancyLog("Released sync lock");
-    fancyLog(`${newArcs} archives created.`);
-    fancyLog(`${oldArcs} archives updated.`);
+    if (newArcs || oldArcs) {
+        fancyLog(`${newArcs} archives created.`);
+        fancyLog(`${oldArcs} archives updated.`);
+    }
 }

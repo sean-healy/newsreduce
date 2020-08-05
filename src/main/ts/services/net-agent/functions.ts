@@ -1,6 +1,7 @@
 import fs from "fs";
 import dns from "dns";
 import express from "express";
+import bodyParser from "body-parser";
 import { fancyLog } from "common/util";
 
 export async function getGuestlist() {
@@ -31,10 +32,14 @@ export async function cacheGuestlist() {
 export async function newFilteredServer() {
     const whitelist = await cacheGuestlist();
     const app = express();
+    app.use(bodyParser.urlencoded({
+        extended: true
+    }));
+    app.use(bodyParser.json());
     app.use((req, res, next) => {
         if (whitelist.has(req.ip)) {
             res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "X-Requested-With");
+            res.header("Access-Control-Allow-Headers", " Content-Type, X-Requested-With");
             next();
         } else res.sendStatus(401);
     });

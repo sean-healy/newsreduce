@@ -1,8 +1,8 @@
 import { JSDOM } from "jsdom";
-import { VersionType } from "types/objects/VersionType";
-import { ResourceTitle } from "types/objects/ResourceTitle";
-import { ResourceURL } from "types/objects/ResourceURL";
-import { Title } from "types/objects/Title";
+import { VersionType } from "types/db-objects/VersionType";
+import { ResourceTitle } from "types/db-objects/ResourceTitle";
+import { ResourceURL } from "types/db-objects/ResourceURL";
+import { Title } from "types/db-objects/Title";
 import { HTMLProcessor } from "./HTMLProcessor";
 
 export class ExtractTitle extends HTMLProcessor {
@@ -18,9 +18,9 @@ export class ExtractTitle extends HTMLProcessor {
         await Promise.all(promises);
     }
     from() {
-        return new Set([VersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML.filename]);
     }
     to() {
-        return new Set([VersionType.TITLE_FILE]);
+        return new Set([VersionType.TITLE.filename]);
     }
 }

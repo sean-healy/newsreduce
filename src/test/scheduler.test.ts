@@ -1,8 +1,8 @@
 import "./setup.ts";
 import { schedule } from "data";
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { Redis, REDIS_PARAMS } from "common/Redis";
-import { Host } from "types/objects/Host";
+import { Host } from "types/db-objects/Host";
 
 test("scheduler should work", async () => {
     const url = "https://example.org"

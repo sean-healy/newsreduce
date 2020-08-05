@@ -16,10 +16,8 @@ export class PromisePool {
 
     async registerPromise(promise: Promise<any>) {
         this.promises.push(promise);
-        if (this.promises.length === this.threads) {
+        if (this.promises.length === this.threads)
             await this.flush();
-            fancyLog("promise pool flush");
-        }
     }
 
     async flush() {

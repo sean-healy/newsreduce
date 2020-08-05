@@ -1,5 +1,5 @@
 import { JSDOM } from "jsdom";
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 
 export class DOMPool {
     readonly pool: Map<bigint, Map<number, JSDOM>> = new Map();

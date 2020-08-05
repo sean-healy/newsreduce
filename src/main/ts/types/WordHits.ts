@@ -1,5 +1,5 @@
 import { Hits } from "./Hits";
-import { Word } from "./objects/Word";
+import { Word } from "./db-objects/Word";
 import { HitList } from "./HitList";
 
 export class WordHits extends Hits<Word> {

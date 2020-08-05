@@ -1,5 +1,5 @@
-import { ResourceURL } from "types/objects/ResourceURL";
-import { ResourceURLQuery } from "types/objects/ResourceURLQuery";
+import { ResourceURL } from "types/db-objects/ResourceURL";
+import { ResourceURLQuery } from "types/db-objects/ResourceURLQuery";
 
 test("asCSV works", () => {
     const url = new ResourceURL("https://example.org/foo?bar");

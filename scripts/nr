@@ -1,30 +1,36 @@
 #!/usr/bin/bash
 case $1 in
-    fetcher)
+    f)
         tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
         node dist/nr-fetcher-zookeeper.js
         ;;
-    net-agent-main)
+    na)
         npx nodemon dist/nr-main-net-agent.js
         ;;
     cold)
         node dist/nr-cold-start.js
         ;;
-    inserter)
+    sql)
         node dist/nr-inserter.js
         ;;
-    scheduler)
-        npx nodemon dist/nr-scheduler.js
+    schedule)
+        node dist/nr-scheduler.js
         ;;
-    compressor)
+    compress)
         node dist/nr-compressor.js
         ;;
-    processor)
+    process)
         tmux split-window "node dist/nr-resource-processor-worker.js; zsh -i"
         node dist/nr-resource-processor-zookeeper.js
         ;;
-    bow)
-        node dist/nr-process-bows.js
+    bowh)
+        node dist/nr-process-bows-per-host.js
+        ;;
+    bowr)
+        node dist/nr-process-bows-per-relation.js
+        ;;
+    rank)
+        node --max-old-space-size=8192 dist/nr-page-rank.js
         ;;
     *)
         cat $0

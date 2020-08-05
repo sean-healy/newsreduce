@@ -1,15 +1,15 @@
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { bytesToBigInt, fancyLog } from "common/util";
 import { getWordVectorDir, safeMkdir } from "common/config";
 import fs from "fs";
 import { randomBufferFile } from "file";
 import { WordVectors } from "types/WordVectors";
-import { WordVector } from "types/objects/WordVector";
+import { WordVector } from "types/db-objects/WordVector";
 import { SQL } from "common/SQL";
-import { Vector } from "types/objects/Vector";
+import { Vector } from "types/db-objects/Vector";
 import { join } from "path"
 import { argv } from "yargs";
-import { Word } from "types/objects/Word";
+import { Word } from "types/db-objects/Word";
 
 // 12 bytes per word ID, and 2 bytes per dimension (300 * 2 + 12 = 612)
 const CHUNK_SIZE = 612;
@@ -21,7 +21,7 @@ async function main(url: string, label: string, path: string): Promise<void> {
     if (fs.existsSync(dst)) return;
     const resource = new ResourceURL(url);
     fancyLog("Loading into memory");
-    const vectors = await WordVectors.fromPath(path, resource);
+    const vectors = await WordVectors.fromTextPath(path, resource);
     fancyLog("Saving to tmp file.");
     const tmp = await vectors.toBufferFile();
     fs.renameSync(tmp, dst);

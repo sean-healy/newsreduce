@@ -5,7 +5,7 @@ import { spawn } from "child_process";
 import { getBlobDir, TAR, safeMkdir, getRawDir } from "common/config";
 import { Entity, entityName } from "types/Entity";
 import { fancyLog, spawnPromise } from "common/util";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 
 const FINISH = "finish";
 const ERROR = "error";
@@ -113,13 +113,39 @@ export async function replace(
     return bytesWritten;
 }
 
+export function safeCtime(path: string) {
+    let ctime: number;
+    try {
+        const stat = fs.statSync(path);
+        ctime = stat.ctimeMs;
+    } catch (e) {
+        fancyLog("exception during stat");
+        fancyLog(JSON.stringify(e));
+        return -1;
+    }
+
+    return ctime;
+}
+
+export function safeExists(path: string, fallback = false) {
+    let exists: boolean;
+    try {
+        exists = fs.existsSync(path);
+    } catch (e) {
+        fancyLog(`error while checking if path exists: ${path}`);
+        fancyLog(JSON.stringify(e));
+        exists = fallback;
+    }
+
+    return exists;
+}
+
 /*
  * Returns true if the path has been modified before 'ms'
  * milliseconds ago (exclusive).
  */
 export function lastChangedBefore(path: string, ms: number) {
-    const stat = fs.statSync(path);
-    return stat.ctimeMs + ms < Date.now();
+    return safeCtime(path) + ms < Date.now();
 }
 /*
  * Returns true if the path has been modified after 'ms'

@@ -4,10 +4,10 @@ import path from "path";
 import { getLinks } from "services/resource-processor/ExtractAHrefs";
 import { getHits } from "services/resource-processor/ExtractHits";
 import { toRawText } from "services/resource-processor/ExtractRawText";
-import { resourceIsWikiCategory, getEntities } from "services/resource-processor/ExtractWikiTree";
-import { ResourceURL } from "types/objects/ResourceURL";
-import { WikiCategory } from "types/objects/WikiCategory";
-import { WikiPage } from "types/objects/WikiPage";
+import { getEntities, ExtractWikiTree } from "services/resource-processor/ExtractWikiTree";
+import { ResourceURL } from "types/db-objects/ResourceURL";
+import { WikiCategory } from "types/db-objects/WikiCategory";
+import { WikiPage } from "types/db-objects/WikiPage";
 import { WordHits } from "types/WordHits";
 
 test("extract hits works", async () => {
@@ -77,8 +77,8 @@ Email
 });
 
 test("check if resource is wiki category", () => {
-    const url = "https://en.wikipedia.org/wiki/Category:News"
-    const actual = resourceIsWikiCategory(new ResourceURL(url));
+    const url = new ResourceURL("https://en.wikipedia.org/wiki/Category:News");
+    const actual = new ExtractWikiTree().resourceMatch(url);
     expect(actual).toBe(true);
 });
 
@@ -87,7 +87,7 @@ test("get wiki entities works", () => {
     const file = path.join(__dirname, "html/0001.html");
     const content = fs.readFileSync(file);
     const doc = new JSDOM(content, { url });
-    const entities = getEntities(doc);
-    expect(entities.filter(item => item instanceof WikiCategory).length).toBe(26);
-    expect(entities.filter(item => item instanceof WikiPage).length).toBe(12);
+    const { subCategories, subPages }= getEntities(doc);
+    expect(subCategories.length).toBe(26);
+    expect(subPages.length).toBe(12);
 });

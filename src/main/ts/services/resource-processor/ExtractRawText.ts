@@ -1,6 +1,6 @@
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { JSDOM } from "jsdom";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 import { HTMLProcessor } from "./HTMLProcessor";
 
 export function toRawText(dom: JSDOM) {
@@ -20,9 +20,9 @@ export class ExtractRawText extends HTMLProcessor {
         await resource.writeVersion(time, VersionType.RAW_WORDS_TXT, rawText);
     }
     from() {
-        return new Set([VersionType.RAW_HTML_FILE]);
+        return new Set([VersionType.RAW_HTML.filename]);
     }
     to() {
-        return new Set([VersionType.RAW_WORDS_TXT_FILE]);
+        return new Set([VersionType.RAW_WORDS_TXT.filename]);
     }
 }

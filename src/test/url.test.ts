@@ -1,4 +1,4 @@
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 
 test("url parse edge cases", () => {
     const resource = new ResourceURL("https://en.wikipedia.org:443/wiki/Category:News_media");

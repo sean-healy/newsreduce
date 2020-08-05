@@ -1,5 +1,5 @@
 import "./setup.ts";
-import { startProcessor } from "common/processor";
+import { startProcessor, GLOBAL_FLAGS } from "common/processor";
 import { EVENT_LOG } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 
@@ -16,11 +16,11 @@ test("standard processor should work as expected", async () => {
         redisCLI.client.subscribe(EVENT_LOG);
         redisCLI.client.on("message", (_, msg) => {
             if (msg === AFTER_EVENT) {
-                clearInterval(interval);
+                GLOBAL_FLAGS.safelyExit = true;
                 res(true);
             }
         });
-        const { interval } = startProcessor(f, PRE, AFTER_EVENT);
+        startProcessor(f, PRE, AFTER_EVENT);
     });
 
     expect(success).toBe(true);

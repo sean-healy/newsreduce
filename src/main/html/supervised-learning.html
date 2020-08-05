@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            #yes-tooltip, #no-tooltip {
+                position: fixed;
+                top: 0;
+                width: 200px;
+                height: 100vh;
+                color: white;
+            }
+            #yes-tooltip {
+                right: 0;
+                background-color: green;
+            }
+            #no-tooltip {
+                left: 0;
+                background-color: red;
+            }
+            iframe {
+                display: flex;
+                width: 1500px;
+                margin: auto;
+                height: 100vh;
+                border: 0;
+                padding: 0;
+            }
+            body {
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <a href=# onclick="no()"><div id=no-tooltip>
+            NO
+        </div></a>
+        <a href=# onclick="yes()"><div id=yes-tooltip>
+            YES
+        </div></a>
+        <iframe id=middle sandbox></iframe>
+        <script defer="">
+            const API = "http://127.0.0.1:9999";
+            console.log("Begin.");
+            reset();
+            String.prototype.hexEncode = function(){
+                var hex, i;
+
+                var result = "";
+                for (i=0; i<this.length; i++) {
+                    hex = this.charCodeAt(i).toString(16);
+                    result += ("000"+hex).slice(-4);
+                }
+
+                return result
+            }
+            var current = null;
+            document.onkeydown = checkKey;
+            const iframe = document.getElementById("middle");
+            function yes() {
+                fetch(`${API}/wiki-news-source`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        resource: RESOURCE,
+                        polarity: 1,
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then(reset);
+            }
+            function no() {
+                fetch(`${API}/wiki-news-source`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        resource: RESOURCE,
+                        polarity: 0,
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then(reset);
+            }
+            function checkKey(e) {
+                e = e || window.event;
+                switch (e.key) {
+                    case "ArrowLeft":
+                        no()
+                        break;
+                    case "ArrowRight":
+                        yes();
+                        break;
+                    default:
+                }
+            }
+            let RESOURCE = null;
+            function reset() {
+                const id = BigInt(Math.random() * 2 ** (12 * 8));
+                fetch(`${API}/rand-html`)
+                    .then(res => res.json())
+                    .then(({ resource, time, filename }) => {
+                        const url = `${API}/resource-version?id=${resource}&time=${time}&format=${filename}`;
+                        RESOURCE = resource;
+                        iframe.src = url;
+                        console.log(url);
+                    });
+            }
+
+        </script>
+    </body>
+</html>

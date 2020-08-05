@@ -8,7 +8,7 @@ import { tabulate, fancyLog } from "common/util";
 
 export const BATCH_SIZE = 50000;
 
-const KEY_LOCK = new Set<string>();
+const KEY_LOCK = new Map<string, number>();
 
 const stages: { [key: string]: [string, number] } = {};
 
@@ -58,24 +58,25 @@ export async function insertForKey(key: string) {
             await table.bulkInsert(loadFile);
             await insertsClient.srem(key, list);
         }
-        fs.unlinkSync(loadFile);
         KEY_LOCK.delete(key);
+        fs.unlinkSync(loadFile);
         setStage(key, "UNLOCKED");
     } catch (err) {
-        fs.unlinkSync(loadFile);
         KEY_LOCK.delete(key);
+        fs.unlinkSync(loadFile);
         setStage(key, "UNLOCKED BY ERROR");
         setStage("ERRORS", stages.ERRORS ? `${parseInt(stages.ERRORS[0]) + 1}` : "1");
-        throw err;
     }
 }
 
 export async function asyncBulkInsert() {
     const insertsClient = Redis.renewRedis(REDIS_PARAMS.inserts);
     const keys = await insertsClient.keys();
+    const now = Date.now();
     for (const key of keys) {
-        if (KEY_LOCK.has(key)) continue;
-        KEY_LOCK.add(key);
+        const keyLastPolled = KEY_LOCK.get(key) || 0;
+        if (keyLastPolled > now - 30000) continue;
+        KEY_LOCK.set(key, Date.now());
         insertForKey(key);
     }
 }

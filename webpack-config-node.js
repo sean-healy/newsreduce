@@ -36,7 +36,10 @@ module.exports = {
     'inserter':                     './src/main/ts/services/inserter/main.ts',
     'compressor':                   './src/main/ts/services/compressor/main.ts',
     'process-word-vectors':         './src/main/ts/services/bulk-processors/processWordVectors.ts',
-    'process-bows':                 './src/main/ts/services/bulk-processors/processBagsOfWords.ts'
+    'process-bows-per-host':        './src/main/ts/services/bulk-processors/processBagsOfWordsPerHost.ts',
+    'process-bows-per-relation':    './src/main/ts/services/bulk-processors/processBagsOfWordsPerRelation.ts',
+    'process-resource-vectors':     './src/main/ts/services/bulk-processors/processResourceVectors.ts',
+    'page-rank':                    './src/main/ts/services/bulk-processors/pageRank.ts'
   },
   externals,
   output: {

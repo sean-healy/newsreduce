@@ -1,11 +1,11 @@
-import { Client } from "types/objects/Client";
-import { WikiCategory } from "types/objects/WikiCategory";
-import { ResourceURL } from "types/objects/ResourceURL";
-import { ClientHeader } from "types/objects/ClientHeader";
+import { Client } from "types/db-objects/Client";
+import { WikiCategory } from "types/db-objects/WikiCategory";
+import { ResourceURL } from "types/db-objects/ResourceURL";
+import { ClientHeader } from "types/db-objects/ClientHeader";
 import { fancyLog } from "common/util";
-import { ResourceThrottle } from "types/objects/ResourceThrottle";
-import { NewsSourceWiki } from "types/objects/NewsSourceWiki";
-import { WordVectorSource } from "types/objects/WordVectorSource";
+import { ResourceThrottle } from "types/db-objects/ResourceThrottle";
+import { WordVectorSource } from "types/db-objects/WordVectorSource";
+import { Predicate } from "types/db-objects/Predicate";
 
 export function getObjectsToInsert() {
     const origin = "https://en.wikipedia.org/wiki/Category:News_media";
@@ -15,7 +15,6 @@ export function getObjectsToInsert() {
         parent: url,
         child: url,
     });
-    const newsSourceWiki = new NewsSourceWiki("https://en.wikipedia.org/wiki/The_New_York_Times");
     const wordVectorSources = [
         new WordVectorSource({
             resource: new ResourceURL("https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M.vec.zip"),
@@ -70,13 +69,18 @@ export function getObjectsToInsert() {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
 
+    const relations = [
+        Predicate.RES_IS_NEWS_SOURCE_WIKI,
+        Predicate.T,
+    ];
+
     return [
-        newsSourceWiki,
         wikiCategory,
         urlThrottle,
         ...clients,
         ...clientHeaders,
         ...wordVectorSources,
+        ...relations,
     ];
 }
 

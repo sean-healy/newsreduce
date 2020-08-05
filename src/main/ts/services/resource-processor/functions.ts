@@ -2,10 +2,10 @@ import { JSDOM } from "jsdom";
 import { ResourceProcessor } from "services/resource-processor/ResourceProcessor";
 import { selectResourceVersions } from "data";
 import { Dictionary, fancyLog } from "common/util";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 import { PromisePool } from "common/PromisePool";
 import { HitType } from "types/HitType";
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { DOMPool } from "./DOMPool";
 
 const ANCHOR_TAG = "a";
@@ -53,7 +53,7 @@ export function wordsFromNode(node: Element, hitType: HitType) {
 
 function filenameToBufferOrPath(resource: ResourceURL, time: number, filename: string): Promise<Buffer | ResourceURL> {
     switch (filename) {
-        case VersionType.RAW_ZIP_FILE:
+        case VersionType.RAW_ZIP.filename:
             return new Promise<ResourceURL>(res => res(resource));
         default: return resource.read(time, new VersionType(filename))
     }
@@ -67,7 +67,6 @@ export async function processResource(
     processors: ResourceProcessor[]
 ) {
     const url = resource.toURL();
-    console.log(`${time} ${url}`);
     const dictionary: Dictionary<Buffer | ResourceURL> = {};
     const filenames = [...formats];
     let buffersOrPaths: (ResourceURL | Buffer)[];
@@ -79,13 +78,17 @@ export async function processResource(
     const length = buffersOrPaths.length;
     for (let i = 0; i < length; ++i) {
         const bufferOrPath = buffersOrPaths[i];
-        if (bufferOrPath) dictionary[filenames[i]] = bufferOrPath;
+        if (bufferOrPath) {
+            dictionary[filenames[i]] = bufferOrPath;
+        }
     }
     const localFilenames = Object.keys(dictionary);
     const domPool = new DOMPool();
     let reDOM = true;
     for (const processor of processors) {
-        if (processor.appliesTo(localFilenames, resource)) {
+        if (processor.appliesTo(filenames, localFilenames, resource)) {
+            console.log(`${time} ${url}`);
+            console.log(processor, localFilenames);
             const from = processor.from();
             const inputFilenames = [...from];
             let input: Dictionary<Buffer | ResourceURL> = {}
@@ -94,7 +97,6 @@ export async function processResource(
                 const inputFilename = inputFilenames[i];
                 input[inputFilename] = dictionary[inputFilename];
             }
-            console.log(input);
             await pool.registerPromise(processor.apply(resource, input, time, domPool, reDOM));
         }
         reDOM = !processor.ro();

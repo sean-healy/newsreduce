@@ -1,9 +1,9 @@
 import { JSDOM } from "jsdom";
 import { Dictionary } from "common/util";
 import { DOMPool } from "./DOMPool";
-import { ResourceURL } from "types/objects/ResourceURL";
+import { ResourceURL } from "types/db-objects/ResourceURL";
 import { ResourceProcessor } from "./ResourceProcessor";
-import { VersionType } from "types/objects/VersionType";
+import { VersionType } from "types/db-objects/VersionType";
 
 const EXCLUDE = [
     "NOSCRIPT",
@@ -16,7 +16,7 @@ const EXCLUDE = [
 
 export abstract class HTMLProcessor extends ResourceProcessor {
     apply(resource: ResourceURL, input: Dictionary<Buffer>, time?: number, domPool?: DOMPool, reDOM?: boolean): Promise<void> {
-        const buffer = input[VersionType.RAW_HTML_FILE];
+        const buffer = input[VersionType.RAW_HTML.filename];
         let dom: JSDOM;
         if (reDOM) dom = domPool.replace(resource, time, buffer);
         else dom = domPool.renew(resource, time, buffer);
