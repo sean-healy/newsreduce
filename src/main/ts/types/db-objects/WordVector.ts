@@ -3,6 +3,7 @@ import { Word } from "./Word";
 import { WordVectorSource } from "./WordVectorSource";
 import { Vector } from "./Vector";
 import { ResourceURL } from "./ResourceURL";
+import { Tokenizer } from "types/ml/Tokenizer";
 
 export const BYTES_PER_FLOAT = 2;
 const UNIQUE_VALUES = 1 << (BYTES_PER_FLOAT << 3);
@@ -51,6 +52,7 @@ export class WordVector extends DBObject<WordVector> {
         if (integer < MIN_VALUE) integer = MIN_VALUE;
         if (integer > MAX_VALUE) integer = MAX_VALUE;
         let naturalNumber = integer - MIN_VALUE;
+        //console.log(naturalNumber);
         buffer.writeUInt16BE(naturalNumber, offset);
         offset += 2;
 
@@ -63,6 +65,7 @@ export class WordVector extends DBObject<WordVector> {
         let integer = naturalNumber + MIN_VALUE;
         if (integer < MIN_VALUE) integer = MIN_VALUE;
         if (integer > MAX_VALUE) integer = MAX_VALUE;
+        //console.log({integer, naturalNumber, MIN_VALUE, MAX_VALUE });
         const float = integer / 10000;
 
         return { float, offset };
@@ -76,8 +79,14 @@ export class WordVector extends DBObject<WordVector> {
         if (tokens.length === 0) throw new Error(`word vector tokens length empty: ${input}`);
         let wordValue = tokens[0];
         if (wordValue === "") throw new Error(`word vector word empty: ${input}`);
-        const word = new Word(wordValue.toLowerCase());
-        const vector = new Vector(this.vectorToBuffer(tokens.slice(1).map(s => parseFloat(s))));
-        return new WordVector({ vector, word, source: new WordVectorSource({ resource: source }) });
+        const translated = Tokenizer.charTranslateString(wordValue);
+        let wordVector: WordVector;
+        if (translated === wordValue) {
+            const word = new Word(translated);
+            const vector = new Vector(this.vectorToBuffer(tokens.slice(1).map(s => parseFloat(s))));
+            wordVector = new WordVector({ vector, word, source: new WordVectorSource({ resource: source }) });
+        } else wordVector = null;
+
+        return wordVector;
     }
 }

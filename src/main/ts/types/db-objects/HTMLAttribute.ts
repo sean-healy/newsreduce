@@ -18,4 +18,7 @@ export class HTMLAttribute extends DBObject<HTMLAttribute> {
     table(): string {
         return "HTMLAttribute";
     }
+    getDeps() {
+        return [this.name, this.value];
+    }
 }

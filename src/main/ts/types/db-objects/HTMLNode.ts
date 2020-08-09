@@ -23,4 +23,7 @@ export class HTMLNode extends DBObject<HTMLNode> {
     table(): string {
         return "HTMLNode";
     }
+    getDeps() {
+        return [this.tag]
+    }
 }

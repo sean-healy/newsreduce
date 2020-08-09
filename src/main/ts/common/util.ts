@@ -174,6 +174,18 @@ export function sleep(ms: number) {
     });
 }
 
+export function bitCount(n: number) {
+    n = n - ((n >> 1) & 0x55555555)
+    n = (n & 0x33333333) + ((n >> 2) & 0x33333333)
+    return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24
+}
+
+export function removeRightZeros(n: number) {
+    while ((n & 1) === 0) n >>= 1;
+
+    return n;
+}
+
 export type ConstructorArg0<T> = { [key in keyof T]?: T[key] };
 export type Dictionary<T> = { [key: string]: T };
 export function bytesNeeded(n: number) {

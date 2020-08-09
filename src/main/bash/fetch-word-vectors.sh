@@ -14,6 +14,7 @@ while read source; do
         #    head -10000 $path > /tmp/a
         #    mv /tmp/a $path
         #fi
+        echo node dist/nr-process-word-vectors.js --label="$label" --url="$url" "$path"
         node dist/nr-process-word-vectors.js --label="$label" --url="$url" "$path"
     done <<<$(find "$dir" -regex '.*\.vec')
 done <<<$(echo "$sources")

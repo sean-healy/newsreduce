@@ -7,8 +7,10 @@ import { PromisePool } from "common/PromisePool";
 import { HitType } from "types/HitType";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { DOMPool } from "./DOMPool";
+import { Tokenizer } from "types/ml/Tokenizer";
+import { GLOBAL_VARS, exit } from "common/processor";
 
-const ANCHOR_TAG = "a";
+export const ANCHOR_TAG = "a";
 
 export function htmlCollectionToArray<T extends Element>(
     coll: HTMLCollectionOf<T> | NodeListOf<T>
@@ -45,9 +47,9 @@ export function contentFromNode(node: Element, hitType: HitType) {
 }
 export function wordsFromNode(node: Element, hitType: HitType) {
     const content = contentFromNode(node, hitType);
-    const lc = content.toLowerCase();
-    const normalised = lc.replace(/[–-]/g, "");
-    const words = normalised.match(/[^ \t\s!"'^&*();:@~#\n®.,<>?/\[\]\\{}“”‘’]+/g);
+    if (!content) return [];
+    const words = Tokenizer.tokenizeDocument(content);
+
     return words;
 }
 
@@ -87,8 +89,7 @@ export async function processResource(
     let reDOM = true;
     for (const processor of processors) {
         if (processor.appliesTo(filenames, localFilenames, resource)) {
-            console.log(`${time} ${url}`);
-            console.log(processor, localFilenames);
+            console.log(`${time} ${(processor as any).__proto__.constructor.name} ${url} `);
             const from = processor.from();
             const inputFilenames = [...from];
             let input: Dictionary<Buffer | ResourceURL> = {}
@@ -107,13 +108,14 @@ export const buildProcessFunction = (processors: ResourceProcessor[]) =>
     async function process(lo: () => bigint, hi: () => bigint) {
         const pool = new PromisePool(1);
         const resources = await selectResourceVersions();
-        for (const url in resources) {
+        outer: for (const url in resources) {
             const resource = new ResourceURL(url);
             const id = resource.getID();
             if (id < lo() || id >= hi()) continue;
             const versions = resources[url];
             for (const [time, filenames] of versions) {
                 await processResource(resource, time, filenames, pool, processors);
+                if (GLOBAL_VARS.safelyExit) break outer;
             }
         }
         await pool.flush();

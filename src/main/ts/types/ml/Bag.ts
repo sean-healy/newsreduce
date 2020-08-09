@@ -11,7 +11,7 @@ export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any
     lengthBytes: number;
 
     constructor(
-        builder: (value: V) => T,
+        builder: (value: V) => T = null,
         bag: Map<bigint, number> = new Map(),
         lengthBytes: number = 2,
     ) {
@@ -24,12 +24,16 @@ export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any
     register(value: V, count = 1) {
         const obj = this.builder(value);
         const id = obj.getID();
+        if (id === null) {
+            util.fancyLog("error while registering hit with bag: id null")
+            util.fancyLog(JSON.stringify(value));
+        }
         this.objects.set(id, obj);
         this.registerID(id, count);
     }
     registerID(id: bigint, count = 1) {
         if (this.bag.has(id)) this.bag.set(id, this.bag.get(id) + count);
-        else this.bag.set(id, 1);
+        else this.bag.set(id, count);
     }
     toBinaryBag() {
         return new BinaryBag(this.builder, new Set(this.bag.keys()));
@@ -39,15 +43,29 @@ export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any
         const fileData = Buffer.alloc(1 + this.bag.size * (12 + this.lengthBytes));
         fileData[0] = this.lengthBytes;
         let offset = 1;
+        const max = 2 ** (this.lengthBytes * 8) - 1;
         for (const id of ids.sort(util.CMP_BIG_INT)) {
             util.writeBigUInt96BE(id, fileData, offset);
             offset += 12;
-            const count = Math.min(this.bag.get(id), (1 << this.lengthBytes * 8) - 1);
+            const count = Math.min(this.bag.get(id), max);
             util.writeAnyNumberBE(count, this.lengthBytes, fileData, offset);
             offset += this.lengthBytes;
         }
 
         return fileData;
+    }
+    total: number = null;
+    termFrequency(term: V) {
+        return this.termIDFrequency(this.builder(term).getID());
+    }
+    termIDFrequency(termID: bigint) {
+        if (this.total === null) {
+            let total = 0;
+            for (const count of this.bag.values()) total += count;
+            this.total = total;
+        }
+
+        return this.bag.get(termID) / this.total;
     }
     toBufferFile() {
         let length = 0;
@@ -81,12 +99,20 @@ export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any
     build(bag: Map<bigint, number>, lengthBytes: number = 2): B {
         return new Bag(this.builder, bag, lengthBytes) as B;
     }
+    toFrequenciesBag() {
+        const frequencies = new Map<bigint, number>();
+        let total = 0;
+        for (const count of this.bag.values()) total += count;
+        for (const [id, count] of this.bag)
+            frequencies.set(id, count / total);
+
+        return this.build(frequencies, 8);
+    }
     fromBuffer(buffer: Buffer) {
         const bag = new Map<bigint, number>();
         const bufferLength = buffer.length;
         const lengthBytes = buffer[0];
         let offset = 1;
-        let i = 0;
         while (offset < bufferLength) {
             const idBytes = buffer.slice(offset, offset + 12);
             const id = util.bytesToBigInt(idBytes);
@@ -95,7 +121,6 @@ export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any
             const count = util.bytesToNumber(countBytes);
             offset += lengthBytes;
             bag.set(id, count);
-            i++;
         }
 
         return this.build(bag, lengthBytes);

@@ -16,22 +16,50 @@ import { GlobalConfig } from "common/GlobalConfig";
 import { ResourceBinaryRelation } from "types/db-objects/ResourceBinaryRelation";
 import { ResourceID, ResourceURL } from "types/db-objects/ResourceURL";
 import { Predicate } from "types/db-objects/Predicate";
+import { JSDOM } from "jsdom";
+import { ResourceKeyValue } from "types/db-objects/ResourceKeyValue";
+import { Key } from "types/db-objects/Key";
 
 const PORT = 9999;
+
+//const REPLACE_ANCHORS = true;
+const REPLACE_ANCHORS = false;
+
+async function randHTML() {
+    const id = bytesToBigInt(crypto.randomBytes(12));
+    const query = `select * from `
+        + `(select rv.resource, rv.time, filename `
+        + `from VersionType vt `
+        + `inner join ResourceVersion rv on rv.type = vt.id `
+        + `inner join ResourceBinaryRelation rbr on rbr.resource = rv.resource `
+        + `left outer join ResourceRank rr on rr.resource = rv.resource `
+        + `left outer join ResourceKeyValue rkv on rkv.resource = rv.resource and rkv.\`key\` = 12484556344330953527815669801 `
+        + `where filename = "raw.html" `
+        + `and rbr.relation = 74364767655049632829344255629 `
+        + `and rkv.resource is null `
+        + `and rbr.polarity = 1 `
+        //+ `order by rr.\`rank\` desc, rv.resource `
+        + `) t where resource >= ${id} limit 1`;
+
+    return (await SQL.query<any>(query))[0];
+}
 
 async function versionAndContentType(params: {
     entity: Entity,
     format: string,
     id: bigint,
-    time: number
+    time: number,
+    url?: string,
 }) {
     const { entity, format, id, time } = params;
+    console.log("read", entity, id, time, new VersionType(format));
     let version = await read(entity, id, time, new VersionType(format));
     let contentType: string;
     switch (format) {
         case VersionType.RAW_HEADERS.filename:
         case VersionType.RAW_WORDS_TXT.filename:
         case VersionType.RAW_LINKS_TXT.filename:
+        case VersionType.ANCHOR_PATHS.filename:
         case VersionType.TITLE.filename:
             contentType = "text/plain; charset=UTF-8";
             break;
@@ -44,17 +72,30 @@ async function versionAndContentType(params: {
             contentType = "text/plain; charset=UTF-8";
             break;
         case VersionType.BAG_OF_WORDS.filename:
+        case VersionType.BAG_OF_SKIP_GRAMS.filename:
         case VersionType.TRUE_BAG_OF_WORDS.filename:
         case VersionType.FALSE_BAG_OF_WORDS.filename:
             version = Buffer.from(new BagOfWords().fromBuffer(version).toString());
             contentType = "text/plain; charset=UTF-8";
             break;
         case VersionType.BINARY_BAG_OF_WORDS.filename:
+        case VersionType.BINARY_BAG_OF_SKIP_GRAMS.filename:
             version = Buffer.from(BinaryBag.ofWords().fromBuffer(version).toString());
             contentType = "text/plain; charset=UTF-8";
             break;
         case VersionType.RAW_HTML.filename:
             contentType = "text/html; charset=UTF-8";
+            if (REPLACE_ANCHORS) {
+                const dom = new JSDOM(version, { url: params.url });
+                const anchors = dom.window.document.querySelectorAll("a");
+                for (let i = 0; i < anchors.length; ++i) {
+                    const anchor = anchors[i];
+                    const parent = Buffer.from(params.url).toString("hex");
+                    const child = Buffer.from(anchor.href.toString()).toString("hex");
+                    anchor.href = `/register-homepage?parent=${parent}&child=${child}`;
+                }
+                version = Buffer.from(dom.serialize());
+            }
             break;
     }
     return { version, contentType };
@@ -100,9 +141,10 @@ async function serve() {
         const id = BigInt(req.query.id);
         const time = Number(req.query.time);
         const format = req.query.format as string;
+        const query = `select url from URLView where resource = ${id}`;
+        const url = (await SQL.query<any>(query))[0].url;
         const { version, contentType } =
-            await versionAndContentType({ entity: Entity.RESOURCE, id, time, format });
-        res.contentType(contentType).send(version.toString());
+            await versionAndContentType({ entity: Entity.RESOURCE, id, time, format, url });
         res.contentType(contentType).send(version.toString());
     });
     app.get("/host-times", async (req, res) => {
@@ -144,15 +186,7 @@ async function serve() {
         res.contentType(contentType).send(version.toString());
     });
     app.get("/rand-html", async (req, res) => {
-        const id = bytesToBigInt(crypto.randomBytes(12));
-        const query = `select * from `
-            + `(select rv.resource, rv.time, filename `
-            + `from VersionType vt `
-            + `inner join ResourceVersion rv on rv.type = vt.id `
-            + `where filename = "raw.html") t where resource >= ${id} `
-            + `order by resource limit 1`;
-        console.log(query);
-        res.send((await SQL.query<any>(query))[0]);
+        res.send(randHTML());
     });
     app.post("/wiki-news-source", (req, res) => {
         const { resource, polarity } = req.body;
@@ -164,8 +198,28 @@ async function serve() {
         }).enqueueInsert({ recursive: true });
         res.status(200).send();
     })
+    app.get("/register-homepage", async (req, res) => {
+        const parent = new Buffer(req.query.parent as string, "hex").toString();
+        const child = new Buffer(req.query.child as string, "hex").toString();
+        const resource = new ResourceURL(parent);
+        const homepage = new ResourceURL(child).host.name;
+        console.log({
+            resource, homepage
+        });
+        await new ResourceKeyValue({
+            resource,
+            key: Key.WIKI_NEWS_SOURCE_HOMEPAGE,
+            value: homepage,
+        }).singularInsert();
+        const html = await randHTML();
+        const query = `select url from URLView where resource = ${html.resource}`;
+        const url = (await SQL.query<any>(query))[0].url;
+        const { version, contentType } =
+            await versionAndContentType({ entity: Entity.RESOURCE, id: html.resource, time: html.time, format: html.filename, url });
+        res.contentType(contentType).send(version.toString());
+    });
 
-    app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT}`));
+    app.listen(PORT, () => fancyLog(`Main net agent running on port ${PORT} `));
 }
 
 serve();

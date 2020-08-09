@@ -73,10 +73,12 @@ export class ExtractHits extends HTMLProcessor {
     async applyToDOM(dom: JSDOM, time?: number) {
         const resource = new ResourceURL(dom.window.location.toString());
         const { wordHits, linkHits } = getHits(dom);
-        await Promise.all([
-            resource.writeVersion(time, VersionType.LINK_HITS, linkHits.toBuffer()),
-            resource.writeVersion(time, VersionType.WORD_HITS, wordHits.toBuffer()),
-        ]);
+        const promises: Promise<number>[] = [];
+        if (!resource.exists(time, VersionType.LINK_HITS))
+            promises.push(resource.writeVersion(time, VersionType.LINK_HITS, linkHits.toBuffer()));
+        if (!resource.exists(time, VersionType.WORD_HITS))
+            promises.push(resource.writeVersion(time, VersionType.WORD_HITS, wordHits.toBuffer()));
+        await Promise.all(promises);
     }
     from() {
         return new Set([VersionType.RAW_HTML.filename]);

@@ -1,18 +1,26 @@
+import fs from "fs";
 import { DBObject } from "types/DBObject";
 import { VersionType } from "./VersionType";
 import { entityName, Entity } from "types/Entity";
-import { write, read, stream, replace } from "file";
+import {
+    write,
+    read,
+    stream,
+    replace,
+    findFormatTimes,
+    randomBufferFile,
+    exists
+} from "file";
 import { fancyLog } from "common/util";
 import { Version } from "./Version";
 
 export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T> {
     abstract entity(): Entity;
     abstract versionObject(time: number, type: VersionType, length: number): Version<any, T>;
-    async writeVersion(
-        time: number,
-        type: VersionType,
-        input: string | Buffer | NodeJS.ReadableStream
-    ) {
+    exists(time: number, type: VersionType) {
+        return exists(this.entity(), this.getID(), time, type);
+    }
+    async writeVersion(time: number, type: VersionType, input: string | Buffer | NodeJS.ReadableStream) {
         const id = this.getID();
         let bytesWritten: number = -1;
         if (typeof input === "string" || input instanceof Buffer) {
@@ -65,6 +73,28 @@ export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T
             return null;
         }
     }
+    async latest(format: VersionType) {
+        const entity = this.entity();
+        const id = this.getID();
+        const times = await findFormatTimes(entity, id, format);
+        const latestTime = times.reduce((a, b) => Math.max(a, b));
+
+        return latestTime;
+    }
+    async readLatest(format: VersionType) {
+        try {
+            return await this.read(await this.latest(format), format);
+        } catch (e) {
+            return null;
+        }
+    }
+    async streamLatest(format: VersionType) {
+        try {
+            return await this.stream(await this.latest(format), format);
+        } catch (e) {
+            return null;
+        }
+    }
     async stream(time: number, format: VersionType) {
         try {
             return await stream(this.entity(), this.getID(), time, format);
@@ -72,5 +102,30 @@ export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T
             return null;
         }
     }
+    async tmpFileLatest(format: VersionType) {
+        try {
+            return await this.tmpFile(await this.latest(format), format);
+        } catch (e) {
+            fancyLog(JSON.stringify(e));
+            return null;
+        }
+    }
+    async tmpFile(time: number, format: VersionType) {
+        let length = 0;
+        let file: string;
+        try {
+            const src = await this.stream(time, format);
+            file = randomBufferFile();
+            const dst = fs.createWriteStream(file);
+            src.pipe(dst);
+            await new Promise<void>(res => dst.on("finish", res));
+        } catch (e) {
+            fancyLog("error during BOW to file:");
+            fancyLog(JSON.stringify(e));
+            length = -1;
+            file = null;
+        }
 
+        return { length, file };
+    }
 }

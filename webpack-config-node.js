@@ -39,7 +39,9 @@ module.exports = {
     'process-bows-per-host':        './src/main/ts/services/bulk-processors/processBagsOfWordsPerHost.ts',
     'process-bows-per-relation':    './src/main/ts/services/bulk-processors/processBagsOfWordsPerRelation.ts',
     'process-resource-vectors':     './src/main/ts/services/bulk-processors/processResourceVectors.ts',
-    'page-rank':                    './src/main/ts/services/bulk-processors/pageRank.ts'
+    'page-rank':                    './src/main/ts/services/bulk-processors/pageRank.ts',
+    'compare-bags':                 './src/main/ts/services/bulk-processors/compareBags.ts',
+    'sandbox':                      './src/main/ts/sandbox.ts',
   },
   externals,
   output: {

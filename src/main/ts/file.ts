@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { spawn } from "child_process";
 import { getBlobDir, TAR, safeMkdir, getRawDir } from "common/config";
 import { Entity, entityName } from "types/Entity";
-import { fancyLog, spawnPromise } from "common/util";
+import { fancyLog, spawnPromise, CMP_INT } from "common/util";
 import { VersionType } from "types/db-objects/VersionType";
 
 const FINISH = "finish";
@@ -189,10 +189,22 @@ export async function findVersions(entity: Entity, entityID: bigint) {
 export async function findTimes(entity: Entity, entityID: bigint) {
     return [...new Set((await findVersions(entity, entityID)).map(([time,]) => time))].sort((a, b) => a - b);
 }
+export async function findFormatTimes(entity: Entity, entityID: bigint, format: VersionType) {
+    const versions = await findVersions(entity, entityID);
+    const times = versions
+        .filter(([, f]) => f.filename === format.filename)
+        .map(([time,]) => time);
+    return [...new Set(times)].sort(CMP_INT);
+}
 export async function findFormats(entity: Entity, entityID: bigint, time: number) {
     return (await findVersions(entity, entityID))
         .filter(([ms,]) => ms === time)
         .map(([, format]) => format);
+}
+
+export async function exists(entity: Entity, entityID: bigint, time: number, format: VersionType) {
+    const formats = await findFormats(entity, entityID, time);
+    return !!formats.find(f => f.filename === format.filename);
 }
 
 export async function read(

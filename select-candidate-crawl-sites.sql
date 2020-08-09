@@ -1,0 +1,1 @@
+select t.value, rkv.value from ResourceKeyValue rkv inner join ResourceTitle rt on rt.resource = rkv.resource inner join Title t on t.id = rt.title inner join ResourceRank rr on rr.resource = rkv.resource where `key` = 12484556344330953527815669801 order by rr.`rank` desc;

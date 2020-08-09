@@ -11,7 +11,7 @@ export class SQL {
             let ip = await DNS.lookup(GlobalConfig.softFetch().database.host);
             const myIP = await DNS.whoami();
             if (ip === myIP) ip = DNS.LOCALHOST;
-            const sqlParams = { 
+            const sqlParams = {
                 ...GlobalConfig.hardFetch().database,
                 supportBigNumbers: true,
             }

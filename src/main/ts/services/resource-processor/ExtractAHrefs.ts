@@ -33,7 +33,6 @@ export function getLinks(dom: JSDOM) {
         else links.push(link);
     }
 
-    console.log(links.length, "links extracted.");
     return links;
 }
 

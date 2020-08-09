@@ -24,7 +24,7 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
     }
     getInsertStatement(): string {
         const cols = this.insertCols().map(col => "`" + col + "`").join(", ");
-        return `insert ignore into ${this.table()}(${cols}) values ?`
+        return `insert ignore into \`${this.table()}\`(${cols}) values ?`
     }
     getSingularInsertParams(): any[] {
         return [[this.getInsertParams()]]
@@ -80,13 +80,16 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
 
         await Promise.all(promises);
     }
-    async singularSelect(columns?: (keyof T | "*")[]) {
+    singularSelect(columns?: (keyof T | "*")[]) {
+        return this.singularSelectByID(this.getID(), columns);
+    }
+    async singularSelectByID(id: bigint, columns?: (keyof T | "*")[]) {
         let cols: string;
         if (columns) cols = columns.map(column => `\`${column}\``).join(",");
         else cols = "*";
         const idCol = `\`${this.idCol()}\``;
-        const query = `select ${cols} from ${this.table()} where ${idCol} = ?`;
-        return await SQL.query(query, [this.getID()])[0];
+        const query = `select ${cols} from \`${this.table()}\` where ${idCol} = ?`;
+        return (await SQL.query(query, [id]))[0];
     }
     async bulkSelect(ids: bigint[], columns: (keyof T)[]): Promise<{ [key: string]: string }[]> {
         if (!ids || ids.length === 0) return [];

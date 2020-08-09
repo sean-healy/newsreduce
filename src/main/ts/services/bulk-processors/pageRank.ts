@@ -26,17 +26,20 @@ export async function main() {
     const uLinks = new Map<bigint, bigint[]>()
     const lLinks = new Map<number, number[]>()
     fancyLog("Retrieving data from SQL.");
-    const pairs = await selectBacklinks();
-    fancyLog(pairs.length + " backlinks retrieved.");
-    for (const [parent, child] of pairs) {
+    let pairs = await selectBacklinks();
+    fancyLog(pairs.length + " links retrieved.");
+    for (const [parent, child] of pairs)
         if (parent !== child) {
             let pageLinks = uLinks.get(parent);
             if (pageLinks) pageLinks.push(child);
             else uLinks.set(parent, [child]);
         }
-    }
+    pairs = [];
+    fancyLog("Links mapped.");
     let fewerNodes: boolean;
+    let round = 0;
     do {
+        console.log("Remove dead ends (round):", round++);
         fewerNodes = false;
         for (const [parent, children] of uLinks) {
             let nextCount = 0;

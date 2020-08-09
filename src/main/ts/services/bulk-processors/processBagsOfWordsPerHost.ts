@@ -29,8 +29,7 @@ async function main() {
                         for (data = input.read(bytes); data; data = input.read(bytes)) {
                             const wordID = bytesToBigInt(data.slice(0, 12));
                             const count = bytesToNumber(data.slice(12, 12 + lengthBytes));
-                            const prevCount = hostBag.bag.get(wordID) || 0;
-                            hostBag.bag.set(wordID, prevCount + count);
+                            hostBag.registerID(wordID, count);
                         }
                     }
                     res();

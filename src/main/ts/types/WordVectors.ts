@@ -49,8 +49,10 @@ export class WordVectors extends GenericConstructor<WordVectors> {
         readInterface.on("line", line => {
             if (firstRowParsed) {
                 const vector = WordVector.fromString(line, source);
-                const wordID = vector.word.getID();
-                vectors.set(wordID, vector);
+                if (vector) {
+                    const wordID = vector.word.getID();
+                    vectors.set(wordID, vector);
+                }
             } else {
                 const parts = line.match("^([0-9]+) ([0-9]+)$");
                 if (parts) {

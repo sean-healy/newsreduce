@@ -7,17 +7,29 @@ import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
 import { PromisePool } from "common/PromisePool";
 
+export function linerLog(start: number, i: number, l: number) {
+    const now = Date.now();
+    const diff = now - start;
+    const expectedTotalDuration = diff / (i / l)
+    const expectedRemainingDurationS = ((start + expectedTotalDuration) - now) / 1000;
+    const minutes = Math.floor(expectedRemainingDurationS / 60);
+    const seconds = Math.round(expectedRemainingDurationS % 60).toString();
+    process.stdout.write(`\r${((i / l) * 100).toFixed(10)}% ${minutes}:${seconds.padStart(4, "0")}s left.`);
+}
+
 export async function main() {
     const predicates = await new Predicate().selectAll();
     const pool = new PromisePool(100);
-    for (let {id, value} of predicates) {
-        console.log(`Processing word counts across relation: ${value}.`);
+    for (let { id, functor } of predicates) {
+        console.log(`Processing word counts across relation: ${functor}.`);
         const negativeBOW = new BagOfWords();
         const positiveBOW = new BagOfWords();
         id = BigInt(id);
         const negativeCases = await selectBOWsForRelation(id, false);
-        console.log(`Negative cases: ${negativeCases.length}.`);
+        let i = 0;
+        let start = Date.now();
         for (const [resource, time] of negativeCases) {
+            linerLog(start, i++, negativeCases.length);
             const buffer = await new ResourceID(resource).read(time, VersionType.BAG_OF_WORDS);
             if (buffer) {
                 const bow = new BagOfWords().fromBuffer(buffer);
@@ -25,9 +37,12 @@ export async function main() {
                     negativeBOW.registerID(wordID, count);
             }
         }
+        process.stdout.write("\n");
         const positiveCases = await selectBOWsForRelation(id, true);
-        console.log(`Positive cases: ${positiveCases.length}.`);
+        i = 0;
+        start = Date.now();
         for (const [resource, time] of positiveCases) {
+            linerLog(start, i++, positiveCases.length);
             const buffer = await new ResourceID(resource).read(time, VersionType.BAG_OF_WORDS);
             if (buffer) {
                 const bow = new BagOfWords().fromBuffer(buffer);
@@ -35,6 +50,7 @@ export async function main() {
                     positiveBOW.registerID(wordID, count);
             }
         }
+        process.stdout.write("\n");
         const allBOW = positiveBOW.union(negativeBOW);
         positiveBOW.calculateAndSetLengthBytes();
         negativeBOW.calculateAndSetLengthBytes();

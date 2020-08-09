@@ -6,6 +6,7 @@ import { fancyLog } from "common/util";
 import { ResourceThrottle } from "types/db-objects/ResourceThrottle";
 import { WordVectorSource } from "types/db-objects/WordVectorSource";
 import { Predicate } from "types/db-objects/Predicate";
+import { Key } from "types/db-objects/Key";
 
 export function getObjectsToInsert() {
     const origin = "https://en.wikipedia.org/wiki/Category:News_media";
@@ -32,6 +33,9 @@ export function getObjectsToInsert() {
             resource: new ResourceURL("https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M-subword.zip"),
             label: "fasttext_crawl-300d-2M-subw",
         }),
+    ];
+    const keys = [
+        Key.WIKI_NEWS_SOURCE_HOMEPAGE,
     ];
     const clients = [
         new Client({ name: "ubuntu-mozilla", httpVersion: "1.1" }),
@@ -81,6 +85,7 @@ export function getObjectsToInsert() {
         ...clientHeaders,
         ...wordVectorSources,
         ...relations,
+        ...keys,
     ];
 }
 
