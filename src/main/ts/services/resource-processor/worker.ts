@@ -13,6 +13,7 @@ import { ExtractTitle } from "services/resource-processor/ExtractTitle";
 import { ExtractRepresentations } from "services/resource-processor/ExtractMLRepresentations";
 import { ExtractAnchorPaths } from "./ExtractAnchorPaths";
 import { ExtractTokens } from "./ExtractTokens";
+import { ExtractTokens2 } from "./ExtractTokens2";
 
 const process = buildProcessFunction(
     [
@@ -21,6 +22,7 @@ const process = buildProcessFunction(
         ExtractTitle,
         ExtractWikiTree,
         ExtractRawText,
+        ExtractTokens2,
         ExtractHits,
         ExtractRepresentations,
         ExtractTokens,

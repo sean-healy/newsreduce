@@ -37,7 +37,6 @@ export function getLinks(dom: JSDOM) {
 }
 
 export class ExtractAHrefs extends HTMLProcessor {
-    ro() { return true; }
     from() {
         return new Set([VersionType.RAW_HTML.filename]);
     }

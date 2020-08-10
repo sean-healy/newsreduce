@@ -13,7 +13,7 @@ const EXCLUDE = [
 
 export abstract class ResourceProcessor {
     constructor() { }
-    abstract ro(): boolean;
+    ro() { return true; }
     abstract apply(resource: ResourceURL, input: Dictionary<Buffer | ResourceURL>, time?: number, domPool?: DOMPool, reDOM?: boolean): Promise<void>;
     abstract from(): Set<string>;
     abstract to(): Set<string>;

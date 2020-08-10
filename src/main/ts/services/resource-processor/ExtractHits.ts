@@ -7,6 +7,7 @@ import { LinkHits } from "types/LinkHits";
 import { getAnchorsWithHREF, htmlCollectionToArray } from "services/resource-processor/functions";
 import { wordsFromNode } from "services/resource-processor/functions";
 import { HTMLProcessor } from "./HTMLProcessor";
+import { fancyLog } from "common/util";
 
 const INCLUDE_TAGS = [
     "TITLE",
@@ -74,10 +75,15 @@ export class ExtractHits extends HTMLProcessor {
         const resource = new ResourceURL(dom.window.location.toString());
         const { wordHits, linkHits } = getHits(dom);
         const promises: Promise<number>[] = [];
-        if (!resource.exists(time, VersionType.LINK_HITS))
+        if (await resource.exists(time, VersionType.LINK_HITS))
+            resource.versionObject(time, VersionType.LINK_HITS, 1).enqueueInsert({ recursive: true });
+        else
             promises.push(resource.writeVersion(time, VersionType.LINK_HITS, linkHits.toBuffer()));
-        if (!resource.exists(time, VersionType.WORD_HITS))
+        if (await resource.exists(time, VersionType.WORD_HITS))
+            resource.versionObject(time, VersionType.WORD_HITS, 1).enqueueInsert({ recursive: true });
+        else
             promises.push(resource.writeVersion(time, VersionType.WORD_HITS, wordHits.toBuffer()));
+
         await Promise.all(promises);
     }
     from() {

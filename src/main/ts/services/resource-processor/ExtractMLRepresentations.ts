@@ -57,19 +57,22 @@ export function getRepresentations(sections: string) {
 }
 
 export class ExtractRepresentations extends ResourceProcessor {
-    ro() { return false; }
     async apply(resource: ResourceURL, input: Dictionary<Buffer>, time?: number) {
         const buffer = input[VersionType.TOKENS_TXT.filename];
         const rep = getRepresentations(buffer.toString());
-        await Promise.all([
-            resource.writeVersion(time, VersionType.BAG_OF_WORDS, rep.bagOfWords.toBuffer()),
-            resource.writeVersion(time, VersionType.BINARY_BAG_OF_WORDS, rep.binaryBagOfWords.toBuffer()),
-            resource.writeVersion(time, VersionType.BAG_OF_SKIP_GRAMS, rep.bagOfSkipGrams.toBuffer()),
-            resource.writeVersion(time, VersionType.BINARY_BAG_OF_SKIP_GRAMS, rep.binaryBagOfSkipGrams.toBuffer()),
-        ]);
+        const promises = [];
+        if (resource.exists(time, VersionType.BAG_OF_WORDS))
+            promises.push(resource.writeVersion(time, VersionType.BAG_OF_WORDS, rep.bagOfWords.toBuffer()));
+        if (resource.exists(time, VersionType.BINARY_BAG_OF_WORDS))
+            promises.push(resource.writeVersion(time, VersionType.BINARY_BAG_OF_WORDS, rep.binaryBagOfWords.toBuffer()));
+        if (resource.exists(time, VersionType.BAG_OF_SKIP_GRAMS))
+            promises.push(resource.writeVersion(time, VersionType.BAG_OF_SKIP_GRAMS, rep.bagOfSkipGrams.toBuffer()));
+        if (resource.exists(time, VersionType.BINARY_BAG_OF_SKIP_GRAMS))
+            promises.push(resource.writeVersion(time, VersionType.BINARY_BAG_OF_SKIP_GRAMS, rep.binaryBagOfSkipGrams.toBuffer()));
+        await Promise.all(promises);
     }
     from() {
-        return new Set([VersionType.TOKENS_TXT.filename]);
+        return new Set([VersionType.MINIMAL_TOKENS.filename]);
     }
     to() {
         return new Set([

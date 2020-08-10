@@ -3740,6 +3740,17 @@ export class Tokenizer {
         return words || [];
     }
 
+    /**
+     * Takes a word ID, and returns the ID of its stem form,
+     * or a more common synonym.
+     * 
+     * @param wordID the hash of a LC word.
+     */
+    static simplify(wordID: bigint) {
+        // TODO: actually implement this.
+        return wordID;
+    }
+
     static translateChar(c: number) {
         const translation = DISGRACEFUL_CHAR_TRANSLATION_MAP.get(c);
         if (translation !== undefined) return translation;

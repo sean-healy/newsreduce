@@ -31,6 +31,8 @@ export class VersionType extends DBObject<VersionType> {
     static WORD_EMBEDDINGS = new VersionType({ filename: "word-embeddings.bin" });
     static RAW_WORDS_TXT = new VersionType({ filename: "raw-words.txt" });
     static TOKENS_TXT = new VersionType({ filename: "tokens.txt" });
+    // A tokens file, with stop words removed, stemming added, and synonyms replaced.
+    static MINIMAL_TOKENS = new VersionType({ filename: "min-tokens.txt" });
     static RAW_LINKS_TXT = new VersionType({ filename: "raw-links.txt" });
     static ANCHOR_PATHS = new VersionType({ filename: "anchor-paths.txt" });
     static WORD_HITS = new VersionType({ filename: "word-hits.bin" });

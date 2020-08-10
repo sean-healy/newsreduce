@@ -6,7 +6,6 @@ import { Title } from "types/db-objects/Title";
 import { HTMLProcessor } from "./HTMLProcessor";
 
 export class ExtractTitle extends HTMLProcessor {
-    ro() { return true; }
     async applyToDOM(dom: JSDOM, time: number) {
         const resource = new ResourceURL(dom.window.location.toString());
         const titleContent = dom.window.document.title;

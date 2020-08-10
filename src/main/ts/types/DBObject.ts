@@ -91,7 +91,7 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
         const query = `select ${cols} from \`${this.table()}\` where ${idCol} = ?`;
         return (await SQL.query(query, [id]))[0];
     }
-    async bulkSelect(ids: bigint[], columns: (keyof T)[]): Promise<{ [key: string]: string }[]> {
+    async bulkSelect(ids: bigint[], columns: (keyof T | "id")[]): Promise<{ [key: string]: string }[]> {
         if (!ids || ids.length === 0) return [];
         const idCol = `\`${this.idCol()}\``;
         const otherCols = columns.map(col => `\`${col}\``).join(",");

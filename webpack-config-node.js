@@ -40,6 +40,7 @@ module.exports = {
     'process-bows-per-relation':    './src/main/ts/services/bulk-processors/processBagsOfWordsPerRelation.ts',
     'process-resource-vectors':     './src/main/ts/services/bulk-processors/processResourceVectors.ts',
     'page-rank':                    './src/main/ts/services/bulk-processors/pageRank.ts',
+    'count-words':                  './src/main/ts/services/bulk-processors/countWords.ts',
     'compare-bags':                 './src/main/ts/services/bulk-processors/compareBags.ts',
     'sandbox':                      './src/main/ts/sandbox.ts',
   },

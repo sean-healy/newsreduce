@@ -90,3 +90,8 @@ export async function selectBOWsForRelation(relation: bigint, polarity: boolean)
     const rows = await genericSQLPromise(sql.SELECT_BOW_FOR_RELATION, [relation, polarity]);
     return rows.map(({resource, time}) => [BigInt(resource), time]);
 }
+
+export async function selectStopWords() {
+    const rows = await genericSQLPromise(sql.SELECT_STOP_WORDS);
+    return new Map<bigint, number>(rows.map(({id, frequency}) => [BigInt(id), parseFloat(frequency)]));
+}

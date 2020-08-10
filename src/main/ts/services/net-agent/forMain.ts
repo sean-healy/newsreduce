@@ -59,6 +59,8 @@ async function versionAndContentType(params: {
         case VersionType.RAW_HEADERS.filename:
         case VersionType.RAW_WORDS_TXT.filename:
         case VersionType.RAW_LINKS_TXT.filename:
+        case VersionType.TOKENS_TXT.filename:
+        case VersionType.MINIMAL_TOKENS.filename:
         case VersionType.ANCHOR_PATHS.filename:
         case VersionType.TITLE.filename:
             contentType = "text/plain; charset=UTF-8";

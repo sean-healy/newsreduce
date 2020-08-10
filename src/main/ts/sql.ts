@@ -21,6 +21,8 @@ export default {
 	SELECT_RESOURCES_TO_FETCH: "select id, url from ( select ResourceURL.id, URLView.url, IFNULL(max(ResourceVersion.time), 0) + ResourceThrottle.throttle as fetchAfter from ResourceURL inner join ResourceThrottle on ResourceThrottle.resource = ResourceURL.id inner join URLView on URLView.resource = ResourceURL.id left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id group by ResourceURL.id ) LastFetched where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);",
 	// /home/sean/newsreduce/sql/SELECT_RESOURCE_VERSIONS.sql
 	SELECT_RESOURCE_VERSIONS: "select u.url, v.time, filename from ResourceVersion v inner join VersionType t on t.id = v.type inner join URLView u on u.resource = v.resource left outer join ResourceRank r on r.resource = v.resource left outer join ResourceBinaryRelation b on b.resource = v.resource group by v.resource, v.time, t.filename order by if(isnull(b.resource), 0, 1) desc, r.`rank` desc, v.resource, v.time;",
+	// /home/sean/newsreduce/sql/SELECT_STOP_WORDS.sql
+	SELECT_STOP_WORDS: "select w.id, w.value, wf.frequency from WordFrequency wf inner join Word w on w.id = wf.word order by frequency desc limit 48;",
 	// /home/sean/newsreduce/sql/SELECT_TABLES.sql
 	SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
 	// /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
