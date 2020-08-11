@@ -50,12 +50,12 @@ void* createSimilarityGroup(void* params) {
     Vector* vectors = castParams->vectors;
     Vector* end = castParams->end;
     for (Vector* lo = vectors; lo < end; ++lo) {
-        if (((long) lo & 0xFFL) == 0L) {
+        if (((long) lo & 0xFFFL) == 0L) {
             long remaining = (long) (end - lo);
             long all = (long) (end - vectors);
             long done = all - remaining;
             double progress = ((double) done) / ((double) all) * 100;
-            printf("\r                           ", done, all, progress);
+            printf("\r                           ");
             printf("\r%ld / %ld (%f%%)", done, all, progress);
             fflush(stdout);
         }
