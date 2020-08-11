@@ -146,7 +146,6 @@ int main() {
             createSimilarityGroup(&params);
         else
             pthread_create(&THREAD_IDS[CURRENT_THREAD++], NULL, &createSimilarityGroup, &params);
-        pthread_create(&THREAD_IDS[CURRENT_THREAD++], NULL, &mergeSimilarityGroups, &params);
     }
     joinThreads();
     CURRENT_THREAD = 0;
