@@ -157,13 +157,10 @@ int hash(char* string, char* idBuffer) {
 
 float squaredDistance(float* v1, float* v2, float cutoff) {
     float squaredSum = 0.0;
-    for (int i = 0; i < DIMENSIONS; ++i) {
+    for (int i = DIMENSIONS - 1; i >= 0; --i) {
         float difference = v2[i] - v1[i];
         squaredSum += difference * difference;
-        if (squaredSum >= cutoff) {
-            //printf("cutoff at D %d %f %f\n", i, squaredSum, cutoff);
-            return -1;
-        }
+        if (squaredSum >= cutoff) return -1;
     }
 
     return squaredSum;
@@ -171,13 +168,12 @@ float squaredDistance(float* v1, float* v2, float cutoff) {
 
 float squaredDistanceOL(float* v1, FILE* fd, float cutoff, unsigned char* dimensionBuffer) {
     float squaredSum = 0.0;
-    for (int i = 0; i < DIMENSIONS; ++i) {
+    for (int i = DIMENSIONS - 1; i >= 0; --i) {
         size_t size = fread(dimensionBuffer, BYTES_PER_DIMENSION, 1, fd);
         float dimension = parseDimension(dimensionBuffer);
         float difference = dimension - v1[i];
         squaredSum += difference * difference;
         if (squaredSum >= cutoff) {
-            //printf("cutoff at D %d %f %f\n", i, squaredSum, cutoff);
             fseek(fd, (DIMENSIONS - i - 1) * BYTES_PER_DIMENSION, SEEK_CUR);
             return -1;
         }
@@ -279,4 +275,11 @@ void printResults(Result* results, int count) {
         else printf("-.------ ");
     }
     printf("\n");
+}
+
+long powerOfTwoNotAbove(long n) {
+    long power = 1L;
+    while (power <= n) power <<= 1L;
+
+    return power >> 1;
 }
