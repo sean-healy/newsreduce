@@ -49,10 +49,16 @@ void* createSimilarityGroup(void* params) {
     CreateParams* castParams = (CreateParams*) params;
     Vector* vectors = castParams->vectors;
     Vector* end = castParams->end;
-    printf("Creating similarity group at address %ld.\n", (long) vectors);
     for (Vector* lo = vectors; lo < end; ++lo) {
-        if (((long) lo & 0xFFL) == 0L)
-            printf("%ld / %ld\n", (long) (end - lo), (long) (end - vectors));
+        if (((long) lo & 0xFFL) == 0L) {
+            long remaining = (long) (end - lo);
+            long all = (long) (end - vectors);
+            long done = all - remaining;
+            double progress = ((double) done) / ((double) all) * 100;
+            printf("\r                           ", done, all, progress);
+            printf("\r%ld / %ld (%f%%)", done, all, progress);
+            fflush(stdout);
+        }
         float* dimensions = lo->dimensions;
         Result* loSynonyms = lo->synonyms;
         WordID loID = lo->id;
@@ -139,7 +145,6 @@ int main() {
     rows = powerOfTwoNotAbove(rows);
     off_t rowsPerProcessor = rows / PROCESSORS;
     CURRENT_THREAD = 0;
-    printf("rows pp: %ld\n", rowsPerProcessor);
     for (off_t offset = 0; offset < rows; offset += rowsPerProcessor) {
         CreateParams params = {vectors + offset, vectors + offset + rowsPerProcessor};
         if (CURRENT_THREAD == PROCESSORS - 1)
