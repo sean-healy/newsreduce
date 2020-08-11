@@ -6,7 +6,7 @@
 #define PROCESSORS 8
 
 int CURRENT_THREAD = 0;
-pthread_t THREAD_IDS[PROCESSORS];
+pthread_t THREAD_IDS[PROCESSORS - 1];
 
 typedef struct MergeParamsStruct {
     Vector* a;
@@ -14,15 +14,16 @@ typedef struct MergeParamsStruct {
     long groupSize;
 } MergeParams;
 
-void mergeSimilarityGroups(MergeParams params) {
-    Vector* a = params.a;
-    Vector* b = params.b;
-    long groupSize = params.groupSize;
+void* mergeSimilarityGroups(void* params) {
+    MergeParams* castParams = (MergeParams*) params;
+    Vector* a = castParams->a;
+    Vector* b = castParams->b;
+    long groupSize = castParams->groupSize;
     Vector* endA = a + groupSize;
     Vector* endB = b + groupSize;
     for (; a < endA; ++a) {
         Result* aSynonyms = a->synonyms;
-        Result* aDimensions = a->dimensions;
+        float* aDimensions = a->dimensions;
         WordID aID = a->id;
         float aCutoff = aSynonyms[0].value;
         for (; b < endB; ++b) {
@@ -39,15 +40,23 @@ void mergeSimilarityGroups(MergeParams params) {
     }
 }
 
-void createSimilarityGroup(Vector* vectors, Vector* end) {
+typedef struct CreateParamsStruct {
+    Vector* vectors;
+    Vector* end;
+} CreateParams;
+
+void* createSimilarityGroup(void* params) {
+    CreateParams* castParams = (CreateParams*) params;
+    Vector* vectors = castParams->vectors;
+    Vector* end = castParams->end;
+    printf("Creating similarity group at address %ld.\n", (long) vectors);
     for (Vector* lo = vectors; lo < end; ++lo) {
+        if (((long) lo & 0xFFFL) == 0L)
+            printf("%ld / %ld\n", (long) (end - lo), (long) (end - vectors));
         float* dimensions = lo->dimensions;
         Result* loSynonyms = lo->synonyms;
         WordID loID = lo->id;
         float loCutoff = loSynonyms[0].value;
-        struct timeval tStart, tEnd;
-        gettimeofday(&tStart, NULL);
-        long int before = tStart.tv_sec * 1000000 + tStart.tv_usec;
         for (Vector* hi = lo + 1; hi < end; ++hi) {
             float hiCutoff = hi->synonyms[0].value;
             float maxCutoff;
@@ -59,10 +68,6 @@ void createSimilarityGroup(Vector* vectors, Vector* end) {
                 hiCutoff = insertMin(hi->synonyms, MAX_SYNONYMS, loID, d);
             }
         }
-        gettimeofday(&tEnd, NULL);
-        long int after = tEnd.tv_sec * 1000000 + tEnd.tv_usec;
-        printf("%ld %ld.\t", (after - before) / 1000, lo - vectors);
-        printResults(lo->synonyms, MAX_SYNONYMS);
     }
 }
 
@@ -79,8 +84,16 @@ void parallelMergeSimilarityGroup(
         if (hi > b + outerGroupSize) hi -= outerGroupSize;
         // Spin a thread.
         MergeParams params = {a + offset, hi, innerGroupSize};
-        pthread_create(&THREAD_IDS[CURRENT_THREAD++], NULL, mergeSimilarityGroups, &params);
+        if (CURRENT_THREAD == PROCESSORS - 1)
+            mergeSimilarityGroups(&params);
+        else
+            pthread_create(&THREAD_IDS[CURRENT_THREAD++], NULL, &mergeSimilarityGroups, &params);
     }
+}
+
+void joinThreads() {
+    for (int i = 0; i < PROCESSORS - 1; ++i)
+        pthread_join(THREAD_IDS[i], NULL);
 }
 
 void naryMergeSimilarityGroup(Vector* vectors, int groups, long outerGroupSize, int processors) {
@@ -99,11 +112,6 @@ void naryMergeSimilarityGroup(Vector* vectors, int groups, long outerGroupSize, 
     // Number of distinct groups is halved in next step, and size of each
     // group is twice as large.  Same processors apply.
     naryMergeSimilarityGroup(vectors, groups >> 1, outerGroupSize << 1, processors);
-}
-
-void joinThreads() {
-    for (int i = 0; i < PROCESSORS; ++i)
-        pthread_join(THREAD_IDS[i], NULL);
 }
 
 int main() {
@@ -131,8 +139,15 @@ int main() {
     rows = powerOfTwoNotAbove(rows);
     off_t rowsPerProcessor = rows / PROCESSORS;
     CURRENT_THREAD = 0;
-    for (off_t offset = 0; offset < rows; offset += rowsPerProcessor)
-        createSimilarityGroup(vectors, vectors + rows);
+    printf("rows pp: %ld\n", rowsPerProcessor);
+    for (off_t offset = 0; offset < rows; offset += rowsPerProcessor) {
+        CreateParams params = {vectors + offset, vectors + offset + rowsPerProcessor};
+        if (CURRENT_THREAD == PROCESSORS - 1)
+            createSimilarityGroup(&params);
+        else
+            pthread_create(&THREAD_IDS[CURRENT_THREAD++], NULL, &createSimilarityGroup, &params);
+        pthread_create(&THREAD_IDS[CURRENT_THREAD++], NULL, &mergeSimilarityGroups, &params);
+    }
     joinThreads();
     CURRENT_THREAD = 0;
     naryMergeSimilarityGroup(vectors, PROCESSORS, rowsPerProcessor, PROCESSORS);
