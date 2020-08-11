@@ -51,7 +51,7 @@ void* createSimilarityGroup(void* params) {
     Vector* end = castParams->end;
     printf("Creating similarity group at address %ld.\n", (long) vectors);
     for (Vector* lo = vectors; lo < end; ++lo) {
-        if (((long) lo & 0xFFFL) == 0L)
+        if (((long) lo & 0xFFL) == 0L)
             printf("%ld / %ld\n", (long) (end - lo), (long) (end - vectors));
         float* dimensions = lo->dimensions;
         Result* loSynonyms = lo->synonyms;
