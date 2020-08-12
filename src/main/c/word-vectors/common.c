@@ -1,16 +1,19 @@
-#include <stdio.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <math.h>
 #include <float.h>
 #include <gcrypt.h>
+#include <math.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <time.h>
 
-#define LOCATION "/var/newsreduce/word-vectors/fasttext_crawl-300d-2M-subw.bin2"
+#define LOCATION "/var/newsreduce/word-vectors/test.bin"
+#define LOCATION2 "/var/newsreduce/word-vectors/test.bin2"
 
 #define BYTES_PER_ID        12
 #define DIMENSIONS          300
 #define BYTES_PER_DIMENSION 2
-#define MAX_SYNONYMS        10
+#define MAX_SIMILARITIES    20
 #define BYTES_PER_VECTOR DIMENSIONS * BYTES_PER_DIMENSION
 #define CHUNK_SIZE BYTES_PER_ID + BYTES_PER_VECTOR
 
@@ -41,7 +44,7 @@ float parseDimension(unsigned char* dimension) {
 
     return real;
 }
-void serializeDouble(float d, char* buffer, unsigned int offset) {
+void serializeFloat(float d, unsigned char* buffer, unsigned int offset) {
     float coordMul = d * ((float) 10000);
     long sInt = (long) coordMul;
     long uIntLong = sInt + OFFSET;
@@ -55,7 +58,7 @@ void serializeDouble(float d, char* buffer, unsigned int offset) {
 }
 void serializeVector(unsigned char* vector, float* parsedVector) {
     for (unsigned int i = 0; i < DIMENSIONS; ++i)
-        serializeDouble(parsedVector[i], vector, i);
+        serializeFloat(parsedVector[i], vector, i);
 }
 int maxDimension(float* vector) {
     float max = 0;
@@ -110,6 +113,14 @@ WordID idBufferToStruct(unsigned char* idBuffer) {
     WordID id = { head, tail };
 
     return id;
+}
+
+void idStructToBuffer(WordID id, unsigned char* idBuffer) {
+    int byte = BYTES_PER_ID - 1;
+    for (unsigned long int part = id.tail; part; part >>= 8)
+        idBuffer[byte--] = part & 0xFF;
+    for (unsigned long int part = id.head; part; part >>= 8)
+        idBuffer[byte--] = part & 0xFF;
 }
 
 off_t binarySearch(
@@ -239,7 +250,7 @@ void clearResults(Result* results, int count) {
     for (int i = 0; i < count; ++i) {
         results[i].id.head = 0;
         results[i].id.tail = 0;
-        results[i].value = DBL_MAX;
+        results[i].value = FLT_MAX;
     }
 }
 
@@ -253,13 +264,13 @@ void readVector(FILE* fd, unsigned char* buffer, float* vBuffer) {
     parseVector(buffer, vBuffer);
 }
 
-typedef struct VectorStruct {
+typedef struct VectorSimilarityStruct {
     WordID id;
     float dimensions[DIMENSIONS];
-    Result synonyms[MAX_SYNONYMS];
-} Vector;
+    Result synonyms[MAX_SIMILARITIES];
+} VectorSimilarity;
 
-void printVector(Vector vector) {
+void printVector(VectorSimilarity vector) {
     float* dimensions = vector.dimensions;
     for (int i = 0; i < DIMENSIONS; ++i) {
         float coord = dimensions[i];
@@ -271,10 +282,16 @@ void printVector(Vector vector) {
 void printResults(Result* results, int count) {
     for (int i = 0; i < count; ++i) {
         Result result = results[i];
-        if (result.value < 100) printf("%f ", result.value);
-        else printf("-.------ ");
+        if (result.value < 100) printf("%f(%lu) ", result.value, result.id.tail & 0xFFF);
+        else printf("-.------(0000) ");
     }
     printf("\n");
+}
+
+void printSimilarities(VectorSimilarity* vectors, int count) {
+    for (int i = 0; i < count; ++i)
+        printResults(vectors[i].synonyms, MAX_SIMILARITIES);
+    printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
 }
 
 long powerOfTwoNotAbove(long n) {

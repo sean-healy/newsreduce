@@ -30,7 +30,7 @@ int main (unsigned int argc, char* argv[]) {
         for (int j = 0; j < args; ++j) {
             float* b = vectors[j];
             float score;
-            score = squaredDistance(a, b, DBL_MAX);
+            score = squaredDistance(a, b, FLT_MAX);
             scoreMatrix[i][j] = score;
         }
     }

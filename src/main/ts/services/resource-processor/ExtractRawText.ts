@@ -13,7 +13,6 @@ export function toRawText(dom: JSDOM) {
 }
 
 export class ExtractRawText extends HTMLProcessor {
-    ro() { return true; }
     async applyToDOM(dom: JSDOM, time?: number) {
         const rawText = toRawText(dom);
         const resource = new ResourceURL(dom.window.location.toString());

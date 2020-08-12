@@ -17,7 +17,7 @@ int main (unsigned int argc, char* argv[]) {
     FILE* fd = fopen(LOCATION, "r");
     if (binarySearch(fd, i1, 0, size, idBuffer, vBuffer, v1)) {
         if (binarySearch(fd, i2, 0, size, idBuffer, vBuffer, v2)) {
-            float distance = squaredDistance(v1, v2, DBL_MAX);
+            float distance = squaredDistance(v1, v2, FLT_MAX);
             printf("%f\n", distance);
         } else printf("\n");
     } else printf("\n");
