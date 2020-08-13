@@ -1,11 +1,6 @@
 #include "./common.c"
 
-#define PROCESSORS 8
-
 #define ASYNCHRONOUS 0
-
-int CURRENT_THREAD = 0;
-pthread_t THREAD_IDS[PROCESSORS - 1];
 
 typedef struct MergeParamsStruct {
     VectorSimilarity* a;
@@ -89,12 +84,15 @@ void* createSimilarityGroup(void* params) {
     }
 }
 
-void parallelMergeSimilarityGroup(
+int parallelMergeSimilarityGroup(
     VectorSimilarity* a,
     VectorSimilarity* b,
     long outerGroupSize,
     long innerGroupSize,
-    off_t phase
+    off_t phase,
+    int threadCount,
+    pthread_t* threads,
+    int currentThread
 ) {
     //printf("\tbinary merge: [%ld, [%ld, @%ld\n", (a - v), (b - v), phase);
     for (off_t offset = 0; offset < outerGroupSize; offset += innerGroupSize) {
@@ -109,25 +107,27 @@ void parallelMergeSimilarityGroup(
         params[0].b = hi;
         params[0].groupSize = innerGroupSize;
         //printf("\t\tpart: [%ld, [%ld mod %ld\n", (lo - v), (hi - v), outerGroupSize);
-        if (ASYNCHRONOUS || CURRENT_THREAD == PROCESSORS - 1)
+        if (ASYNCHRONOUS || currentThread == threadCount - 1)
             mergeSimilarityGroups(params);
-        else {
-            pthread_create(&THREAD_IDS[CURRENT_THREAD++], NULL, &mergeSimilarityGroups, params);
-        }
+        else
+            pthread_create(&threads[currentThread++], NULL, &mergeSimilarityGroups, params);
     }
+
+    return currentThread;
 }
 
-void joinThreads() {
+void joinThreads(int count, pthread_t* threads) {
     if (ASYNCHRONOUS) return;
-    for (int i = 0; i < PROCESSORS - 1; ++i)
-        pthread_join(THREAD_IDS[i], NULL);
+    for (int i = 0; i < count - 1; ++i)
+        pthread_join(threads[i], NULL);
 }
 
 void naryMergeSimilarityGroup(
     VectorSimilarity* vectors,
     int groups,
     long outerGroupSize,
-    int processors
+    int processors,
+    pthread_t* threads
 ) {
     printf("\n");
     int ret = system("date");
@@ -137,23 +137,25 @@ void naryMergeSimilarityGroup(
     int pairProcessors = (processors << 1) / groups;
     long innerGroupSize = outerGroupSize / pairProcessors;
     for (off_t phase = 0; phase < outerGroupSize; phase += innerGroupSize) {
-        CURRENT_THREAD = 0;
+        int currentThread = 0;
         for (int i = 0; i < groups; i += 2) {
             VectorSimilarity* left = vectors + i * outerGroupSize;
             VectorSimilarity* right = vectors + (i + 1) * outerGroupSize;
             //printf("Phase: %ld, L: %ld, R: %ld, Size %ld\n", phase, left - vectors, right - vectors, outerGroupSize);
-            parallelMergeSimilarityGroup(left, right, outerGroupSize, innerGroupSize, phase);
+            currentThread = parallelMergeSimilarityGroup(
+                left, right, outerGroupSize, innerGroupSize, phase, processors, threads, currentThread);
         }
-        joinThreads();
+        joinThreads(processors, threads);
     }
     // Number of distinct groups is halved in next step, and size of each
     // group is twice as large.  Same processors apply.
-    naryMergeSimilarityGroup(vectors, groups >> 1, outerGroupSize << 1, processors);
+    naryMergeSimilarityGroup(vectors, groups >> 1, outerGroupSize << 1, processors, threads);
 }
 
 int main(unsigned int argc, unsigned char* argv[]) {
     char* src = argv[1];
     char* dst = argv[2];
+    int processors = atoi(argv[3]);
     if (ASYNCHRONOUS)
         printf("ASYNCHRONOUS MODE.\n");
     unsigned char idBuffer[BYTES_PER_ID];
@@ -166,7 +168,7 @@ int main(unsigned int argc, unsigned char* argv[]) {
     off_t size = st.st_size;
     off_t unpaddedRows = ((off_t) size) / ((off_t) CHUNK_SIZE);
     // Needed for multithreading.
-    off_t P2 = PROCESSORS * 2;
+    off_t P2 = processors * 2;
     off_t mod = unpaddedRows % P2;
     off_t rows = unpaddedRows;
     if (mod)
@@ -191,22 +193,23 @@ int main(unsigned int argc, unsigned char* argv[]) {
             currentVectorPtr->dimensions[i] = FLT_MAX;
         clearResults(currentVectorPtr->synonyms, MAX_SIMILARITIES);
     }
-    off_t rowsPerProcessor = rows / PROCESSORS;
-    CURRENT_THREAD = 0;
+    off_t rowsPerProcessor = rows / processors;
     int ret = system("date");
     printf("Begin.");
     fflush(stdout);
+    int currentThread = 0;
+    pthread_t threadIDs[processors - 1];
     for (off_t offset = 0; offset < rows; offset += rowsPerProcessor) {
         CreateParams* params = malloc(sizeof(CreateParams));
         params[0].vectors = vectors + offset;
         params[0].end = vectors + offset + rowsPerProcessor;
-        if (ASYNCHRONOUS || CURRENT_THREAD == PROCESSORS - 1)
+        if (ASYNCHRONOUS || currentThread == processors - 1)
             createSimilarityGroup(params);
         else
-            pthread_create(&THREAD_IDS[CURRENT_THREAD++], NULL, &createSimilarityGroup, params);
+            pthread_create(&threadIDs[currentThread++], NULL, &createSimilarityGroup, params);
     }
-    joinThreads();
-    naryMergeSimilarityGroup(vectors, PROCESSORS, rowsPerProcessor, PROCESSORS);
+    joinThreads(processors, threadIDs);
+    naryMergeSimilarityGroup(vectors, processors, rowsPerProcessor, processors, threadIDs);
     //printSimilarities(vectors, rows);
     unsigned char floatBuffer[BYTES_PER_DIMENSION];
     FILE* out = fopen(dst, "w");
