@@ -4,11 +4,14 @@ if [ "$1" == "--nodb" ]; then
     database=""
 fi
 if [ "$1" == "--noerr" ]; then
+    echo mysql -h $host -P 3306 -u $user $database -p$password -A --column-names=false 2>/dev/null
     mysql -h $host -P 3306 -u $user $database -p$password -A --column-names=false 2>/dev/null
 else
     if [ "$1" == "--colnames" ]; then
+        echo mysql -h $host -P $port -u $user $database -p$password -A
         mysql -h $host -P $port -u $user $database -p$password -A
     else
+        echo mysql -h $host -P $port -u $user $database -p$password -A --column-names=false
         mysql -h $host -P $port -u $user $database -p$password -A --column-names=false
     fi
 fi

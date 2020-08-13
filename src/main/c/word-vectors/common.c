@@ -117,9 +117,9 @@ WordID idBufferToStruct(unsigned char* idBuffer) {
 
 void idStructToBuffer(WordID id, unsigned char* idBuffer) {
     int byte = BYTES_PER_ID - 1;
-    for (unsigned long int part = id.tail; part; part >>= 8)
+    for (unsigned long int part = id.tail; byte >= 8; part >>= 8)
         idBuffer[byte--] = part & 0xFF;
-    for (unsigned long int part = id.head; part; part >>= 8)
+    for (unsigned long int part = id.head; byte >= 0; part >>= 8)
         idBuffer[byte--] = part & 0xFF;
 }
 

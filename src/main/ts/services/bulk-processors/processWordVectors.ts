@@ -14,7 +14,7 @@ import { Word } from "types/db-objects/Word";
 // 12 bytes per word ID, and 2 bytes per dimension (300 * 2 + 12 = 612)
 const CHUNK_SIZE = 612;
 
-async function main(url: string, label: string, path: string): Promise<void> {
+async function main(url: string, label: string, path: string, nosql: boolean): Promise<void> {
     const dir = await getWordVectorDir();
     safeMkdir(dir);
     const dst = join(dir, `${label}.bin`);
@@ -65,22 +65,25 @@ async function main(url: string, label: string, path: string): Promise<void> {
     wordCSVWrite.end();
     fancyLog("End.");
     await finish;
-    fancyLog("Inserting bulk.");
-    await new WordVector().bulkInsert(wordVectorCSV);
-    await new Vector().bulkInsert(vectorCSV);
-    await new Word().bulkInsert(wordCSV);
-    fancyLog("Cleanup.");
-    fs.unlinkSync(vectorCSV);
-    fs.unlinkSync(wordVectorCSV);
-    fs.unlinkSync(wordCSV);
-    (await SQL.db()).destroy();
+    if (!nosql) {
+        fancyLog("Inserting bulk.");
+        await new WordVector().bulkInsert(wordVectorCSV);
+        await new Vector().bulkInsert(vectorCSV);
+        await new Word().bulkInsert(wordCSV);
+        fancyLog("Cleanup.");
+        fs.unlinkSync(vectorCSV);
+        fs.unlinkSync(wordVectorCSV);
+        fs.unlinkSync(wordCSV);
+        (await SQL.db()).destroy();
+    }
 }
 
 const label = <string>argv.label;
 const url = <string>argv.url;
+const nosql = <string>argv.nodb;
 const path = process.argv[process.argv.length - 1];
-const help = `Usage: process-word-vectors --label LABEL --url URL PATH`
+const help = `Usage: process-word-vectors --label LABEL --url URL PATH [--nosql]`
 if (!label || !url || !path) console.debug(help);
 else {
-    main(url, label, path);
+    main(url, label, path, !!nosql);
 }
