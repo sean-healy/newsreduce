@@ -1,5 +1,4 @@
 #include <float.h>
-#include <gcrypt.h>
 #include <math.h>
 #include <pthread.h>
 #include <stdio.h>
