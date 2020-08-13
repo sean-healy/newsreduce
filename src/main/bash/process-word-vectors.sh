@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-base=$(arg $@ base)
+base=$(arg base $@)
 if [ ! "$base" ]; then
     base=/var/newsreduce/word-vectors 
 fi
