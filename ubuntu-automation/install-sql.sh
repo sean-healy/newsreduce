@@ -12,6 +12,7 @@ else
     echo "$sql_password" > /var/newsreduce/sql_password
 fi
 echo Creating user...
+echo "drop user if exists 'newsreduce'@'%'"                                                                                       | mysql
 echo "create user if not exists 'newsreduce'@'%' identified with mysql_native_password by '$sql_password';"                       | mysql
 echo Creating DB...
 echo "create database if not exists newsreduce;"                                                                                  | mysql
