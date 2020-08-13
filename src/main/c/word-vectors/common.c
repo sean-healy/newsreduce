@@ -1,4 +1,5 @@
 #include <float.h>
+#include <gcrypt.h>
 #include <math.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -122,19 +123,19 @@ void idStructToBuffer(WordID id, unsigned char* idBuffer) {
         idBuffer[byte--] = part & 0xFF;
 }
 
-off_t binarySearch(
+long int binarySearch(
     FILE* fd,
     WordID id,
-    off_t lo,
-    off_t hi,
+    long int lo,
+    long int hi,
     char* idBuffer,
     char* vectorBuffer,
     float* parsedVector
 ) {
-    hi = hi - ((off_t) hi) % ((off_t) CHUNK_SIZE);
+    hi = hi - ((long int) hi) % ((long int) CHUNK_SIZE);
     for (int i = 0; i < 30 && lo < hi; ++i) {
-        off_t mid = lo + (hi - lo >> 1);
-        mid -= ((off_t) mid) % ((off_t) CHUNK_SIZE);
+        long int mid = lo + (hi - lo >> 1);
+        mid -= ((long int) mid) % ((long int) CHUNK_SIZE);
         fseek(fd, mid, SEEK_SET);
         size_t size = fread(idBuffer, BYTES_PER_ID, 1, fd);
         WordID current = idBufferToStruct(idBuffer);
