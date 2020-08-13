@@ -89,13 +89,13 @@ int parallelMergeSimilarityGroup(
     VectorSimilarity* b,
     long outerGroupSize,
     long innerGroupSize,
-    off_t phase,
+    long int phase,
     int threadCount,
     pthread_t* threads,
     int currentThread
 ) {
     //printf("\tbinary merge: [%ld, [%ld, @%ld\n", (a - v), (b - v), phase);
-    for (off_t offset = 0; offset < outerGroupSize; offset += innerGroupSize) {
+    for (long int offset = 0; offset < outerGroupSize; offset += innerGroupSize) {
         VectorSimilarity* lo = a + offset;
         VectorSimilarity* hi = b + offset + phase;
         // Apply MODULO rule, to avoid overflows.
@@ -136,7 +136,7 @@ void naryMergeSimilarityGroup(
     // How many processors to assign to each pair.
     int pairProcessors = (processors << 1) / groups;
     long innerGroupSize = outerGroupSize / pairProcessors;
-    for (off_t phase = 0; phase < outerGroupSize; phase += innerGroupSize) {
+    for (long int phase = 0; phase < outerGroupSize; phase += innerGroupSize) {
         int currentThread = 0;
         for (int i = 0; i < groups; i += 2) {
             VectorSimilarity* left = vectors + i * outerGroupSize;
@@ -165,12 +165,12 @@ int main(unsigned int argc, unsigned char* argv[]) {
     unsigned char vectorBuffer[BYTES_PER_VECTOR];
     struct stat st;
     stat(src, &st);
-    off_t size = st.st_size;
-    off_t unpaddedRows = ((off_t) size) / ((off_t) CHUNK_SIZE);
+    long int size = st.st_size;
+    long int unpaddedRows = ((long int) size) / ((long int) CHUNK_SIZE);
     // Needed for multithreading.
-    off_t P2 = processors * 2;
-    off_t mod = unpaddedRows % P2;
-    off_t rows = unpaddedRows;
+    long int P2 = processors * 2;
+    long int mod = unpaddedRows % P2;
+    long int rows = unpaddedRows;
     if (mod)
         rows = rows - mod + P2;
     printf("Rows: %ld\n", rows);
@@ -193,13 +193,13 @@ int main(unsigned int argc, unsigned char* argv[]) {
             currentVectorPtr->dimensions[i] = FLT_MAX;
         clearResults(currentVectorPtr->synonyms, MAX_SIMILARITIES);
     }
-    off_t rowsPerProcessor = rows / processors;
+    long int rowsPerProcessor = rows / processors;
     int ret = system("date");
     printf("Begin.");
     fflush(stdout);
     int currentThread = 0;
     pthread_t threadIDs[processors - 1];
-    for (off_t offset = 0; offset < rows; offset += rowsPerProcessor) {
+    for (long int offset = 0; offset < rows; offset += rowsPerProcessor) {
         CreateParams* params = malloc(sizeof(CreateParams));
         params[0].vectors = vectors + offset;
         params[0].end = vectors + offset + rowsPerProcessor;
@@ -216,7 +216,7 @@ int main(unsigned int argc, unsigned char* argv[]) {
     unsigned char* lengthBuffer = malloc(1);
     lengthBuffer[0] = (unsigned char) MAX_SIMILARITIES;
     fwrite(lengthBuffer, 1, 1, out);
-    for (off_t i = 0; i < unpaddedRows; ++i) {
+    for (long int i = 0; i < unpaddedRows; ++i) {
         VectorSimilarity vector = vectors[i];
         WordID parent = vector.id;
         idStructToBuffer(parent, idBuffer);

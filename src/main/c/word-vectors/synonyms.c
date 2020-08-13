@@ -18,7 +18,7 @@ int main (unsigned int argc, char* argv[]) {
     clearResults(results, RESULTS);
     struct stat st;
     stat(LOCATION, &st);
-    off_t size = st.st_size;
+    long int size = st.st_size;
     FILE* fd = fopen(LOCATION, "r");
     if (binarySearch(fd, id, 0, size, idBuffer, vectorBuffer, searchTermVector)) {
         fseek(fd, 0, SEEK_SET);

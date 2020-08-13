@@ -10,7 +10,7 @@ int main (unsigned int argc, char* argv[]) {
     float searchTermVector[DIMENSIONS];
     struct stat st;
     stat(LOCATION, &st);
-    off_t size = st.st_size;
+    long int size = st.st_size;
     FILE* fd = fopen(LOCATION, "r");
     for (int i = 1; i <= args; ++i) {
         char* arg = argv[i];

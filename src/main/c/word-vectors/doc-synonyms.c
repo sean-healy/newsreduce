@@ -20,9 +20,9 @@ int main (unsigned int argc, char* argv[]) {
     qsort(sortedWordIDs, n, sizeof(WordID), cmp);
     struct stat st;
     stat(LOCATION, &st);
-    off_t size = st.st_size;
+    long int size = st.st_size;
     FILE* fd = fopen(LOCATION, "r");
-    off_t lo = 0;
+    long int lo = 0;
     for (int i = 1; i < argc; ++i) {
         char *w = argv[i];
         hash(w, idBuffer);

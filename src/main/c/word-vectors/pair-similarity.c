@@ -13,7 +13,7 @@ int main (unsigned int argc, char* argv[]) {
     float v2[DIMENSIONS];
     struct stat st;
     stat(LOCATION, &st);
-    off_t size = st.st_size;
+    long int size = st.st_size;
     FILE* fd = fopen(LOCATION, "r");
     if (binarySearch(fd, i1, 0, size, idBuffer, vBuffer, v1)) {
         if (binarySearch(fd, i2, 0, size, idBuffer, vBuffer, v2)) {

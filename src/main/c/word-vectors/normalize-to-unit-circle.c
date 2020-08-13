@@ -10,7 +10,7 @@ int main (unsigned int argc, char* argv[]) {
     float vector[DIMENSIONS];
     struct stat st;
     stat(src, &st);
-    off_t size = st.st_size;
+    long int size = st.st_size;
     FILE* fd = fopen(src, "r+");
     long i = 0L;
     for (long i = 0L; i < size; i += CHUNK_SIZE) {
