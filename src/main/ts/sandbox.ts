@@ -1,37 +1,76 @@
 import fs from "fs";
+import sql from "sql";
 import { JSDOM } from "jsdom";
 import { SQL } from "common/SQL";
 import { Dictionary } from "common/util";
-import { ResourceID, ResourceURL } from "types/db-objects/ResourceURL"; import { VersionType } from "types/db-objects/VersionType";
+import { ResourceID, ResourceURL } from "types/db-objects/ResourceURL";
+import { VersionType } from "types/db-objects/VersionType";
 import { Key } from "types/db-objects/Key";
 import { Redis } from "common/Redis";
-import { BagOfSkipGrams } from "types/ml/BagOfSkipGrams";
-import { SkipGrams } from "types/ml/SkipGrams";
-import { entityIDs } from "file";
-import { Entity } from "types/Entity";
-import { getRepresentations } from "services/resource-processor/ExtractMLRepresentations";
+import { BagOfSkipGrams } from "ml/BagOfSkipGrams";
+import { SkipGrams } from "ml/SkipGrams";
+import { getSkipGrams } from "services/resource-processor/ExtractBOSG";
 import { SkipGram } from "types/db-objects/SkipGram";
-import { Word } from "types/db-objects/Word";
+import { selectNewsSourceHomepages, genericSQLPromise } from "data";
+import { ResourceThrottle } from "types/db-objects/ResourceThrottle";
+import { BagOfWords } from "ml/BagOfWords";
+import { Predicate } from "types/db-objects/Predicate";
+import { EXTRACTORS } from "services/resource-processor/functions";
+import { EXCLUDE } from "services/resource-processor/HTMLProcessor";
+import { Bag } from "ml/Bag";
 
 // WIP
-export function main() {
-    const content = fs.readFileSync("/tmp/raw.html");
-    const dom = new JSDOM(content);
+export function main0() {
+    const input = fs.readFileSync("/tmp/raw.html");
+    const dom = new JSDOM(input);
     const body = dom.window.document.body;
-    const stack: [number, Element][] = [];
-    stack.push([0, body]);
+    const stack: Element[] = [];
+    stack.push(body);
+    const stringBuilder = [];
     while (stack.length) {
-        const [depth, element] = stack.pop();
-        for (let i = 0; i < depth; ++i)
-            process.stdout.write(" ");
-        console.log(depth, element.tagName);
-        const children = element.children;
+        const parent = stack.pop();
+        const children = parent.children;
         const length = children.length;
-        for (let i = 0; i < length; ++i) {
-            const child = children.item(i);
-            stack.push([depth + 1, child]);
+        if (length) {
+            for (let i = 0; i < length; ++i) {
+                const child = children.item(i);
+                if (!EXCLUDE.has(child.tagName.toUpperCase())) {
+                    stack.push(child);
+                }
+            }
+        } else {
+            let current = parent;
+
+            const subDocument: Dictionary<string> = {};
+            if (current.textContent)
+                subDocument.text = current.textContent;
+            const attributes = current.attributes;
+            for (let i = 0; i < attributes.length; ++i) {
+                let { name, value }= attributes.item(i);
+                subDocument[name] = value;
+            }
+            for (let [key, value] of Object.entries(subDocument)) {
+                value = value.replace(/(\s|\n)+/g, " ").replace(/(^ )|( $)/g, "")
+                if (value) subDocument[key] = value;
+                else delete subDocument[key];
+            }
+            process.stdout.write(JSON.stringify(subDocument));
+            do {
+                if (current === parent) stringBuilder.push(Buffer.from("\t"));
+                else stringBuilder.push(Buffer.from(" "));
+                stringBuilder.push(Buffer.from(current.tagName.toLowerCase()));
+                if (current.className && typeof current.className === "string")
+                    for (const c of current.className.split(/ +/g))
+                        stringBuilder.push(Buffer.from(` .${c}`));
+                if (current.id)
+                    stringBuilder.push(Buffer.from(` #${current.id}`));
+                current = current.parentElement;
+            } while (current);
+            stringBuilder.push(Buffer.from("\n"));
         }
     }
+    stringBuilder.pop();
+    const output = Buffer.concat(stringBuilder);
 }
 
 export async function main2() {
@@ -91,10 +130,10 @@ export async function main3() {
     console.log("Rows:", rows.length);
     for (const row of rows) {
         const resource = BigInt(row.resource);
-        const buffer = await new ResourceID(resource).readLatest(VersionType.TOKENS_TXT);
+        const buffer = await new ResourceID(resource).readLatest(VersionType.TOKENS);
         if (buffer) {
-            const rep = getRepresentations(buffer.toString());
-            for (const [key, val] of rep.bagOfSkipGrams.objects) {
+            const rep = getSkipGrams({ buffer }, 2, 1);
+            for (const [key, val] of rep.objects) {
                 set.add(key);
             }
         }
@@ -111,10 +150,51 @@ export async function investigateSkipGrams() {
     }
 }
 
-export async function trainBayes() {
-    const sql = "select * from "
+export async function main33() {
+    const pages = await selectNewsSourceHomepages();
+    const throttles: ResourceThrottle[] = [];
+    for (const resource of pages)
+        throttles.push(new ResourceThrottle(resource, 60 * 60 * 1000));
+    console.log(throttles);
 }
 
-//main3();
-//trainBayes();
-console.log(new Word("france").getID());
+export async function predict(predicate: Predicate, format: VersionType, input: [bigint, Bag<any>][]) {
+    const posBuffer = await predicate.readLatest(format, Predicate.TRUE_SUFFIX);
+    const negBuffer = await predicate.readLatest(format, Predicate.FALSE_SUFFIX);
+    const posBag = new Bag().fromBuffer(posBuffer);
+    const negBag = new Bag().fromBuffer(negBuffer);
+    const rows = await genericSQLPromise(sql.SELECT_RESOURCE_VERSIONS_FOR_WIKI_NEWS_SOURCE_PREDICTION);
+    const results = [];
+    let i = 0;
+    for (const [id, bag] of input) {
+        let score = 0;
+        for (const [ termID, count ] of bag.bag) {
+            const posCount = posBag.bag.get(termID) || 0;
+            const posTotal = posBag.getTotal();
+            const negCount = negBag.bag.get(termID) || 0;
+            const negTotal = negBag.getTotal();
+            const pPos = (posCount + 1) / (posTotal + 2);
+            const pNeg = (negCount + 1) / (negTotal + 2);
+            score += Math.log((pPos * (1 - pNeg)) / (pNeg * (1 - pPos)));
+        }
+        results.push([id, score]);
+    }
+    results.sort((a, b) => a[1] - b[1]);
+
+    return results;
+}
+
+export async function main() {
+    console.log("ok");
+    for (const c of EXTRACTORS) {
+        const from = new c().from().map(v => v.filename);
+        const to = new c().to().map(v => v.filename);
+        console.log(
+            `or (tt.filename in (${to.map(t => `"${t}"`).join(", ")}) and ft.filename in (${from.map(f => `"${f}"`).join(", ")}))`
+        );
+    }
+    await SQL.destroy();
+    await Redis.quit();
+}
+
+main0();

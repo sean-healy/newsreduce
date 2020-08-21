@@ -20,13 +20,18 @@ export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T
     exists(time: number, type: VersionType) {
         return exists(this.entity(), this.getID(), time, type);
     }
-    async writeVersion(time: number, type: VersionType, input: string | Buffer | NodeJS.ReadableStream) {
+    async writeVersion(
+        time: number,
+        type: VersionType,
+        input: string | Buffer | NodeJS.ReadableStream,
+        suffix: string = null,
+    ) {
         const id = this.getID();
         let bytesWritten: number = -1;
         if (typeof input === "string" || input instanceof Buffer) {
             let i = 0;
             for (i = 0; i < 10 && bytesWritten < 0; ++i)
-                bytesWritten = await write(this.entity(), id, time, type, input);
+                bytesWritten = await write(this.entity(), id, time, type, input, suffix);
             if (i > 1 && bytesWritten >= 0) {
                 fancyLog(
                     `wrote ${bytesWritten}b to ` +
@@ -35,7 +40,7 @@ export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T
                 );
             }
         } else
-            bytesWritten = await write(this.entity(), id, time, type, input);
+            bytesWritten = await write(this.entity(), id, time, type, input, suffix);
 
         if (bytesWritten >= 0)
             this.versionObject(time, type, bytesWritten).enqueueInsert({ recursive: true });
@@ -47,12 +52,13 @@ export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T
         type: VersionType,
         bufferFile: string,
         length: number,
+        suffix: string = null,
     ) {
         const id = this.getID();
         let bytesWritten: number = -1;
         let i = 0;
         for (i = 0; i < 10 && bytesWritten < 0; ++i)
-            bytesWritten = await replace(this.entity(), id, time, type, bufferFile, length);
+            bytesWritten = await replace(this.entity(), id, time, type, bufferFile, length, suffix);
         if (i > 1 && bytesWritten >= 0) {
             fancyLog(
                 `wrote ${bytesWritten}b to ` +
@@ -66,9 +72,13 @@ export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T
 
         return bytesWritten;
     }
-    async read(time: number, format: VersionType) {
+    async read(
+        time: number,
+        format: VersionType,
+        suffix: string = null,
+    ) {
         try {
-            return await read(this.entity(), this.getID(), time, format);
+            return await read(this.entity(), this.getID(), time, format, suffix);
         } catch (e) {
             return null;
         }
@@ -81,40 +91,57 @@ export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T
 
         return latestTime;
     }
-    async readLatest(format: VersionType) {
+    async readLatest(
+        format: VersionType,
+        suffix: string = null,
+    ) {
         try {
-            return await this.read(await this.latest(format), format);
+            return await this.read(await this.latest(format), format, suffix);
         } catch (e) {
             return null;
         }
     }
-    async streamLatest(format: VersionType) {
+    async streamLatest(
+        format: VersionType,
+        suffix: string = null,
+    ) {
         try {
-            return await this.stream(await this.latest(format), format);
+            return await this.stream(await this.latest(format), format, suffix);
         } catch (e) {
             return null;
         }
     }
-    async stream(time: number, format: VersionType) {
+    async stream(
+        time: number,
+        format: VersionType,
+        suffix: string = null,
+    ) {
         try {
-            return await stream(this.entity(), this.getID(), time, format);
+            return await stream(this.entity(), this.getID(), time, format, suffix);
         } catch (e) {
             return null;
         }
     }
-    async tmpFileLatest(format: VersionType) {
+    async tmpFileLatest(
+        format: VersionType,
+        suffix: string = null,
+    ) {
         try {
-            return await this.tmpFile(await this.latest(format), format);
+            return await this.tmpFile(await this.latest(format), format, suffix);
         } catch (e) {
             fancyLog(JSON.stringify(e));
             return null;
         }
     }
-    async tmpFile(time: number, format: VersionType) {
+    async tmpFile(
+        time: number,
+        format: VersionType,
+        suffix: string = null
+    ) {
         let length = 0;
         let file: string;
         try {
-            const src = await this.stream(time, format);
+            const src = await this.stream(time, format, suffix);
             file = randomBufferFile();
             const dst = fs.createWriteStream(file);
             src.pipe(dst);

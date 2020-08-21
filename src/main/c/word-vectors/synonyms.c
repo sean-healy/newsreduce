@@ -1,4 +1,4 @@
-#include "./common.c"
+#include "../common.c"
 
 #define RESULTS             100
 
@@ -7,7 +7,7 @@ int main (unsigned int argc, char* argv[]) {
     fprintf(stderr, "Seeking: %s ", searchTerm);
     unsigned char idBuffer[BYTES_PER_ID];
     hash(searchTerm, idBuffer);
-    WordID id = idBufferToStruct(idBuffer);
+    EntityID id = idBufferToStruct(idBuffer);
     fprintf(stderr, "%llx", id.head);
     fprintf(stderr, "%lx\n", id.tail);
     unsigned char vectorBuffer[BYTES_PER_VECTOR];
@@ -20,11 +20,11 @@ int main (unsigned int argc, char* argv[]) {
     stat(LOCATION, &st);
     long int size = st.st_size;
     FILE* fd = fopen(LOCATION, "r");
-    if (binarySearch(fd, id, 0, size, idBuffer, vectorBuffer, searchTermVector)) {
+    if (binaryDiskSearch(fd, id, 0, size, idBuffer, vectorBuffer, searchTermVector)) {
         fseek(fd, 0, SEEK_SET);
         float cutoff = results[0].value;
         while (fread(idBuffer, BYTES_PER_ID, 1, fd)) {
-            WordID current = idBufferToStruct(idBuffer);
+            EntityID current = idBufferToStruct(idBuffer);
             float score;
             size_t result = fread(vectorBuffer, BYTES_PER_VECTOR, 1, fd);
             parseVector(vectorBuffer, searchResultVector);

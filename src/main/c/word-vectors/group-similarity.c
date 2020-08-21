@@ -1,9 +1,9 @@
-#include "./common.c"
+#include "../common.c"
 
 int main (unsigned int argc, char* argv[]) {
     unsigned char idBuffer[BYTES_PER_ID];
     unsigned int args = argc - 1;
-    WordID ids[args];
+    EntityID ids[args];
     float vectors[args][DIMENSIONS];
     float scoreMatrix[args][args];
     unsigned char vectorBuffer[BYTES_PER_VECTOR];
@@ -15,9 +15,9 @@ int main (unsigned int argc, char* argv[]) {
     for (int i = 1; i <= args; ++i) {
         char* arg = argv[i];
         hash(arg, idBuffer);
-        WordID id = idBufferToStruct(idBuffer);
+        EntityID id = idBufferToStruct(idBuffer);
         ids[i - 1] = id;
-        if (binarySearch(fd, id, 0, size, idBuffer, vectorBuffer, searchTermVector)) {
+        if (binaryDiskSearch(fd, id, 0, size, idBuffer, vectorBuffer, searchTermVector)) {
             for (int j = 0; j < DIMENSIONS; ++j)
                 vectors[i - 1][j] = searchTermVector[j];
         } else {

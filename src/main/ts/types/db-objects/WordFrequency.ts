@@ -35,15 +35,8 @@ export class WordFrequencyByID extends WordFrequency {
         this.wordID = wordID;
         this.frequency = frequency;
     }
-
-    insertCols(): string[] {
-        return ["word", "`frequency`"];
-    }
     getInsertParams(): any[] {
         return [this.wordID, this.frequency];
-    }
-    table(): string {
-        return "WordFrequency";
     }
     getDeps() {
         return [];

@@ -2,20 +2,13 @@ import { Predicate, PredicateID } from "types/db-objects/Predicate";
 import { selectBOWsForRelation } from "data";
 import { ResourceID } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
-import { BagOfWords } from "types/ml/BagOfWords";
+import { BagOfWords } from "ml/BagOfWords";
 import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
 import { PromisePool } from "common/PromisePool";
-
-export function linerLog(start: number, i: number, l: number) {
-    const now = Date.now();
-    const diff = now - start;
-    const expectedTotalDuration = diff / (i / l)
-    const expectedRemainingDurationS = ((start + expectedTotalDuration) - now) / 1000;
-    const minutes = Math.floor(expectedRemainingDurationS / 60);
-    const seconds = Math.round(expectedRemainingDurationS % 60).toString();
-    process.stdout.write(`\r${((i / l) * 100).toFixed(10)}% ${minutes}:${seconds.padStart(4, "0")}s left.`);
-}
+import { ConditionalWordFrequencyByID } from "types/db-objects/ConditionalWordFrequency";
+import { linerLog } from "common/util";
+import { Bag } from "ml/Bag";
 
 export async function main() {
     const predicates = await new Predicate().selectAll();
@@ -52,19 +45,24 @@ export async function main() {
         }
         process.stdout.write("\n");
         const allBOW = positiveBOW.union(negativeBOW);
+        Bag.termsByInformationGain(positiveCases.length, negativeCases.length, positiveBOW, negativeBOW, allBOW);
         positiveBOW.calculateAndSetLengthBytes();
         negativeBOW.calculateAndSetLengthBytes();
         allBOW.calculateAndSetLengthBytes();
-        const now = Date.now();
+        for (const [wordID, count] of positiveBOW.bag)
+            new ConditionalWordFrequencyByID(id, true, wordID, count).enqueueInsert({ recursive: true });
+        for (const [wordID, count] of negativeBOW.bag)
+            new ConditionalWordFrequencyByID(id, false, wordID, count).enqueueInsert({ recursive: true });
 
+        const now = Date.now();
         const { length: posBOWLength, file: posBOWFile } = positiveBOW.toBufferFile();
         if (posBOWLength >= 0)
             await pool.registerPromise(new PredicateID(id)
-                .replaceVersion(now, VersionType.TRUE_BAG_OF_WORDS, posBOWFile, posBOWLength));
+                .replaceVersion(now, VersionType.BAG_OF_WORDS, posBOWFile, posBOWLength, Predicate.TRUE_SUFFIX));
         const { length: negBOWLength, file: negBOWFile } = negativeBOW.toBufferFile();
         if (negBOWLength >= 0)
             await pool.registerPromise(new PredicateID(id)
-                .replaceVersion(now, VersionType.FALSE_BAG_OF_WORDS, negBOWFile, negBOWLength));
+                .replaceVersion(now, VersionType.BAG_OF_WORDS, negBOWFile, negBOWLength, Predicate.FALSE_SUFFIX));
         const { length: allBOWLength, file: allBOWFile } = allBOW.toBufferFile();
         if (allBOWLength >= 0)
             await pool.registerPromise(new PredicateID(id)

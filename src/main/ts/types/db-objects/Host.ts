@@ -48,7 +48,7 @@ export class Host extends EntityObject<Host> {
         return Entity.HOST;
     }
     versionObject(time: number, type: VersionType, length: number) {
-        return new HostVersion({ time, type, length, entity: this });
+        return new HostVersion({ time, type, length, entity: this, created: Date.now() });
     }
 }
 

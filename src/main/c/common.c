@@ -76,21 +76,44 @@ int maxDimension(float* vector) {
 typedef struct IDStruct {
     unsigned long long head;
     unsigned long int tail;
-} WordID;
+} EntityID;
 
 typedef struct ResultStruct {
-    WordID id;
+    EntityID id;
     float value;
 } Result;
 
-void printID(WordID id) {
-    printf("%llx", id.head);
-    printf("%lx", id.tail);
+void printID(EntityID id) {
+    printf("%016llx", id.head);
+    printf("%08lx", id.tail);
 }
 
-int cmp(const void* aPtr, const void* bPtr) {
-    WordID a = * ((WordID*) aPtr);
-    WordID b = * ((WordID*) bPtr);
+const unsigned long long BITS = (unsigned long long) 32;
+const unsigned long long BASE = ((unsigned long long) 1) << BITS;
+const unsigned long long MASK = BASE - 1;
+const unsigned long long DECI = (unsigned long long) 10;
+void printDecimal(unsigned long long a, unsigned long long b, unsigned long long c) {
+    if (a || b || c) {
+        unsigned long long aMod = a % DECI;
+        a /= DECI;
+        b += aMod * BASE;
+        unsigned long long bMod = b % DECI;
+        b /= DECI;
+        c += bMod * BASE;
+        unsigned long long cMod = c % DECI;
+        c /= DECI;
+        printDecimal(a, b, c);
+        printf("%llu", cMod);
+    }
+}
+void printIDDecimal(EntityID id) {
+    unsigned long long a = id.head >> BITS;
+    unsigned long long b = id.head & MASK;
+    unsigned long long c = (unsigned long long) id.tail;
+    printDecimal(a, b, c);
+}
+
+int cmpEntity(EntityID a, EntityID b) {
     int result;
     if (a.head > b.head) result = 1;
     else if (a.head < b.head) result = -1;
@@ -101,7 +124,14 @@ int cmp(const void* aPtr, const void* bPtr) {
     return result;
 }
 
-WordID idBufferToStruct(unsigned char* idBuffer) {
+int cmp(const void* aPtr, const void* bPtr) {
+    EntityID a = * ((EntityID*) aPtr);
+    EntityID b = * ((EntityID*) bPtr);
+
+    return cmpEntity(a, b);
+}
+
+EntityID idBufferToStruct(unsigned char* idBuffer) {
     unsigned long long head = 0;
     for (int i = 0; i < 8; ++i)
         head = (head << 8) | idBuffer[i];
@@ -109,12 +139,12 @@ WordID idBufferToStruct(unsigned char* idBuffer) {
     for (int i = 8; i < 12; ++i)
         tail = (tail << 8) | idBuffer[i];
 
-    WordID id = { head, tail };
+    EntityID id = { head, tail };
 
     return id;
 }
 
-void idStructToBuffer(WordID id, unsigned char* idBuffer) {
+void idStructToBuffer(EntityID id, unsigned char* idBuffer) {
     int byte = BYTES_PER_ID - 1;
     for (unsigned long int part = id.tail; byte >= 8; part >>= 8)
         idBuffer[byte--] = part & 0xFF;
@@ -122,9 +152,9 @@ void idStructToBuffer(WordID id, unsigned char* idBuffer) {
         idBuffer[byte--] = part & 0xFF;
 }
 
-long int binarySearch(
+long int binaryDiskSearch(
     FILE* fd,
-    WordID id,
+    EntityID id,
     long int lo,
     long int hi,
     char* idBuffer,
@@ -137,7 +167,7 @@ long int binarySearch(
         mid -= ((long int) mid) % ((long int) CHUNK_SIZE);
         fseek(fd, mid, SEEK_SET);
         size_t size = fread(idBuffer, BYTES_PER_ID, 1, fd);
-        WordID current = idBufferToStruct(idBuffer);
+        EntityID current = idBufferToStruct(idBuffer);
         long long diff = cmp(&current, &id);
         if (diff > 0) hi = mid;
         else if (diff < 0) lo = mid + CHUNK_SIZE;
@@ -179,7 +209,7 @@ float squaredDistanceOL(float* v1, FILE* fd, float cutoff, unsigned char* dimens
     return squaredSum;
 }
 
-float insertMin(Result* results, int resultCount, WordID id, float value) {
+float insertMin(Result* results, int resultCount, EntityID id, float value) {
     float maxMin = results[0].value;
     if (maxMin < value) return maxMin;
     results[0].id = id;
@@ -240,9 +270,9 @@ void clearResults(Result* results, int count) {
     }
 }
 
-WordID readID(FILE* fd, unsigned char* buffer) {
+EntityID readID(FILE* fd, unsigned char* buffer) {
     size_t result = fread(buffer, BYTES_PER_ID, 1, fd);
-    WordID id = idBufferToStruct(buffer);
+    EntityID id = idBufferToStruct(buffer);
 }
 
 void readVector(FILE* fd, unsigned char* buffer, float* vBuffer) {
@@ -251,7 +281,7 @@ void readVector(FILE* fd, unsigned char* buffer, float* vBuffer) {
 }
 
 typedef struct VectorSimilarityStruct {
-    WordID id;
+    EntityID id;
     float dimensions[DIMENSIONS];
     Result synonyms[MAX_SIMILARITIES];
 } VectorSimilarity;

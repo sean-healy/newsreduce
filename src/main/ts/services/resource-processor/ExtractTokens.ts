@@ -4,7 +4,6 @@ import { nodeToHitType } from "types/HitType";
 import { VersionType } from "types/db-objects/VersionType";
 import { htmlCollectionToArray, wordsFromNode } from "services/resource-processor/functions";
 import { HTMLProcessor } from "./HTMLProcessor";
-import { BagOfSkipGrams } from "types/ml/BagOfSkipGrams";
 
 const INCLUDE_TAGS = [
     "TITLE",
@@ -38,19 +37,16 @@ export function getTokens(dom: JSDOM) {
 
 export class ExtractTokens extends HTMLProcessor {
     ro() { return false; }
-    async applyToDOM(dom: JSDOM, time?: number) {
-        const resource = new ResourceURL(dom.window.location.toString());
+    async applyToDOM(resource: ResourceURL, dom: JSDOM, time?: number) {
         const tokens = getTokens(dom);
         await Promise.all([
-            resource.writeVersion(time, VersionType.TOKENS_TXT, tokens.map(sentence => sentence.join(" ")).join("\n")),
+            resource.writeVersion(time, VersionType.TOKENS, tokens.map(sentence => sentence.join(" ")).join("\n")),
         ]);
     }
     from() {
-        return new Set([VersionType.RAW_HTML.filename]);
+        return [VersionType.RAW_HTML];
     }
     to() {
-        return new Set([
-            VersionType.TOKENS_TXT.filename,
-        ]);
+        return [VersionType.TOKENS];
     }
 }

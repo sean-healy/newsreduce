@@ -3,7 +3,7 @@ import { Word } from "./Word";
 import { WordVectorSource } from "./WordVectorSource";
 import { Vector } from "./Vector";
 import { ResourceURL } from "./ResourceURL";
-import { Tokenizer } from "types/ml/Tokenizer";
+import { Tokenizer } from "ml/Tokenizer";
 
 export const BYTES_PER_FLOAT = 2;
 const UNIQUE_VALUES = 1 << (BYTES_PER_FLOAT << 3);
@@ -40,8 +40,9 @@ export class WordVector extends DBObject<WordVector> {
         let offset = 0;
         const floats = new Array<number>(buffer.length >> 1);
         while (offset < buffer.length) {
-            floats[offset >> 1] = this.floatFromBytes(buffer, offset).float;
-            offset += 2;
+            const { float, offset: nextOffset } = this.floatFromBytes(buffer, offset);
+            floats[offset >> 1] = float;
+            offset = nextOffset;
         }
 
         return floats;

@@ -13,15 +13,14 @@ export function toRawText(dom: JSDOM) {
 }
 
 export class ExtractRawText extends HTMLProcessor {
-    async applyToDOM(dom: JSDOM, time?: number) {
+    async applyToDOM(resource: ResourceURL, dom: JSDOM, time?: number) {
         const rawText = toRawText(dom);
-        const resource = new ResourceURL(dom.window.location.toString());
         await resource.writeVersion(time, VersionType.RAW_WORDS_TXT, rawText);
     }
     from() {
-        return new Set([VersionType.RAW_HTML.filename]);
+        return [VersionType.RAW_HTML];
     }
     to() {
-        return new Set([VersionType.RAW_WORDS_TXT.filename]);
+        return [VersionType.RAW_WORDS_TXT];
     }
 }

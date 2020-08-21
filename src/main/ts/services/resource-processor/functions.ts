@@ -1,16 +1,51 @@
 import { JSDOM } from "jsdom";
 import { ResourceProcessor } from "services/resource-processor/ResourceProcessor";
-import { selectResourceVersions } from "data";
 import { Dictionary, fancyLog } from "common/util";
 import { VersionType } from "types/db-objects/VersionType";
 import { PromisePool } from "common/PromisePool";
 import { HitType } from "types/HitType";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { DOMPool } from "./DOMPool";
-import { Tokenizer } from "types/ml/Tokenizer";
-import { GLOBAL_VARS, exit } from "common/processor";
+import { Tokenizer } from "ml/Tokenizer";
+import { GLOBAL_VARS } from "common/processor";
+import { ExtractHits } from "services/resource-processor/ExtractHits";
+import { ExtractAHrefs } from "services/resource-processor/ExtractAHrefs";
+import { ExtractRawText } from "services/resource-processor/ExtractRawText";
+import { ExtractWikiTree } from "services/resource-processor/ExtractWikiTree";
+import { ExtractTitle } from "services/resource-processor/ExtractTitle";
+import { ExtractTokens } from "./ExtractTokens";
+import { ExtractReducedTokens } from "./ExtractReducedTokens";
+import { ExtractBOW } from "./ExtractBOW";
+import { ExtractBOSG } from "./ExtractBOSG";
+import { ExtractDocumentVector } from "./ExtractDocumentVector";
+import { ExtractBOBG } from "./ExtractBOBG";
+import { ExtractBOTG } from "./ExtractBOTG";
+import { ExtractBOL } from "./ExtractBOL";
+import { ExtractSubDocuments } from "./ExtractSubDocuments";
 
 export const ANCHOR_TAG = "a";
+
+export const EXTRACTORS = [
+    ExtractDocumentVector,
+    ExtractAHrefs,
+    ExtractSubDocuments,
+    ExtractTitle,
+    ExtractWikiTree,
+    ExtractRawText,
+    ExtractReducedTokens,
+    ExtractHits,
+    ExtractBOW,
+    ExtractBOSG,
+    ExtractBOBG,
+    ExtractBOTG,
+    ExtractBOW.Reduced(),
+    ExtractBOSG.Reduced(),
+    ExtractBOBG.Reduced(),
+    ExtractBOTG.Reduced(),
+    ExtractBOL,
+    ExtractTokens,
+];
+
 
 export function htmlCollectionToArray<T extends Element>(
     coll: HTMLCollectionOf<T> | NodeListOf<T>
@@ -61,62 +96,89 @@ function filenameToBufferOrPath(resource: ResourceURL, time: number, filename: s
     }
 
 }
+export interface InputCache {
+    buffer?: Buffer;
+    string?: string;
+    tokens?: string[][];
+}
 export async function processResource(
     resource: ResourceURL,
     time: number,
-    formats: Set<string>,
     pool: PromisePool,
     processors: ResourceProcessor[]
 ) {
     const url = resource.toURL();
-    const dictionary: Dictionary<Buffer | ResourceURL> = {};
-    const filenames = [...formats];
     let buffersOrPaths: (ResourceURL | Buffer)[];
+    const filenames: string[] = [];
+    for (const processor of processors)
+        for (const type of processor.from())
+            filenames.push(type.filename);
     try {
-        buffersOrPaths = await Promise.all(filenames.map(filename => filenameToBufferOrPath(resource, time, filename)));
+        buffersOrPaths =
+            await Promise.all(filenames.map(filename => filenameToBufferOrPath(resource, time, filename)));
     } catch (e) {
         fancyLog(e.toString());
     }
-    const length = buffersOrPaths.length;
-    for (let i = 0; i < length; ++i) {
-        const bufferOrPath = buffersOrPaths[i];
-        if (bufferOrPath) {
-            dictionary[filenames[i]] = bufferOrPath;
-        }
-    }
-    const localFilenames = Object.keys(dictionary);
+    const dictionary: Dictionary<Buffer | ResourceURL> = {};
+    let i = 0;
+    for (const bufferOrPath of buffersOrPaths)
+        if (bufferOrPath)
+            dictionary[filenames[i++]] = bufferOrPath;
     const domPool = new DOMPool();
     let reDOM = true;
-    for (const processor of processors) {
-        if (processor.appliesTo(filenames, localFilenames, resource)) {
-            console.log(`${time} ${(processor as any).__proto__.constructor.name} ${url} `);
-            const from = processor.from();
-            const inputFilenames = [...from];
-            let input: Dictionary<Buffer | ResourceURL> = {}
-            const length = inputFilenames.length;
-            for (let i = 0; i < length; ++i) {
-                const inputFilename = inputFilenames[i];
-                input[inputFilename] = dictionary[inputFilename];
+    nextProcessor: for (const processor of processors) {
+        let bufferInput: Dictionary<InputCache> = {}
+        for (const filename of processor.from().map(t => t.filename)) {
+            if (!(filename in dictionary))
+                continue nextProcessor;
+            bufferInput[filename] = {
+                buffer: dictionary[filename] as Buffer,
             }
-            await pool.registerPromise(processor.apply(resource, input, time, domPool, reDOM));
         }
+        console.log(`${time} ${(processor as any).__proto__.constructor.name} ${url} `);
+        await pool.registerPromise(processor.apply(resource, bufferInput, time, domPool, reDOM));
         reDOM = !processor.ro();
+        if (GLOBAL_VARS.safelyExit) break;
     }
 }
 
-export const buildProcessFunction = (processors: ResourceProcessor[]) =>
-    async function process(lo: () => bigint, hi: () => bigint) {
+export function buildProcessFunction(processors: ResourceProcessor[]) {
+    return async function processResources(lo: () => bigint, hi: () => bigint) {
+        const todoByID: Dictionary<Map<number, ResourceProcessor[]>> = {};
+        fancyLog(`Loading queues...`);
+        console.log(processors);
+        const queues = await Promise.all(processors.map(p => p.loadQueue(lo(), hi())));
+        fancyLog(`Loaded queues...`);
+        for (let i = 0; i < processors.length; ++i) {
+            const processor = processors[i];
+            const queue = queues[i];
+            for (const { resource, time } of queue) {
+                const url = resource.toURL();
+                let timeMap = todoByID[url];
+                if (!timeMap) {
+                    timeMap = new Map();
+                    todoByID[url] =  timeMap;
+                }
+                let processors = timeMap.get(time);
+                if (!processors) {
+                    processors = [];
+                    timeMap.set(time, processors);
+                }
+                processors.push(processor);
+            }
+        }
+        console.log();
         const pool = new PromisePool(1);
-        const resources = await selectResourceVersions();
-        outer: for (const url in resources) {
+        outer: for (const url in todoByID) {
             const resource = new ResourceURL(url);
             const id = resource.getID();
             if (id < lo() || id >= hi()) continue;
-            const versions = resources[url];
-            for (const [time, filenames] of versions) {
-                await processResource(resource, time, filenames, pool, processors);
+            const versions = todoByID[url];
+            for (const [time, processors] of versions) {
+                await processResource(resource, time, pool, processors);
                 if (GLOBAL_VARS.safelyExit) break outer;
             }
         }
         await pool.flush();
     }
+}

@@ -10,8 +10,8 @@ import { Entity } from "types/Entity";
 import { VersionType } from "types/db-objects/VersionType";
 import { WordHits } from "types/WordHits";
 import { LinkHits } from "types/LinkHits";
-import { BagOfWords } from "types/ml/BagOfWords";
-import { BinaryBag } from "types/ml/BinaryBag";
+import { BagOfWords } from "ml/BagOfWords";
+import { BinaryBag } from "ml/BinaryBag";
 import { GlobalConfig } from "common/GlobalConfig";
 import { ResourceBinaryRelation } from "types/db-objects/ResourceBinaryRelation";
 import { ResourceID, ResourceURL } from "types/db-objects/ResourceURL";
@@ -19,6 +19,7 @@ import { Predicate } from "types/db-objects/Predicate";
 import { JSDOM } from "jsdom";
 import { ResourceKeyValue } from "types/db-objects/ResourceKeyValue";
 import { Key } from "types/db-objects/Key";
+import { WordVector } from "types/db-objects/WordVector";
 
 const PORT = 9999;
 
@@ -51,20 +52,20 @@ async function versionAndContentType(params: {
     time: number,
     url?: string,
 }) {
-    const { entity, format, id, time } = params;
-    console.log("read", entity, id, time, new VersionType(format));
-    let version = await read(entity, id, time, new VersionType(format));
+    let { entity, format, id, time } = params;
+    const suffixPattern = /_(TRUE|FALSE)$/;
+    const suffixMatch = format.match(suffixPattern)
+    let suffix: string;
+    if (suffixMatch) {
+        suffix = suffixPattern[1];
+        format = format.replace(suffixPattern, "");
+    } else {
+        suffix = null;
+    }
+    console.log("read", entity, id, time, new VersionType(format), suffix);
+    let version = await read(entity, id, time, new VersionType(format), suffix);
     let contentType: string;
     switch (format) {
-        case VersionType.RAW_HEADERS.filename:
-        case VersionType.RAW_WORDS_TXT.filename:
-        case VersionType.RAW_LINKS_TXT.filename:
-        case VersionType.TOKENS_TXT.filename:
-        case VersionType.MINIMAL_TOKENS.filename:
-        case VersionType.ANCHOR_PATHS.filename:
-        case VersionType.TITLE.filename:
-            contentType = "text/plain; charset=UTF-8";
-            break;
         case VersionType.WORD_HITS.filename:
             version = Buffer.from(new WordHits().fromBuffer(version).toString());
             contentType = "text/plain; charset=UTF-8";
@@ -75,13 +76,25 @@ async function versionAndContentType(params: {
             break;
         case VersionType.BAG_OF_WORDS.filename:
         case VersionType.BAG_OF_SKIP_GRAMS.filename:
-        case VersionType.TRUE_BAG_OF_WORDS.filename:
-        case VersionType.FALSE_BAG_OF_WORDS.filename:
+        case VersionType.BAG_OF_BIGRAMS.filename:
+        case VersionType.BAG_OF_TRIGRAMS.filename:
+        case VersionType.BAG_OF_LINKS.filename:
+        case VersionType.REDUCED_BAG_OF_WORDS.filename:
+        case VersionType.REDUCED_BAG_OF_SKIP_GRAMS.filename:
+        case VersionType.REDUCED_BAG_OF_BIGRAMS.filename:
+        case VersionType.REDUCED_BAG_OF_TRIGRAMS.filename:
             version = Buffer.from(new BagOfWords().fromBuffer(version).toString());
             contentType = "text/plain; charset=UTF-8";
             break;
         case VersionType.BINARY_BAG_OF_WORDS.filename:
         case VersionType.BINARY_BAG_OF_SKIP_GRAMS.filename:
+        case VersionType.BINARY_BAG_OF_TRIGRAMS.filename:
+        case VersionType.BINARY_BAG_OF_BIGRAMS.filename:
+        case VersionType.BINARY_BAG_OF_LINKS.filename:
+        case VersionType.REDUCED_BINARY_BAG_OF_WORDS.filename:
+        case VersionType.REDUCED_BINARY_BAG_OF_SKIP_GRAMS.filename:
+        case VersionType.REDUCED_BINARY_BAG_OF_TRIGRAMS.filename:
+        case VersionType.REDUCED_BINARY_BAG_OF_BIGRAMS.filename:
             version = Buffer.from(BinaryBag.ofWords().fromBuffer(version).toString());
             contentType = "text/plain; charset=UTF-8";
             break;
@@ -98,6 +111,18 @@ async function versionAndContentType(params: {
                 }
                 version = Buffer.from(dom.serialize());
             }
+            break;
+        case VersionType.WIKI_CATS.filename:
+        case VersionType.WIKI_PAGES.filename:
+            version = Buffer.from(version.toString("hex").match(/.{24}/g).join("\n"));
+            contentType = "text/plain; charset=UTF-8";
+            break;
+        case VersionType.DOCUMENT_VECTOR.filename:
+            version = Buffer.from(JSON.stringify(WordVector.bufferToVector(version)));
+            contentType = "text/html; charset=UTF-8";
+            break;
+        default:
+            contentType = "text/plain; charset=UTF-8";
             break;
     }
     return { version, contentType };
@@ -124,6 +149,7 @@ async function serve() {
     app.get("/query", async (req, res) => {
         const encodedSQL = req.query.sql as string;
         const sql = Buffer.from(encodedSQL, "hex").toString();
+        console.log(sql);
         const result = await SQL.query<{ [key: string]: any }[]>(sql);
         DBObject.stringifyBigIntsInPlace(result);
         res.send(JSON.stringify(result));

@@ -1,4 +1,4 @@
-#include "./common.c"
+#include "../common.c"
 
 int main (unsigned int argc, char* argv[]) {
     char* src = argv[1];

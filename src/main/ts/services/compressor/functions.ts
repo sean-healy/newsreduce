@@ -7,9 +7,8 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog, spawnPromise } from "common/util";
 import { lastChangedAfter, lastChangedBefore, randomBufferFile, safeExists } from "file";
 import { PromisePool } from "common/PromisePool";
-import { string } from "yargs";
+import { GLOBAL_VARS } from "common/processor";
 
-const ZSTD = "zstd";
 const RSYNC = "rsync";
 const MK_TAR_ARGS = ["--zstd", "-cvf"];
 // Only compress files not touched in past 5s.
@@ -26,14 +25,14 @@ export async function compress() {
     const preBlobDir = await getPreBlobDir();
     const blobDir = await getBlobDir();
     const entities = fs.readdirSync(preBlobDir);
-    const promises = new PromisePool(50);
+    const promises = new PromisePool(200);
     let newArcs = 0;
     let oldArcs = 0;
     for (const entity of entities) {
         const preBlobEntityDir = path.join(preBlobDir, entity);
         const preBlobEntityIDs = fs.readdirSync(preBlobEntityDir).filter(dir => dir.match(/^[0-9]+$/));
         if (!preBlobEntityIDs.length) continue;
-        fancyLog(`compressing ${preBlobEntityIDs.length} entities.`);
+        fancyLog(`Compressing ${preBlobEntityIDs.length} entities.`);
         const blobEntityDir = path.join(blobDir, entity);
         await safeMkdir(blobEntityDir);
         for (const preBlobEntityID of preBlobEntityIDs) {
@@ -41,7 +40,7 @@ export async function compress() {
             const preBlobObjectDir = path.join(preBlobEntityDir, preBlobEntityID);
             const compressedSrc = path.join(preBlobEntityDir, `${preBlobEntityID}.tzst`);
             const compressedDst = path.join(blobEntityDir, `${preBlobEntityID}.tzst`);
-            await promises.registerFn(async res => {
+            const flushed = await promises.registerFn(async res => {
                 if (lastChangedAfter(preBlobObjectDir, SAFETY_PERIOD_MS)) res();
                 else {
                     let compressFrom: string;
@@ -75,6 +74,9 @@ export async function compress() {
                     res();
                 }
             });
+            if (GLOBAL_VARS.safelyExit && flushed) break;
+            if (flushed)
+                fancyLog(`Compressing ${preBlobEntityIDs.length} entities.`);
         }
     }
 

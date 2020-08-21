@@ -16,8 +16,11 @@ export class WordVectorSource extends DBObject<WordVectorSource> {
     idCol() {
         return "resource"
     }
-
     getDeps() {
         return [this.resource];
     }
+    static DEFAULT = new WordVectorSource({
+        label: "fasttext_crawl-300d-2M",
+        resource: new ResourceURL("https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M.vec.zip"),
+    });
 }

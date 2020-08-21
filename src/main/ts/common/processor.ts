@@ -4,8 +4,6 @@ import { setImmediateInterval, Dictionary } from "common/util";
 import { Redis, REDIS_PARAMS } from "./Redis";
 import { SQL } from "common/SQL";
 import readline from "readline";
-readline.emitKeypressEvents(process.stdin);
-process.stdin.setRawMode(true);
 
 const LOCKS = {};
 export const GLOBAL_VARS = {
@@ -37,22 +35,6 @@ async function synchronised(name: string, f: () => Promise<any>, postcondition: 
         });
     }
 }
-
-process.stdin.on('keypress', (str, key) => {
-    switch (str) {
-        case "q":
-            console.log("Exiting.")
-            GLOBAL_VARS.safelyExit = true;
-            break;
-        case "c":
-            if (GLOBAL_VARS.safelyExit) {
-                console.log("Cancel exit.")
-                GLOBAL_VARS.safelyExit = false;
-            }
-            break;
-    }
-})
-
 export function startProcessor(
     f: () => Promise<any>,
     preconditions: Set<string>,
@@ -62,6 +44,28 @@ export function startProcessor(
         period?: number;
     } = { interval: true, period: 2000 }
 ) {
+    readline.emitKeypressEvents(process.stdin);
+    if ("setRawMode" in process.stdin)
+        process.stdin.setRawMode(true);
+    process.stdin.on('keypress', (str, key) => {
+        switch (str) {
+            case "q":
+                console.log("Exiting.")
+                GLOBAL_VARS.safelyExit = true;
+                break;
+            case "c":
+                if (GLOBAL_VARS.safelyExit) {
+                    console.log("Cancel exit.")
+                    GLOBAL_VARS.safelyExit = false;
+                }
+                break;
+        }
+    });
+
+    process.once('SIGUSR2', () => {
+        GLOBAL_VARS.safelyExit = true;
+    });
+
     const name = crypto.randomBytes(30).toString("base64");
     if (options.interval || options.interval === undefined)
         GLOBAL_VARS.intervals[name] = setImmediateInterval(() => synchronised(name, f, postcondition),

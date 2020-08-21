@@ -3,33 +3,42 @@ import { VersionType } from "types/db-objects/VersionType";
 import { ResourceProcessor } from "./ResourceProcessor";
 import { Dictionary } from "common/util";
 import { Word } from "types/db-objects/Word";
-import { Tokenizer } from "types/ml/Tokenizer";
+import { Tokenizer } from "ml/Tokenizer";
 import { selectStopWords } from "data";
+import { InputCache } from "./functions";
 
-export class ExtractTokens2 extends ResourceProcessor {
+export class ExtractReducedTokens extends ResourceProcessor {
     ro() { return true; }
     static STOP_WORDS: Map<bigint, number>;
     static STOP_WORDS_LAST_FETCHED: number = 0;
     static async getStopWords() {
         const now = Date.now();
-        if (now - ExtractTokens2.STOP_WORDS_LAST_FETCHED > 60000) {
-            ExtractTokens2.STOP_WORDS = await selectStopWords();
-            ExtractTokens2.STOP_WORDS_LAST_FETCHED = now;
+        if (now - ExtractReducedTokens.STOP_WORDS_LAST_FETCHED > 60000) {
+            ExtractReducedTokens.STOP_WORDS = await selectStopWords();
+            ExtractReducedTokens.STOP_WORDS_LAST_FETCHED = now;
         }
 
-        return ExtractTokens2.STOP_WORDS;
+        return ExtractReducedTokens.STOP_WORDS;
     }
-    static async normaliseBufferText(buffer: Buffer) {
-        const lines = buffer.toString().split(/\n+/g);
+    static async normaliseBufferText(cache: InputCache) {
+        let tokens = cache.tokens;
+        if (!tokens) {
+            let string = cache.string;
+            if (!string) {
+                string = cache.buffer.toString();
+                cache.string = string;
+            }
+            tokens = string.split(/\n+/).map(sentence => sentence.split(/ +/g));
+            cache.tokens = tokens;
+        }
         const normalisedWordIDMatrix: bigint[][]  = [];
         const normalisedWordIDs = new Set<bigint>();
         const stopwords = await this.getStopWords();
-        for (const line of lines) {
-            if (!line) continue;
-            const words = line.split(/\s+/g);
+        for (const sentence of tokens) {
+            if (!sentence || !sentence.length) continue;
             const normalisedWordIDRow: bigint[] = [];
-            for (const word of words) {
-                const wordID = new Word(word).getID();
+            for (const token of sentence) {
+                const wordID = new Word(token).getID();
                 if (!stopwords.has(wordID)) {
                     const simplifiedWordID = Tokenizer.simplify(wordID)
                     normalisedWordIDRow.push(simplifiedWordID);
@@ -55,17 +64,15 @@ export class ExtractTokens2 extends ResourceProcessor {
 
         return normalisedText;
     }
-    async apply(resource: ResourceURL, input: Dictionary<Buffer>, time: number) {
-        const buffer = input[VersionType.TOKENS_TXT.filename];
-        const normalisedText = await ExtractTokens2.normaliseBufferText(buffer);
-        await resource.writeVersion(time, VersionType.MINIMAL_TOKENS, normalisedText);
+    async apply(resource: ResourceURL, input: Dictionary<InputCache>, time: number) {
+        const cache= input[VersionType.TOKENS.filename];
+        const normalisedText = await ExtractReducedTokens.normaliseBufferText(cache);
+        await resource.writeVersion(time, VersionType.REDUCED_TOKENS, normalisedText);
     }
     from() {
-        return new Set([VersionType.TOKENS_TXT.filename]);
+        return [VersionType.TOKENS];
     }
     to() {
-        return new Set([
-            VersionType.MINIMAL_TOKENS.filename,
-        ]);
+        return [VersionType.REDUCED_TOKENS];
     }
 }

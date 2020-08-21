@@ -165,7 +165,7 @@ export class ResourceURL extends EntityObject<ResourceURL> {
     }
     entity() { return Entity.RESOURCE; }
     versionObject(time: number, type: VersionType, length: number) {
-        return new ResourceVersion({ time, type, length, entity: this });
+        return new ResourceVersion({ time, type, length, entity: this, created: Date.now() });
     }
 }
 

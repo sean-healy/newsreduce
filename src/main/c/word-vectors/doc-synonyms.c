@@ -1,4 +1,4 @@
-#include "./common.c"
+#include "../common.c"
 
 #define RESULTS 10
 
@@ -10,14 +10,14 @@ int main (unsigned int argc, char* argv[]) {
     float* docV = (float*) malloc(DIMENSIONS * sizeof(float));
     float* wordV = (float*) malloc(DIMENSIONS * sizeof(float));
     for (int i = 0; i < DIMENSIONS; ++i) docV[i] = 0;
-    WordID sortedWordIDs[n];
+    EntityID sortedWordIDs[n];
     for (int i = 1; i < argc; ++i) {
         char *w = argv[i];
         hash(w, idBuffer);
-        WordID id = idBufferToStruct(idBuffer);
+        EntityID id = idBufferToStruct(idBuffer);
         sortedWordIDs[i - 1] = id;
     }
-    qsort(sortedWordIDs, n, sizeof(WordID), cmp);
+    qsort(sortedWordIDs, n, sizeof(EntityID), cmp);
     struct stat st;
     stat(LOCATION, &st);
     long int size = st.st_size;
@@ -26,8 +26,8 @@ int main (unsigned int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         char *w = argv[i];
         hash(w, idBuffer);
-        WordID id = idBufferToStruct(idBuffer);
-        if (binarySearch(fd, id, lo, size, idBuffer, vBuffer, wordV))
+        EntityID id = idBufferToStruct(idBuffer);
+        if (binaryDiskSearch(fd, id, lo, size, idBuffer, vBuffer, wordV))
             addVector(docV, wordV);
     }
     normalizeToUnitCircle(docV);
@@ -36,7 +36,7 @@ int main (unsigned int argc, char* argv[]) {
     fseek(fd, 0, SEEK_SET);
     float cutoff = results[0].value;
     while (fread(idBuffer, BYTES_PER_ID, 1, fd)) {
-        WordID current = idBufferToStruct(idBuffer);
+        EntityID current = idBufferToStruct(idBuffer);
         float score;
         size_t result = fread(vectorBuffer, BYTES_PER_VECTOR, 1, fd);
         parseVector(vectorBuffer, wordV);

@@ -1,4 +1,4 @@
-import { getRepresentations } from "services/resource-processor/ExtractMLRepresentations";
+//import { getRepresentations } from "services/resource-processor/ExtractMLRepresentations";
 import { readFileSync } from "fs";
 import path from "path";
 import { JSDOM } from "jsdom";

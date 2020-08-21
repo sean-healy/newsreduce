@@ -1,10 +1,13 @@
+import fs from "fs";
 import sql from "sql";
 import { ResourceURL } from "types/db-objects/ResourceURL";
-import { fancyLog } from "common/util";
+import { fancyLog, writeBigUInt96BE, Dictionary } from "common/util";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
+import { DBObject } from "types/DBObject";
+import { WordVectorSource } from "types/db-objects/WordVectorSource";
 
-async function genericSQLPromise<From = { [key: string]: any }[], To = { [key: string]: any }[]>(
+export async function genericSQLPromise<From = { [key: string]: any }[], To = { [key: string]: any }[]>(
     query: string,
     params: any[] = [],
     mapper?: (v: From) => To
@@ -79,11 +82,68 @@ export async function selectBagOfWordsByHost() {
     return hosts;
 }
 
-export async function selectBacklinks() {
-    const query = sql.SELECT_BACKLINKS;
-    const rows = await genericSQLPromise(query);
-    
-    return rows.map(({parent, child}) => [BigInt(parent), BigInt(child)]);
+export async function selectBacklinksCount() {
+    return (await genericSQLPromise(sql.SELECT_BACKLINKS_COUNT))[0].c;
+}
+
+export async function writeBacklinksToFile(fd: number) {
+    const idBytes = Buffer.alloc(12);
+    let rows = 0;
+    //const stream = (await SQL.db()).query(sql.SELECT_BACKLINKS.replace(/;/, " limit 100000;")).stream();
+    const stream = (await SQL.db()).query(sql.SELECT_BACKLINKS).stream();
+    stream.on("data", ({ parent, child }) => {
+        ++rows;
+        if ((rows & 0xFFFF) === 0)
+            process.stdout.write(
+                `\r                            \rWriting row: ${`${rows}`.replace(/(...)/g, "$1,").replace(/,$/, "")}`);
+        writeBigUInt96BE(parent, idBytes);
+        fs.writeSync(fd, idBytes);
+        writeBigUInt96BE(child, idBytes);
+        fs.writeSync(fd, idBytes);
+    });
+    await new Promise<void>(res => {
+        let closed = false;
+        const accept = () => {
+            if (!closed) {
+                console.log();
+                closed = true;
+                fs.closeSync(fd);
+                res();
+            }
+        };
+        stream.on("close", accept);
+        stream.on("end", accept);
+    });
+
+    return rows;
+}
+
+export async function writeLinkGraphResourcesToFile(fd: number) {
+    const idBytes = Buffer.alloc(12);
+    let i = 0;
+    const stream = (await SQL.db()).query(sql.SELECT_LINK_GRAPH_RESOURCES).stream();
+    //const stream = (await SQL.db()).query(sql.SELECT_LINK_GRAPH_RESOURCES.replace(/;/, " limit 100000;")).stream();
+    stream.on("data", ({ resource }) => {
+        ++i;
+        if ((i & 0xFFFF) === 0)
+            process.stdout.write(
+                `\r                            \rWriting row: ${`${i}`.replace(/(...)/g, "$1,").replace(/,$/, "")}`);
+        writeBigUInt96BE(resource, idBytes);
+        fs.writeSync(fd, idBytes);
+    });
+    await new Promise<void>(res => {
+        let closed = false;
+        const accept = () => {
+            if (!closed) {
+                console.log();
+                closed = true;
+                fs.closeSync(fd);
+                res();
+            }
+        };
+        stream.on("close", accept);
+        stream.on("end", accept);
+    });
 }
 
 export async function selectBOWsForRelation(relation: bigint, polarity: boolean) {
@@ -94,4 +154,71 @@ export async function selectBOWsForRelation(relation: bigint, polarity: boolean)
 export async function selectStopWords() {
     const rows = await genericSQLPromise(sql.SELECT_STOP_WORDS);
     return new Map<bigint, number>(rows.map(({id, frequency}) => [BigInt(id), parseFloat(frequency)]));
+}
+
+export async function selectVersionsToProcess(from: bigint[], to: bigint[], lo: bigint, hi: bigint, log = false) {
+    const params = [[to], lo, hi, [from], from.length * to.length];
+    const query = sql.SELECT_RESOURCE_VERSIONS_TO_PROCESS;
+    if (log) {
+        DBObject.stringifyBigIntsInPlace(params);
+        fancyLog(JSON.stringify({query, params}));
+    }
+    const rows = await genericSQLPromise(query, params);
+    
+    return rows;
+}
+
+export async function selectDocumentWordVectors(wordIDs: bigint[]) {
+    const params = [WordVectorSource.DEFAULT.resource.getID(), [wordIDs]];
+    return await genericSQLPromise(sql.SELECT_DOCUMENT_WORD_VECTORS, params);
+}
+
+export async function selectNewsSourceHomepages() {
+    const hosts = (await genericSQLPromise(sql.SELECT_NEWS_SOURCE_HOMEPAGES)).map(r => r.value);
+    const homepages: string[] = [];
+    for (const host of hosts) {
+        const homepage = new ResourceURL({
+            host: host,
+            path: "",
+            query: "",
+            ssl: false,
+            port: 80,
+        });
+        homepages.push(homepage.toURL());
+    }
+
+    return homepages;
+}
+
+interface SubDocTrainingDataRow {
+    resource: ResourceURL;
+    attribute: string;
+    pattern: RegExp;
+}
+export async function selectSubDocTrainingData() {
+    const rows = await genericSQLPromise(sql.SELECT_SUB_DOC_TRAINING_DATA);
+    const data: Dictionary<SubDocTrainingDataRow[]> = {};
+    for (const row of rows) {
+        const predicate: string = row.predicate;
+        let predicateRows: SubDocTrainingDataRow[];
+        if (predicate in data)
+            predicateRows = data[predicate];
+        else {
+            predicateRows = [];
+            data[predicate] = predicateRows;
+        }
+        predicateRows.push({
+            resource: new ResourceURL(row.url),
+            attribute: row.attribute,
+            pattern: new RegExp(`^${row.pattern}$`),
+        })
+    }
+
+    return data;
+}
+
+export async function selectDefiniteNewsSourceWikis() {
+    const rows = await genericSQLPromise(sql.SELECT_DEFINITE_NEWS_SOURCE_WIKIS);
+
+    return rows.map(r => r.url);
 }

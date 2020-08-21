@@ -5,13 +5,16 @@ case $1 in
         node dist/nr-fetcher-zookeeper.js
         ;;
     na)
+        node dist/nr-main-net-agent.js
+        ;;
+    nad)
         npx nodemon dist/nr-main-net-agent.js
         ;;
     cold)
         node dist/nr-cold-start.js
         ;;
     sql)
-        node dist/nr-inserter.js
+        npx nodemon dist/nr-inserter.js
         ;;
     schedule)
         node dist/nr-scheduler.js
@@ -20,7 +23,7 @@ case $1 in
         node dist/nr-compressor.js
         ;;
     process)
-        tmux split-window "node dist/nr-resource-processor-worker.js; zsh -i"
+        tmux split-window "npx nodemon dist/nr-resource-processor-worker.js; zsh -i"
         node dist/nr-resource-processor-zookeeper.js
         ;;
     bowh)
@@ -30,7 +33,7 @@ case $1 in
         node dist/nr-process-bows-per-relation.js
         ;;
     rank)
-        node --max-old-space-size=8192 dist/nr-page-rank.js
+        node --max-old-space-size=12000 dist/nr-page-rank.js
         ;;
     *)
         cat $0

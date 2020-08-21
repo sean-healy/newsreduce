@@ -46,13 +46,16 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
 
         await Promise.all(promises);
     }
+    noReplace(): boolean {
+        return false;
+    }
     async bulkInsert(csvFile: string) {
         if (!csvFile) return;
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
         const table = `\`${this.table()}\``;
         const query =
             `LOAD DATA LOCAL INFILE ? ` +
-            `REPLACE INTO TABLE ${table} ` +
+            `${this.noReplace() ? "IGNORE" : "REPLACE"} INTO TABLE ${table} ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
         await SQL.query(query, [csvFile])
     }

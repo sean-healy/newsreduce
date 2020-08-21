@@ -6,8 +6,8 @@ fetchonly="$(arg onlyfetch $@)"
 if [ ! "$base" ]; then
     base=/var/newsreduce/word-vectors
 fi
-#sources="$(echo 'select u.resource, u.url, label from WordVectorSource s inner join URLView u on u.resource = s.resource' | nr-sql 2>/dev/null)"
-sources="$(cat src/main/bash/word-vector-sources.tsv)"
+sources="$(echo 'select u.resource, u.url, label from WordVectorSource s inner join URLView u on u.resource = s.resource' | nr-sql 2>/dev/null)"
+#sources="$(cat src/main/bash/word-vector-sources.tsv)"
 while read source; do
     id="${source%%	*}"
     url="$(echo "$source" | cut -d$'\t' -f2)"

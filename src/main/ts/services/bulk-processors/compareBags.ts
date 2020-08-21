@@ -2,13 +2,13 @@ import fs from "fs";
 import { Predicate, PredicateID } from "types/db-objects/Predicate";
 import { VersionType } from "types/db-objects/VersionType";
 import { bytesToBigInt, bytesToNumber } from "common/util";
-import { Bag } from "types/ml/Bag";
+import { Bag } from "ml/Bag";
 import { WordID } from "types/db-objects/Word";
 import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
-import { BagByCount } from "types/ml/BagByCount";
-import { ArrayBag } from "types/ml/ArrayBag";
-import { BagComparison } from "types/ml/BagComparison";
+import { BagByCount } from "ml/BagByCount";
+import { ArrayBag } from "ml/ArrayBag";
+import { BagComparison } from "ml/BagComparison";
 
 interface PredicateArg {
     id: bigint;
@@ -19,23 +19,15 @@ interface Arg {
     right: PredicateArg;
 };
 
-export function polarityToVersion(polarity: boolean | null) {
-    if (polarity === null) return VersionType.BAG_OF_WORDS;
-    if (polarity) return VersionType.TRUE_BAG_OF_WORDS;
-    return VersionType.FALSE_BAG_OF_WORDS;
-}
-
 export async function compare(arg: Arg) {
     const oneByte = Buffer.alloc(1);
     const idBytes = Buffer.alloc(12);
     const predicate = new Predicate();
     const leftPredicate = new PredicateID(BigInt((await predicate.singularSelectByID(arg.left.id)).id));
     const rightPredicate = new PredicateID(BigInt((await predicate.singularSelectByID(arg.right.id)).id));
-    const leftVersion = polarityToVersion(arg.left.polarity);
-    const rightVersion = polarityToVersion(arg.right.polarity);
     const leftBag = new Bag<WordID, bigint>(value => new WordID(value), new Map());
     const rightBag = new Bag<WordID, bigint>(value => new WordID(value), new Map());
-    const { file: leftTmp } = await leftPredicate.tmpFileLatest(leftVersion);
+    const { file: leftTmp } = await leftPredicate.tmpFileLatest(VersionType.BAG_OF_WORDS, Predicate.TRUE_SUFFIX);
     let fd = fs.openSync(leftTmp, "r");
     let offset = 0;
     fs.readSync(fd, oneByte, 0, oneByte.length, offset);
@@ -52,7 +44,7 @@ export async function compare(arg: Arg) {
     }
     fs.closeSync(fd);
     fs.unlinkSync(leftTmp);
-    const { file: rightTmp } = await rightPredicate.tmpFileLatest(rightVersion);
+    const { file: rightTmp } = await rightPredicate.tmpFileLatest(VersionType.BAG_OF_WORDS, Predicate.FALSE_SUFFIX);
     fd = fs.openSync(rightTmp, "r");
     offset = 0;
     fs.readSync(fd, oneByte, 0, oneByte.length, offset);

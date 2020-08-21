@@ -1,13 +1,16 @@
 import { ConstructorType, SuperConstructorType } from "./SimpleHashObject";
 import { EntityObject } from "./EntityObject";
-import { Entity } from "types/Entity";
 import { VersionType } from "./VersionType";
 import { Version } from "./Version";
 import { PredicateVersion } from "./PredicateVersion";
+import { Entity } from "types/Entity";
 
 export class Predicate extends EntityObject<Predicate> {
+    static TRUE_SUFFIX = "TRUE";
+    static FALSE_SUFFIX = "FALSE";
+
     static RES_IS_NEWS_SOURCE_WIKI = new Predicate("res-is-news-source-wiki");
-    static T = new Predicate("t");
+    static SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE = new Predicate("sub-doc-is-news-source-homepage");
 
     readonly functor: string;
 
@@ -27,16 +30,15 @@ export class Predicate extends EntityObject<Predicate> {
     getInsertParams(): any[] {
         return [this.getID(), this.functor];
     }
-    entity(): Entity {
-        return Entity.PREDICATE;
-    }
     versionObject(time: number, type: VersionType, length: number): Version<any, Predicate> {
-        return new PredicateVersion({ time, type, length, entity: this });
+        return new PredicateVersion({ time, type, length, entity: this, created: Date.now() });
     }
     table(): string {
         return "Predicate";
     }
-
+    entity() {
+        return Entity.PREDICATE;
+    }
 }
 
 export class PredicateID extends Predicate {

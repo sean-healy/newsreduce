@@ -8,6 +8,8 @@ import { Redis, REDIS_PARAMS } from "common/Redis";
 import { fancyLog } from "common/util";
 import { VersionType } from "types/db-objects/VersionType";
 import { DBObject } from "types/DBObject";
+import { ResourceBlocked } from "types/db-objects/ResourceBlocked";
+import { GLOBAL_VARS } from "common/processor";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
@@ -52,8 +54,18 @@ export function buildOnFetch(url: string) {
 }
 
 export async function fetchAndWrite(url: string) {
-    const response = await fetch(url);
-    await buildOnFetch(url)(response);
+    try {
+        const response = await fetch(url);
+        await buildOnFetch(url)(response);
+    } catch (e) {
+        fancyLog("Caught error during fetch.");
+        fancyLog(JSON.stringify(e));
+        new ResourceBlocked({
+            resource: new ResourceURL(url),
+            // Block the URL for 24 hours.
+            expires: Date.now() + 1000 * 3600,
+        }).enqueueInsert();
+    }
 }
 
 export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
@@ -79,10 +91,12 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
                         await fetchAndWrite(url);
                         fancyLog(url);
                         fetched.add(url);
+                        if (GLOBAL_VARS.safelyExit) break;
                     }
                 }
             };
         }
+        if (GLOBAL_VARS.safelyExit) break;
     } while (hostnames.length !== 0);
 
     return fetched;

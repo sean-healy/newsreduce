@@ -1,4 +1,4 @@
-import { Bag } from "types/ml/Bag";
+import { Bag } from "ml/Bag";
 import { Word } from "types/db-objects/Word";
 
 export class BagOfWords extends Bag<Word, string, BagOfWords> {

@@ -58,7 +58,7 @@ export class ExtractWikiTree extends HTMLProcessor {
             && resource.path.value.match(/^\/wiki\/Category:/)
             && resource.query.value === "";
     }
-    async applyToDOM(dom: JSDOM, time: number) {
+    async applyToDOM(resource: ResourceURL, dom: JSDOM, time: number) {
         const { subCategories, subPages, throttles } = getEntities(dom);
         const dbPromises = [...subCategories, ...subPages, ...throttles]
             .map(entity => entity.enqueueInsert({ recursive: true }))
@@ -66,7 +66,6 @@ export class ExtractWikiTree extends HTMLProcessor {
             Buffer.concat(subPages.map(o => o.resource.getID()).sort().map(id => writeBigUInt96BE(id)));
         const catBuffer =
             Buffer.concat(subCategories.map(o => o.child.getID()).sort().map(id => writeBigUInt96BE(id)));
-        const resource = new ResourceURL(dom.window.location.toString());
         const fsPromises = [
             resource.writeVersion(time, VersionType.WIKI_PAGES, pageBuffer).then(() => {}),
             resource.writeVersion(time, VersionType.WIKI_CATS, catBuffer).then(() => {}),
@@ -75,9 +74,9 @@ export class ExtractWikiTree extends HTMLProcessor {
         await Promise.all<void>(promises);
     }
     from() {
-        return new Set([VersionType.RAW_HTML.filename]);
+        return [VersionType.RAW_HTML];
     }
     to() {
-        return new Set([VersionType.WIKI_PAGES.filename, VersionType.WIKI_CATS.filename]);
+        return [VersionType.WIKI_PAGES,VersionType.WIKI_CATS];
     }
 }

@@ -9,7 +9,6 @@ export type PageData = [LocalID, Links]
 
 export class LocalLinksData extends GenericConstructor<LocalLinksData> {
     readonly idBytes: number;
-    readonly escapeHatch: number;
     readonly linkCountBytes: number;
     readonly data: PageData[]
 

@@ -6,7 +6,9 @@ import { fancyLog } from "common/util";
 import { ResourceThrottle } from "types/db-objects/ResourceThrottle";
 import { WordVectorSource } from "types/db-objects/WordVectorSource";
 import { Predicate } from "types/db-objects/Predicate";
-import { Key } from "types/db-objects/Key";
+import { HTMLAttributeName } from "types/db-objects/HTMLAttributeName";
+import { Pattern } from "types/db-objects/Pattern";
+import { ResourceSubDocumentTrain } from "types/db-objects/ResourceSubDocumentTrain";
 
 export function getObjectsToInsert() {
     const origin = "https://en.wikipedia.org/wiki/Category:News_media";
@@ -33,9 +35,6 @@ export function getObjectsToInsert() {
             resource: new ResourceURL("https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M-subword.zip"),
             label: "fasttext_crawl-300d-2M-subw",
         }),
-    ];
-    const keys = [
-        Key.WIKI_NEWS_SOURCE_HOMEPAGE,
     ];
     const clients = [
         new Client({ name: "ubuntu-mozilla", httpVersion: "1.1" }),
@@ -75,7 +74,82 @@ export function getObjectsToInsert() {
 
     const relations = [
         Predicate.RES_IS_NEWS_SOURCE_WIKI,
-        Predicate.T,
+        Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE,
+    ];
+
+    const patterns = [
+        new Pattern("https?://algomhoriah.com/?"),
+        new Pattern("https?://www.ptj.com.pk/?"),
+        new Pattern("https?://www.troyrecord.com/?"),
+        new Pattern("https?://brooklynpaper.com/?"),
+        new Pattern("https?://www.thekararnivang.com/?"),
+        new Pattern("https?://www.carillonregina.com/?"),
+        new Pattern("https?://www.itv.com/?"),
+        new Pattern("https?://www.yangtse.com/?"),
+        new Pattern("https?://www.oxfordmail.co.uk/?"),
+        new Pattern("https?://www.register-herald.com/?"),
+        new Pattern("https?://www.georgiastatesignal.com/?"),
+        new Pattern("https?://www.times-age.co.nz/?"),
+        new Pattern("https?://fultonhistory.com/?"),
+        new Pattern("https?://thebrownsvilletimes.com/?"),
+        new Pattern("https?://www.manilatimes.net/?"),
+        new Pattern("https?://visao.sapo.pt/?"),
+        new Pattern("https?://www.jamestownnews.com/?"),
+        new Pattern("https?://www.usatoday.com/?"),
+        new Pattern("https?://www.urbantulsa.com/?"),
+        new Pattern("https?://www.diariodemocracia.com/?"),
+        new Pattern("https?://www.meed.com/?"),
+        new Pattern("https?://zetatijuana.com/?"),
+        new Pattern("https?://www.fuquay-varinaindependent.com/?"),
+        new Pattern("https?://lifestyleasia.com/?"),
+        new Pattern("https?://www.belfasttelegraph.co.uk/?"),
+        new Pattern("https?://www.ladiscusion.cl/?"),
+        new Pattern("https?://www.gazetanovgorod.ru/?"),
+        new Pattern("https?://www.sermitsiaq.gl/?"),
+        new Pattern("https?://www.freep.com/?"),
+        new Pattern("https?://www.westviewnews.org/?"),
+        new Pattern("https?://www.revistapiaui.com.br/?"),
+        new Pattern("https?://nmgazette.narod.ru/?"),
+        new Pattern("https?://www.aliceechonews.com/?"),
+        new Pattern("https?://offalyindependent.ie/?"),
+        new Pattern("https?://www.georgetownvoice.com/?"),
+        new Pattern("https?://www.rbcdaily.ru/?"),
+        new Pattern("https?://news.kbs.co.kr/?"),
+        new Pattern("https?://ctvnews.ca/?"),
+        new Pattern("https?://www.volksblad.com/?"),
+        new Pattern("https?://www.duquoin.com/?"),
+        new Pattern("https?://www.dailydemocrat.com/?"),
+        new Pattern("https?://www.dailytimes.ng/?"),
+        new Pattern("https?://www.qx.se/?"),
+        new Pattern("https?://lmtribune.com/?"),
+        new Pattern("https?://www.heraldbanner.com/?"),
+        new Pattern("https?://www.nytimes.com/?"),
+        new Pattern("https?://web.archive.org/?"),
+        new Pattern("https?://www.messaggeroveneto.it/?"),
+        new Pattern("https?://www.labusinessjournal.com/?"),
+        new Pattern("https?://www.dawn.com/?"),
+        new Pattern("https?://www.sisa-savolehti.fi/?"),
+        new Pattern("https?://southsideweekly.com/?"),
+        new Pattern("https?://www.lavoixdunord.fr/?"),
+        new Pattern("https?://www.reporterherald.com/?"),
+        new ResourceSubDocumentTrain({
+            resource: new ResourceURL("https://en.wikipedia.org/wiki/The_Tyee"),
+            pattern: new Pattern("https://thetyee.ca/"),
+            attribute: new HTMLAttributeName("href"),
+            predicate: Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE,
+        }),
+        new ResourceSubDocumentTrain({
+            resource: new ResourceURL("https://en.wikipedia.org/wiki/The_Herald_(Rock_Hill)"),
+            pattern: new Pattern("http://www.heraldonline.com"),
+            attribute: new HTMLAttributeName("href"),
+            predicate: Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE,
+        }),
+        new ResourceSubDocumentTrain({
+            resource: new ResourceURL("https://en.wikipedia.org/wiki/The_Daily_Post_(New_Zealand)"),
+            pattern: new Pattern("http://www.dailypost.co.nz/"),
+            attribute: new HTMLAttributeName("href"),
+            predicate: Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE,
+        }),
     ];
 
     return [
@@ -85,7 +159,8 @@ export function getObjectsToInsert() {
         ...clientHeaders,
         ...wordVectorSources,
         ...relations,
-        ...keys,
+        ...patterns,
+        new HTMLAttributeName("href"),
     ];
 }
 

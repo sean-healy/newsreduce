@@ -37,20 +37,19 @@ export function getLinks(dom: JSDOM) {
 }
 
 export class ExtractAHrefs extends HTMLProcessor {
-    from() {
-        return new Set([VersionType.RAW_HTML.filename]);
-    }
-    to() {
-        return new Set([VersionType.RAW_LINKS_TXT.filename]);
-    }
-    async applyToDOM(dom: JSDOM, time: number) {
-        const parent = new ResourceURL(dom.window.location.toString());
+    async applyToDOM(resource: ResourceURL, dom: JSDOM, time: number) {
         const links = getLinks(dom);
         const urls = links.map(item =>
             item instanceof ResourceLinkHash ? `${item.link.child.toURL()}#${item.hash.value}` : (item as ResourceLink).child.toURL());
-        const fsPromise = parent.writeVersion(time, VersionType.RAW_LINKS_TXT, urls.join("\n"));
+        const fsPromise = resource.writeVersion(time, VersionType.RAW_LINKS_TXT, urls.join("\n"));
         const dbPromises = links.map(link => link.enqueueInsert({ recursive: true }));
         const promises: Promise<any>[] = [...dbPromises, fsPromise];
         await Promise.all(promises);
+    }
+    from() {
+        return [VersionType.RAW_HTML];
+    }
+    to() {
+        return [VersionType.RAW_LINKS_TXT];
     }
 }

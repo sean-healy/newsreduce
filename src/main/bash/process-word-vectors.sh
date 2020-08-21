@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 base=$(arg base $@)
+fast=$(arg fast $@)
 if [ ! "$base" ]; then
     base=/var/newsreduce/word-vectors 
 fi
@@ -14,11 +15,13 @@ fi
 (cd "$base" && for src in $(ls *.bin | egrep -v '^(normalized|similarities)'); do
     normal="normalized_$src"
     cp "$src" "$normal"
-    echo $(date) normalize-to-unit-circle "$normal"
+    echo $(date) "$NORMALIZE" "$normal"
     "$NORMALIZE" "$normal"
-    dst="similarities_$src"
-    if [ ! -f "$dst" ]; then
-        echo $(date) build-similarity-matrix "$normal" "$dst"
-        "$BUILD" "$normal" "$dst"
+    if [ ! "$fast" ]; then
+        dst="similarities_$src"
+        if [ ! -f "$dst" ]; then
+            echo $(date) "$BUILD" "$normal" "$dst" 8
+            "$BUILD" "$normal" "$dst"
+        fi
     fi
 done)

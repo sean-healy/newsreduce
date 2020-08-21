@@ -11,8 +11,7 @@ export class SkipGrams {
 
         return this.generateSkipGramsForTokens(tokens, n, skips);
     }
-    static generateSkipGramsForTokens(tokens: string[], n: number, skips: number) {
-        const bag = new BagOfSkipGrams();
+    static generateSkipGramsForTokens(tokens: string[], n: number, skips: number, bag = new BagOfSkipGrams()) {
         const skipWindows = SkipGram.getSkipWindows(n, skips);
         const length = tokens.length;
         for (let offset = 0; offset < length; ++offset)

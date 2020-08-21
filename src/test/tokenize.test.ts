@@ -1,4 +1,4 @@
-import { Tokenizer } from "types/ml/Tokenizer";
+import { Tokenizer } from "ml/Tokenizer";
 
 test("tokenize works", () => {
     const actual1 = Tokenizer.charTranslateString("Seán Seosamh Ó h'Éalaí");

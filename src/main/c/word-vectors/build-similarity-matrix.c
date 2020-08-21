@@ -1,4 +1,4 @@
-#include "./common.c"
+#include "../common.c"
 
 #define ASYNCHRONOUS 0
 
@@ -29,7 +29,7 @@ void* mergeSimilarityGroups(void* params) {
         }
         Result* aSynonyms = a->synonyms;
         float* aDimensions = a->dimensions;
-        WordID aID = a->id;
+        EntityID aID = a->id;
         float aCutoff = aSynonyms[0].value;
         for (VectorSimilarity* b = hi; b < endB; ++b) {
             float bCutoff = b->synonyms[0].value;
@@ -67,7 +67,7 @@ void* createSimilarityGroup(void* params) {
         }
         float* dimensions = lo->dimensions;
         Result* loSynonyms = lo->synonyms;
-        WordID loID = lo->id;
+        EntityID loID = lo->id;
         float loCutoff = loSynonyms[0].value;
         for (VectorSimilarity* hi = lo + 1; hi < end; ++hi) {
             float hiCutoff = hi->synonyms[0].value;
@@ -218,13 +218,13 @@ int main(unsigned int argc, unsigned char* argv[]) {
     fwrite(lengthBuffer, 1, 1, out);
     for (long int i = 0; i < unpaddedRows; ++i) {
         VectorSimilarity vector = vectors[i];
-        WordID parent = vector.id;
+        EntityID parent = vector.id;
         idStructToBuffer(parent, idBuffer);
         fwrite(idBuffer, BYTES_PER_ID, 1, out);
         Result* synonyms = vector.synonyms;
         for (int j = 0; j < MAX_SIMILARITIES; ++j) {
             Result synonym = synonyms[j];
-            WordID child = synonym.id;
+            EntityID child = synonym.id;
             idStructToBuffer(child, idBuffer);
             fwrite(idBuffer, BYTES_PER_ID, 1, out);
             float value = synonym.value;

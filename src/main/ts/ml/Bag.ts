@@ -1,8 +1,10 @@
 import { DBObject } from "types/DBObject";
-import { BinaryBag } from "types/ml/BinaryBag";
+import { BinaryBag } from "ml/BinaryBag";
 import * as util from "common/util";
 import { randomBufferFile } from "file";
 import fs from "fs";
+import { Predicate } from "types/db-objects/Predicate";
+import { VersionType } from "types/db-objects/VersionType";
 
 export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any> {
     readonly bag: Map<bigint, number>;
@@ -54,18 +56,22 @@ export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any
 
         return fileData;
     }
-    total: number = null;
-    termFrequency(term: V) {
-        return this.termIDFrequency(this.builder(term).getID());
-    }
-    termIDFrequency(termID: bigint) {
+    private total: number = null;
+    getTotal() {
         if (this.total === null) {
             let total = 0;
             for (const count of this.bag.values()) total += count;
             this.total = total;
         }
 
-        return this.bag.get(termID) / this.total;
+        return this.total;
+    }
+    termProbability(term: V) {
+        return this.termIDProbability(this.builder(term).getID());
+    }
+    termIDProbability(termID: bigint) {
+        const count = this.bag.get(termID) || 0;
+        return count / this.getTotal();
     }
     toBufferFile() {
         let length = 0;
@@ -154,8 +160,100 @@ export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any
                 newBag.set(id, nextCount);
             }
         const newBagWrapper = this.build(newBag);
+        for (const [key, val] of this.objects)
+            newBagWrapper.objects.set(key, val);
+        for (const bag of bags)
+            for (const [key, val] of bag.objects)
+                newBagWrapper.objects.set(key, val as any);
         newBagWrapper.calculateAndSetLengthBytes();
 
         return newBagWrapper;
+    }
+    registerAll<T extends DBObject<T>, V, B extends Bag<T, V, B>>(...bags: B[]) {
+        for (const bag of bags) {
+            for (const [id, count] of bag.bag) {
+                const prevCount = this.bag.get(id) || 0;
+                const nextCount = prevCount + count;
+                this.bag.set(id, nextCount);
+                this.objects.set(id, bag.objects.get(id) as any);
+            }
+        }
+    }
+
+    static termsByInformationGain<T extends DBObject>(
+        positiveCases: number,
+        negativeCases: number,
+        positiveBOW: Bag<T>,
+        negativeBOW: Bag<T>,
+        allBOW: Bag<T>,
+    ) {
+        const probPositive = positiveCases / (positiveCases + negativeCases);
+        const terms = new Set([...negativeBOW.bag.keys(), ...positiveBOW.bag.keys()]);
+        const termsByIG = [];
+        for (const term of terms) {
+            const probT = allBOW.termIDProbability(term);
+            let informationGain = 0;
+            const cases = [{ bag: positiveBOW, bagP: probPositive }, { bag: negativeBOW, bagP: 1 - probPositive}];
+            outer: for (const { bag, bagP } of cases) {
+                const countTInBag = bag.bag.get(term) || 0;
+                const countNotTInBag = bag.getTotal() - countTInBag;
+                const cases = [{ termCount: countTInBag, termP: probT }, { termCount: countNotTInBag, termP: 1 - probT }];
+                for (const { termCount, termP } of cases) {
+                    if (!termCount) {
+                        informationGain = 0;
+                        break outer;
+                    }
+                    const jointProb = termCount / allBOW.getTotal();
+                    const mutualInformation = jointProb * Math.log(jointProb / (termP * bagP));
+                    informationGain += mutualInformation;
+                    if (!informationGain && informationGain != 0) {
+                        console.log(termCount, bagP, termP);
+                        return;
+                    }
+                }
+            }
+            termsByIG.push([informationGain, term]);
+        }
+        termsByIG.sort((a, b) => a[0] - b[0]);
+
+        return termsByIG;
+    }
+    static trimFeaturesByIG<T extends DBObject>(
+        positiveCases: number,
+        negativeCases: number,
+        positiveBOW: Bag<T>,
+        negativeBOW: Bag<T>,
+        allBOW: Bag<T>,
+        n: number,
+    ) {
+        const termsByIG = Bag.termsByInformationGain(positiveCases, negativeCases, positiveBOW, negativeBOW, allBOW).slice(-n);
+        const reducedFeatures = new Set(termsByIG.slice(0, n).map(([, term]) => term));
+        for (const term of positiveBOW.bag.keys())
+            if (!reducedFeatures.has(term)) positiveBOW.bag.delete(term);
+        for (const term of negativeBOW.bag.keys())
+            if (!reducedFeatures.has(term)) negativeBOW.bag.delete(term);
+        for (const term of allBOW.bag.keys())
+            if (!reducedFeatures.has(term)) allBOW.bag.delete(term);
+    }
+
+    static predict<T, S extends DBObject<S>>(posBag: Bag<S>, negBag: Bag<S>, input: [T, Bag<S>][]) {
+        const results: [T, number][] = [];
+        let i = 0;
+        for (const [doc, bag] of input) {
+            let score = 0;
+            for (const [ termID, count ] of bag.bag) {
+                const posCount = posBag.bag.get(termID) || 0;
+                const posTotal = posBag.getTotal();
+                const negCount = negBag.bag.get(termID) || 0;
+                const negTotal = negBag.getTotal();
+                const pPos = (posCount + 1) / (posTotal + 2);
+                const pNeg = (negCount + 1) / (negTotal + 2);
+                score += Math.log((pPos * (1 - pNeg)) / (pNeg * (1 - pPos)));
+            }
+            results.push([doc, score]);
+        }
+        results.sort((a, b) => a[1] - b[1]);
+
+        return results;
     }
 }

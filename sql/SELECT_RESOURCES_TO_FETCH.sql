@@ -10,4 +10,6 @@ from (
     left outer join ResourceVersion on ResourceVersion.resource = ResourceURL.id
     group by ResourceURL.id
 ) LastFetched
-where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);
+left outer join ResourceBlocked on ResourceBlocked.resource = LastFetched.id
+where fetchAfter < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000)
+and ResourceBlocked.expires is null or ResourceBlocked.expires < round(UNIX_TIMESTAMP(CURTIME(4)) * 1000);

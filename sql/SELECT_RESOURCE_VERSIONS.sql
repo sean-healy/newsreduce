@@ -1,6 +1,6 @@
 select u.url, v.time, filename
 from ResourceVersion v
-inner join VersionType t on t.id = v.type
+inner join VersionType t on t.id = v.type and t.modified < v.time
 inner join URLView u on u.resource = v.resource
 left outer join ResourceRank r on r.resource = v.resource
 left outer join ResourceBinaryRelation b on b.resource = v.resource

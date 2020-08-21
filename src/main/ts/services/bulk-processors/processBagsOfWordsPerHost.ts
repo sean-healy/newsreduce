@@ -3,7 +3,7 @@ import { ResourceID } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
 import { SQL } from "common/SQL";
 import { bytesToBigInt, bytesToNumber, fancyLog } from "common/util";
-import { Bag } from "types/ml/Bag";
+import { Bag } from "ml/Bag";
 import { WordID } from "types/db-objects/Word";
 import { HostID } from "types/db-objects/Host";
 import { Redis } from "common/Redis";

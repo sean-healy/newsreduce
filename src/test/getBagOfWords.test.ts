@@ -1,8 +1,8 @@
 import path from "path"
 import fs from "fs"
 import { JSDOM } from "jsdom"
-import { getRepresentations } from "services/resource-processor/ExtractMLRepresentations";
-import { BagOfWords } from "types/ml/BagOfWords";
+//import { getRepresentations } from "services/resource-processor/ExtractMLRepresentations";
+import { BagOfWords } from "ml/BagOfWords";
 
 /*
 test("get bag of words works", () => {

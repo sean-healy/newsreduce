@@ -1,4 +1,5 @@
 import { ChildProcessWithoutNullStreams } from "child_process";
+import { Tokenizer } from "ml/Tokenizer";
 
 export const CMP_BIG_INT = (a: bigint, b: bigint) => a < b ? -1 : a > b ? 1 : 0;
 export const CMP_INT = (a: number, b: number) => a - b;
@@ -196,4 +197,61 @@ export function bytesNeeded(n: number) {
     }
 
     return bytes;
+}
+
+export function linerLog(start: number, i: number, l: number) {
+    const now = Date.now();
+    const diff = now - start;
+    const expectedTotalDuration = diff / (i / l)
+    const expectedRemainingDurationS = ((start + expectedTotalDuration) - now) / 1000;
+    const minutes = Math.floor(expectedRemainingDurationS / 60);
+    const seconds = Math.round(expectedRemainingDurationS % 60).toString();
+    process.stdout.write("                                              \r");
+    process.stdout.write(`\r${((i / l) * 100).toFixed(10)}% ${minutes}:${seconds.padStart(4, "0")}s left.`);
+}
+
+export function levenshteinDistance(X: string, Y: string) {
+    X = Tokenizer.charTranslateString(X).toLowerCase();
+    Y = Tokenizer.charTranslateString(Y).toLowerCase();
+    console.log(X, Y);
+    const M = X.length;
+    const N = Y.length;
+    const matrix: number[][] = new Array<number[]>(M + 1);
+    for (let i = 0; i <= M; ++i)
+        matrix[i] = new Array<number>(N + 1);
+    function D(i: number, j: number) {
+        if (matrix[i][j]) return matrix[i][j];
+        let d: number;
+        if (i * j === 0) d = Math.max(i, j);
+        else {
+            const a = D(i - 1, j) + 1;
+            const b = D(i, j - 1) + 1;
+            const c = D(i - 1, j - 1) + (X[i - 1] === Y[j - 1] ? 0 : 1);
+            d = Math.min(a, b, c);
+        }
+        matrix[i][j] = d;
+        
+        return d;
+    }
+    for (let i = 0; i <= M; ++i)
+        for (let j = 0; j <= N; ++j)
+            D(i, j);
+
+    let s = "";
+    let i = -1;
+    s += "      ";
+    for (const c of Y.split(""))
+        s += c + "  ";
+    s += "\n";
+    for (const row of matrix) {
+        if (i >= 0)
+            s += X[i] + " " 
+        else s += "  " 
+        i++;
+        for (const n of row)
+            s += `${n}`.replace(/^([0-9])$/g, " $1") + " ";
+        s += "\n";
+    }
+    console.log(s);
+    return D(M - 1, N - 1);
 }
