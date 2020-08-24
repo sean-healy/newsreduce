@@ -1,7 +1,7 @@
 import fs from "fs";
 import sql from "sql";
 import { ResourceURL } from "types/db-objects/ResourceURL";
-import { fancyLog, writeBigUInt96BE, Dictionary } from "common/util";
+import { fancyLog, writeBigUInt96BE, Dictionary } from "utils/alpha";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 import { DBObject } from "types/DBObject";

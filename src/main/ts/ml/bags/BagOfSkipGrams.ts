@@ -1,4 +1,4 @@
-import { Bag } from "ml/Bag";
+import { Bag } from "ml/bags/Bag";
 import { SkipGram } from "types/db-objects/SkipGram";
 
 export class BagOfSkipGrams extends Bag<SkipGram, string, BagOfSkipGrams> {

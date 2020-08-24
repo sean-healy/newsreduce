@@ -4,7 +4,7 @@ import { getPreBlobDir, TAR, nullFile, safeMkdir, getBlobDir } from "common/conf
 import { spawn } from "child_process";
 import { COMPRESSOR_LOCK, SYNC_LOCK } from "common/events";
 import { Redis, REDIS_PARAMS } from "common/Redis";
-import { fancyLog, spawnPromise } from "common/util";
+import { fancyLog, spawnPromise } from "utils/alpha";
 import { lastChangedAfter, lastChangedBefore, randomBufferFile, safeExists } from "file";
 import { PromisePool } from "common/PromisePool";
 import { GLOBAL_VARS } from "common/processor";

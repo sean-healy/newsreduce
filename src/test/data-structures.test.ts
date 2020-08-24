@@ -1,5 +1,5 @@
-import { BagOfWords } from "ml/BagOfWords";
-import { BinaryBag } from "ml/BinaryBag";
+import { BagOfWords } from "ml/bags/BagOfWords";
+import { BinaryBag } from "ml/bags/BinaryBag";
 
 test("bag of words works as expected", () => {
     const bag = new BagOfWords();

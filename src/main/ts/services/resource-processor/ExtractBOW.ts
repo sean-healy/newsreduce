@@ -1,8 +1,8 @@
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
-import { BagOfWords } from "ml/BagOfWords";
+import { BagOfWords } from "ml/bags/BagOfWords";
 import { ResourceProcessor } from "./ResourceProcessor";
-import { Dictionary } from "common/util";
+import { Dictionary } from "utils/alpha";
 import { InputCache } from "./functions";
 
 export function getRepresentations(cache: InputCache) {

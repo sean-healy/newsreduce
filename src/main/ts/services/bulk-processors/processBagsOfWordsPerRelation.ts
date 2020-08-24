@@ -2,13 +2,13 @@ import { Predicate, PredicateID } from "types/db-objects/Predicate";
 import { selectBOWsForRelation } from "data";
 import { ResourceID } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
-import { BagOfWords } from "ml/BagOfWords";
+import { BagOfWords } from "ml/bags/BagOfWords";
 import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
 import { PromisePool } from "common/PromisePool";
 import { ConditionalWordFrequencyByID } from "types/db-objects/ConditionalWordFrequency";
-import { linerLog } from "common/util";
-import { Bag } from "ml/Bag";
+import { linerLog } from "utils/alpha";
+import { Bag } from "ml/bags/Bag";
 
 export async function main() {
     const predicates = await new Predicate().selectAll();

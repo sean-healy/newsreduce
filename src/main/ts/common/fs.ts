@@ -1,7 +1,7 @@
 import fs from "fs";
 import { checksum } from "./hashing";
 import { log } from "./logging";
-import { fancyLog } from "./util";
+import { fancyLog } from "../utils/alpha";
 
 export function deleteIfChecksumMatches(path: string, expectedChecksum: string) {
     const exists = fs.existsSync(path);

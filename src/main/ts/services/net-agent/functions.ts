@@ -2,7 +2,7 @@ import fs from "fs";
 import dns from "dns";
 import express from "express";
 import bodyParser from "body-parser";
-import { fancyLog } from "common/util";
+import { fancyLog } from "utils/alpha";
 
 export async function getGuestlist() {
     const hostsContent = fs.readFileSync("/var/newsreduce/network");

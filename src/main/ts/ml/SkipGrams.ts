@@ -1,6 +1,6 @@
 import { SkipGram } from "types/db-objects/SkipGram";
 import { Tokenizer } from "./Tokenizer";
-import { BagOfSkipGrams } from "./BagOfSkipGrams";
+import { BagOfSkipGrams } from "./bags/BagOfSkipGrams";
 
 const ZERO = [0];
 export class SkipGrams {

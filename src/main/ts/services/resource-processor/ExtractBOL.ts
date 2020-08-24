@@ -1,9 +1,9 @@
 import fs from "fs"
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
-import { BagOfURLs } from "ml/BagOfURLs";
+import { BagOfURLs } from "ml/bags/BagOfURLs";
 import { ResourceProcessor } from "./ResourceProcessor";
-import { Dictionary, fancyLog } from "common/util";
+import { Dictionary, fancyLog } from "utils/alpha";
 import { InputCache } from "./functions";
 
 const HASH = "#";

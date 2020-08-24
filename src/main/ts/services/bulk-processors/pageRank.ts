@@ -1,7 +1,7 @@
 import { writeBacklinksToFile, writeLinkGraphResourcesToFile } from "data";
 import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
-import { fancyLog } from "common/util";
+import { fancyLog } from "utils/alpha";
 import { spawn } from "child_process";
 import fs from "fs";
 import { randomBufferFile } from "file";

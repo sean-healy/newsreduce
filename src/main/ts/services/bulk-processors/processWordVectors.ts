@@ -1,5 +1,5 @@
 import { ResourceURL } from "types/db-objects/ResourceURL";
-import { bytesToBigInt, fancyLog } from "common/util";
+import { bytesToBigInt, fancyLog } from "utils/alpha";
 import { getWordVectorDir, safeMkdir } from "common/config";
 import fs from "fs";
 import { randomBufferFile } from "file";

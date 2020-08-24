@@ -1,5 +1,5 @@
 import redis, { RedisClient } from "redis";
-import { STR_ONE, fancyLog } from "./util";
+import { STR_ONE, fancyLog } from "../utils/alpha";
 import { log } from "./logging";
 import { GlobalConfig } from "./GlobalConfig";
 import { DNS } from "./DNS";

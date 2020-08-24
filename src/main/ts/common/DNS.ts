@@ -1,7 +1,7 @@
 import dns from "dns";
 import fetch from "node-fetch";
 import { GlobalConfig } from "./GlobalConfig";
-import { fancyLog } from "./util";
+import { fancyLog } from "../utils/alpha";
 
 export class DNS {
     static readonly LOCALHOST = DNS.ipv4AsIpv6("127.0.0.1");

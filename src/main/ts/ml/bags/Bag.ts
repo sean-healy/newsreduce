@@ -1,6 +1,6 @@
 import { DBObject } from "types/DBObject";
-import { BinaryBag } from "ml/BinaryBag";
-import * as util from "common/util";
+import { BinaryBag } from "ml/bags/BinaryBag";
+import * as util from "utils/alpha";
 import { randomBufferFile } from "file";
 import fs from "fs";
 import { Predicate } from "types/db-objects/Predicate";

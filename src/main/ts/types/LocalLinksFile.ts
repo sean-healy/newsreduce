@@ -1,6 +1,6 @@
 import fs from "fs";
 import { randomBufferFile } from "file";
-import { writeAnyNumberBE } from "common/util";
+import { writeAnyNumberBE } from "utils/alpha";
 import { GenericConstructor } from "./GenericConstructor";
 
 type LocalID = number;

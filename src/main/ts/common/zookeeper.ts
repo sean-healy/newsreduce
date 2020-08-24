@@ -1,5 +1,5 @@
 import { Redis, REDIS_PARAMS } from "./Redis";
-import { fancyLog, setImmediateInterval } from "./util";
+import { fancyLog, setImmediateInterval } from "../utils/alpha";
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1)

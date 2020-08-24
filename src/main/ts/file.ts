@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { spawn } from "child_process";
 import { getBlobDir, TAR, safeMkdir, getRawDir } from "common/config";
 import { Entity, entityName } from "types/Entity";
-import { fancyLog, spawnPromise, CMP_INT } from "common/util";
+import { fancyLog, spawnPromise, CMP_INT } from "utils/alpha";
 import { VersionType } from "types/db-objects/VersionType";
 
 const FINISH = "finish";

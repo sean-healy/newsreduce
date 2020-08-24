@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { DBObject } from "types/DBObject";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
-import { tabulate, fancyLog } from "common/util";
+import { tabulate, fancyLog } from "utils/alpha";
 
 export const BATCH_SIZE = 50000;
 

@@ -5,7 +5,7 @@ import { JSDOM } from "jsdom";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { ResourceHash } from "types/db-objects/ResourceHash";
 import { Anchor } from "types/db-objects/Anchor";
-import { fancyLog } from "common/util";
+import { fancyLog } from "utils/alpha";
 import { VersionType } from "types/db-objects/VersionType";
 import { getAnchorsWithHREF } from "services/resource-processor/functions";
 import { HTMLProcessor } from "./HTMLProcessor";

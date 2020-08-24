@@ -1,5 +1,5 @@
 import { JSDOM } from "jsdom";
-import { Dictionary } from "common/util";
+import { Dictionary } from "utils/alpha";
 import { DOMPool } from "./DOMPool";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { ResourceProcessor } from "./ResourceProcessor";

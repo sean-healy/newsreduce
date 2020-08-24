@@ -1,5 +1,5 @@
 import { defaultHash } from "common/hashing";
-import { bytesToBigInt, Dictionary } from "common/util";
+import { bytesToBigInt, Dictionary } from "utils/alpha";
 import { Redis, REDIS_PARAMS } from "common/Redis";
 import { SQL } from "common/SQL";
 import { GenericConstructor } from "./GenericConstructor";

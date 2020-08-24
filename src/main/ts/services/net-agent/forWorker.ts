@@ -4,7 +4,7 @@ import { getRawDir } from "common/config";
 import { DELETE_FILES } from "common/events";
 import fs from "fs";
 import { Redis, REDIS_PARAMS } from "common/Redis";
-import { fancyLog } from "common/util";
+import { fancyLog } from "utils/alpha";
 
 async function watch() {
     const client = Redis.newSub(REDIS_PARAMS.local);

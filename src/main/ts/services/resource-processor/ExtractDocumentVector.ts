@@ -1,7 +1,7 @@
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
 import { ResourceProcessor } from "./ResourceProcessor";
-import { Dictionary } from "common/util";
+import { Dictionary } from "utils/alpha";
 import { getRepresentations } from "./ExtractBOW";
 import { selectDocumentWordVectors } from "data";
 import { WordVector } from "types/db-objects/WordVector";

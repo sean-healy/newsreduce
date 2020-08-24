@@ -11,7 +11,7 @@ import {
     randomBufferFile,
     exists
 } from "file";
-import { fancyLog } from "common/util";
+import { fancyLog } from "utils/alpha";
 import { Version } from "./Version";
 
 export abstract class EntityObject<T extends EntityObject<T>> extends DBObject<T> {

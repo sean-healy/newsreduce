@@ -1,4 +1,4 @@
-import { setImmediateInterval } from "./util";
+import { setImmediateInterval } from "../utils/alpha";
 import { startProcessor, GLOBAL_VARS } from "./processor";
 import { randomBytes } from "crypto";
 import { Redis, REDIS_PARAMS } from "./Redis";

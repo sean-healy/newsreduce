@@ -5,7 +5,7 @@ import path from "path"
 import fs from "fs";
 import { Entity } from "types/Entity";
 import { VersionType } from "types/db-objects/VersionType";
-import { sleep, spawnPromise } from "common/util";
+import { sleep, spawnPromise } from "utils/alpha";
 import { spawn } from "child_process";
 
 test("compress should work", async () => {

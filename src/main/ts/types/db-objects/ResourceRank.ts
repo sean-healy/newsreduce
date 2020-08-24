@@ -1,6 +1,6 @@
 import { DBObject } from "types/DBObject";
 import { ResourceURL } from "types/db-objects/ResourceURL";
-import { ConstructorArg0 } from "common/util";
+import { ConstructorArg0 } from "utils/alpha";
 
 export class ResourceRank extends DBObject<ResourceRank> {
     readonly resource: ResourceURL;

@@ -1,9 +1,9 @@
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
-import { BagOfSkipGrams } from "ml/BagOfSkipGrams";
+import { BagOfSkipGrams } from "ml/bags/BagOfSkipGrams";
 import { SkipGrams } from "ml/SkipGrams";
 import { ResourceProcessor } from "./ResourceProcessor";
-import { Dictionary } from "common/util";
+import { Dictionary } from "utils/alpha";
 import { InputCache } from "./functions";
 
 export function getSkipGrams(cache: InputCache, n: number, skips: number) {

@@ -2,22 +2,22 @@ import fs from "fs";
 import sql from "sql";
 import { JSDOM } from "jsdom";
 import { SQL } from "common/SQL";
-import { Dictionary } from "common/util";
+import { Dictionary } from "utils/alpha";
 import { ResourceID, ResourceURL } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
 import { Key } from "types/db-objects/Key";
 import { Redis } from "common/Redis";
-import { BagOfSkipGrams } from "ml/BagOfSkipGrams";
+import { BagOfSkipGrams } from "ml/bags/BagOfSkipGrams";
 import { SkipGrams } from "ml/SkipGrams";
 import { getSkipGrams } from "services/resource-processor/ExtractBOSG";
 import { SkipGram } from "types/db-objects/SkipGram";
 import { selectNewsSourceHomepages, genericSQLPromise } from "data";
 import { ResourceThrottle } from "types/db-objects/ResourceThrottle";
-import { BagOfWords } from "ml/BagOfWords";
+import { BagOfWords } from "ml/bags/BagOfWords";
 import { Predicate } from "types/db-objects/Predicate";
 import { EXTRACTORS } from "services/resource-processor/functions";
 import { EXCLUDE } from "services/resource-processor/HTMLProcessor";
-import { Bag } from "ml/Bag";
+import { Bag } from "ml/bags/Bag";
 
 // WIP
 export function main0() {

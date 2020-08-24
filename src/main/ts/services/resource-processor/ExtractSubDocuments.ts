@@ -2,7 +2,7 @@ import { JSDOM } from "jsdom";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
 import { HTMLProcessor, EXCLUDE } from "./HTMLProcessor";
-import { Dictionary } from "common/util";
+import { Dictionary } from "utils/alpha";
 import { ANCHOR_TAG } from "./functions";
 
 const LF = Buffer.from("\n")[0];

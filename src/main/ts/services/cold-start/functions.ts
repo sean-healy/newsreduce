@@ -2,7 +2,7 @@ import { Client } from "types/db-objects/Client";
 import { WikiCategory } from "types/db-objects/WikiCategory";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { ClientHeader } from "types/db-objects/ClientHeader";
-import { fancyLog } from "common/util";
+import { fancyLog } from "utils/alpha";
 import { ResourceThrottle } from "types/db-objects/ResourceThrottle";
 import { WordVectorSource } from "types/db-objects/WordVectorSource";
 import { Predicate } from "types/db-objects/Predicate";
@@ -72,9 +72,10 @@ export function getObjectsToInsert() {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15"),
     ];
 
-    const relations = [
+    const predicates = [
         Predicate.RES_IS_NEWS_SOURCE_WIKI,
         Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE,
+        Predicate.SUB_DOC_IS_PRIMARY_HEADING,
     ];
 
     const patterns = [
@@ -150,6 +151,12 @@ export function getObjectsToInsert() {
             attribute: new HTMLAttributeName("href"),
             predicate: Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE,
         }),
+        new ResourceSubDocumentTrain({
+            resource: new ResourceURL("https://en.wikipedia.org/wiki/The_Daily_Post_(New_Zealand)"),
+            pattern: new Pattern("http://www.dailypost.co.nz/"),
+            attribute: new HTMLAttributeName("href"),
+            predicate: Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE,
+        }),
     ];
 
     return [
@@ -158,7 +165,7 @@ export function getObjectsToInsert() {
         ...clients,
         ...clientHeaders,
         ...wordVectorSources,
-        ...relations,
+        ...predicates,
         ...patterns,
         new HTMLAttributeName("href"),
     ];

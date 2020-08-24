@@ -6,7 +6,7 @@ import { DBObject } from "types/DBObject";
 import { ResourceThrottle } from "types/db-objects/ResourceThrottle";
 import { VersionType } from "types/db-objects/VersionType";
 import { HTMLProcessor } from "./HTMLProcessor";
-import { writeBigUInt96BE } from "common/util";
+import { writeBigUInt96BE } from "utils/alpha";
 
 const SUBCATEGORY_SELECTOR = "#mw-subcategories .CategoryTreeItem>a";
 const CATEGORY_PAGE_SELECT = "#mw-pages .mw-category .mw-category-group li>a";

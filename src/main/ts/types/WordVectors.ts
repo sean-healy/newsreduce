@@ -2,7 +2,7 @@ import { GenericConstructor } from "./GenericConstructor";
 import readline from "readline";
 import fs from "fs";
 import { WordVector, BYTES_PER_FLOAT } from "./db-objects/WordVector";
-import { CMP_BIG_INT, writeBigUInt96BE, bytesToBigInt } from "common/util";
+import { CMP_BIG_INT, writeBigUInt96BE, bytesToBigInt } from "utils/alpha";
 import { randomBufferFile } from "file";
 import { ResourceURL } from "./db-objects/ResourceURL";
 

@@ -1,4 +1,4 @@
-import { DecisionTree } from "ml/DecisionTree"
+import { DecisionTree } from "ml/trees/DecisionTree"
 
 test("decision trees work", () => {
     const data: [Map<string, boolean>, boolean][] = [
@@ -11,6 +11,6 @@ test("decision trees work", () => {
         [new Map<string, boolean>([["weekday", true], ["bank holiday", true], ["sick", false]]), false],
         [new Map<string, boolean>([["weekday", true], ["bank holiday", true], ["sick", true]]), false],
     ]
-    const decisionTree = DecisionTree.build(data);
+    const decisionTree = new DecisionTree<string, boolean, boolean>().train(data, {});
     console.log(JSON.stringify(decisionTree.toJSON(), null, " "));
 })

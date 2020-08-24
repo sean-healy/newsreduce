@@ -1,4 +1,4 @@
-import { Dictionary } from "common/util";
+import { Dictionary } from "utils/alpha";
 import { Tokenizer } from "./Tokenizer";
 export type Type = [Dictionary<string>, string[]][];
 export type ClassifiedType = [Dictionary<string>, string[], boolean][];
@@ -58,7 +58,7 @@ export class SubDocs {
         return Buffer.concat(stringBuilder);
     }
 
-    static tokensToFeatures(tokens: string[], features: [string, boolean][] = [], text: string = null) {
+    static tokensToFeatures(tokens: string[], features: [string, boolean | number][] = [], text: string = null) {
         for (const token of tokens) {
             for (const feature of token.split(/(?=[#.])/g)) {
                 if (feature.length < 26 && !feature.match(/^(.(root)?page-)|(#)/))

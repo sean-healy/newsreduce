@@ -9,8 +9,12 @@ export class Predicate extends EntityObject<Predicate> {
     static TRUE_SUFFIX = "TRUE";
     static FALSE_SUFFIX = "FALSE";
 
-    static RES_IS_NEWS_SOURCE_WIKI = new Predicate("res-is-news-source-wiki");
-    static SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE = new Predicate("sub-doc-is-news-source-homepage");
+    static RES_IS_NEWS_SOURCE_WIKI =
+        new Predicate("res-is-news-source-wiki");
+    static SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE =
+        new Predicate("sub-doc-is-news-source-homepage");
+    static SUB_DOC_IS_PRIMARY_HEADING =
+        new Predicate("sub-doc-is-primary-heading");
 
     readonly functor: string;
 

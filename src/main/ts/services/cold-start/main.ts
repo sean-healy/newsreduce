@@ -1,6 +1,6 @@
 import { insertColdStartObjects } from "services/cold-start/functions";
 import { SQL } from "common/SQL";
-import { fancyLog } from "common/util";
+import { fancyLog } from "utils/alpha";
 
 insertColdStartObjects().then(async () => {
     fancyLog("Done.");

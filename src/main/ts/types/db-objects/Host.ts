@@ -1,5 +1,5 @@
 import { Redis, REDIS_PARAMS } from "common/Redis";
-import { STR_ONE } from "common/util";
+import { STR_ONE } from "utils/alpha";
 import { EntityObject } from "./EntityObject";
 import { Entity } from "types/Entity";
 import { VersionType } from "./VersionType";

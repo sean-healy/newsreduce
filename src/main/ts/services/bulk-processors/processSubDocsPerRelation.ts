@@ -4,10 +4,36 @@ import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
 import { selectSubDocTrainingData } from "data";
 import { ClassifiedType, SubDocs } from "ml/SubDocs";
-import { fancyLog } from "common/util";
-import { DecisionTree, TrainingData, TrainingDataPoint } from "ml/DecisionTree";
+import { fancyLog } from "utils/alpha";
+import { DamerauLevenshteinAlgo } from "utils/DamerauLevenshteinAlgo";
 import { Tokenizer } from "ml/Tokenizer";
 import { ResourceURL } from "types/db-objects/ResourceURL";
+import { TrainingData } from "ml/trees/TrainingData";
+import { TrainingDataPoint } from "ml/trees/TrainingDataPoint";
+import { RandomForest } from "ml/trees/RandomForest";
+import { NonForest } from "ml/trees/NonForest";
+
+export function frequentFeatures(tokens: (string | string[])[], cut: number) {
+    const counts = new Map<string, number>();
+    const features = new Set<string>();
+    tokens = tokens.filter(t => t);
+    if (!tokens.length) return features;
+    let multidimensional: boolean = typeof tokens[0] === "object";
+    if (multidimensional) for (const row of tokens)
+        for (const string of row)
+            counts.set(string, (counts.get(string) || 0) + 1);
+    else for (const string of tokens as string[])
+        counts.set(string, (counts.get(string) || 0) + 1);
+    if (multidimensional) for (const row of tokens)
+        for (const string of row)
+            if (counts.get(string) >= cut)
+                features.add(string);
+    else for (const string of tokens as string[])
+        if (counts.get(string) >= cut)
+            features.add(string);
+    
+    return features;
+}
 
 export async function main() {
     const data = await selectSubDocTrainingData();
@@ -26,21 +52,19 @@ export async function main() {
         const pred = new Predicate(functor);
         await pred.writeVersion(
             time, VersionType.CLASSIFIED_SUB_DOCS, SubDocs.classifiedSubDocsToBuffer(classifiedSubDocs));
-        const trainingData: TrainingData<string, boolean, boolean> = []
-        const wordCounts = new Map<string, number>();
-        const hostCounts = new Map<string, number>();
-        const hostPartCounts = new Map<string, number>();
-        const wordTokens: string[][] = new Array<string[]>(classifiedSubDocs.length);
-        const hostTokens: string[] = new Array<string>(classifiedSubDocs.length);
-        const hostPartTokens: string[][] = new Array<string[]>(classifiedSubDocs.length);
-        const sslTokens: string[] = new Array<string>(classifiedSubDocs.length);
-        const pathLengths: string[] = new Array<string>(classifiedSubDocs.length);
-        const tagTokens: string[][] = new Array<string[]>(classifiedSubDocs.length);
+        const trainingData: TrainingData<string, boolean | number, boolean> = []
+        const wordTokens = new Array<string[]>(classifiedSubDocs.length);
+        const hostTokens = new Array<string>(classifiedSubDocs.length);
+        const hostPartTokens = new Array<string[]>(classifiedSubDocs.length);
+        const sslFeatures = new Array<string>(classifiedSubDocs.length);
+        const pathLengths = new Array<number>(classifiedSubDocs.length);
+        const tagFeatures = new Array<string[]>(classifiedSubDocs.length);
+        const textAndBasepathDifference = new Array<number>(classifiedSubDocs.length);
         let i = 0;
         for (const [doc,] of classifiedSubDocs) {
-            tagTokens[i] = Object.keys(doc).map(tag => `tag:${tag}`);
+            tagFeatures[i] = Object.keys(doc).map(tag => `tag:${tag}`);
+            let url: ResourceURL;
             if ("href" in doc) {
-                let url: ResourceURL;
                 try {
                     url = new ResourceURL(doc.href)
                 } catch (e) {
@@ -48,46 +72,40 @@ export async function main() {
                 }
                 if (url) {
                     const host = url.host.name;
-                    const count = hostCounts.get(host) || 0;
-                    hostCounts.set(host, count + 1);
                     hostTokens[i] = `host:${host}`;
-                    sslTokens[i] = `ssl:${url.ssl}`;
-                    pathLengths[i] = `path-length:${url.path.value.split("/").length - 1}`;
+                    sslFeatures[i] = `ssl:${url.ssl}`;
+                    pathLengths[i] = url.path.value.split("/").length - 1;
                     const hostPartsForDoc = host.split(".");
                     hostPartTokens[i] = hostPartsForDoc.map(part => `host-part:${part}`);
-                    for (const part of hostPartsForDoc) {
-                        const count = hostPartCounts.get(part) || 0;
-                        hostPartCounts.set(part, count + 1);
+                }
+            } else url = null;
+            if ("text" in doc) {
+                const text = doc.text;
+                if (url) {
+                    const basepath = url.basepath();
+                    if (basepath) {
+                        const calculator =
+                            new DamerauLevenshteinAlgo<string, string[]>(basepath, text);
+                        calculator.calculate();
+                        const difference = calculator.differenceCoefficient();
+                        textAndBasepathDifference[i] = difference;
                     }
                 }
-            }
-            if ("text" in doc) {
-                const tokens = Tokenizer.tokenizeDocument(doc.text).map(token => `text:${token}`);
-                for (const token of tokens) {
-                    const count = wordCounts.get(token) || 0
-                    wordCounts.set(token, count + 1);
-                }
+                const tokens = Tokenizer
+                    .tokenizeDocument(text)
+                    .map(token => `text:${token}`);
                 wordTokens[i] = tokens;
             }
             ++i;
         }
-        const wordFeatures = new Set<string>();
-        for (const [word, count] of wordCounts.entries())
-            if (count > 10)
-                wordFeatures.add(word);
-        const hostFeatures = new Set<string>();
-        for (const [host, count] of hostCounts.entries())
-            if (count > 3)
-                hostFeatures.add(host);
-        const hostPartFeatures = new Set<string>();
-        for (const [part, count] of hostPartCounts.entries())
-            if (count > 10)
-                hostPartFeatures.add(part);
+        const wordFeatures = frequentFeatures(wordTokens, 10);
+        const hostFeatures = frequentFeatures(hostTokens, 3);
+        const hostPartFeatures = frequentFeatures(hostPartTokens, 10);
         fancyLog(`Assembling training data from ${classifiedSubDocs.length} documents.`);
         fancyLog(`Word features: ${wordFeatures.size}`);
         i = 0;
         for (const [doc, tokens, c] of classifiedSubDocs) {
-            const features: Array<[string, boolean]> = [];
+            const features: Array<[string, boolean | number]> = [];
             SubDocs.tokensToFeatures(tokens, features);
             const wordTokensForDoc = wordTokens[i];
             if (wordTokensForDoc)
@@ -97,38 +115,32 @@ export async function main() {
             const hostPartTokensForDoc = hostPartTokens[i];
             if (hostPartTokensForDoc)
                 for (const token of hostPartTokensForDoc)
-                    //if (hostPartFeatures.has(token))
+                    if (hostPartFeatures.has(token))
                         features.push([token, true]);
             const hostTokenForDoc = hostTokens[i];
-            //if (hostTokenForDoc && hostFeatures.has(hostTokenForDoc)) {
-            if (hostTokenForDoc) {
+            if (hostTokenForDoc && hostFeatures.has(hostTokenForDoc))
                 features.push([hostTokenForDoc, true]);
-            }
-            const sslToken = sslTokens[i];
-            if (sslToken)
-                features.push([sslToken, true]);
-            const pathLength = pathLengths[i];
-            if (pathLength)
-                features.push([pathLength, true]);
-            for (const token of tagTokens[i])
+            if (sslFeatures[i])
+                features.push([sslFeatures[i], true]);
+            if (pathLengths[i])
+                features.push(["path-length", pathLengths[i]]);
+            if (textAndBasepathDifference[i])
+                features.push(["text-basepath-diff", textAndBasepathDifference[i]]);
+            for (const token of tagFeatures[i])
                 features.push([token, true]);
-            const point: TrainingDataPoint<string, boolean, boolean> = [new Map(features), c];
+            const point: TrainingDataPoint<string, boolean | number, boolean> = [new Map(features), c];
             trainingData.push(point);
             ++i;
         }
-        const M = 50;
+        const M = 2;
         fancyLog(`Building ${M} decision trees with ${trainingData.length} training data points.`);
-        const trees = new Array<DecisionTree<string, boolean, boolean>>(M);
-        const stringBuilder: Buffer[] = [];
-        for (let i = 0; i < M; ++i) {
-            fancyLog(`\tBuilding tree ${i}.`);
-            const tree = DecisionTree.build<string, boolean, boolean>(trainingData, _ => false, true, 30);
-            stringBuilder.push(Buffer.from(JSON.stringify(tree.toJSON())));
-            stringBuilder.push(Buffer.from("\n"));
-        }
-        stringBuilder.pop();
-        await pred.writeVersion(
-            time, VersionType.RANDOM_FOREST, Buffer.concat(stringBuilder));
+//        const forest = new RandomForest<string, boolean | number, boolean>().train(trainingData, {
+        const forest = new NonForest<string, boolean | number, boolean>().train(trainingData, {
+            depth: 10,
+            trees: M,
+        });
+        const buffer = Buffer.from(JSON.stringify(forest.toJSON()));
+        await pred.writeVersion(time, VersionType.RANDOM_FOREST, buffer);
     }
     await Redis.quit();
     (await SQL.db()).destroy();

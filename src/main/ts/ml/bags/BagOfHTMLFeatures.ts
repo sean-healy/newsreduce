@@ -1,4 +1,4 @@
-import { Bag } from "ml/Bag";
+import { Bag } from "ml/bags/Bag";
 import { HTMLFeature } from "types/db-objects/HTMLFeature";
 
 export class BagOfHTMLFeatures extends Bag<HTMLFeature, string, BagOfHTMLFeatures> {

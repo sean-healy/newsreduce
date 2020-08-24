@@ -1,4 +1,4 @@
-import { bitCount } from "common/util";
+import { bitCount } from "utils/alpha";
 import { SimpleHashObject } from "./SimpleHashObject";
 
 export class SkipGram extends SimpleHashObject<SkipGram> {

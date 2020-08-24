@@ -9,7 +9,7 @@ import {
     writeAnyNumberBE,
     bytesToNumber,
     fancyLog,
-} from "common/util";
+} from "utils/alpha";
 import { DBObject } from "./DBObject";
 
 const POSITION_BITS = 4;

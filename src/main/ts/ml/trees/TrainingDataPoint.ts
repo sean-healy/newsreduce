@@ -1,0 +1,1 @@
+export type TrainingDataPoint<K, V, C> = [Map<K, V>, C];

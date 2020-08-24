@@ -1,14 +1,14 @@
 import fs from "fs";
 import { Predicate, PredicateID } from "types/db-objects/Predicate";
 import { VersionType } from "types/db-objects/VersionType";
-import { bytesToBigInt, bytesToNumber } from "common/util";
-import { Bag } from "ml/Bag";
+import { bytesToBigInt, bytesToNumber } from "utils/alpha";
+import { Bag } from "ml/bags/Bag";
 import { WordID } from "types/db-objects/Word";
 import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
-import { BagByCount } from "ml/BagByCount";
-import { ArrayBag } from "ml/ArrayBag";
-import { BagComparison } from "ml/BagComparison";
+import { BagByCount } from "ml/bags/BagByCount";
+import { ArrayBag } from "ml/bags/ArrayBag";
+import { BagComparison } from "ml/bags/BagComparison";
 
 interface PredicateArg {
     id: bigint;

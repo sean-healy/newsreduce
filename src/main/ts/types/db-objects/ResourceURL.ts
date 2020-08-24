@@ -1,4 +1,3 @@
-import { DBObject } from "types/DBObject";
 import { ResourceURLQuery } from "types/db-objects/ResourceURLQuery";
 import { ResourceURLPath } from "types/db-objects/ResourceURLPath";
 import { Host } from "types/db-objects/Host";
@@ -166,6 +165,11 @@ export class ResourceURL extends EntityObject<ResourceURL> {
     entity() { return Entity.RESOURCE; }
     versionObject(time: number, type: VersionType, length: number) {
         return new ResourceVersion({ time, type, length, entity: this, created: Date.now() });
+    }
+    basepath() {
+        const match = this.path.value.match(/[^\/]+$/g)
+        if (match && match.length) return match[0];
+        else return this.path.value;
     }
 }
 

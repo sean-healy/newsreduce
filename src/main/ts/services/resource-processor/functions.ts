@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import { ResourceProcessor } from "services/resource-processor/ResourceProcessor";
-import { Dictionary, fancyLog } from "common/util";
+import { Dictionary, fancyLog } from "utils/alpha";
 import { VersionType } from "types/db-objects/VersionType";
 import { PromisePool } from "common/PromisePool";
 import { HitType } from "types/HitType";

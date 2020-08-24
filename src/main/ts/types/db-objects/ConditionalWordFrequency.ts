@@ -1,6 +1,6 @@
 import { DBObject } from "types/DBObject";
 import { Word } from "types/db-objects/Word";
-import { ConstructorArg0 } from "common/util";
+import { ConstructorArg0 } from "utils/alpha";
 import { Predicate } from "./Predicate";
 
 export class ConditionalWordFrequency extends DBObject<ConditionalWordFrequency> {

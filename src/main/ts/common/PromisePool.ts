@@ -1,4 +1,4 @@
-import { fancyLog } from "./util";
+import { fancyLog } from "../utils/alpha";
 
 export class PromisePool {
     promises: Promise<void>[];

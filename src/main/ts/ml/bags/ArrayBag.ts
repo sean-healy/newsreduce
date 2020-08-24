@@ -1,5 +1,5 @@
 import { DBObject } from "types/DBObject";
-import * as util from "common/util";
+import * as util from "utils/alpha";
 import { randomBufferFile } from "file";
 import fs from "fs";
 import { Bag } from "./Bag";

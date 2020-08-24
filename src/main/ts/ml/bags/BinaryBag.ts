@@ -1,5 +1,5 @@
 import { DBObject } from "types/DBObject";
-import { CMP_BIG_INT, writeBigUInt96BE, bytesToBigInt, iteratorToArray } from "common/util";
+import { CMP_BIG_INT, writeBigUInt96BE, bytesToBigInt, iteratorToArray } from "utils/alpha";
 import { Word } from "types/db-objects/Word";
 
 export class BinaryBag<T extends DBObject<T>, V = string> {

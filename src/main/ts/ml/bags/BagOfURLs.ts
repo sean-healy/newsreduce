@@ -1,4 +1,4 @@
-import { Bag } from "ml/Bag";
+import { Bag } from "ml/bags/Bag";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 
 export class BagOfURLs extends Bag<ResourceURL, string, BagOfURLs> {

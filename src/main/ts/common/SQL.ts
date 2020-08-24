@@ -1,7 +1,7 @@
 import { DNS } from "common/DNS";
 import { createConnection, Connection } from "mysql";
 import { log } from "common/logging";
-import { fancyLog } from "./util";
+import { fancyLog } from "../utils/alpha";
 import { GlobalConfig } from "./GlobalConfig";
 
 export let DB_CLIENT: Connection = null;

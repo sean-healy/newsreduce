@@ -5,7 +5,7 @@ import { milliTimestamp } from "common/time";
 import { Host } from "types/db-objects/Host";
 import { ResourceHeader } from "types/db-objects/ResourceHeader";
 import { Redis, REDIS_PARAMS } from "common/Redis";
-import { fancyLog } from "common/util";
+import { fancyLog } from "utils/alpha";
 import { VersionType } from "types/db-objects/VersionType";
 import { DBObject } from "types/DBObject";
 import { ResourceBlocked } from "types/db-objects/ResourceBlocked";

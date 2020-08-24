@@ -1,5 +1,5 @@
 import "./setup.ts";
-import { writeBigUInt96BE, bytesToBigInt, CMP_BIG_INT, tabulate } from "common/util"
+import { writeBigUInt96BE, bytesToBigInt, CMP_BIG_INT, tabulate } from "utils/alpha"
 
 test("12 bytes big int can be converted to buffer", () => {
     let buff = Buffer.alloc(12);

@@ -1,4 +1,4 @@
-import { spawnPromise } from "common/util";
+import { spawnPromise } from "utils/alpha";
 import { spawn } from "child_process";
 import { WordFrequency } from "types/db-objects/WordFrequency";
 import { Word } from "types/db-objects/Word";

@@ -1,4 +1,4 @@
-import { Dictionary } from "common/util";
+import { Dictionary } from "utils/alpha";
 import { DOMPool } from "./DOMPool";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { VersionType } from "types/db-objects/VersionType";
