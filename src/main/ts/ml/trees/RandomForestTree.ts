@@ -1,12 +1,12 @@
 import { DecisionTree } from "./DecisionTree";
 import { Feature } from "./Feature";
 
-export class RandomForestTree<K, V, C> extends DecisionTree<K, V, C> {
-    selectFeatures(features: Feature<K, V>[]) {
+export class RandomForestTree<K> extends DecisionTree<K> {
+    selectFeatures(features: Feature<K>[]) {
         const featureCount = features.length;
-        const featureSelectLimit = Math.ceil(Math.sqrt(featureCount));
+        const featureSelectLimit = Math.ceil(featureCount ** 0.5);
         const randomFeatureSelectionIndex = new Set<number>();
-        const randomFeatureSelection = new Array<Feature<K, V>>(featureSelectLimit);
+        const randomFeatureSelection = new Array<Feature<K>>(featureSelectLimit);
         for (let i = 0; i < featureSelectLimit; ++i) {
             let selectedFeatureIndex: number;
             for (

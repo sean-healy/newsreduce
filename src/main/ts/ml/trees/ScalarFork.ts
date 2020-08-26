@@ -2,16 +2,15 @@ import { Fork } from "./Fork";
 import { NonLeaf } from "./NonLeaf";
 import { ForkType } from "./ForkType";
 
-export class ScalarFork<K, V extends number, C> extends NonLeaf<K, V, C, ScalarFork<K, V, C>> {
+export class ScalarFork<K> extends NonLeaf<K, ScalarFork<K>> {
     readonly pivot: number;
     readonly left: Fork;
     readonly right: Fork;
-    readonly unlabelled: Fork;
 
-    get(value: V) {
+    get(value: number) {
+        if (value === undefined) value = 0;
         let fork: Fork;
-        if (value === undefined || value === null) fork = this.unlabelled;
-        else if (value < this.pivot) fork = this.left;
+        if (value < this.pivot) fork = this.left;
         else fork = this.right;
         
         return fork;
@@ -22,7 +21,6 @@ export class ScalarFork<K, V extends number, C> extends NonLeaf<K, V, C, ScalarF
             pivot: this.pivot,
             left: this.left.toJSON(),
             right: this.right.toJSON(),
-            unlabelled: this.unlabelled.toJSON()
         };
     }
 

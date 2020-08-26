@@ -1,11 +1,11 @@
 import { Fork } from "./Fork";
 
-export abstract class NonLeaf<K, V, C, N extends NonLeaf<K, V, C> = any> extends Fork<N> {
+export abstract class NonLeaf<K, C, N extends NonLeaf<K, C> = any> extends Fork<N> {
     readonly feature: K;
 
-    abstract get(value: V): Fork;
+    abstract get(value: boolean | number): Fork;
 
-    next(features: Map<K, V>) {
+    next(features: Map<K, boolean | number>) {
         return this.get(features.get(this.feature));
     }
 

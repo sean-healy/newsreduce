@@ -1,7 +1,7 @@
 import { Feature } from "./Feature";
 
-export interface TreeMetaData<K, V, C> {
-    features?: Feature<K, V>[];
-    categories?: C[];
+export interface TreeMetaData<K> {
+    features?: Feature<K, number | boolean>[];
+    categories?: number[];
     depth?: number;
 }

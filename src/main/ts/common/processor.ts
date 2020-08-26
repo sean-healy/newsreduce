@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { EVENT_LOG } from "common/events";
-import { setImmediateInterval, Dictionary } from "utils/alpha";
+import { setImmediateInterval, Dictionary, fancyLog } from "utils/alpha";
 import { Redis, REDIS_PARAMS } from "./Redis";
 import { SQL } from "common/SQL";
 import readline from "readline";
@@ -67,10 +67,11 @@ export function startProcessor(
     });
 
     const name = crypto.randomBytes(30).toString("base64");
+
     if (options.interval || options.interval === undefined) {
         const period = options.period ? options.period : 2000;
-        const f = () => synchronised(name, f, postcondition);
-        const immediate = setImmediateInterval(f, period);
+        const synchronisedF = () => synchronised(name, f, postcondition);
+        const immediate = setImmediateInterval(synchronisedF, period);
         GLOBAL_VARS.intervals[name] = immediate;
     }
     if (preconditions && preconditions.size > 0) {

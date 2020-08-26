@@ -1,8 +1,8 @@
 import { TrainingData } from "./TrainingData";
 import { ForkType } from "./ForkType";
 
-export interface PotentialFork<K, V, C, D = any> {
+export interface PotentialFork<K, D = any> {
     conditionalData: D;
-    branches: TrainingData<K, V, C>[];
+    branches: TrainingData<K>[],
     type: ForkType;
 }

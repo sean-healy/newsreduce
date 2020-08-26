@@ -25,6 +25,7 @@ export async function compress() {
     const preBlobDir = await getPreBlobDir();
     const blobDir = await getBlobDir();
     const entities = fs.readdirSync(preBlobDir);
+    fancyLog(JSON.stringify(entities));
     const promises = new PromisePool(200);
     let newArcs = 0;
     let oldArcs = 0;

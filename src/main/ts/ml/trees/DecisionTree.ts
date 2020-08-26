@@ -1,7 +1,6 @@
 import { GenericConstructor } from "types/GenericConstructor";
 import { Leaf } from "./Leaf";
 import { TreeMetaData } from "./TreeMetaData";
-import { TrainingData } from "./TrainingData";
 import { Fork } from "./Fork";
 import { NonLeaf } from "./NonLeaf";
 import { CategoricalFork } from "./CategoricalFork";
@@ -9,55 +8,24 @@ import { Feature } from "./Feature";
 import { Scalar } from "./Scalar";
 import { Categorical } from "./Categorical";
 import { ForkType } from "./ForkType";
-import { PotentialFork } from "./PotentialFork";
 import { ScalarFork } from "./ScalarFork";
+import { WeightedTrainingData } from "./WeightedTrainingData";
+import { ScoredPotentialFork } from "./ScoredPotentialFork";
 
-/**
- * @type K the data type used for feature keys
- *       (e.g. functor names in a predicate logic system.)
- * @type V the data type used for feature values
- *         (e.g. booleans for pred. logic, strings for categorical data.)
- * @type C the data type used for category labels,
- *         e.g. strings ("sport", "weather", "tech", etc.), booleans
- *         in simple YES/NO categories (e.g. spam filtering).
- */
-export class DecisionTree<K, V, C> extends GenericConstructor<DecisionTree<K, V, C>> {
+export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
     static readonly DEFAULT_DEPTH = 20;
 
     readonly fork: Fork;
     
-    classify(features: Map<K, V>, getDefaultValue: (feature: K) => V) {
+    classify(features: Map<K, number>) {
         let fork = this.fork;
-        while (fork instanceof NonLeaf)
+        while (fork instanceof NonLeaf) {
             fork = fork.next(features);
-        
-        return (fork as Leaf<C>).category;
-    }
-
-
-    /**
-     * @param data    the data to split
-     * @param feature the feature by which the data can be split.
-     * 
-     * @return the data, split by various values of the feature.
-     *         This happens to be stored in a map structure of
-     *         feature values to arrays.
-     */
-    split(data: TrainingData<K, V, C>, feature: K, getDefaultValue: (feature: K) => V) {
-        const splitData = new Map<V, TrainingData<K, V, C>>();
-        for (const row of data) {
-            const [features, ] = row;
-            const value = features.get(feature) || getDefaultValue(feature);
-            let split = splitData.get(value);
-            if (!split) {
-                split = [];
-                splitData.set(value, split);
-            }
-            split.push(row);
         }
-
-        return splitData;
+        
+        return (fork as Leaf).category;
     }
+
 
     static countCategories<D, C>(data: D[], mapper: (row: D) => C) {
         const counts = new Map<C, number>();
@@ -77,25 +45,14 @@ export class DecisionTree<K, V, C> extends GenericConstructor<DecisionTree<K, V,
     static categoryCount<D, C>(data: D[], mapper: (row: D) => C) {
         return new Set(data.map(row => mapper(row))).size;
     }
-    static maxCategory<D, C>(data: D[], mapper: (row: D) => C) {
-        const counts = new Map<C, number>();
-        for (const row of data) {
-            const category = mapper(row);
-            const count = counts.get(category) || 0;
-            counts.set(category, count + 1);
-        }
-        let maxCount = 0;
-        let maxCategory: C = null;
-        for (const [category, count] of counts) {
-            if (count > maxCount) {
-                maxCategory = category;
-            }
-        }
-
-        return maxCategory;
+    static maxCategory<K>(data: WeightedTrainingData<K>) {
+        const weights = [0, 0];
+        for (const [, category, weight] of data)
+            weights[category] += weight;
+        return weights[0] > weights[1] ? 0 : 1;
     }
 
-    static parse<K, V, C>(arg: Buffer | any) {
+    static parse<K>(arg: Buffer | any) {
         let tree: any;
         if (arg instanceof Buffer)
             tree = JSON.parse(arg.toString());
@@ -108,53 +65,60 @@ export class DecisionTree<K, V, C> extends GenericConstructor<DecisionTree<K, V,
             else if (anyKey === "false") anyKey = false;
             let value: any;
             if (typeof node === "object")
-                value = new Leaf({ category: true });
+                value = new Leaf({ category: 1 });
             else if (node === "false")
-                value = new Leaf({ category: false });
+                value = new Leaf({ category: 0 });
             else
                 value = new Leaf({ category: node });
             parsedBranches.set(anyKey, value);
         }
         tree.branches = parsedBranches;
 
-        return new DecisionTree<K, V, C>(tree);
+        return new DecisionTree<K>(tree);
     }
 
-    selectFeatures(features: Feature<K, V>[]) {
+    selectFeatures(features: Feature<K>[]) {
         return features;
     }
 
-    train(data: TrainingData<K, V, C>, metaData: TreeMetaData<K, V, C>) {
-        return new DecisionTree<K, V, C>({
+    train(data: WeightedTrainingData<K>, metaData: TreeMetaData<K>) {
+        return new DecisionTree<K>({
             fork: this.trainFork(data, metaData),
         });
     }
 
-    processFeatureMetaData(data: TrainingData<K, V, C>) {
-        const featureValues = new Map<K, Set<V>>();
+    static processFeatureMetaData<K>(data: WeightedTrainingData<K>) {
+        const featureValues = new Map<K, Set<number>>();
         const scalarFeatures = new Set<K>();
         const categoricalFeatures = new Set<K>();
-        for (const [features, ] of data)
+        const featureMatrix = new Map<K, number[]>();
+        for (let i = 0; i < data.length; ++i) {
+            const [features, ] = data[i];
             for (const [feature, value] of features) {
+                const row = featureMatrix.get(feature) || [];
+                row.push(i);
+                featureMatrix.set(feature, row);
                 featureValues.set(feature, (featureValues.get(feature) || new Set()).add(value));
-                if (typeof value === "number" || typeof value === "bigint")
+                if (!([1, 0, 1n, 0n]).includes(value))
                     scalarFeatures.add(feature);
                 else
                     categoricalFeatures.add(feature);
             }
-        const features: Feature<K, V>[] = [];
+        }
+        const features: Feature<K>[] = [];
         for (const [key, values] of featureValues) {
+            const occurrences = featureMatrix.get(key);
             const scalar = scalarFeatures.has(key);
             const categorical = categoricalFeatures.has(key);
-            let feature: Feature<K, V>;
-            if (scalar && !categorical) {
+            let feature: Feature<K>;
+            if (scalar && categorical) {
                 const iterator = values.values();
                 const first = iterator.next().value as number;
                 let min = first;
                 let max = first;
-                let next: IteratorResult<V, V>;
-                let sum = 0;
-                let count = 0;
+                let next: IteratorResult<number, number>;
+                let sum = first;
+                let count = 1;
                 while (!(next = iterator.next()).done) {
                     const nextNumber = next.value as any as number;
                     if (nextNumber > max) max = nextNumber;
@@ -163,13 +127,39 @@ export class DecisionTree<K, V, C> extends GenericConstructor<DecisionTree<K, V,
                     ++count;
                 }
                 const mean = sum / count;
-                feature = new Scalar({ min, max, mean, key }) as any as Feature<K, V>;
+                feature = new Scalar({ min, max, mean, key, occurrences });
             } else
-                feature = new Categorical({ values: values, key })
+                feature = new Categorical({ values, key, occurrences })
             features.push(feature);
         }
 
         return features;
+    }
+
+    bestFork(data: WeightedTrainingData<K>, metaData: TreeMetaData<K>) {
+        let feature: Feature<K> = null;
+        let preFork: ScoredPotentialFork<K>;
+        let minScore = 1;
+        const useless = new Set<K>()
+        for (const candidateFeature of this.selectFeatures(metaData.features)) {
+            process.stdout.write(`${candidateFeature.key} `);
+            const candidateFork = candidateFeature.bestWeightedSplit(data);
+            if (candidateFork) {
+                let featureImpurity = 0;
+                for (const split of candidateFork.branches) {
+                    const countIterator = DecisionTree.countCategoriesUnlabelled(split, row => row[1]);
+                    const splitImpurity = Feature.giniImpurity(countIterator);
+                    const splitWeight = split.length / data.length;
+                    featureImpurity += splitImpurity * splitWeight;
+                }
+                if (featureImpurity < minScore)
+                    [minScore, feature, preFork] = [featureImpurity, candidateFeature, candidateFork];
+            } else  {
+                useless.add(candidateFeature.key);
+            }
+        }
+
+        return { feature, preFork, useless };
     }
 
     /**
@@ -178,66 +168,50 @@ export class DecisionTree<K, V, C> extends GenericConstructor<DecisionTree<K, V,
      * @param metaData a map of features to the values those features may take,
      *                 along with a list of valid categories.
      */
-    private trainFork(data: TrainingData<K, V, C>, metaData: TreeMetaData<K, V, C>) {
+    private trainFork(data: WeightedTrainingData<K>, metaData: TreeMetaData<K>) {
         let fork: Fork;
-        if (metaData.depth === 0)
-            fork = new Leaf({ category: DecisionTree.maxCategory(data, ([, c]) => c) });
-        else if (DecisionTree.categoryCount(data, ([, category]) => category) === 1)
+        if (metaData.depth === 0) {
+            const category = DecisionTree.maxCategory(data);
+            console.log("Most points at max depth are", category);
+            fork = new Leaf({ category });
+        } else if (DecisionTree.categoryCount(data, ([, category]) => category) === 1)
             fork = new Leaf({ category: data[0][1] });
         else {
             if (!metaData.categories) metaData.categories = [...new Set(data.map(([, category]) => category))];
             if (!metaData.depth) metaData.depth = DecisionTree.DEFAULT_DEPTH;
-            if (!metaData.features) metaData.features = this.processFeatureMetaData(data);
-            let feature: Feature<K, V>, preFork: PotentialFork<K, V, C>;
-            let minScore = 1;
-            const useless = new Set<K>()
-            for (const candidateFeature of this.selectFeatures(metaData.features)) {
-                const candidateFork = candidateFeature.bestSplit(data);
-                if (candidateFork) {
-                    let featureImpurity = 0;
-                    for (const split of candidateFork.branches) {
-                        const countIterator = DecisionTree.countCategoriesUnlabelled(split, row => row[1]);
-                        const splitImpurity = DecisionTree.giniImpurity(countIterator);
-                        const splitWeight = split.length / data.length;
-                        featureImpurity += splitImpurity * splitWeight;
-                    }
-                    if (featureImpurity < minScore)
-                        [minScore, feature, preFork] = [featureImpurity, candidateFeature, candidateFork];
-                } else  {
-                    useless.add(candidateFeature.key);
-                }
-            }
+            if (!metaData.features) metaData.features = DecisionTree.processFeatureMetaData(data);
+            let { feature, preFork, useless } = this.bestFork(data, metaData);
             if (feature) {
-                console.log(feature, minScore, preFork.branches.map(b => b.length));
+                //console.log(feature, preFork.branches.map(b => b.length));
                 const nextMetaData = {
                     ...metaData,
                     features: metaData.features.filter(f => !useless.has(f.key)),
                     depth: metaData.depth - 1,
                 };
-                switch (preFork.type) {
-                    case ForkType.CATEGORICAL:
-                        const keys = preFork.conditionalData as V[];
-                        const branches =
-                            new Map(keys.map((k, i) => [k, this.trainFork(preFork.branches[i], nextMetaData)]));
-                        fork = new CategoricalFork<K, V, C>({
-                            feature: feature.key,
-                            branches,
-                        });
-                        break;
-                    case ForkType.SCALAR:
-                        const [left, right, unlabelled] =
-                            preFork.branches.map(branch => this.trainFork(branch, nextMetaData));
-                        fork = new ScalarFork<K, number, C>({
-                            feature: feature.key,
-                            left,
-                            right,
-                            unlabelled,
-                            pivot: preFork.conditionalData as number,
-                        });
-                        break;
+                const left = this.trainFork(preFork.branches[0], nextMetaData);
+                const right = this.trainFork(preFork.branches[1], nextMetaData);
+                if (left instanceof Leaf && right instanceof Leaf && left.category === right.category)
+                    fork = new Leaf({ category: left.category });
+                else {
+                    switch (preFork.type) {
+                        case ForkType.CATEGORICAL:
+                            fork = new CategoricalFork<K>({
+                                feature: feature.key,
+                                branches: [ left, right ],
+                            });
+                            break;
+                        case ForkType.SCALAR:
+                            fork = new ScalarFork<K>({
+                                feature: feature.key,
+                                left,
+                                right,
+                                pivot: preFork.conditionalData as number,
+                            });
+                            break;
+                    }
                 }
             } else
-                fork = new Leaf({ category: DecisionTree.maxCategory(data, ([, c]) => c) });
+                fork = new Leaf({ category: DecisionTree.maxCategory(data) });
         }
 
         return fork;
@@ -245,17 +219,5 @@ export class DecisionTree<K, V, C> extends GenericConstructor<DecisionTree<K, V,
 
     toJSON() {
         return { fork: this.fork.toJSON() }
-    }
-
-    // https://en.wikipedia.org/wiki/Decision_tree_learning#Gini_impurity
-    static giniImpurity(categoryCounts: IterableIterator<number>) {
-        let total = 0;
-        let sum = 0;
-        for (const count of categoryCounts) {
-            total += count;
-            sum += count ** 2;
-        } 
-
-        return 1 - sum / total ** 2;
     }
 }

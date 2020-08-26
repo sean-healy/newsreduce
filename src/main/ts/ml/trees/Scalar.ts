@@ -1,11 +1,11 @@
 import { Feature } from "./Feature";
 import { FeatureType } from "./FeatureType";
-import { TrainingData } from "./TrainingData";
-import { TrainingDataPoint } from "./TrainingDataPoint";
-import { PotentialFork } from "./PotentialFork";
 import { ForkType } from "./ForkType";
+import { ScoredPotentialFork } from "./ScoredPotentialFork";
+import { WeightedTrainingData } from "./WeightedTrainingData";
+import { WeightedTrainingDataPoint } from "./WeightedTrainingDataPoint";
 
-export class Scalar<K, V> extends Feature<K, V, number, Scalar<K, V>> {
+export class Scalar<K> extends Feature<K, number, Scalar<K>> {
     readonly min: number;
     readonly max: number;
     readonly mean: number;
@@ -14,56 +14,50 @@ export class Scalar<K, V> extends Feature<K, V, number, Scalar<K, V>> {
         return FeatureType.SCALAR;
     }
 
-    static giniSum(categoryCounts: IterableIterator<number>) {
+    static giniSum(categoryWeights: IterableIterator<number>) {
         let sum = 0;
-        for (const count of categoryCounts)
-            sum += count ** 2;
+        for (const weight of categoryWeights)
+            sum += weight ** 2;
 
         return sum;
     }
-    bestSplit<C>(data: TrainingData<K, V, C>) {
+
+    bestWeightedSplit(data: WeightedTrainingData<K>) {
         const { key } = this;
-        const labelledData: TrainingDataPoint<K, V, C>[] = [];
-        const unlabelledData: TrainingDataPoint<K, V, C>[] = [];
-        const left = new Map<C, number>();
-        const right = new Map<C, number>();
+        const sortedData: WeightedTrainingDataPoint<K>[] = [];
+        const left = new Map<number, number>();
+        const right = new Map<number, number>();
         for (const row of data) {
-            const [features, c] = row;
-            right.set(c, (right.get(c) || 0) + 1);
-            const value = features.get(key);
-            if (value)
-                labelledData.push(row);
-            else
-                unlabelledData.push(row);
+            const [features, c, weight] = row;
+            right.set(c, (right.get(c) || 0) + weight);
+            sortedData.push(row);
         }
-        labelledData.sort(([a], [b]) => (a.get(key) as unknown as number) - (b.get(key) as unknown as number));
+        sortedData.sort(([a], [b]) => (a.get(key) || 0) - (b.get(key) || 0));
         let total = 0;
-        for (const count of right.values()) total += count;
+        for (const weight of right.values()) total += weight;
         let rightTotal = total;
         let leftSum = Scalar.giniSum(left.values());
         let rightSum = Scalar.giniSum(right.values());
         let splitIndex = 0;
         let maxGiniPurity = rightSum / rightTotal ** 2;
         let i = 0;
-        while (i < labelledData.length) {
+        while (i < sortedData.length) {
             let next: number;
-            let dataPoint = labelledData[i];
-            let [features, category] = dataPoint;
-            const previous = features.get(key) as unknown as number;
+            let dataPoint = sortedData[i];
+            let [features, category, weight] = dataPoint;
+            const previous = features.get(key) || 0;
             do {
-                const leftCategoryCount = left.get(category) || 0;
-                const rightCategoryCount = right.get(category) || 0;
-                const leftDifferenceOfSquares = leftCategoryCount * 2 + 1;
-                const rightDifferenceOfSquares = (rightCategoryCount - 1) * 2 + 1;
-                rightSum -= rightDifferenceOfSquares;
-                leftSum += leftDifferenceOfSquares;
-                left.set(category, leftCategoryCount + 1);
-                right.set(category, rightCategoryCount - 1);
-                --rightTotal;
+                const leftCategoryWeight = left.get(category) || 0;
+                const rightCategoryWeight = right.get(category);
+                rightSum = rightSum - rightCategoryWeight ** 2 + (rightCategoryWeight - weight) ** 2;
+                leftSum = leftSum - leftCategoryWeight ** 2 + (leftCategoryWeight + weight) ** 2;
+                left.set(category, leftCategoryWeight + weight);
+                right.set(category, rightCategoryWeight - weight);
+                rightTotal -= weight;
                 ++i;
-                if (i >= labelledData.length) break;
-                [features, category] = labelledData[i];
-                next = features.get(key) as unknown as number;
+                if (i >= sortedData.length) break;
+                [features, category] = sortedData[i];
+                next = features.get(key) || 0;
             } while (next === previous);
             const leftTotal = total - rightTotal;
             const leftPurity = leftTotal ? leftSum / (leftTotal * total) : 0;
@@ -72,24 +66,23 @@ export class Scalar<K, V> extends Feature<K, V, number, Scalar<K, V>> {
             if (giniPurity >= maxGiniPurity) {
                 splitIndex = i;
                 maxGiniPurity = giniPurity;
-                console.log(giniPurity);
             }
         }
-        let potentialFork: PotentialFork<K, V, C, number>;
-        console.log(this.key, splitIndex, labelledData.length);
-        if (splitIndex < 1 || splitIndex >= labelledData.length)
+        let potentialFork: ScoredPotentialFork<K, number>;
+        //console.log(this.key, splitIndex, labelledData.length);
+        if (splitIndex < 1 || splitIndex >= sortedData.length)
             potentialFork = null
         else {
-            const maxLeft = labelledData[splitIndex - 1][0].get(key) as unknown as number;
-            const minRight = labelledData[splitIndex][0].get(key) as unknown as number;
+            const maxLeft = sortedData[splitIndex - 1][0].get(key) || 0;
+            const minRight = sortedData[splitIndex][0].get(key) || 0;
             potentialFork = {
-                conditionalData: maxLeft + (maxLeft - minRight) / 2,
+                conditionalData: maxLeft + (minRight - maxLeft) / 2,
                 branches: [
-                    labelledData.slice(0, splitIndex),
-                    labelledData.slice(splitIndex),
-                    unlabelledData,
+                    sortedData.slice(0, splitIndex),
+                    sortedData.slice(splitIndex),
                 ],
                 type: ForkType.SCALAR,
+                score: 1 - maxGiniPurity,
             }
         }
 

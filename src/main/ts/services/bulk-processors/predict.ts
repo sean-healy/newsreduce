@@ -10,16 +10,16 @@ import { DecisionForest } from "ml/trees/DecisionForest";
 
 export async function main() {
     const buffer =
-        await Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE.readLatest(VersionType.RANDOM_FOREST);
+        await Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE.readLatest(VersionType.ADA_BOOST);
     fancyLog(`Decision tree read from disk (${buffer.length}).`);
-    const forest = DecisionForest.parse<string, boolean | number, boolean>(buffer);
+    const forest = DecisionForest.parse<string>(buffer);
     const urls = await selectDefiniteNewsSourceWikis();
     for (const url of urls) {
         const subDocs = SubDocs.parseSubDocs(await new ResourceURL(url).readLatest(VersionType.SUB_DOCS));
         const candidates: [number, Dictionary<string>][] = [];
         for (const [subDoc, tokens] of subDocs) {
             const features = new Map(SubDocs.tokensToFeatures(tokens));
-            const response = forest.fuzzyClassify(features, _ => false).find(([t, ]) => t);
+            const response = forest.fuzzyClassify(features).find(([t, ]) => t);
             if (response) {
                 const p = response[1];
                 candidates.push([p, subDoc]);

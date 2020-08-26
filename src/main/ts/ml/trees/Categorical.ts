@@ -3,35 +3,30 @@ import { FeatureType } from "./FeatureType";
 import { TrainingData } from "./TrainingData";
 import { ForkType } from "./ForkType";
 import { PotentialFork } from "./PotentialFork";
+import { WeightedTrainingData } from "./WeightedTrainingData";
+import { ScoredPotentialFork } from "./ScoredPotentialFork";
 
-export class Categorical<K, V> extends Feature<K, V, V[], Categorical<K, V>> {
-    readonly values: Set<V>;
+export class Categorical<K> extends Feature<K, number[], Categorical<K>> {
+    readonly values: Set<number>;
 
     type() {
         return FeatureType.CATEGORICAL;
     }
 
-    bestSplit<C>(data: TrainingData<K, V, C>) {
-        const splitData = new Map<V, TrainingData<K, V, C>>();
+    bestWeightedSplit(data: WeightedTrainingData<K>) {
+        const branches = [[], []] as [WeightedTrainingData<K>, WeightedTrainingData<K>];
         for (const row of data) {
             const [features, ] = row;
-            const value = (features.get(this.key) || false) as V;
-            let split = splitData.get(value);
-            if (!split) {
-                split = [];
-                splitData.set(value, split);
-            }
-            split.push(row);
+            const value = features.get(this.key) || 0;
+            branches[value].push(row);
         }
-        const conditionalData = [...splitData.keys()];
-        const branches = [...splitData.values()];
 
-        let potentialFork: PotentialFork<K, V, C, V[]>;
+        let potentialFork: ScoredPotentialFork<K>;
         if (branches.length > 1)
             potentialFork = {
-                conditionalData,
                 branches,
                 type: ForkType.CATEGORICAL,
+                score: Feature.leftRightGiniImpurity(branches),
             };
         else potentialFork = null;
 

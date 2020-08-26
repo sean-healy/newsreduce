@@ -1,7 +1,8 @@
-import { Dictionary } from "utils/alpha";
+import { Dictionary, bytesToBigInt } from "utils/alpha";
 import { Tokenizer } from "./Tokenizer";
+import { defaultHash } from "common/hashing";
 export type Type = [Dictionary<string>, string[]][];
-export type ClassifiedType = [Dictionary<string>, string[], boolean][];
+export type ClassifiedType = [Dictionary<string>, string[], number][];
 export class SubDocs {
     static parseSubDocs(buffer: Buffer) {
         const lines = buffer.toString().split(/\n+/);
@@ -58,20 +59,26 @@ export class SubDocs {
         return Buffer.concat(stringBuilder);
     }
 
-    static tokensToFeatures(tokens: string[], features: [string, boolean | number][] = [], text: string = null) {
+    static tokensToFeatures(tokens: string[], features: [string, number][] = [], text: string = null) {
         for (const token of tokens) {
             for (const feature of token.split(/(?=[#.])/g)) {
                 if (feature.length < 26 && !feature.match(/^(.(root)?page-)|(#)/))
-                    features.push([feature, true]);
+                    features.push([SubDocs.hashFeatureName(feature), 1]);
             }
         }
         if (text) {
             const tokens = Tokenizer.tokenizeDocument(text);
             for (const token of tokens) {
-                features.push([`text:${token}`, true]);
+                features.push([SubDocs.hashFeatureName(`text:${token}`), 1]);
             }
         }
 
         return features;
     }
+
+    static hashFeatureName(str: string) {
+        return str;
+        //return bytesToBigInt(defaultHash("", str))
+    }
+
 }

@@ -1,16 +1,16 @@
 import { DecisionTree } from "ml/trees/DecisionTree"
 
 test("decision trees work", () => {
-    const data: [Map<string, boolean>, boolean][] = [
-        [new Map<string, boolean>([["weekday", false], ["bank holiday", false], ["sick", false]]), false],
-        [new Map<string, boolean>([["weekday", false], ["bank holiday", false], ["sick", true]]), false],
-        [new Map<string, boolean>([["weekday", false], ["bank holiday", true], ["sick", false]]), false],
-        [new Map<string, boolean>([["weekday", false], ["bank holiday", true], ["sick", true]]), false],
-        [new Map<string, boolean>([["weekday", true], ["bank holiday", false], ["sick", false]]), true],
-        [new Map<string, boolean>([["weekday", true], ["bank holiday", false], ["sick", true]]), false],
-        [new Map<string, boolean>([["weekday", true], ["bank holiday", true], ["sick", false]]), false],
-        [new Map<string, boolean>([["weekday", true], ["bank holiday", true], ["sick", true]]), false],
+    const data: [Map<string, number>, number, number][] = [
+        [new Map<string, number>([["weekday", 0], ["bank holiday", 0], ["sick", 0]]), 0, 1],
+        [new Map<string, number>([["weekday", 0], ["bank holiday", 0], ["sick", 1]]), 0, 1],
+        [new Map<string, number>([["weekday", 0], ["bank holiday", 1], ["sick", 0]]), 0, 1],
+        [new Map<string, number>([["weekday", 0], ["bank holiday", 1], ["sick", 1]]), 0, 1],
+        [new Map<string, number>([["weekday", 1], ["bank holiday", 0], ["sick", 0]]), 1, 1],
+        [new Map<string, number>([["weekday", 1], ["bank holiday", 0], ["sick", 1]]), 0, 1],
+        [new Map<string, number>([["weekday", 1], ["bank holiday", 1], ["sick", 0]]), 0, 1],
+        [new Map<string, number>([["weekday", 1], ["bank holiday", 1], ["sick", 1]]), 0, 1],
     ]
-    const decisionTree = new DecisionTree<string, boolean, boolean>().train(data, {});
+    const decisionTree = new DecisionTree<string>().train(data, {});
     console.log(JSON.stringify(decisionTree.toJSON(), null, " "));
 })
