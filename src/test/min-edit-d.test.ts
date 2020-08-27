@@ -11,9 +11,9 @@ test("min edit distance should work as intended", () => {
     const a = new LevenshteinAlgo(...parseArgs(["The New York Times", "www.nytimes.com"]));
     a.calculate();
     console.log(a.toString());
-    console.log(a.differenceCoefficient());
+    console.log(a.similarityCoefficient());
     const b = new LevenshteinAlgo(...parseArgs(["The New York Times", "www.newyorktimes.com"]));
     b.calculate();
     console.log(b.toString());
-    console.log(b.differenceCoefficient());
+    console.log(b.similarityCoefficient());
 });

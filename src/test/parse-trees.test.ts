@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { DecisionForest } from "ml/trees/DecisionForest";
+import { DecisionForest } from "ml/dt/forests/DecisionForest";
 
 test("saving a link should work", async () => {
     const file = path.join(__dirname, "misc/decision-tree.txt");

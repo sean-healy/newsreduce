@@ -1,10 +1,15 @@
-import { DecisionTree } from "./DecisionTree";
+import { DecisionTree } from "../trees/DecisionTree";
 import { GenericConstructor } from "types/GenericConstructor";
-import { WeightedTrainingData } from "./WeightedTrainingData";
+import { TrainingData } from "../TrainingData";
+import { ForestTrainingArgs } from "../args/ForestTrainingArgs";
 
 export class DecisionForest<K, D extends DecisionForest<K, D> = DecisionForest<K, any>>
 extends GenericConstructor<D> {
     readonly trees: DecisionTree<K>[];
+
+    train(args: ForestTrainingArgs<K>) {
+        throw new Error("unimplemented method: DecisionForest<K, D>.train");
+    }
 
     hardClassify(features: Map<K, number>) {
         return this.fuzzyClassify(features)[0];
@@ -39,13 +44,14 @@ extends GenericConstructor<D> {
         })
     }
 
-    protected printProgress(weightedData: WeightedTrainingData<K>, adaBoost: DecisionForest<K>) {
+    protected printProgress(data: TrainingData<K>, adaBoost: DecisionForest<K>) {
         let FN = 0;
         let FP = 0;
         let TN = 0;
         let TP = 0;
-        //console.log(weightedData.map(([a, b, c]) => c).sort((a, b) => b - a));
-        for (const [features, actual] of weightedData) {
+        for (let i = 0; i < data.length; ++i) {
+            const features = data.features[i];
+            const actual = data.labels[i];
             const [expected, surety] = adaBoost.hardClassify(features);
             if (expected && actual) ++TP;
             if (!expected && !actual) ++TN;

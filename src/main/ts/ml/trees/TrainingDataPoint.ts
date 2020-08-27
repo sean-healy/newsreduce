@@ -1,1 +1,0 @@
-export type TrainingDataPoint<K> = [Map<K, number>, number];

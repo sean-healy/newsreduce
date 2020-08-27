@@ -60,8 +60,8 @@ export abstract class EditDistance<P extends SequenceItem, S extends Sequence<P>
 
         return distance;
     }
-    differenceCoefficient() {
-        return this.distance() / Math.min(this.N, this.M);
+    similarityCoefficient() {
+        return 1 / (this.distance() + 1);
     }
     toString() {
         const matrixSizeOffset = this.matrix.length - this.N;

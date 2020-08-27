@@ -1,0 +1,158 @@
+NewsReduce
+
+ABSTRACT
+
+1 Introduction
+
+    What is an aggregator?
+
+        What is a news source?
+
+        What is a headline?
+
+        What is an author?
+
+        Can we trust published times to be accurate?
+
+    What is trending?
+
+        Anomalies from Zipf's law over a set period of time.
+
+        Twitter.
+
+2 Background and related work
+
+    HTML
+
+    Early crawlers
+
+    Language representation
+
+        The futility of POS tagging
+
+        Bag of words
+
+        Decision trees
+
+            AdaBoost
+
+            RandomForest
+
+    Google and page rank
+
+    Word2vec
+
+3 Methodology
+
+    System overview
+
+    Cost considerations
+
+    Stack
+        C for hard processing.
+        TypeScript for basic application logic and
+        integration.
+        Shell.
+        SQL.
+
+    RDBMS speed and concurrency hacks.
+
+        Configuration tuning.
+        No autoincrement - 12 byte IDs based on
+        predictable entity hashing.
+        No foreign keys, triggers, etc.
+        No blind inserts.  Either replace or ignore.
+        Bulk insert via CSV.
+        Speed over ACID.
+
+    Crawling
+
+    Directed crawl scheduling
+
+    Working with fresh and mutable text data.
+
+        Compressing / versioning system
+
+        Document representations
+
+
+        Predicate-based doc representation flow
+
+    Alphabet normalizing and tokenizing
+
+    Stop words
+
+    Sub-documents and information extraction
+
+    Supervised learning setup
+
+    Word embeddings
+
+        Uses in verb extraction and stemming
+
+    Classification problems
+
+        Basic temporal information extraction.
+
+        "Official URL sourcing"
+
+        Feature engineering
+            
+            Levenshtein distance
+                
+                Between text and path base part.
+
+                Between HREF host and path base part.
+
+                Path length
+
+                SSL
+
+            Temporal relations
+
+                Overall tense of document.
+
+                Differences in various document timestamps
+                (created, published, crawled).
+
+            Position in document
+
+        Choice of machine learning techniques.
+
+            - AdaBoost
+                - With decision stumps
+                - With trees
+                    XOR problem
+            
+            - Random forest
+
+            - Bag of N-grams // TF-IDF // Naive Bayes
+
+        Document clustering
+
+            Headline clustering.
+
+                Weighted mean.
+
+            Byline clustering.
+
+            k-NN in parallel.
+
+        Ranking news sources
+
+            Globally
+
+            Per-geography
+                Personalised page-rank.
+
+    Virtual links
+
+Results
+
+Conclusion
+
+Acknowledgements
+
+References
+
+Appendices

@@ -6,7 +6,7 @@ import { SubDocs } from "ml/SubDocs";
 import { Dictionary, fancyLog } from "utils/alpha";
 import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
-import { DecisionForest } from "ml/trees/DecisionForest";
+import { DecisionForest } from "ml/dt/forests/DecisionForest";
 
 export async function main() {
     const buffer =

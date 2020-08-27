@@ -1,9 +1,8 @@
-import { Node } from "./Node";
 import { Fork } from "./Fork";
 import { ForkType } from "./ForkType";
 
 export class Leaf extends Fork<Leaf> {
-    readonly category: number;
+    readonly label: number;
 
     protected toJSONEtc() {
         return { ...this }

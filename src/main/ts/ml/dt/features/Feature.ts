@@ -1,7 +1,8 @@
 import { FeatureType } from "./FeatureType"
 import { GenericConstructor } from "types/GenericConstructor";
-import { WeightedTrainingData } from "./WeightedTrainingData";
-import { ScoredPotentialFork } from "./ScoredPotentialFork";
+import { TrainingData } from "../TrainingData";
+import { ScoredPotentialFork } from "../ScoredPotentialFork";
+import { Fork } from "../forks/Fork";
 
 export abstract class Feature<K, D = any, F extends Feature<K, D, F> = Feature<K, any, any>>
 extends GenericConstructor<F> {
@@ -10,7 +11,8 @@ extends GenericConstructor<F> {
 
     abstract type(): FeatureType;
 
-    abstract bestWeightedSplit(data: WeightedTrainingData<K>): ScoredPotentialFork<K, D>;
+    abstract bestSplit(data: TrainingData<K>): ScoredPotentialFork<K, D>;
+    abstract bestFinalSplit(data: TrainingData<K>): ScoredPotentialFork<K, Fork>;
 
     static calculateMaxCategory(categoryWeights: [number, number]) {
         return categoryWeights[0] < categoryWeights[1] ? 1: 0;
@@ -21,7 +23,7 @@ extends GenericConstructor<F> {
     }
 
     // https://en.wikipedia.org/wiki/Decision_tree_learning#Gini_impurity
-    static giniImpurity(categoryWeights: IterableIterator<number>) {
+    static giniImpurity(categoryWeights: IterableIterator<number> | number[]) {
         let total = 0;
         let sum = 0;
         for (const weight of categoryWeights) {
@@ -44,15 +46,18 @@ extends GenericConstructor<F> {
         return 1 - sum / total ** 2;
     }
 
-    static leftRightGiniImpurity(leftRight: [WeightedTrainingData<any>, WeightedTrainingData<any>]) {
+    static leftRightGiniImpurity(leftRight: [[number, number], [number, number]]) {
         const [left, right] = leftRight;
-        const leftCount = left.length;
-        const rightCount = right.length;
+        const leftCount = left[0] + left[1];
+        const rightCount = right[0] + right[1];
+        const totalCount = leftCount + rightCount;
+        const leftPortion = leftCount / totalCount;
+        const rightPortion = rightCount / totalCount;
         const total = leftCount + rightCount;
-        const leftImpurity = Feature.mappedGiniImpurity(left, row => row[2]);
-        const rightImpurity = Feature.mappedGiniImpurity(left, row => row[2]);
+        const leftImpurity = Feature.giniImpurity(left)
+        const rightImpurity = Feature.giniImpurity(right)
 
-        return leftImpurity * (leftCount / total) + rightImpurity * (rightCount / total);
+        return leftImpurity * leftPortion + rightImpurity * rightPortion;
     }
 
 }
