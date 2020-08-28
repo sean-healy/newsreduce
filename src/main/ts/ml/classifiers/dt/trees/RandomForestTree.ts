@@ -1,5 +1,5 @@
 import { DecisionTree } from "./DecisionTree";
-import { Feature } from "../features/Feature";
+import { Feature } from "../../features/Feature";
 
 export class RandomForestTree<K> extends DecisionTree<K> {
     selectFeatures(features: Feature<K>[]) {

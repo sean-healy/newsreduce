@@ -40,6 +40,7 @@ module.exports = {
     'process-bows-per-relation':     './src/main/ts/services/bulk-processors/processBagsOfWordsPerRelation.ts',
     'process-resource-vectors':      './src/main/ts/services/bulk-processors/processResourceVectors.ts',
     'process-sub-docs-per-relation': './src/main/ts/services/bulk-processors/processSubDocsPerRelation.ts',
+    'trainer':                       './src/main/ts/services/trainer/main.ts',
     'insert-news-source-homepages':  './src/main/ts/services/bulk-processors/insertNewsSourceHomepages.ts',
     'page-rank':                     './src/main/ts/services/bulk-processors/pageRank.ts',
     'count-words':                   './src/main/ts/services/bulk-processors/countWords.ts',

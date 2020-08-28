@@ -17,6 +17,8 @@ export default {
 	SELECT_BOW_FOR_RELATION: "select r.resource, rv.time from ResourceBinaryRelation r inner join ResourceVersion rv on rv.resource = r.resource inner join VersionType vt on vt.id = rv.type where r.relation = ? and r.polarity = ? and vt.filename = 'bow.bin'",
 	// /home/sean/newsreduce/sql/SELECT_DEFINITE_NEWS_SOURCE_WIKIS.sql
 	SELECT_DEFINITE_NEWS_SOURCE_WIKIS: "select u.url from ResourceBinaryRelation rbr inner join Predicate p on p.id = rbr.relation inner join URLView u on u.resource = rbr.resource where rbr.polarity and p.functor = 'res-is-news-source-wiki';",
+	// /home/sean/newsreduce/sql/SELECT_DOC_TRAINING_DATA.sql
+	SELECT_DOC_TRAINING_DATA: "select * from DocTrainingDataView;",
 	// /home/sean/newsreduce/sql/SELECT_DOCUMENT_WORD_VECTORS.sql
 	SELECT_DOCUMENT_WORD_VECTORS: "select wv.word, v.value from WordVector wv inner join Vector v on v.id = wv.vector where wv.source = ? and wv.word in ?",
 	// /home/sean/newsreduce/sql/SELECT_HEADERS_FOR_RESOURCE.sql
@@ -43,4 +45,6 @@ export default {
 	SELECT_TABLES: "select TABLE_NAME as name from information_schema.TABLES where TABLE_SCHEMA = 'newsreduce'",
 	// /home/sean/newsreduce/sql/SELECT_THROTTLE_FOR_HOST.sql
 	SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
+	// /home/sean/newsreduce/sql/SELECT_WIKI_URLS.sql
+	SELECT_WIKI_URLS: "select url from URLView u inner join WikiPage w on w.resource = u.resource;",
 };

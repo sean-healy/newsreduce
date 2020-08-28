@@ -1,19 +1,30 @@
 import { Predicate } from "types/db-objects/Predicate";
 import { VersionType } from "types/db-objects/VersionType";
-import { Redis } from "common/Redis";
-import { SQL } from "common/SQL";
 import { selectSubDocTrainingData } from "data";
 import { LabelledSubDocs, SubDocs } from "ml/SubDocs";
 import { fancyLog } from "utils/alpha";
 import { AdaBoost } from "ml/classifiers/dt/forests/AdaBoost";
 import { TrainingData } from "ml/TrainingData";
+import { Trainer } from "./Trainer";
+import { ForestTrainingArgs } from "ml/classifiers/dt/args/ForestTrainingArgs";
 
 type F = string;
-export async function main() {
-    const subDocsTrainingData = await selectSubDocTrainingData();
-    for (const functor in subDocsTrainingData) {
-        fancyLog(`Training for predicate: ${functor}`);
-        const predicateData = subDocsTrainingData[functor];
+export class ExtractOfficialHomepageModel extends Trainer<F, ForestTrainingArgs<F>> {
+    emptyClassifier() {
+        return new AdaBoost<F>();
+    }
+    decorateClassifierParams(params: ForestTrainingArgs<string>) {
+        params.depth = 3;
+        params.trees = 200;
+    }
+    frequency(): number {
+        // Every 4 hours.
+        return 1000 * 60 * 60 * 4;
+    }
+    async fetchTrainingAndTestData() {
+        fancyLog(`Training for predicate: ${this.getPredicate().functor}.`);
+        const subDocsTrainingData = await selectSubDocTrainingData();
+        const predicateData = subDocsTrainingData[this.getPredicate().functor];
         const resourceData = new Array<TrainingData<F>>()
         for (const { resource, attribute, pattern } of predicateData) {
             const classifiedSubDocs: LabelledSubDocs = [];
@@ -28,22 +39,13 @@ export async function main() {
             resourceData.push(SubDocs.resourceSubDocsToTrainingData(classifiedSubDocs, resource));
         }
         const data = TrainingData.concat<F>(...resourceData);
-        const { trainingData, testData } = data.split(0.7);
-        const M = 200;
-        fancyLog(`Building ${M} decision trees with ${data.length} training data points.`);
-        const forest = new AdaBoost<F>().train({
-            data: trainingData,
-            depth: 3,
-            trees: M,
-            testData,
-        });
-        const buffer = Buffer.from(JSON.stringify(forest.toJSON()));
-        const pred = new Predicate({ functor });
-        const time = Date.now();
-        await pred.writeVersion(time, VersionType.ADA_BOOST, buffer);
-    }
-    await Redis.quit();
-    (await SQL.db()).destroy();
-}
 
-main();
+        return data;
+    }
+    trainingDataRatio() {
+        return 0.7
+    }
+    getPredicate() {
+        return Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE;
+    }
+}

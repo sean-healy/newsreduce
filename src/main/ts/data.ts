@@ -217,8 +217,39 @@ export async function selectSubDocTrainingData() {
     return data;
 }
 
+interface DocTrainingDataRow {
+    resource: ResourceURL;
+    polarity: boolean;
+}
+export async function selectDocTrainingData() {
+    const rows = await genericSQLPromise(sql.SELECT_DOC_TRAINING_DATA);
+    const data: Dictionary<DocTrainingDataRow[]> = {};
+    for (const row of rows) {
+        const predicate: string = row.predicate;
+        let predicateRows: DocTrainingDataRow[];
+        if (predicate in data)
+            predicateRows = data[predicate];
+        else {
+            predicateRows = [];
+            data[predicate] = predicateRows;
+        }
+        predicateRows.push({
+            resource: new ResourceURL(row.url),
+            polarity: row.polarity === 0 || row.polarity === "0" || !row.polarity ? false : true
+        })
+    }
+
+    return data;
+}
+
 export async function selectDefiniteNewsSourceWikis() {
     const rows = await genericSQLPromise(sql.SELECT_DEFINITE_NEWS_SOURCE_WIKIS);
 
     return rows.map(r => r.url);
+}
+
+export async function selectWikiURLs() {
+    const rows = await genericSQLPromise(sql.SELECT_WIKI_URLS);
+
+    return rows.map(r => r.url as string);
 }

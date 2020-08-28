@@ -1,8 +1,8 @@
 import { FeatureType } from "./FeatureType"
 import { GenericConstructor } from "types/GenericConstructor";
-import { TrainingData } from "../TrainingData";
-import { ScoredPotentialFork } from "../ScoredPotentialFork";
-import { Fork } from "../forks/Fork";
+import { TrainingData } from "../../TrainingData";
+import { ScoredPotentialFork } from "../dt/ScoredPotentialFork";
+import { Fork } from "../dt/forks/Fork";
 
 export abstract class Feature<K, D = any, F extends Feature<K, D, F> = Feature<K, any, any>>
 extends GenericConstructor<F> {

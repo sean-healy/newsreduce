@@ -1,4 +1,4 @@
-import { DecisionTree } from "ml/dt/trees/DecisionTree"
+import { DecisionTree } from "ml/classifiers/dt/trees/DecisionTree"
 
 test("decision trees work", () => {
 /*

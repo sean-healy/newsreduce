@@ -6,34 +6,38 @@ import { SubDocs } from "ml/SubDocs";
 import { Dictionary, fancyLog } from "utils/alpha";
 import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
-import { DecisionForest } from "ml/dt/forests/DecisionForest";
+import { Ensemble } from "ml/classifiers/Ensemble";
+import { AdaBoost } from "ml/classifiers/dt/forests/AdaBoost";
 
 export async function main() {
     const buffer =
         await Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE.readLatest(VersionType.ADA_BOOST);
     fancyLog(`Decision tree read from disk (${buffer.length}).`);
-    const forest = DecisionForest.parse<string>(buffer);
+    const forest = new AdaBoost().parse(buffer);
+    console.log(forest)
+    if (true) {
     const urls = await selectDefiniteNewsSourceWikis();
     for (const url of urls) {
-        const subDocs = SubDocs.parseSubDocs(await new ResourceURL(url).readLatest(VersionType.SUB_DOCS));
+        const resource = new ResourceURL(url);
+        const subDocs = SubDocs.parseSubDocs(await resource.readLatest(VersionType.SUB_DOCS));
         const candidates: [number, Dictionary<string>][] = [];
-        for (const [subDoc, tokens] of subDocs) {
-            const features = new Map(SubDocs.tokensToFeatures(tokens));
+        const testData = SubDocs.resourceSubDocsToTestData(subDocs, resource);
+        for (const [subDoc, features] of testData) {
             const response = forest.fuzzyClassify(features).find(([t, ]) => t);
             if (response) {
-                const p = response[1];
-                candidates.push([p, subDoc]);
+                const [, p] = response;
+                if (p > 0.5) {
+                    candidates.push([p, subDoc]);
+                }
             }
         }
         if (candidates.length) {
             candidates.sort((a, b) => b[0] - a[0]);
-            //console.log(candidates);
-            for (let i = 0; i < 7 && i < candidates.length; ++i) {
-                const topCandidate = candidates[i];
-                const homepage = topCandidate[1].href;
-                console.log(`${url}\t${homepage}\t${topCandidate[0]}`);
-            }
+            const topCandidate = candidates[0];
+            const homepage = topCandidate[1].href;
+            console.log(`${url}\t${homepage}\t${topCandidate[0]}`);
         }
+    }
     }
     await Redis.quit();
     await SQL.destroy();

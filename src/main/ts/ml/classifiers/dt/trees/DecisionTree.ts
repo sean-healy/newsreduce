@@ -4,14 +4,15 @@ import { TreeTrainingArgs } from "../args/TreeTrainingArgs";
 import { Fork } from "../forks/Fork";
 import { NonLeaf } from "../forks/NonLeaf";
 import { CategoricalFork } from "../forks/CategoricalFork";
-import { Feature } from "../features/Feature";
-import { Scalar } from "../features/Scalar";
-import { Categorical } from "../features/Categorical";
+import { Feature } from "../../features/Feature";
+import { Scalar } from "../../features/Scalar";
+import { Categorical } from "../../features/Categorical";
 import { ForkType } from "../forks/ForkType";
 import { ScalarFork } from "../forks/ScalarFork";
-import { TrainingData } from "../TrainingData";
+import { TrainingData } from "../../../TrainingData";
 import { ScoredPotentialFork } from "../ScoredPotentialFork";
 import { fancyLog } from "utils/alpha";
+import { ClassifierType } from "ml/classifiers/ClassifierType";
 
 export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
     static readonly DEFAULT_DEPTH = 20;
@@ -41,29 +42,14 @@ export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
         return weights[0] > weights[1] ? 0 : 1;
     }
 
-    static parse<K>(arg: Buffer | any) {
+    parse(arg: Buffer | any) {
         let tree: any;
         if (arg instanceof Buffer)
             tree = JSON.parse(arg.toString());
         else tree = arg;
-        const parsedBranches = new Map();
-        for (let key in tree.fork) {
-            const node = tree.branches[key];
-            let anyKey: any = key;
-            if (anyKey === "true") anyKey = true;
-            else if (anyKey === "false") anyKey = false;
-            let value: any;
-            if (typeof node === "object")
-                value = new Leaf({ label: 1 });
-            else if (node === "false")
-                value = new Leaf({ label: 0 });
-            else
-                value = new Leaf({ label: node });
-            parsedBranches.set(anyKey, value);
-        }
-        tree.branches = parsedBranches;
+        const fork = Fork.parse(tree.fork);
 
-        return new DecisionTree<K>(tree);
+        return new DecisionTree<K>({ fork });
     }
 
     selectFeatures(features: Feature<K>[]) {
@@ -217,6 +203,9 @@ export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
     }
 
     toJSON() {
-        return { fork: this.fork.toJSON() }
+        return {
+            fork: this.fork.toJSON(),
+            type: ClassifierType.DECISION_TREE,
+        }
     }
 }

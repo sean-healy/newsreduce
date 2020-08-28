@@ -1,12 +1,14 @@
-import { DecisionForest } from "./DecisionForest";
+import { Ensemble } from "ml/classifiers/Ensemble";
 import { ForestTrainingArgs } from "../args/ForestTrainingArgs";
 import { DecisionTree } from "../trees/DecisionTree";
 import { fancyLog } from "utils/alpha";
-import { TrainingData } from "../TrainingData";
+import { TrainingData } from "../../../TrainingData";
+import { VersionType } from "types/db-objects/VersionType";
 
-export class AdaBoost<K> extends DecisionForest<K, AdaBoost<K>> {
-    readonly classifierWeights: number[];
-
+export class AdaBoost<K> extends Ensemble<K, ForestTrainingArgs<K>, AdaBoost<K>> {
+    fsVersionType() {
+        return VersionType.ADA_BOOST;
+    }
     calculateWeightedError(data: TrainingData<K>, tree: DecisionTree<K>) {
         let epsilon = 0;
         for (let i = 0; i < data.length; ++i) {
@@ -32,7 +34,7 @@ export class AdaBoost<K> extends DecisionForest<K, AdaBoost<K>> {
         const trees = new Array<DecisionTree<K>>(args.trees);
         const stumpWeights = new Array<number>(args.trees);
         const adaBoost = new AdaBoost({
-            trees, classifierWeights: stumpWeights,
+            classifiers: trees, weights: stumpWeights,
         });
         let tree: DecisionTree<K>, epsilon: number, alpha: number;
         //console.log(new Set(args.data.weights.concat().sort((a, b) => b - a)));
@@ -56,11 +58,11 @@ export class AdaBoost<K> extends DecisionForest<K, AdaBoost<K>> {
     fuzzyClassify(features: Map<K, number>) {
         const ballotBox = new Map<number, number>();
         let i: number;
-        for (i = 0; i < this.trees.length; ++i) {
-            const tree = this.trees[i];
+        for (i = 0; i < this.classifiers.length; ++i) {
+            const tree = this.classifiers[i];
             if (!tree) break;
             const c = tree.classify(features);
-            const count = (ballotBox.get(c) || 0) + this.classifierWeights[i];
+            const count = (ballotBox.get(c) || 0) + this.weights[i];
             ballotBox.set(c, count);
         }
         const p = new Array<[number, number]>(ballotBox.size);
@@ -77,8 +79,8 @@ export class AdaBoost<K> extends DecisionForest<K, AdaBoost<K>> {
 
     toJSON() {
         return {
-            trees: this.trees.map(tree => tree.toJSON()),
-            classifierWeights: this.classifierWeights,
+            trees: this.classifiers.map(tree => tree.toJSON()),
+            weights: this.weights,
         };
     }
 

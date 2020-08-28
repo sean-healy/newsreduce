@@ -1,5 +1,5 @@
 import { GenericConstructor } from "types/GenericConstructor";
-import { DecisionTree } from "./trees/DecisionTree";
+import { DecisionTree } from "./classifiers/dt/trees/DecisionTree";
 
 export class TrainingData<K> extends GenericConstructor<TrainingData<K>> {
     readonly features: Map<K, number>[];

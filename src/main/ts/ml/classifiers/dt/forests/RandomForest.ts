@@ -1,11 +1,15 @@
-import { DecisionForest } from "./DecisionForest";
+import { Ensemble } from "ml/classifiers/Ensemble";
 import { RandomForestTree } from "../trees/RandomForestTree";
 import { ForestTrainingArgs } from "../args/ForestTrainingArgs";
-import { DecisionTree } from "../trees/DecisionTree";
 import { fancyLog } from "utils/alpha";
-import { TrainingData } from "../TrainingData";
+import { VersionType } from "types/db-objects/VersionType";
+import { TrainingData } from "ml/TrainingData";
+import { DecisionTree } from "ml/classifiers/dt/trees/DecisionTree";
 
-export class RandomForest<K> extends DecisionForest<K> {
+export class RandomForest<K> extends Ensemble<K, ForestTrainingArgs<K>, RandomForest<K>> {
+    fsVersionType() {
+        return VersionType.RANDOM_FOREST;
+    }
     /**
      * @param data     the rows of data used to train the random forest.
      * @param args a map of features to the values those features may take,
@@ -15,7 +19,7 @@ export class RandomForest<K> extends DecisionForest<K> {
         const { data, trees: n } = args;
         const trees = new Array<DecisionTree<K>>(n);
         let randomForest = new RandomForest({
-            trees,
+            classifiers: trees,
         });
         for (let i = 0; i < n; ++i) {
             fancyLog(`Training tree #${i + 1}.`);

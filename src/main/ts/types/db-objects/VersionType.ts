@@ -51,7 +51,8 @@ export class VersionType extends DBObject<VersionType> {
     static ANCHOR_PATHS = new VersionType({ filename: "anchor-paths.txt", modified: 0 });
     static SUB_DOCS = new VersionType({ filename: "sub-docs.txt", modified: 0 });
     static CLASSIFIED_SUB_DOCS = new VersionType({ filename: "c-sub-docs.txt", modified: 0 });
-    static RANDOM_FOREST = new VersionType({ filename: "random-forest.txt", modified: 0 });
+    static SINGLE_TREE_FOREST = new VersionType({ filename: "single-tree-forest.json", modified: 0 });
+    static RANDOM_FOREST = new VersionType({ filename: "random-forest.json", modified: 0 });
     static ADA_BOOST = new VersionType({ filename: "ada-boost.json", modified: 0 });
 
     static WORD_HITS = new VersionType({ filename: "word-hits.bin", modified: 0 });

@@ -1,11 +1,11 @@
 import { Feature } from "./Feature";
 import { FeatureType } from "./FeatureType";
-import { ForkType } from "../forks/ForkType";
-import { ScoredPotentialFork } from "../ScoredPotentialFork";
-import { TrainingData } from "../TrainingData";
-import { Fork } from "../forks/Fork";
-import { Leaf } from "../forks/Leaf";
-import { ScalarFork } from "../forks/ScalarFork";
+import { ForkType } from "../dt/forks/ForkType";
+import { ScoredPotentialFork } from "../dt/ScoredPotentialFork";
+import { TrainingData } from "../../TrainingData";
+import { Fork } from "../dt/forks/Fork";
+import { Leaf } from "../dt/forks/Leaf";
+import { ScalarFork } from "../dt/forks/ScalarFork";
 
 export class Scalar<K> extends Feature<K, number, Scalar<K>> {
     readonly min: number;

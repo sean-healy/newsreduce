@@ -27,4 +27,13 @@ export class ScalarFork<K> extends NonLeaf<K, ScalarFork<K>> {
     type() {
         return ForkType.SCALAR;
     }
+
+    parse(fork: Buffer | any): Fork {
+        if (fork instanceof Buffer) fork = JSON.parse(fork.toString());
+        const left = Fork.parse(fork.left);
+        const right = Fork.parse(fork.right);
+        const { pivot, feature } = fork;
+
+        return new ScalarFork({ left, right, pivot, feature });
+    }
 }

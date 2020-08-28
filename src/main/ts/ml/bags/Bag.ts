@@ -3,8 +3,6 @@ import { BinaryBag } from "ml/bags/BinaryBag";
 import * as util from "utils/alpha";
 import { randomBufferFile } from "file";
 import fs from "fs";
-import { Predicate } from "types/db-objects/Predicate";
-import { VersionType } from "types/db-objects/VersionType";
 
 export class Bag<T extends DBObject<T>, V = string, B extends Bag<T, V, B> = any> {
     readonly bag: Map<bigint, number>;

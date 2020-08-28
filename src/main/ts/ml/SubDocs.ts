@@ -3,9 +3,10 @@ import { Tokenizer } from "./Tokenizer";
 import { defaultHash } from "common/hashing";
 import { ResourceURL } from "types/db-objects/ResourceURL";
 import { DamerauLevenshteinAlgo } from "utils/DamerauLevenshteinAlgo";
-import { TrainingData } from "./dt/TrainingData";
+import { TrainingData } from "./TrainingData";
 
-export type Type = [Dictionary<string>, string[]][];
+export type UnlabelledSubDoc = [Dictionary<string>, string[]];
+export type UnlabelledSubDocs = UnlabelledSubDoc[];
 export type LabelledSubDoc = [Dictionary<string>, string[], number]
 export type LabelledSubDocs = LabelledSubDoc[];
 
@@ -40,7 +41,7 @@ type F = string;
 export class SubDocs {
     static parseSubDocs(buffer: Buffer) {
         const lines = buffer.toString().split(/\n+/);
-        const subDocs: [Dictionary<string>, string[]][] = [];
+        const subDocs: UnlabelledSubDocs = [];
         for (const line of lines) {
             const [ subDocStr, tokensStr ] = line.split(/\t+/, 2);
             const tokens = tokensStr.split(/ +/);
@@ -64,7 +65,7 @@ export class SubDocs {
     }
     private static readonly TAB = Buffer.from("\t");
     private static readonly NL = Buffer.from("\n");
-    static subDocsToBuffer(subDocs: Type) {
+    static subDocsToBuffer(subDocs: UnlabelledSubDocs) {
         const stringBuilder = [];
         for (const [features, tokens] of subDocs) {
             stringBuilder.push(Buffer.from(JSON.stringify(features)));
@@ -198,6 +199,92 @@ export class SubDocs {
             data.features[i] = new Map(features);
             data.labels[i] = c;
             data.weights[i] = 1 / length;
+        }
+        
+        return data;
+    }
+
+    static resourceSubDocsToTestData(subDocs: UnlabelledSubDocs, resource: ResourceURL) {
+        const length = subDocs.length;
+        const wordTokens = new Array<string[]>(length);
+        const hostTokens = new Array<string>(length);
+        const hostPartTokens = new Array<string[]>(length);
+        const sslFeatures = new Array<string>(length);
+        const pathLengths = new Array<number>(length);
+        const tagFeatures = new Array<string[]>(length);
+        const textAndBasepathDifference = new Array<number>(length);
+        const hostAndBasepathDifference = new Array<number>(length);
+        let i = 0;
+        for (const [doc, ] of subDocs) {
+            tagFeatures[i] = Object.keys(doc).map(tag => `tag:${tag}`);
+            let url: ResourceURL;
+            const basepath = Tokenizer.charTranslateString(resource.basepath());
+            if ("href" in doc) {
+                try {
+                    url = new ResourceURL(doc.href)
+                } catch (e) {
+                    url = null;
+                }
+                if (url) {
+                    const host = url.host.name;
+                    hostTokens[i] = `host:${host}`;
+                    sslFeatures[i] = `ssl:${url.ssl}`;
+                    pathLengths[i] = url.path.value.split("/").length - 1;
+                    const hostPartsForDoc = host.split(".");
+                    hostPartTokens[i] = hostPartsForDoc.map(part => `host-part:${part}`);
+                    if (basepath) {
+                        const calculator =
+                            new DamerauLevenshteinAlgo<string, string[]>(basepath, host);
+                        calculator.calculate();
+                        const similarity = calculator.similarityCoefficient();
+                        hostAndBasepathDifference[i] = similarity;
+                    }
+                }
+            } else url = null;
+            if ("text" in doc) {
+                const text = Tokenizer.charTranslateString(doc.text);
+                if (basepath) {
+                    const calculator =
+                        new DamerauLevenshteinAlgo<string, string[]>(basepath, text);
+                    calculator.calculate();
+                    const difference = calculator.similarityCoefficient();
+                    textAndBasepathDifference[i] = difference;
+                }
+                const tokens = Tokenizer
+                    .tokenizeDocument(doc.text)
+                    .map(token => `text:${token}`);
+                wordTokens[i] = tokens;
+            }
+            ++i;
+        }
+        const data = new Array<[Dictionary<string>, Map<F, number>]>(length);
+        for (let i = 0; i < length; ++i) {
+            const [doc, tokens] = subDocs[i]
+            const features: Array<[F, number]> = [];
+            features.push([hash("position"), i / length]);
+            SubDocs.tokensToFeatures(tokens, features);
+            const wordTokensForDoc = wordTokens[i];
+            if (wordTokensForDoc)
+                for (const token of wordTokensForDoc)
+                    features.push([hash(token), 1]);
+            const hostPartTokensForDoc = hostPartTokens[i];
+            if (hostPartTokensForDoc)
+                for (const token of hostPartTokensForDoc)
+                    features.push([hash(token), 1]);
+            const hostTokenForDoc = hostTokens[i];
+            if (hostTokenForDoc)
+                features.push([hash(hostTokenForDoc), 1]);
+            if (sslFeatures[i] !== undefined)
+                features.push([hash(sslFeatures[i]), 1]);
+            if (pathLengths[i] !== undefined)
+                features.push([hash("path-length"), pathLengths[i]]);
+            if (textAndBasepathDifference[i] !== undefined)
+                features.push([hash("text-basepath-diff"), textAndBasepathDifference[i]]);
+            if (hostAndBasepathDifference[i] !== undefined)
+                features.push([hash("host-basepath-diff"), hostAndBasepathDifference[i]]);
+            for (const token of tagFeatures[i])
+                features.push([hash(token), 1]);
+            data[i] = [doc, new Map(features)];
         }
         
         return data;

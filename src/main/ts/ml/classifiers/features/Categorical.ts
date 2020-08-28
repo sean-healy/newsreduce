@@ -1,11 +1,11 @@
 import { Feature } from "./Feature";
 import { FeatureType } from "./FeatureType";
-import { ForkType } from "../forks/ForkType";
-import { TrainingData } from "../TrainingData";
-import { ScoredPotentialFork } from "../ScoredPotentialFork";
-import { Fork } from "../forks/Fork";
-import { Leaf } from "../forks/Leaf";
-import { CategoricalFork } from "../forks/CategoricalFork";
+import { ForkType } from "../dt/forks/ForkType";
+import { TrainingData } from "../../TrainingData";
+import { ScoredPotentialFork } from "../dt/ScoredPotentialFork";
+import { Fork } from "../dt/forks/Fork";
+import { Leaf } from "../dt/forks/Leaf";
+import { CategoricalFork } from "../dt/forks/CategoricalFork";
 
 export class Categorical<K> extends Feature<K, number[], Categorical<K>> {
     readonly values: Set<number>;
