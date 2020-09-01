@@ -22,11 +22,13 @@ import { ExtractBOBG } from "./ExtractBOBG";
 import { ExtractBOTG } from "./ExtractBOTG";
 import { ExtractBOL } from "./ExtractBOL";
 import { ExtractSubDocuments } from "./ExtractSubDocuments";
+import { ExtractNormalisedDocumentVector } from "./ExtractNormalisedDocumentVector";
 
 export const ANCHOR_TAG = "a";
 
 export const EXTRACTORS = [
     ExtractDocumentVector,
+    ExtractNormalisedDocumentVector,
     ExtractAHrefs,
     ExtractSubDocuments,
     ExtractTitle,

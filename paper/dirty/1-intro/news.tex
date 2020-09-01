@@ -1,0 +1,24 @@
+\section{What is news?}
+This question is mostly a philosophical one.  But for the practical
+purposes of this project, an estimated answer is given by way of examples.
+People may agree that things you read in a newspaper are news,
+for example {\it The Irish Times}, {\it Reuters}, {\it The Financial
+Times}.  But then there are other forms of media that lie in
+an ontological sense somewhere between `online newspaper' and
+`online radio station', or between `online newspaper' and
+`quiz website' ({\it BuzzFeed}), or between `online newspaper' and
+`TV station' ({\it BBC}).  For most of the examples given so far, at least
+sometimes, these sources contain information people would describe as
+news.  In this project, the answer to the question "Is something a
+newssource?" is determined by supervised machine learning.  Different
+encyclopedia pages are labelled with a binary class, {\it news source} or
+{\it not news source}.  From this data, a program is generated that
+takes unlabelled encyclopedia pages as input, and returns a probability
+score that the encyclopedia page is a {\it news source}.
+
+This pattern of supervised machine learning is repeated for several of the
+questions surrounding news aggregation, including ``What is the
+official homepage of a news source?'', ``Given a webpage that is an
+article, what is the author of the article, the date the article was
+published, and what is the headline?  The process is described in
+more detail in Section \ref{ml}.

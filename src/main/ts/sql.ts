@@ -47,4 +47,6 @@ export default {
 	SELECT_THROTTLE_FOR_HOST: "select id, throttle from Host where id in ?",
 	// /home/sean/newsreduce/sql/SELECT_WIKI_URLS.sql
 	SELECT_WIKI_URLS: "select url from URLView u inner join WikiPage w on w.resource = u.resource;",
+	// /home/sean/newsreduce/sql/SELECT_WORD_FREQUENCIES.sql
+	SELECT_WORD_FREQUENCIES: "select word, frequency / (select sum(frequency) from WordFrequency) frequency from WordFrequency where word in ?;",
 };

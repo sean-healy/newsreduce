@@ -1,0 +1,47 @@
+\section{Machine learning\label{ml-bg}}
+
+Within machine learning, there is currently a distinction between two sets of
+algorithms, broadly described as {\it explainable AI} (XAI) and {\it black
+box} models. The \nr{} service will use both methods in some sense, so these
+terms should first be disambiguated.
+
+\subsection{Explainable AI} As stated by \citeA{goebel2018}, XAI is not a new
+is not a new field. The expert systems of the 80s were one
+clear example of explainable AI. The result of a program could be easily
+explained by examining the logic rules of the program.
+When we speak of XAI, reference is usually being made to the observed
+inability of the artificial neural networks (ANN)
+to {\it explain} their classification decisions. ANNs can display near-human
+performance on certain classification tasks \cite{krizhevsky2012}, but the
+absence of explanations can make debugging impossible, and bias difficult to
+spot. In a system of decision trees, on the other hand, the {\it paper trail}
+of a trained program's decision making can be easily extracted by observing
+the paths through a decision tree that were taken, and in boosted systems, by
+observing the weights at each branch. The popular example of a situation
+where XAI is important emerges in the field of computer vision, and the
+racial bias therein. Much research has no been published in attempts
+to tackle this issue, (e.g. \citeNP{wang2019}). The previously cited paper
+of \cite{goebel2018} makes some progress towards XAI by applying
+neural networks to the task of assigning textual explanations
+to generated image descriptions.
+
+Generally speaking, a relatively {\it explainable} approach
+was sought for the main task of this thesis, and that ruled
+out ANN models. There are many models that fit the XAI
+requirement and still perform well on classification tasks.
+An implementations of AdaBoost decision trees, with various
+configuration settings, is outlined later in Section \ref{ml}.
+The precision and recall of this approach appears sufficient
+for the task of news feed personalisation (more results in
+Section \ref{results}).  Decision trees allow the user to
+gradually build up a model of their news preferences, while
+still maintaining the ability to examine the reasons behind
+negatively labelled news items.  This offers readers insights
+into their underlying preferences, both conscious and
+subconscious.  The training data for the decision trees are
+assembled from the {\tt likes} and {\tt dislikes} of the user.
+The \nr{} website stores the data on the user's side, and the
+data is assembled through the display of an upvote
+and downvote button alongside each news item.
+Section \ref{privacy} outlines how this is accomplished using
+web browser technology.

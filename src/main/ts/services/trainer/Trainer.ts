@@ -2,6 +2,7 @@ import { TrainingData } from "ml/TrainingData";
 import { Predicate } from "types/db-objects/Predicate";
 import { Classifier } from "ml/classifiers/Classifier";
 import { ClassifierTrainingArgs } from "ml/classifiers/args/ClassifierTrainingArgs";
+import { CSVWriter } from "analytics/CSVWriter";
 
 /**
  * This class encapsulates the processes
@@ -37,6 +38,8 @@ export abstract class Trainer<
 
     abstract emptyClassifier(): Classifier<K, I>;
 
+    abstract csvWriter(): CSVWriter;
+
     /**
      * Adjust parameters in order to suit the specific problem
      * of sub-classes.
@@ -50,7 +53,7 @@ export abstract class Trainer<
         const { trainingData, testData } = data.split(this.trainingDataRatio());
         const params = { data: trainingData, testData } as I;
         this.decorateClassifierParams(params);
-        const model = this.emptyClassifier().train(params);
+        const model = this.emptyClassifier().train(params, this.csvWriter());
         await model.write(this.getPredicate());
     }
 }

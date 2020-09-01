@@ -22,7 +22,9 @@ export class CategoricalFork<K> extends NonLeaf<K, CategoricalFork<K>> {
     parse(fork: Buffer | any): Fork {
         if (fork instanceof Buffer) fork = JSON.parse(fork.toString());
         const branches = fork.branches.map((json: any) => Fork.parse(json));
-        const { feature } = fork;
+        let { feature } = fork;
+        if (feature.match(/^[0-9]+$/))
+            feature = BigInt(feature);
 
         return new CategoricalFork({ branches, feature });
     }

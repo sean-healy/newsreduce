@@ -1,0 +1,487 @@
+\begin{thebibliography}{}
+
+\bibitem [\protect \citeauthoryear {%
+Brin%
+\ \BBA {} Page%
+}{%
+Brin%
+\ \BBA {} Page%
+}{%
+{\protect \APACyear {1998}}%
+}]{%
+page1998}
+\APACinsertmetastar {%
+page1998}%
+\begin{APACrefauthors}%
+Brin, S.%
+\BCBT {}\ \BBA {} Page, L.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1998}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The Anatomy of a Large-Scale Hypertextual Web Search
+  Engine} {The anatomy of a large-scale hypertextual web search engine}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computer Networks}{30}{}{107-117}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Brusilovsky%
+\ \BBA {} Henze%
+}{%
+Brusilovsky%
+\ \BBA {} Henze%
+}{%
+{\protect \APACyear {2007}}%
+}]{%
+brusilovsky2007}
+\APACinsertmetastar {%
+brusilovsky2007}%
+\begin{APACrefauthors}%
+Brusilovsky, P.%
+\BCBT {}\ \BBA {} Henze, N.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2007}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Open corpus adaptive educational hypermedia} {Open
+  corpus adaptive educational hypermedia}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {The adaptive web} {The adaptive web}\ (\BPGS\ 671--696).
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Collet%
+}{%
+Collet%
+}{%
+{\protect \APACyear {2015}}%
+}]{%
+zstd}
+\APACinsertmetastar {%
+zstd}%
+\begin{APACrefauthors}%
+Collet, Y.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Zstandard} {Zstandard}{\BBCQ}\
+  [\bibcomputersoftwaremanual].
+\newblock
+\begin{APACrefURL} \url{http://facebook.github.io/zstd/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Consortium%
+}{%
+Consortium%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+unicode}
+\APACinsertmetastar {%
+unicode}%
+\begin{APACrefauthors}%
+Consortium, U.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Unicode 13.0.0 final names list} {Unicode 13.0.0 final
+  names list}{\BBCQ}\ [\bibcomputersoftwaremanual].
+\newblock
+\begin{APACrefURL} \url{https://unicode.org/Public/UNIDATA/NamesList.txt}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+\APACciteatitle {General Data Protection Regulation}}{%
+\APACciteatitle {General Data Protection Regulation}}{%
+{\protect \APACyear {2016}}%
+}]{%
+gdpr}
+\APACinsertmetastar {%
+gdpr}%
+{\BBOQ}\APACrefatitle {General Data Protection Regulation} {General data
+  protection regulation}{\BBCQ}\ [\bibcomputersoftwaremanual].
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+\begin{APACrefURL} \url{https://gdpr-info.eu/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Goebel%
+\ \protect \BOthers {.}}{%
+Goebel%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2018}}%
+}]{%
+goebel2018}
+\APACinsertmetastar {%
+goebel2018}%
+\begin{APACrefauthors}%
+Goebel, R.%
+, Chander, A.%
+, Holzinger, K.%
+, Lecue, F.%
+, Akata, Z.%
+, Stumpf, S.%
+\BDBL {}Holzinger, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2018}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Explainable AI: the new 42?} {Explainable ai: the new
+  42?}{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {International cross-domain conference for machine
+  learning and knowledge extraction} {International cross-domain conference for
+  machine learning and knowledge extraction}\ (\BPGS\ 295--303).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Henze%
+\ \BBA {} Nejdl%
+}{%
+Henze%
+\ \BBA {} Nejdl%
+}{%
+{\protect \APACyear {2001}}%
+}]{%
+henze2001}
+\APACinsertmetastar {%
+henze2001}%
+\begin{APACrefauthors}%
+Henze, N.%
+\BCBT {}\ \BBA {} Nejdl, W.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2001}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Adaptation in open corpus hypermedia} {Adaptation in
+  open corpus hypermedia}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{International Journal of Artificial Intelligence in
+  Education}{12}{4}{325--350}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Koidl%
+}{%
+Koidl%
+}{%
+{\protect \APACyear {2013}}%
+}]{%
+koidl}
+\APACinsertmetastar {%
+koidl}%
+\begin{APACrefauthors}%
+Koidl, K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2013}.
+\unskip\
+\newblock
+\APACrefbtitle {Cross-Site Personalisation} {Cross-site personalisation}\
+  \APACtypeAddressSchool {\BUPhD}{}{}.
+\unskip\
+\newblock
+\APACaddressSchool {Trinity College Dublin}{The University of Dublin}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Krizhevsky%
+, Sutskever%
+\BCBL {}\ \BBA {} Hinton%
+}{%
+Krizhevsky%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2012}}%
+}]{%
+krizhevsky2012}
+\APACinsertmetastar {%
+krizhevsky2012}%
+\begin{APACrefauthors}%
+Krizhevsky, A.%
+, Sutskever, I.%
+\BCBL {}\ \BBA {} Hinton, G\BPBI E.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2012}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {ImageNet Classification with Deep Convolutional Neural
+  Networks} {Imagenet classification with deep convolutional neural
+  networks}.{\BBCQ}
+\newblock
+\BIn{} F.~Pereira, C\BPBI J\BPBI C.~Burges, L.~Bottou\BCBL {}\ \BBA {} K\BPBI
+  Q.~Weinberger\ (\BEDS), \APACrefbtitle {Advances in Neural Information
+  Processing Systems 25} {Advances in neural information processing systems
+  25}\ (\BPGS\ 1097--1105).
+\newblock
+\APACaddressPublisher{}{Curran Associates, Inc.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Markwell%
+\ \BBA {} Brooks%
+}{%
+Markwell%
+\ \BBA {} Brooks%
+}{%
+{\protect \APACyear {2003}}%
+}]{%
+markwell2003}
+\APACinsertmetastar {%
+markwell2003}%
+\begin{APACrefauthors}%
+Markwell, J.%
+\BCBT {}\ \BBA {} Brooks, D\BPBI W.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2003}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {“Link rot” limits the usefulness of web-based
+  educational materials in biochemistry and molecular biology} {“link rot”
+  limits the usefulness of web-based educational materials in biochemistry and
+  molecular biology}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Biochemistry and Molecular Biology
+  Education}{31}{1}{69--72}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Matter%
+}{%
+Matter%
+}{%
+{\protect \APACyear {2008}}%
+}]{%
+matter2008}
+\APACinsertmetastar {%
+matter2008}%
+\begin{APACrefauthors}%
+Matter, R.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2008}.
+\unskip\
+\newblock
+\APACrefbtitle {Ajax Crawl: making Ajax applications searchable} {Ajax crawl:
+  making ajax applications searchable}\ \APACtypeAddressSchool {\BUMTh}{}{}.
+\unskip\
+\newblock
+\APACaddressSchool {}{Eidgenössische Technische Hochschule Zürich, Department
+  of Computer Science}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+McBryan%
+}{%
+McBryan%
+}{%
+{\protect \APACyear {1994}}%
+}]{%
+mcbryan1994}
+\APACinsertmetastar {%
+mcbryan1994}%
+\begin{APACrefauthors}%
+McBryan, O\BPBI A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1994}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {GENVL and WWWW: Tools for taming the web} {Genvl and
+  wwww: Tools for taming the web}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the first international world wide web
+  conference} {Proceedings of the first international world wide web
+  conference}\ (\BVOL~341).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Mesbah%
+, Van~Deursen%
+\BCBL {}\ \BBA {} Lenselink%
+}{%
+Mesbah%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2012}}%
+}]{%
+mesbah2012}
+\APACinsertmetastar {%
+mesbah2012}%
+\begin{APACrefauthors}%
+Mesbah, A.%
+, Van~Deursen, A.%
+\BCBL {}\ \BBA {} Lenselink, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2012}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Crawling Ajax-based web applications through dynamic
+  analysis of user interface state changes} {Crawling ajax-based web
+  applications through dynamic analysis of user interface state
+  changes}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{ACM Transactions on the Web (TWEB)}{6}{1}{1--30}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Page%
+, Brin%
+, Motwani%
+\BCBL {}\ \BBA {} Winograd%
+}{%
+Page%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {1999}}%
+}]{%
+page1999}
+\APACinsertmetastar {%
+page1999}%
+\begin{APACrefauthors}%
+Page, L.%
+, Brin, S.%
+, Motwani, R.%
+\BCBL {}\ \BBA {} Winograd, T.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1999}{}{}.
+\newblock
+\APACrefbtitle {The Page Rank Citation Ranking: Bringing Order to the Web} {The
+  page rank citation ranking: Bringing order to the web}\
+  \APACbVolEdTR{}{\BTR{}}.
+\newblock
+\APACaddressInstitution{California}{Stanford InfoLab}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Project Euler}%
+}{%
+{Project Euler}%
+}{%
+{\protect \APACyear {2004}}%
+}]{%
+euler84}
+\APACinsertmetastar {%
+euler84}%
+\begin{APACrefauthors}%
+{Project Euler}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2004}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Problem 84} {Problem 84}{\BBCQ}\
+  [\bibcomputersoftwaremanual].
+\newblock
+\begin{APACrefURL} \url{https://projecteuler.net/problem=84} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{RSS Advisory Board}%
+}{%
+{RSS Advisory Board}%
+}{%
+{\protect \APACyear {1999}}%
+}]{%
+rss1999}
+\APACinsertmetastar {%
+rss1999}%
+\begin{APACrefauthors}%
+{RSS Advisory Board}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1999}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{RSS} 0.90 Specification} {{RSS} 0.90
+  specification}{\BBCQ}\ [\bibcomputersoftwaremanual].
+\newblock
+\begin{APACrefURL} \url{https://www.rssboard.org/rss-0-9-0} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Shu%
+, Sliva%
+, Wang%
+, Tang%
+\BCBL {}\ \BBA {} Liu%
+}{%
+Shu%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2017}}%
+}]{%
+shu2017}
+\APACinsertmetastar {%
+shu2017}%
+\begin{APACrefauthors}%
+Shu, K.%
+, Sliva, A.%
+, Wang, S.%
+, Tang, J.%
+\BCBL {}\ \BBA {} Liu, H.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Fake news detection on social media: A data mining
+  perspective} {Fake news detection on social media: A data mining
+  perspective}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{ACM SIGKDD explorations newsletter}{19}{1}{22--36}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Wang%
+, Deng%
+, Hu%
+, Tao%
+\BCBL {}\ \BBA {} Huang%
+}{%
+Wang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2019}}%
+}]{%
+wang2019}
+\APACinsertmetastar {%
+wang2019}%
+\begin{APACrefauthors}%
+Wang, M.%
+, Deng, W.%
+, Hu, J.%
+, Tao, X.%
+\BCBL {}\ \BBA {} Huang, Y.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Racial faces in the wild: Reducing racial bias by
+  information maximization adaptation network} {Racial faces in the wild:
+  Reducing racial bias by information maximization adaptation network}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the IEEE International Conference on
+  Computer Vision} {Proceedings of the ieee international conference on
+  computer vision}\ (\BPGS\ 692--702).
+\PrintBackRefs{\CurrentBib}
+
+\end{thebibliography}

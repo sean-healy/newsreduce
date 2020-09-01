@@ -1,21 +1,48 @@
 import { FeatureBuilder } from "./FeatureBuilder";
 import { ResourceURL } from "types/db-objects/ResourceURL";
-import { BinaryBag } from "ml/bags/BinaryBag";
-import { Word } from "types/db-objects/Word";
 import { VersionType } from "types/db-objects/VersionType";
+import { WordVector } from "types/db-objects/WordVector";
+import { Word } from "types/db-objects/Word";
+import { fancyLog } from "utils/alpha";
 
-export class ResourceFeatureBuilder extends FeatureBuilder<ResourceURL, bigint> {
+export class ResourceFeatureBuilder extends FeatureBuilder<ResourceURL, bigint | string> {
     async build(resource: ResourceURL) {
-        const bbowBuffer = await resource.readLatest(VersionType.REDUCED_BINARY_BAG_OF_WORDS);
-        const linksBuffer = await resource.readLatest(VersionType.BINARY_BAG_OF_LINKS);
-        const bbow = new BinaryBag(word => new Word(word)).fromBuffer(bbowBuffer);
-        const links = new BinaryBag(url => new ResourceURL(url)).fromBuffer(linksBuffer);
-        const features = new Map<bigint, number>();
-        for (const wordID of bbow.bag) {
-            features.set(wordID, 1);
+        //const tokens = await resource.readLatest(VersionType.TOKENS);
+        const linksBuffer = await resource.readLatest(VersionType.RAW_LINKS_TXT);
+        const vecBuffer = await resource.readLatest(VersionType.NORMALISED_DOCUMENT_VECTOR);
+        const features = new Map<bigint | string, number>();
+        if (vecBuffer) {
+            const vector = WordVector.bufferToVector(vecBuffer);
+            for (let i = 0; i < vector.length; ++i) {
+                features.set(`vector-dimension:${i}`, vector[i]);
+            }
         }
-        for (const urlID of links.bag) {
-            features.set(urlID, 1);
+        /*
+        if (tokens) {
+            const words = tokens.toString().split(/\s+/g);
+            for (let i = 0; i < words.length; ++i) {
+                const position = 1 - i / words.length;
+                const wordID = new Word(words[i]).getID();
+                if (!features.has(wordID))
+                    features.set(wordID, position);
+            }
+        }
+        */
+        if (linksBuffer) {
+            const links = linksBuffer.toString().split("\n").map(l => l.split("#", 1)[0]);
+            for (let i = 0; i < links.length; ++i) {
+                const link = links[i];
+                let url: ResourceURL;
+                try {
+                    url = new ResourceURL(link);
+                } catch (e) {
+                    fancyLog(`URL issue: ${JSON.stringify(e)}.`);
+                }
+                const position = 1 - i / links.length;
+                const urlID = url.getID();
+                if (!features.has(urlID))
+                    features.set(urlID, position);
+            }
         }
 
         return features;

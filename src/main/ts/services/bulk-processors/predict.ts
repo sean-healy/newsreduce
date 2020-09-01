@@ -6,7 +6,6 @@ import { SubDocs } from "ml/SubDocs";
 import { Dictionary, fancyLog } from "utils/alpha";
 import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
-import { Ensemble } from "ml/classifiers/Ensemble";
 import { AdaBoost } from "ml/classifiers/dt/forests/AdaBoost";
 
 export async function main() {

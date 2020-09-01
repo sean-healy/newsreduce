@@ -10,22 +10,22 @@ import { WordVectorSource } from "types/db-objects/WordVectorSource";
 import { Vector } from "types/db-objects/Vector";
 import { InputCache } from "./functions";
 
-function distanceFromOrigin(vector: number[]) {
-    let squaredDistance = 0;
-    for (const coord of vector)
-        squaredDistance += coord ** 2;
-
-    return Math.sqrt(squaredDistance);
-}
-
-function normalizeToUnitCircle(vector: number[]) {
-    const d = distanceFromOrigin(vector);
-    if (d != 0)
-        for (let i = 0; i < vector.length; ++i)
-            vector[i] = vector[i] / d;
-}
-
 export class ExtractDocumentVector extends ResourceProcessor {
+    static distanceFromOrigin(vector: number[]) {
+        let squaredDistance = 0;
+        for (const coord of vector)
+            squaredDistance += coord ** 2;
+
+        return Math.sqrt(squaredDistance);
+    }
+
+    static normalizeToUnitCircle(vector: number[]) {
+        const d = ExtractDocumentVector.distanceFromOrigin(vector);
+        if (d != 0)
+            for (let i = 0; i < vector.length; ++i)
+                vector[i] = vector[i] / d;
+    }
+
     async apply(resource: ResourceURL, input: Dictionary<InputCache>, time?: number) {
         const cache = input[this.from()[0].filename];
         const wordIDs = [...getRepresentations(cache).bag.keys()];
@@ -37,7 +37,7 @@ export class ExtractDocumentVector extends ResourceProcessor {
             for (let i = 0; i < vector.length; ++i)
                 sum[i] = sum[i] + vector[i];
         }
-        normalizeToUnitCircle(sum);
+        ExtractDocumentVector.normalizeToUnitCircle(sum);
         const outBuffer = WordVector.vectorToBuffer(sum);
         const vector = new Vector(outBuffer);
         new ResourceVector({
@@ -45,7 +45,7 @@ export class ExtractDocumentVector extends ResourceProcessor {
             source: WordVectorSource.DEFAULT,
             vector,
         }).enqueueInsert({ recursive: true })
-        await resource.writeVersion(time, VersionType.DOCUMENT_VECTOR, outBuffer);
+        await resource.writeVersion(time, this.to()[0], outBuffer);
     }
     from() {
         return [VersionType.REDUCED_TOKENS];

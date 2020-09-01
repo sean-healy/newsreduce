@@ -1,0 +1,38 @@
+\subsection{Compression\label{compress}}
+Compression was used reduce the disk space needed
+to store different versions of web pages.  The Zstandard ({\tt zstd}) package from Facebook \cite{zstd} was chosen as a tradeoff
+between read/write speed and compression ratio.  This tradeoff
+was a significantly easier choice than the one made by
+\cite{page1998}, when Zstandard was not an option.  Cursory
+comparisons between {\tt zstd} and other compression options
+(both faster and more space-efficient) revealed that the library
+was among the fastest, and yet its compression ratio was second
+only to {\tt xz}.
+
+\citeA{page1998} write that they compress each {\tt HTML} file, but an
+alternative approach was taken in this project.  News sites are
+subject to much larger amounts of change than the general web.
+Large news sources such as {\it The New York Times} often release
+hundreds of articles per day, and each article published will
+usually appear on a homepage or section page at least once.
+This causes webpages to move from one state to the next, with
+small differences between neighbouring states, and large
+differences between distant states (i.e. today's front page
+versus last year's front page).  For this reason, \nr{} doesn't compress each individually fetched
+{\tt HTML} file, but instead maintains one archive per resource, and
+many versions per archive.
+
+\begin{figure}
+    \centering
+    \Tree [.https://www.nytimes.com/news/2019/01/01/big-news.html
+    	[.2020-01-01
+    	    raw.html headers.txt raw.txt tokens.txt
+    	]
+    	[.2020-01-02
+    	    raw.html
+    	    headers.txt
+    	]
+    ]
+    \caption{An example of what a resource archive's hierarchical structure.}
+    \label{archive}
+\end{figure}

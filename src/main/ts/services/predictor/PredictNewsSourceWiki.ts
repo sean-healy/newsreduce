@@ -5,8 +5,9 @@ import { AdaBoost } from "ml/classifiers/dt/forests/AdaBoost";
 import { ResourceFuzzyPredicate } from "types/db-objects/ResourceFuzzyPredicate";
 import { ResourceFeatureBuilder } from "ml/classifiers/features/ResourceFeatureBuilder";
 import { selectWikiURLs } from "data";
+import { fancyLog } from "utils/alpha";
 
-export class PredictNewsSourceWiki extends Predictor<bigint, ResourceURL> {
+export class PredictNewsSourceWiki extends Predictor<bigint | string, ResourceURL> {
     frequency(): number {
         // Every 4 hours.
         return 1000 * 4 * 60 * 60;
@@ -17,16 +18,17 @@ export class PredictNewsSourceWiki extends Predictor<bigint, ResourceURL> {
     emptyClassifier() {
         return new AdaBoost<bigint>();
     }
-    async getItemsToClassify() {
+    async *getItemsToClassify() {
         const urls = await selectWikiURLs();
         const featureBuilder = new ResourceFeatureBuilder();
-        const items = new Array<QueryCase<bigint, ResourceURL>>(urls.length);
+        let i = 0;
         for (const url of urls) {
             const resource = new ResourceURL(url);
-            items.push([resource, await featureBuilder.build(resource)]);
+            const item: QueryCase<bigint | string, ResourceURL> = [resource, await featureBuilder.build(resource)];
+            yield(item);
         }
 
-        return items;
+        return;
     }
     getFuzzyLabel(resource: ResourceURL, p: number) {
         const predicate = this.getPredicate();

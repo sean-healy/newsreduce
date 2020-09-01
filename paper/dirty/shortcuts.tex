@@ -1,0 +1,22 @@
+\newcommand{\nr}{{\tt newsreduce.org}}
+\newcommand{\pr}{Pagerank}
+
+\newcounter{nodeCdepth}%
+\newenvironment{nodeC}%
+  {\ifnum\value{nodeCdepth}=0%
+     \gdef\listfordirtree{}%
+     \let\item\nodeCitem%
+    \fi%
+    \stepcounter{nodeCdepth}}%
+  {\addtocounter{nodeCdepth}{-1}%
+   \ifnum\value{nodeCdepth}=0%
+     \expandafter\dirtree\expandafter{\listfordirtree}%
+   \fi}%
+\newcommand{\nodeCitem}[1]{%
+  \xdef\listfordirtree{%
+    \unexpanded\expandafter{\listfordirtree}%
+    .\thenodeCdepth\space\unexpanded{#1}. }%
+}%
+
+\algnewcommand\algorithmicforeach{\textbf{for each}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}

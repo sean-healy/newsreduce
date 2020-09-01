@@ -169,8 +169,15 @@ export async function selectVersionsToProcess(from: bigint[], to: bigint[], lo: 
 }
 
 export async function selectDocumentWordVectors(wordIDs: bigint[]) {
+    type Type = { word: string, value: Buffer}[];
     const params = [WordVectorSource.DEFAULT.resource.getID(), [wordIDs]];
-    return await genericSQLPromise(sql.SELECT_DOCUMENT_WORD_VECTORS, params);
+    return await genericSQLPromise<Type, Type>(sql.SELECT_DOCUMENT_WORD_VECTORS, params);
+}
+
+export async function selectWordFrequencies(wordIDs: bigint[]) {
+    type Type = { word: string, frequency: number }[];
+    const params = [[wordIDs]];
+    return await genericSQLPromise<Type, Type>(sql.SELECT_WORD_FREQUENCIES, params);
 }
 
 export async function selectNewsSourceHomepages() {
@@ -249,7 +256,9 @@ export async function selectDefiniteNewsSourceWikis() {
 }
 
 export async function selectWikiURLs() {
+    fancyLog(`Selecting wiki URLs.`);
     const rows = await genericSQLPromise(sql.SELECT_WIKI_URLS);
+    fancyLog(`Mapping wiki URLs.`);
 
-    return rows.map(r => r.url as string);
+    return rows.map(row => row.url as string);
 }

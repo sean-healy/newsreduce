@@ -1,0 +1,38 @@
+\documentclass[12pt]{article}
+\usepackage{hyperref} % For links
+\usepackage{tikz} % For drawing stuff.
+\usepackage{qtree} % For drawing trees (needs tikz).
+\usepackage{setspace} % For going between double lines and single.
+\usepackage[a4paper, total={5.7in, 8in}]{geometry} % Setting margin.
+\usepackage{subfiles} % Splitting work across files.
+\usepackage{apacite} % Referencing, duh.
+
+\include{shortcuts}
+
+\doublespacing
+
+\title{\nr{}
+\\
+A personalised and privacy-respecting newsreader}
+\author{Seán Healy }
+\date{August 2020}
+
+\begin{document}
+
+\maketitle
+\include{abstract}
+\include{acknowledge}
+\tableofcontents
+
+\include{1-intro/main}
+\include{2-background/main}
+\include{3-method/main}
+\include{4-results}
+\include{5-conclusion}
+
+\bibliographystyle{apacite}
+\linespread{1}
+\raggedright
+\bibliography{references.bib}
+
+\end{document}

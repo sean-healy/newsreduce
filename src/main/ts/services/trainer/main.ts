@@ -4,8 +4,8 @@ import { Trainer } from "./Trainer";
 import { ExtractNewsSourceWikiModel } from "./ExtractNewsSourceWikiModel";
 
 const RECURRING_JOBS: Trainer[] = [
-    new ExtractNewsSourceWikiModel(),
     new ExtractOfficialHomepageModel(),
+    //new ExtractNewsSourceWikiModel(),
 ];
 const JOB_LAST_STARTED: number[] = RECURRING_JOBS.map(_ => 0);
 let RUNNING = false;

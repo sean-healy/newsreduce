@@ -21,10 +21,15 @@ export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
     
     classify(features: Map<K, number>) {
         let fork = this.fork;
+        let parent: typeof fork = null
         while (fork instanceof NonLeaf) {
+            parent = fork;
             fork = fork.next(features);
         }
-        
+        if (!fork) {
+            console.log(JSON.stringify(parent.toJSON(), null, 2));
+        }
+
         return (fork as Leaf).label;
     }
 
@@ -123,7 +128,7 @@ export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
         const selectedFeatures = this.selectFeatures(args.features);
         let i = 0;
         for (const candidateFeature of selectedFeatures) {
-            process.stdout.write(`\r             \r${++i} / ${selectedFeatures.length}`);
+            //process.stdout.write(`\r             \r${++i} / ${selectedFeatures.length}`);
             let candidateFork: ScoredPotentialFork<K>;
             if (args.depth === 1)
                 candidateFork = candidateFeature.bestFinalSplit(data);
@@ -139,7 +144,7 @@ export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
                 useless.add(candidateFeature.key);
             }
         }
-        console.log();
+        //console.log();
 
         return { feature, preFork, useless };
     }

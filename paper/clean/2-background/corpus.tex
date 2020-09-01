@@ -1,0 +1,97 @@
+\subsection{The open corpus problem}
+
+A key topic in the area of news aggregation is the open
+corpus problem, as outlined by \cite{henze2001},
+\citeA{brusilovsky2007} and  \citeA{koidl}. \citeA{henze2001}
+encountered the problem from the domain of e-learning
+software, but others have noted the complexity of an
+{\it open-ended} corpus, albeit with different terminology.
+In the much cited paper of \citeA{page1998}, for example,
+large difficulty is mentioned with regards ``unstructured''
+web content, and the task of gradually crawling and storing
+it.  Some noted problems include the tendency of websites to
+break, returning 400 or 500 errors.  The former error code
+corresponds with the broader issue of {\it link rot}.
+\citeA{markwell2003} studied the demise of ``URL viability''
+over the course of 25 months in the area of
+biochemistry and molecular biology education, and found that
+27.5\% of links were lost over that period (47.9\% for .com
+URLs).
+
+A naive solution would be to discard a resource immediately
+after the webpage begins to return an error code, but this
+would erroneously discard resources from websites with
+short, intermittent errors.
+
+Another difficulty arises from tendency of websites to have
+vastly different {\tt HTML} patterns.  News sources will often correctly
+wrap headlines in {\tt H1} tags, wrap author names in the
+appropriate metatags, times and dates in the correct {\tt TIME} tag.
+But some will wrap the headline immediately within a {\tt DIV},
+others will place each paragraph within a {\tt SECTION} tag, and
+so on. The possibilities for {\tt HTML5} misuse are vast, especially
+as a result of {\tt CSS}, and the web developers' ability to
+simulate the expected functionality of one {\tt HTML} tag using
+{\tt CSS3} rules applied to different {\tt HTML} tag.
+
+Some of the issues \citeauthor{page1998} faced are no longer as
+relevant today.  Parsing syntactically invalid {\tt HTML} is
+now trivial, given the wide availability of robust web scraping
+libraries in popular programming environments.
+\nr{} uses the {\tt JSDOM} library (Section \ref{repr}).  Another
+semi-resolved issue is network latency. With image and
+{\tt AJAX}-style content loading disabled, popular websites
+appear to load much faster today than in the later 90s.
+The web crawling task has a smaller bottleneck as a result.
+
+There are new issues relating to crawling in today's web, however.
+Some websites have adopted {\it single-page application} (SPA)
+architectures, which involves initially loading a web page
+with a small to medium sized chunk of JavaScript, but no
+actual content.  The chunk of JavaScript code is then responsible
+for fetching individual pieces of content, laying them out in
+the browser, and updating parts of the display if necessary.
+SPAs and the originally underlying technology ({\tt AJAX}) have
+presented a problem to web crawling for over a decade at this time
+of writing \cite{matter2008}, \cite{mesbah2012}.
+
+There are documented solutions to crawling non-static pages, but
+these solutions rely on allowing JavaScript code to execute in
+a virtual environment, waiting some amount of time, and
+then taking a snapshot of the document's DOM structure.
+JavaScript is of course Turing complete, so this approach is
+cumbersome, and without a loading time limit, the problem is
+actually {\it undecidable}.  This has led to sites like LinkedIn and
+Twitter becoming difficult to crawl without strong processing
+power, or perhaps a whitelisted IP address and user agent string.
+At the time of writing, inspecting the HTML source of arbitrary
+LinkedIn and Twitter webpages (via Firefox) reveals no textual
+similarities to the eventual text that a user would see.
+
+Fortunately, the largest online news sources that aren't social
+networks tend to stick with static {\tt HTML}, but there is no
+guarantee that will always be the case, and detecting if a web resource involves SPA architecture in any form adds a layer of
+complexity to the task of crawling the web.  For the purposes of this project, the problem is set to the side, and only static
+{\tt HTML} is considered.
+
+One final way in which the web has changed since the late 90s
+is in ubiquity.  Information retrieval papers used to regularly
+cite the growth rate of the web \cite{page1998}, \cite{mcbryan1994}.
+But today it's hardly worth the trouble, since the vast majority of
+businesses and papers are now on the web.  It's now harder to find
+news sources that are limited to an offline audience.  This
+is beneficial for corpus construction, as there is a lot more
+data available.  But it is now significantly harder to verify
+sources.  The term {\it fake news} have been in the public consciousness
+and parlance since approximately 2016\footnote{Google
+Trends data observed in August 2020}).  The apparent rise of
+{\it fake news} has now been studied.  Researchers have even
+tried to solve the problem using various data mining
+techniques \cite{shu2017fake}.
+
+All of the problems discussed represent a tricky open-corpus,
+far beyond the complexity of building ML models for a large but
+static data set.  In the best case, the \nr{} crawler can go days
+without a problem, though in earlier versions, many bugs would
+arise, stopping the crawler after a few minutes or a few hours
+(Section \ref{crawling}).

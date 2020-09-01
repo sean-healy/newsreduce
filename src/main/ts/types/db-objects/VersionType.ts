@@ -38,6 +38,7 @@ export class VersionType extends DBObject<VersionType> {
     static RAW_HTML = new VersionType({ filename: "raw.html", modified: 0 });
 
     static DOCUMENT_VECTOR = new VersionType({ filename: "doc-vec.bin", modified: 0 });
+    static NORMALISED_DOCUMENT_VECTOR = new VersionType({ filename: "ndoc-vec.bin", modified: 0 });
 
     static WORD_EMBEDDINGS = new VersionType({ filename: "word-embeddings.bin", modified: 0 });
 
@@ -54,6 +55,12 @@ export class VersionType extends DBObject<VersionType> {
     static SINGLE_TREE_FOREST = new VersionType({ filename: "single-tree-forest.json", modified: 0 });
     static RANDOM_FOREST = new VersionType({ filename: "random-forest.json", modified: 0 });
     static ADA_BOOST = new VersionType({ filename: "ada-boost.json", modified: 0 });
+    // Vectors, links, words
+    static DOCUMENT_FEATURES_00 = new VersionType({ filename: "doc-features-00.json", modified: 0 });
+    // Vectors only
+    static DOCUMENT_FEATURES_01 = new VersionType({ filename: "doc-features-01.json", modified: 0 });
+    // Vectors and links
+    static DOCUMENT_FEATURES_02 = new VersionType({ filename: "doc-features-02.json", modified: 0 });
 
     static WORD_HITS = new VersionType({ filename: "word-hits.bin", modified: 0 });
     static LINK_HITS = new VersionType({ filename: "link-hits.bin", modified: 0 });

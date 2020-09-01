@@ -12,7 +12,7 @@ export class Leaf extends Fork<Leaf> {
         return ForkType.LEAF;
     }
 
-    static parse(fork: Buffer | any): Fork {
+    parse(fork: Buffer | any): Fork {
         if (fork instanceof Buffer) fork = JSON.parse(fork.toString());
         const { label } = fork;
 

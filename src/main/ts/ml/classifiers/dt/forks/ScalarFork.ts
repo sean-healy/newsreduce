@@ -32,7 +32,9 @@ export class ScalarFork<K> extends NonLeaf<K, ScalarFork<K>> {
         if (fork instanceof Buffer) fork = JSON.parse(fork.toString());
         const left = Fork.parse(fork.left);
         const right = Fork.parse(fork.right);
-        const { pivot, feature } = fork;
+        let { pivot, feature } = fork;
+        if (feature.match(/^[0-9]+$/))
+            feature = BigInt(feature);
 
         return new ScalarFork({ left, right, pivot, feature });
     }

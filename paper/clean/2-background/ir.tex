@@ -1,0 +1,34 @@
+\subsection{Large-scale information retrieval services}
+\paragraph{Google} Now ubiquitous, Google search, and the technology behind it, were first introduced by \citeA{page1998}.  Much of the software
+engineering techniques outlined in Section \ref{method} draw
+from the topics introduced in that paper, including the need
+for appropriate compression, distributed web crawling, appropriate word and
+URL ID methods, and of course, a ranking algorithm.  \pr{}
+is essentially an application of Markov processes and Monte
+Carlo simulation, though there is no mention of
+either of those topics by \citeA{page1998}.
+
+The task of ranking the importance of webpages, based on a directed graph
+made
+up of web links, can be explained through an analogy to a statistical
+problem in the
+game `Monopoly' \cite{euler84}.  In a simple variant of Monopoly, where each tile carries
+the same fine (€1), consider the problem: {\it What is the best tile to
+purchase}?  The answer, of course, is the tile that people land on most
+frequently. To determine which exact tile that is, a Monte Carlo simulation
+is initiated, with a probability value of 1 on the start tile, and a
+value of 0 on every other tile.  This reflects the fact that before any
+moves, a player is bound to be on the start tile.  Next, that probability of 1 is split into 36 pieces (possible dice combinations), and each piece is distributed to the next round of possible player destinations.
+The links between tiles are not always trivial, given additional
+complicated Monopoly rules.
+
+This probability splitting process is repeated, and over time,
+popular destinations accumulate a lot of {\it rank} (probability),
+and less popular destinations lose rank.  As the
+game progresses, the variance in tile ranks from one move to the next 
+begins to converge, and at a certain variance threshold, the
+algorithm doesn't evaluate the next move.  The tile ranks are then
+finalised.
+
+\pr{} basically works the same way as this example, except that the
+tiles are webpages, and the dice rolls are links on the pages.

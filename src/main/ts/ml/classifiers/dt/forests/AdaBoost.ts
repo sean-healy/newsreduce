@@ -4,6 +4,7 @@ import { DecisionTree } from "../trees/DecisionTree";
 import { fancyLog } from "utils/alpha";
 import { TrainingData } from "../../../TrainingData";
 import { VersionType } from "types/db-objects/VersionType";
+import { CSVWriter } from "analytics/CSVWriter";
 
 export class AdaBoost<K> extends Ensemble<K, ForestTrainingArgs<K>, AdaBoost<K>> {
     fsVersionType() {
@@ -28,13 +29,13 @@ export class AdaBoost<K> extends Ensemble<K, ForestTrainingArgs<K>, AdaBoost<K>>
         return Math.log((1 - epsilon) / epsilon) / 2;
     }
 
-    train(args: ForestTrainingArgs<K>) {
+    train(args: ForestTrainingArgs<K>, csvWriter: CSVWriter) {
         if (!args.depth) args.depth = DecisionTree.DEFAULT_DEPTH;
         if (!args.features) args.features = DecisionTree.processFeatureMetaData(args.data);
         const trees = new Array<DecisionTree<K>>(args.trees);
-        const stumpWeights = new Array<number>(args.trees);
+        const weights = new Array<number>(args.trees);
         const adaBoost = new AdaBoost({
-            classifiers: trees, weights: stumpWeights,
+            classifiers: trees, weights,
         });
         let tree: DecisionTree<K>, epsilon: number, alpha: number;
         //console.log(new Set(args.data.weights.concat().sort((a, b) => b - a)));
@@ -45,43 +46,13 @@ export class AdaBoost<K> extends Ensemble<K, ForestTrainingArgs<K>, AdaBoost<K>>
             epsilon = this.calculateWeightedError(args.data, tree);
             alpha = this.calculateAlpha(epsilon);
             console.log("Error:", epsilon, "Alpha:", alpha);
-            stumpWeights[i] = alpha;
+            weights[i] = alpha;
             trees[i] = tree;
             args.data.updateWeights(tree, epsilon, alpha);
             //console.log(new Set(args.data.weights.concat().sort((a, b) => b - a)));
-            this.printProgress(args.testData, adaBoost);
+            this.printProgress(args, adaBoost, i + 1, csvWriter);
         }
 
         return adaBoost;
     }
-
-    fuzzyClassify(features: Map<K, number>) {
-        const ballotBox = new Map<number, number>();
-        let i: number;
-        for (i = 0; i < this.classifiers.length; ++i) {
-            const tree = this.classifiers[i];
-            if (!tree) break;
-            const c = tree.classify(features);
-            const count = (ballotBox.get(c) || 0) + this.weights[i];
-            ballotBox.set(c, count);
-        }
-        const p = new Array<[number, number]>(ballotBox.size);
-        const length = i + 1;
-        i = 0;
-        for (const [c, votes] of ballotBox) {
-            p[i] = [c, votes / length];
-            ++i;
-        }
-        p.sort(([, a], [, b]) => b - a);
-
-        return p;
-    }
-
-    toJSON() {
-        return {
-            trees: this.classifiers.map(tree => tree.toJSON()),
-            weights: this.weights,
-        };
-    }
-
 }

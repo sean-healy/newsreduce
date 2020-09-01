@@ -1,0 +1,29 @@
+\section{Personalised search}
+After the development of \pr{} \cite{page1998}, techniques
+were suggested by \citeA{page1999} to make search `personalised' to users.
+A simple approach to this emerged when \citeauthor{page1999} were
+solving the
+problem of {\it rank sinks}: webpages with at least one backlink, but
+no outgoing links, or pages that form a cyclic clique, where no page
+in the clique references a page outside of the clique.  In a naive
+\pr{} implementations, these pages would gradually accumulate large
+amounts of rank, as they would essentially correspond to final states
+in a finite state automaton.  Betting on a user being in a
+the final state would always yield large returns.
+
+One solution was
+to use a set of predetermined pages as {\it escape routes} from rank
+sinks.  In other words, if we consider \pr{} to represent the way a
+user might navigate through the web, then the set of escape route pages
+may be thought of as the random user's home button, or links on the user's
+bookmarks toolbar. By tweaking this set of escape links, and ensuring
+they not only accumulate rank from rank sinks, but also from a {\it tax}
+applied to all pages, \pr{} can generate rankings relevant to a
+given user (or at least to the image of that user formed from their
+`bookmark links').
+
+This simple approach is used by \nr{}
+(Section \ref{rank}) to calculate webpage ranks from the perspective
+of users in different English speaking regions.  This helps ensure that an
+Australian reader receives Australian news, an Irish person receives
+Irish news, and so on.

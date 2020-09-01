@@ -118,6 +118,7 @@ async function versionAndContentType(params: {
             contentType = "text/plain; charset=UTF-8";
             break;
         case VersionType.DOCUMENT_VECTOR.filename:
+        case VersionType.NORMALISED_DOCUMENT_VECTOR.filename:
             version = Buffer.from(JSON.stringify(WordVector.bufferToVector(version)));
             contentType = "text/html; charset=UTF-8";
             break;
@@ -151,6 +152,7 @@ async function serve() {
         const sql = Buffer.from(encodedSQL, "hex").toString();
         console.log(sql);
         const result = await SQL.query<{ [key: string]: any }[]>(sql);
+        console.log(result);
         DBObject.stringifyBigIntsInPlace(result);
         res.send(JSON.stringify(result));
     });

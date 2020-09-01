@@ -7,15 +7,22 @@ import { AdaBoost } from "ml/classifiers/dt/forests/AdaBoost";
 import { TrainingData } from "ml/TrainingData";
 import { Trainer } from "./Trainer";
 import { ForestTrainingArgs } from "ml/classifiers/dt/args/ForestTrainingArgs";
+import { CSVWriter } from "analytics/CSVWriter";
 
 type F = string;
 export class ExtractOfficialHomepageModel extends Trainer<F, ForestTrainingArgs<F>> {
+    csvWriter() {
+        return new CSVWriter(
+            "/var/newsreduce/graphs/official-homepage-task-depth-3.csv",
+            "N", "DataSet", "FN", "FP", "TN", "TP"
+        );
+    }
     emptyClassifier() {
         return new AdaBoost<F>();
     }
     decorateClassifierParams(params: ForestTrainingArgs<string>) {
         params.depth = 3;
-        params.trees = 200;
+        params.trees = 50;
     }
     frequency(): number {
         // Every 4 hours.
