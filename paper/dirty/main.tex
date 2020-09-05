@@ -3,20 +3,36 @@
 
 \input{shortcuts}
 
-\doublespacing
+\linespread{1.5}
 
 \title{\nr{}
 \\
-A personalised and privacy-respecting newsreader}
-\author{Seán Healy }
-\date{August 2020}
+Enhancing personalised, privacy-respecting newsreaders
+with machine learning}
+\author{Seán Healy}
+\date{
+    M.Phil. Speech and Language Processing\\
+    2020
+}
 
 \begin{document}
 
 \maketitle
+\chapter*{Declaration}
+I declare that this dissertation has not been submitted as an
+exercise for a degree at this or any other university and that
+it is entirelymy own work.
+\thispagestyle{empty}
+
 \include{abstract}
-\include{acknowledge}
+
+\linespread{1.2}
 \tableofcontents
+\doublespacing
+
+\include{acknowledge}
+
+\pagestyle{fancy}
 
 \include{1-intro/main}
 
@@ -29,7 +45,6 @@ A personalised and privacy-respecting newsreader}
 \include{5-conclusion}
 
 \bibliographystyle{apacite}
-\linespread{1}
 \raggedright
 \bibliography{references.bib}
 

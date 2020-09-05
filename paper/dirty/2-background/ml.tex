@@ -2,12 +2,14 @@
 
 Within machine learning, there is currently a distinction between two sets of
 algorithms, broadly described as {\it explainable AI} (XAI) and {\it black
-box} models. The \nr{} service will use both methods in some sense, so these
-terms should first be disambiguated.
+box} models. The \nr{} service will benefit from both methods in
+some sense; any project using word embeddings has some
+unexplainability in it.  The XAI term should first be
+disambiguated.
 
-\subsection{Explainable AI} As stated by \citeA{goebel2018}, XAI is not a new
+\subsection{Explainable AI} As stated by \citeA{goebel2018}, XAI
 is not a new field. The expert systems of the 80s were one
-clear example of explainable AI. The result of a program could be easily
+clear example of XAI. The result of a program could be easily
 explained by examining the logic rules of the program.
 When we speak of XAI, reference is usually being made to the observed
 inability of the artificial neural networks (ANN)
@@ -17,9 +19,9 @@ absence of explanations can make debugging impossible, and bias difficult to
 spot. In a system of decision trees, on the other hand, the {\it paper trail}
 of a trained program's decision making can be easily extracted by observing
 the paths through a decision tree that were taken, and in boosted systems, by
-observing the weights at each branch. The popular example of a situation
+observing the weights at each tree in a forest. The popular example of a situation
 where XAI is important emerges in the field of computer vision, and the
-racial bias therein. Much research has no been published in attempts
+racial bias therein. Much research has been published in attempts
 to tackle this issue, (e.g. \citeNP{wang2019}). The previously cited paper
 of \cite{goebel2018} makes some progress towards XAI by applying
 neural networks to the task of assigning textual explanations
@@ -38,10 +40,174 @@ gradually build up a model of their news preferences, while
 still maintaining the ability to examine the reasons behind
 negatively labelled news items.  This offers readers insights
 into their underlying preferences, both conscious and
-subconscious.  The training data for the decision trees are
-assembled from the {\tt likes} and {\tt dislikes} of the user.
-The \nr{} website stores the data on the user's side, and the
-data is assembled through the display of an upvote
-and downvote button alongside each news item.
-Section \ref{privacy} outlines how this is accomplished using
-web browser technology.
+subconscious.
+
+\subsection{Decision trees}
+
+When it comes to natural language text classification, a
+single decision tree will generally perform poorly in all
+metrics, including precision and recall
+(Section \ref{classifier-results}).  But techniques
+have been invented to combine many decision trees into a {\it decision
+tree forest}.  The final decisions from trees in the forest are
+combined in some way to produce results with higher precision and
+recall. One such technique is random forest, introduced by \citeA{ho1995}.
+and extended by \citeA{breiman2001}.  Another technique is AdaBoost,
+first introduced by \cite{schapire1999}.
+
+A decision tree is comparable to the common notion of a
+{\it flowchart}, but with no cycles, and each node has exactly one
+parent.  This fits closely with the description of a {\it taxonomy}
+from biology.  Manually created decision trees are useful for
+classifying objects with certain features into different categories.
+Beginning at the root of the tree, a question is asked regarding
+the object.  The answer to this question determines which branch is
+followed next. (Generally, there are two child branches per node.)
+A new question is then asked, and the process continues until a
+{\it leaf} is reached.  Leafs are the nodes with no child branches,
+at the bottom of the tree. Each leaf corresponds to a class.  The
+class is then assigned to the object.
+
+\begin{figure}[]
+    \centering
+    \Tree [.Weekday?
+        [.No
+            [.Agreed~to~overtime?
+                [.No
+                    No~work
+                ]
+                [.Yes
+                    Work
+                ]
+            ]
+        ]
+        [.Yes
+            [.Annual~leave~booked?
+                [.No
+                    [.Bank~holiday?
+                        [.No
+                            [.Sick?
+                                [.No
+                                    [.Family~emergency?
+                                        [.No
+                                            Work
+                                        ]
+                                        [.Yes
+                                            No~work
+                                        ]
+                                    ]
+                                ]
+                                [.Yes
+                                    No~work
+                                ]
+                            ]
+                        ]
+                        [.Yes
+                            No~work
+                        ]
+                    ]
+                ]
+                [.Yes
+                    No~work
+                ]
+            ]
+        ]
+    ]
+    \caption{
+        An example of an DT people may use to determine
+        if they should go to work each morning.
+    }
+    \label{dtree}
+\end{figure}
+
+Figure \ref{dtree} is a very basic example of a decision tree.
+The tree could in fact be built automatically, from a spreadsheet
+of data regarding someone's work and life patterns.  That spreadsheet
+may look something like Table \ref{dtreed}
+
+\begin{table}
+    \begin{tabular}{|l|l|l|l|l|l||l|}
+        \hline
+        Day of week & Overtime & Annual leave & Bank holiday & Sick & Emergency & Worked\\
+        \hline
+        {\tt 1} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt T}\\
+        {\tt 2} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt T}\\
+        {\tt 3} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt T}\\
+        {\tt 4} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt T}\\
+        {\tt 5} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt T}\\
+        {\tt 6} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F}\\
+        {\tt 7} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt F}\\
+        {\tt 1} & {\tt F} & {\tt T} & {\tt F} & {\tt F} & {\tt F} & {\tt F}\\
+        {\tt 2} & {\tt F} & {\tt F} & {\tt T} & {\tt F} & {\tt F} & {\tt F}\\
+        {\tt 3} & {\tt F} & {\tt F} & {\tt F} & {\tt T} & {\tt F} & {\tt F}\\
+        {\tt 4} & {\tt F} & {\tt F} & {\tt F} & {\tt F} & {\tt T} & {\tt F}\\
+        \hline
+    \end{tabular}
+    \caption{Data used to generate the DT in Figure \ref{dtree}\label{dtreed}}
+\end{table}
+
+Some of the data in Table \ref{dtreed} is categorical (boolean), but the
+{\it day of the week} variable is numerical, non-continuous.  When implementing
+a robust DT learning algorithm, it is important to acccount for both
+categorical, numerical and continuous variables.  Otherwise, valuable
+features for classification could be excluded from selection.  The CART
+algorithm\footnote{Classification and regression trees}
+\cite{breiman1984} is one way to achieve this robustness.
+
+\subsection{Choosing the right questions}
+DT learning algorithms generally run top-down, first determing the best
+question to ask in order to split a dataset into more manageable
+parts.  For each part, the same process is applied in order to
+determine the best followup questions.  {\it Best} is determined
+using various methods, including {\it information gain}
+\cite{quinlan1986}, {\it gini impurity} (from CART) and {\it entropy}
+(from information theory). Gini impurity is the most straightforward
+to calculate:
+\begin{equation}
+    GI(p, C) = 1 - \sum_{c \in C}p(c)
+\end{equation}
+$C$ is a set of categories. $p$ returns a ratio: the items that
+match the category $c$ over the total number of items.  In English,
+Gini impurity is a probability:  If a random item and
+a random category are taken at a DT node, what is the probability
+that the category matches the item?  For a node where all items
+have the same category, the probability is 1.  The more categories
+represented at a node, the lower the probability becomes.  In other
+words, using gini impurity to determine the best question to ask
+gradually leads to nodes with fewer distinct categories.  This
+corresponds closely with the idea of minimising entropy.
+
+\subsection{Random forest}
+Random forest \cite{ho1995} applies {\it bagging} to a training data set, and
+builds a number of trees from these bags.  Bagging works by
+splitting data into random chunks, and applying machine learning
+to each chunk separately, in order to build multiple classifiers
+(an ensemble).  With random forest, the bags are built by randomly
+selecting $N$ items from a dataset of size $N$.  The items are
+selected with replacement, meaning that the same item can be
+selected more than once.  For each bag, a full decision tree is
+built (without pruning).  While building each node in a tree,
+a random sampling of $k$ features is taken from the full set of
+features, $K$.  There is no required value for $k$, but $k = \sqrt{K}$
+is a popular choice.
+
+Trees in a random forest may be built in parallel.  Pruning is not
+necessary if many trees are trained in the forest.  Classification
+of items involves a vote among all the trees in the forest.  A
+threshold is set according to desired precision and recall scores,
+and above that threshold, the result is a positive match.
+Below the threshold, the result is a negative match (for
+a binary classifier).  A high threshold leads to high precision but
+low recall, and a low threshold leads to higher recall, but lower
+precision.
+
+\subsection{AdaBoost (AB)}
+AdaBoost \cite{schapire1999} also generates decision tree forests,
+but {\it boosting} is applied to the best performing trees in
+the forest, so that their {\it votes} in a classification task
+carry more sway than other less performant trees.  The way the
+forest is constructed also differs from RF.  In RF, trees can be
+built in parallel, because no tree affects the others in the
+ensemble.  In AB, trees are built sequentially, since the
+performance of the previous tree determines the best questions
+to ask in the next tree.

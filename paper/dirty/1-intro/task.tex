@@ -2,6 +2,7 @@
 The task of personalised news aggregation is a complex one, but it can
 be broken down into several more manageable tasks.  These tasks are
 well described by the following questions:
+
 \begin{enumerate}
     \item What is news?
     \item What is a news source?
@@ -15,10 +16,20 @@ well described by the following questions:
           i.e. headline, byline, body, visual media and captions?
     \item What is a highly importance topic for the current
           news cycle?
-    \item How do identify similar articles, and eliminate all but the best
-          sources for that article?
+    \item How does one identify similar articles, and eliminate all but the best
+          sources for that cluster?
     \item Is the {\it best source} the paper that ``got there first'', or
           the paper with highest rank, or the paper that covered the
           topic the best, or some other heuristic based on a
-          combination of these metrics?
+          combination of these metrics?\label{final-q}
 \end{enumerate}
+\subsection{Motivation}
+Some of the 11 questions above may appear trivial.  Arguably, most
+people know {\it news} when they see it.  As for the more
+complicated problems (e.g. Question \ref{final-q}), a large team
+of experts from the world of news could easily create a
+pipeline to provide high-quality news aggregation.
+But an operation on that scale would cost a lot of money.
+Furthermore, the task of news aggregation, i.e. republishing
+the work of other writers and journalists, could be considered
+very tedious work that ought to be automated.

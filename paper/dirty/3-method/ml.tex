@@ -7,7 +7,7 @@ personalisation.  The algorithm was applied to several tasks:
     \item Determining which Wikipedia webpages correspond to news sources.
     \item Finding the official homepage of a news source from a
           wikipedia webpage.
-    \item Determining if a webpage is an index.
+    \item Determining if a webpage is a news index.
     \item Determining if a webpage is a news item.
     \item Personalising the selection of articles a user sees.
 \end{enumerate}
@@ -29,17 +29,18 @@ attributes for the text and the {\tt href}.  The domain name is extracted
 from the {\tt href}.  Next, two features are built, firstly by comparing
 domain to the last part of the current resource's path, and secondly by comparing the
 anchor's text to the last part of the path.  This comparison uses
-the Levenshtein distance between two strings, and normalising
+the Levenshtein distance ($LD$) between two strings \cite{levenshtein1966},
+and normalises
 the distance to a scale between 0 and 1 (0 being low similarity, and
 1 being high similarity).  This normalisation is carried out as follows:
 \begin{equation}
-    Similarity(a, b) = 1 - \frac{LevenshteinDistance(a, b)}{max(|a|, |b|)}
+    Similarity(a, b) = 1 - \frac{LD(a, b)}{max(|a|, |b|)}
 \end{equation}
 Normalisation fills two purposes here.  Firstly, it makes
-separate results from $LevenshteinDistance$ somewhat comparable.  E.g.
-two 100,000 word texts with 8 differences will no longer have the same
-difference/similarity score as the score between `newspaper' and
-`zookeeper'.  In other words, the size of the texts being compared will
+separate results from $LD$ somewhat comparable.  E.g.
+two 100,000 word texts with 6 differences will no longer have the same
+difference/similarity score as the score between `\underline{newspa}per' and
+`\underline{zookee}per'.  In other words, the size of the texts being compared will
 normalise the similarity score.  Secondly, plotting similarity from
 0 to 1 is convenient for decision tree algorithms, and it's also convenient
 (in the case of \nr{}) to place the {\it similarity} end closer to 1 than to 0.
@@ -47,22 +48,11 @@ This is because \nr{}'s DT implementation uses a default of 0 when a feature
 is missing from a document or sub-document.
 
 \subsection{Training\label{training}}
+The training data for the decision trees are
+assembled from the {\tt likes} and {\tt dislikes} of the user.
+The \nr{} website stores the data on the user's side, and the
+data is assembled through the display of an upvote
+and downvote button alongside each news item.
+Section \ref{privacy} outlines how this is accomplished using
+web browser technology.
 \subsection{Predicting\label{predicting}}
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{media/formats}
-    \caption{
-        The process by which different experimental
-        resource models are created.  Blue nodes are models 
-        created by the crawler.  The others are
-        created later. A comparison of these models, and their
-        relative performance in text classification, is
-        provided in Section \ref{model-results}.
-    }
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.95\textwidth]{media/system}
-    \caption{Broad overview of the system's architecture.}
-\end{figure}

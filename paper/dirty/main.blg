@@ -19,45 +19,52 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: references.bib
+Warning--entry type for "jsdom" isn't style-file defined
+--line 103 of file references.bib
+Warning--entry type for "nytimes2019" isn't style-file defined
+--line 303 of file references.bib
+Warning--entry type for "ttrss" isn't style-file defined
+--line 315 of file references.bib
 apacite.bst [2013/07/21 v6.03 APA bibliography style]
-You've used 18 entries,
+You've used 33 entries,
             6951 wiz_defined-function locations,
-            1383 strings with 13541 characters,
-and the built_in function-call counts, 33135 in all, are:
-= -- 4280
-> -- 294
-< -- 1330
-+ -- 1332
-- -- 38
-* -- 1946
-:= -- 5422
-add.period$ -- 83
-call.type$ -- 18
-change.case$ -- 310
+            1462 strings with 15772 characters,
+and the built_in function-call counts, 61712 in all, are:
+= -- 8087
+> -- 541
+< -- 2500
++ -- 2518
+- -- 68
+* -- 3551
+:= -- 9973
+add.period$ -- 151
+call.type$ -- 33
+change.case$ -- 569
 chr.to.int$ -- 0
-cite$ -- 36
-duplicate$ -- 890
-empty$ -- 1423
-format.name$ -- 469
-if$ -- 6661
+cite$ -- 66
+duplicate$ -- 1665
+empty$ -- 2573
+format.name$ -- 836
+if$ -- 12458
 int.to.chr$ -- 0
-int.to.str$ -- 54
+int.to.str$ -- 99
 missing$ -- 0
-newline$ -- 448
-num.names$ -- 138
-pop$ -- 882
+newline$ -- 804
+num.names$ -- 250
+pop$ -- 1456
 preamble$ -- 1
-purify$ -- 71
+purify$ -- 130
 quote$ -- 0
-skip$ -- 2243
+skip$ -- 4419
 stack$ -- 0
-substring$ -- 1500
-swap$ -- 570
-text.length$ -- 67
+substring$ -- 2856
+swap$ -- 1007
+text.length$ -- 134
 text.prefix$ -- 0
 top$ -- 1
-type$ -- 1906
+type$ -- 3666
 warning$ -- 0
-while$ -- 168
+while$ -- 305
 width$ -- 0
-write$ -- 554
+write$ -- 995
+(There were 3 warnings)

@@ -9,7 +9,7 @@ comparisons between {\tt zstd} and other compression options
 was among the fastest, and yet its compression ratio was second
 only to {\tt xz}.
 
-\citeA{page1998} write that they compress each {\tt HTML} file, but an
+\citeA{page1998} write that they compress each {\tt HTML}/header file, but an
 alternative approach was taken in this project.  News sites are
 subject to much larger amounts of change than the general web.
 Large news sources such as {\it The New York Times} often release
@@ -20,7 +20,7 @@ small differences between neighbouring states, and large
 differences between distant states (i.e. today's front page
 versus last year's front page).  For this reason, \nr{} doesn't compress each individually fetched
 {\tt HTML} file, but instead maintains one archive per resource, and
-many versions per archive.
+many versions of that resource per archive.
 
 \begin{figure}
     \centering
@@ -33,10 +33,9 @@ many versions per archive.
     	    headers.txt
     	]
     ]
-    \caption{An example of what a resource archive's hierarchical structure.}
+    \caption{An illustration of a resource archive's hierarchical structure.}
     \label{archive}
 \end{figure}
-
 Figure \ref{archive} illustrates the archiving format used to
 store the corpus of resource versions.  In reality, the number
 of formats is much larger than those shown in the hierarchical
@@ -62,7 +61,6 @@ diagram.
 		\item{1596573378626\_rbosg.bin}
 		\item{1596573378626\_bin-bol.bin}
 		\item{1596573378626\_headers.txt}
-		\item{1596573378626\_rbotg.bin}
 		\item{1596573378626\_bin-bosg.bin}
 		\item{1596573378626\_bin-bow.bin}
 		\item{1596573378626\_raw.html}
@@ -76,17 +74,15 @@ diagram.
 		\item{1596573378626\_bin-bobg.bin}
 		\item{1596573378626\_sub-docs.txt}
 		\item{1596573378626\_anchor-paths.txt}
-		\item{1596573378626\_botg.bin}
 	\end{nodeC}
 \end{nodeC}
 \caption{A realistic portrayal of a resource's archive.}
 \label{real-arc}
 \end{figure}
-
 Figure \ref{real-arc} is a more realistic portrayal of a resource's
 archive.  The archive is placed at a location resembling the
 URL's ID (Section \ref{hashing}).  Under each archive, there is
-a file named prefixed with the timestamp of the version it
-represents, and suffixed with the unique name of a version
-format.  The different formats are explained in more detail in
+a file name, with a prefix of the version's timestamp,
+a suffix of version format name, and an underscore separating both
+parts.  The different formats are explained in more detail in
 Section \ref{repr}.

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019/Debian) (preloaded format=xelatex 2020.9.1)  1 SEP 2020 22:25
+This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019/Debian) (preloaded format=xelatex 2020.9.1)  4 SEP 2020 14:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -611,47 +611,61 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 )
 \@float@every@algorithm=\toks38
 \c@algorithm=\count305
-)) (./shortcuts.tex
-\c@nodeCdepth=\count306
+) (/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2019/01/31 v3.10 Extensive control of page headers and footers
+\f@nch@headwidth=\skip135
+\f@nch@O@elh=\skip136
+\f@nch@O@erh=\skip137
+\f@nch@O@olh=\skip138
+\f@nch@O@orh=\skip139
+\f@nch@O@elf=\skip140
+\f@nch@O@erf=\skip141
+\f@nch@O@olf=\skip142
+\f@nch@O@orf=\skip143
+)) (/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+\wrapoverhang=\dimen277
+\WF@size=\dimen278
+\c@WF@wrappedlines=\count306
+\WF@box=\box84
+\WF@everypar=\toks39
+Package: wrapfig 2003/01/31  v 3.6
+) (./shortcuts.tex
+\c@nodeCdepth=\count307
 ) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-xdvipdfmx.def
 File: l3backend-xdvipdfmx.def 2020-02-03 L3 backend support: xdvipdfmx
-\g__graphics_track_int=\count307
-\l__pdf_internal_box=\box84
-\g__pdf_backend_object_int=\count308
-\g__pdf_backend_annotation_int=\count309
-) (./main.aux (./abstract.aux) (./acknowledge.aux) (./1-intro/main.aux) (./2-background/main.aux) (./3-method/main.aux
-
-LaTeX Warning: Label `loop' multiply defined.
-
-) (./4-results.aux) (./5-conclusion.aux))
+\g__graphics_track_int=\count308
+\l__pdf_internal_box=\box85
+\g__pdf_backend_object_int=\count309
+\g__pdf_backend_annotation_int=\count310
+) (./main.aux (./abstract.aux) (./acknowledge.aux) (./1-intro/main.aux) (./2-background/main.aux) (./3-method/main.aux) (./4-results.aux) (./5-conclusion.aux))
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
-LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 14.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 18.
+LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 18.
  (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-\AtBeginShipoutBox=\box85
-Package hyperref Info: Link coloring OFF on input line 14.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+\AtBeginShipoutBox=\box86
+Package hyperref Info: Link coloring OFF on input line 18.
  (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
  (/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty
@@ -659,11 +673,11 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 ) (/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count310
+\c@section@level=\count311
 )
-LaTeX Info: Redefining \ref on input line 14.
-LaTeX Info: Redefining \pageref on input line 14.
-LaTeX Info: Redefining \nameref on input line 14.
+LaTeX Info: Redefining \ref on input line 18.
+LaTeX Info: Redefining \pageref on input line 18.
+LaTeX Info: Redefining \nameref on input line 18.
  (./main.out) (./main.out)
 \@outlinefile=\write4
 \openout4 = `main.out'.
@@ -677,15 +691,15 @@ LaTeX Info: Redefining \nameref on input line 14.
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(92.78455pt, 411.93877pt, 92.78456pt)
-* v-part:(T,H,B)=(106.75473pt, 578.15999pt, 160.13213pt)
+* h-part:(L,W,R)=(72.26999pt, 452.9679pt, 72.26999pt)
+* v-part:(T,H,B)=(72.26999pt, 700.50687pt, 72.26999pt)
 * \paperwidth=597.50787pt
 * \paperheight=845.04684pt
-* \textwidth=411.93877pt
-* \textheight=578.15999pt
-* \oddsidemargin=20.51456pt
-* \evensidemargin=20.51456pt
-* \topmargin=-2.51526pt
+* \textwidth=452.9679pt
+* \textheight=700.50687pt
+* \oddsidemargin=0.0pt
+* \evensidemargin=0.0pt
+* \topmargin=-37.0pt
 * \headheight=12.0pt
 * \headsep=25.0pt
 * \topskip=12.0pt
@@ -703,17 +717,17 @@ LaTeX Info: Redefining \nameref on input line 14.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-\c@maskedRefs=\count311
+\c@maskedRefs=\count312
 (/usr/share/texlive/texmf-dist/tex/latex/apacite/english.apc
 File: english.apc 2013/07/21 v6.03 apacite language file
 LaTeX Info: Redefining \BPBI on input line 129.
 LaTeX Info: Redefining \BHBI on input line 130.
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 17.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 21.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 17.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 21.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/share/texlive/texmf-dist/tex/generic/stringenc/se-ascii-print.def
@@ -722,25 +736,27 @@ File: se-ascii-print.def 2019/11/29 v1.12 stringenc: Printable ASCII characters
 
 
 
+] [1
+
 ]
 \openout2 = `abstract.aux'.
 
  (./abstract.tex [1
 
-])
-\openout2 = `acknowledge.aux'.
-
- (./acknowledge.tex) [1
-
-
-] (./main.toc [2
+]) (./main.toc [1
 
 
 ])
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
- [3]
+ [2]
+\openout2 = `acknowledge.aux'.
+
+ (./acknowledge.tex) [3
+
+
+]
 \openout2 = `1-intro/main.aux'.
 
  (./1-intro/main.tex
@@ -748,74 +764,198 @@ Chapter 1.
 (./1-intro/task.tex [4
 
 
-]) (./1-intro/news.tex [5])) [6]
+
+]) (./1-intro/news.tex
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+Make it at least 14.49998pt.
+We now make it that large for the rest of the document.
+This may cause the page layout to be inconsistent, however.
+
+[5]) (./1-intro/terms.tex [6])
+Underfull \hbox (badness 10000) in paragraph at lines 35--26
+
+ []
+
+(./1-intro/corpus.tex [7]
+File: media/official1.png Graphic file (type bmp)
+<media/official1.png>
+File: media/official2.png Graphic file (type bmp)
+<media/official2.png>
+File: media/index.png Graphic file (type bmp)
+<media/index.png>
+ [8]
+File: media/index2.png Graphic file (type bmp)
+<media/index2.png>
+ [9]
+File: media/item1.png Graphic file (type bmp)
+<media/item1.png>
+File: media/item2.png Graphic file (type bmp)
+<media/item2.png>
+ [10
+
+])) [11]
 \openout2 = `2-background/main.aux'.
 
  (./2-background/main.tex
 Chapter 2.
-(./2-background/web.tex) (./2-background/news-agg.tex [7
+(./2-background/news-agg.tex [12
 
 
 
-]) [8] (./2-background/ir.tex [9]) (./2-background/personalised.tex [10]) (./2-background/corpus.tex [11] [12] [13] [14]) (./2-background/ml.tex [15])) [16]
+]) (./2-background/ir.tex [13]) (./2-background/personalised.tex [14]) (./2-background/corpus.tex [15] [16] [17]) (./2-background/ml.tex [18] [19]
+
+LaTeX Warning: No positions in optional float specifier.
+               Default added (so using `tbp') on input line 71.
+
+[20] [21]) (./2-background/wiki.tex [22])) [23
+
+]
 \openout2 = `3-method/main.aux'.
 
  (./3-method/main.tex
 Chapter 3.
-(./3-method/hashing.tex [17
-
-
-
-] [18] [19]) (./3-method/crawling.tex) [20] (./3-method/compress.tex [21]) (./3-method/intermediate.tex [22] [23] [24]) (./3-method/clean.tex [25] [26]
-Missing character: There is no Ǟ in font [lmroman12-regular]:mapping=tex-text;!
-Missing character: There is no ǟ in font [lmroman12-regular]:mapping=tex-text;!
-Missing character: There is no Ǡ in font [lmroman12-regular]:mapping=tex-text;!
-Missing character: There is no ǡ in font [lmroman12-regular]:mapping=tex-text;!
-Missing character: There is no Ȃ in font [lmroman12-regular]:mapping=tex-text;!
-Missing character: There is no ȃ in font [lmroman12-regular]:mapping=tex-text;!
-) (./3-method/ml.tex [27] [28]
-File: media/formats.pdf Graphic file (type pdf)
-<use media/formats.pdf>
+(./3-method/overview.tex
 File: media/system.pdf Graphic file (type pdf)
 <use media/system.pdf>
-) (./3-method/rank.tex [29] [30] [31]
+ [24
+
+
+
+] [25] [26] [27] [28]
+File: media/formats.pdf Graphic file (type pdf)
+<use media/formats.pdf>
+) (./3-method/scheduler.tex [29] [30]) (./3-method/crawling.tex [31]
+File: media/crawler.pdf Graphic file (type pdf)
+<use media/crawler.pdf>
+) (./3-method/compress.tex) [32] [33] [34] (./3-method/intermediate.tex [35]) (./3-method/clean.tex [36]
+Missing character: There is no Ǟ in font [lmmono12-regular]:!
+Missing character: There is no ǟ in font [lmmono12-regular]:!
+Missing character: There is no Ǡ in font [lmmono12-regular]:!
+Missing character: There is no ǡ in font [lmmono12-regular]:!
+Missing character: There is no Ḃ in font [lmmono12-regular]:!
+Missing character: There is no ḃ in font [lmmono12-regular]:!
+Missing character: There is no Ḅ in font [lmmono12-regular]:!
+Missing character: There is no ḅ in font [lmmono12-regular]:!
+Missing character: There is no Ḇ in font [lmmono12-regular]:!
+Missing character: There is no ḇ in font [lmmono12-regular]:!
+Missing character: There is no Ḉ in font [lmmono12-regular]:!
+Missing character: There is no ḉ in font [lmmono12-regular]:!
+Missing character: There is no Ḋ in font [lmmono12-regular]:!
+Missing character: There is no ḋ in font [lmmono12-regular]:!
+Missing character: There is no Ȇ in font [lmmono12-regular]:!
+Missing character: There is no ȇ in font [lmmono12-regular]:!
+Missing character: There is no Ḟ in font [lmmono12-regular]:!
+Missing character: There is no ḟ in font [lmmono12-regular]:!
+Missing character: There is no Ḡ in font [lmmono12-regular]:!
+Missing character: There is no ḡ in font [lmmono12-regular]:!
+Missing character: There is no Ȟ in font [lmmono12-regular]:!
+Missing character: There is no ȟ in font [lmmono12-regular]:!
+Missing character: There is no Ḣ in font [lmmono12-regular]:!
+Missing character: There is no ḣ in font [lmmono12-regular]:!
+Missing character: There is no ẖ in font [lmmono12-regular]:!
+Missing character: There is no Ȋ in font [lmmono12-regular]:!
+Missing character: There is no ȋ in font [lmmono12-regular]:!
+Missing character: There is no Ǩ in font [lmmono12-regular]:!
+Missing character: There is no ǩ in font [lmmono12-regular]:!
+Missing character: There is no Ḱ in font [lmmono12-regular]:!
+Missing character: There is no ḱ in font [lmmono12-regular]:!
+Missing character: There is no Ḳ in font [lmmono12-regular]:!
+Missing character: There is no ḳ in font [lmmono12-regular]:!
+Missing character: There is no Ḵ in font [lmmono12-regular]:!
+Missing character: There is no ḵ in font [lmmono12-regular]:!
+Missing character: There is no Ḻ in font [lmmono12-regular]:!
+Missing character: There is no ḻ in font [lmmono12-regular]:!
+Missing character: There is no Ḿ in font [lmmono12-regular]:!
+Missing character: There is no ḿ in font [lmmono12-regular]:!
+Missing character: There is no Ṁ in font [lmmono12-regular]:!
+Missing character: There is no ṁ in font [lmmono12-regular]:!
+Missing character: There is no Ǹ in font [lmmono12-regular]:!
+Missing character: There is no ǹ in font [lmmono12-regular]:!
+Missing character: There is no Ṉ in font [lmmono12-regular]:!
+Missing character: There is no ṉ in font [lmmono12-regular]:!
+Missing character: There is no Ǭ in font [lmmono12-regular]:!
+Missing character: There is no ǭ in font [lmmono12-regular]:!
+Missing character: There is no Ṕ in font [lmmono12-regular]:!
+Missing character: There is no ṕ in font [lmmono12-regular]:!
+Missing character: There is no Ṗ in font [lmmono12-regular]:!
+Missing character: There is no ṗ in font [lmmono12-regular]:!
+Missing character: There is no Ȓ in font [lmmono12-regular]:!
+Missing character: There is no ȓ in font [lmmono12-regular]:!
+Missing character: There is no Ṡ in font [lmmono12-regular]:!
+Missing character: There is no ṡ in font [lmmono12-regular]:!
+Missing character: There is no Ṥ in font [lmmono12-regular]:!
+Missing character: There is no ṥ in font [lmmono12-regular]:!
+Missing character: There is no Ṧ in font [lmmono12-regular]:!
+Missing character: There is no ṧ in font [lmmono12-regular]:!
+Missing character: There is no Ṩ in font [lmmono12-regular]:!
+Missing character: There is no ṩ in font [lmmono12-regular]:!
+Missing character: There is no Ṫ in font [lmmono12-regular]:!
+Missing character: There is no ṫ in font [lmmono12-regular]:!
+Missing character: There is no Ǖ in font [lmmono12-regular]:!
+Missing character: There is no ǖ in font [lmmono12-regular]:!
+Missing character: There is no Ṽ in font [lmmono12-regular]:!
+Missing character: There is no ṽ in font [lmmono12-regular]:!
+Missing character: There is no Ṿ in font [lmmono12-regular]:!
+Missing character: There is no ṿ in font [lmmono12-regular]:!
+Missing character: There is no Ẇ in font [lmmono12-regular]:!
+Missing character: There is no ẇ in font [lmmono12-regular]:!
+Missing character: There is no Ẉ in font [lmmono12-regular]:!
+Missing character: There is no ẉ in font [lmmono12-regular]:!
+Missing character: There is no ẘ in font [lmmono12-regular]:!
+Missing character: There is no Ẋ in font [lmmono12-regular]:!
+Missing character: There is no ẋ in font [lmmono12-regular]:!
+Missing character: There is no Ẍ in font [lmmono12-regular]:!
+Missing character: There is no ẍ in font [lmmono12-regular]:!
+Missing character: There is no Ȳ in font [lmmono12-regular]:!
+Missing character: There is no ȳ in font [lmmono12-regular]:!
+Missing character: There is no Ẏ in font [lmmono12-regular]:!
+Missing character: There is no ẏ in font [lmmono12-regular]:!
+Missing character: There is no ẙ in font [lmmono12-regular]:!
+Missing character: There is no Ẑ in font [lmmono12-regular]:!
+Missing character: There is no ẑ in font [lmmono12-regular]:!
+Missing character: There is no Ẕ in font [lmmono12-regular]:!
+Missing character: There is no ẕ in font [lmmono12-regular]:!
+) (./3-method/ml.tex [37] [38] [39]) (./3-method/rank.tex [40]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 38.
- [32] [33]) (./3-method/privacy.tex)) [34] [35]
+ [41]) (./3-method/privacy.tex)) [42] [43]
 \openout2 = `4-results.aux'.
 
- (./4-results.tex) [36
+ (./4-results.tex
+Chapter 4.
+) [44
+
 
 
 ]
 \openout2 = `5-conclusion.aux'.
 
- (./5-conclusion.tex) [37
+ (./5-conclusion.tex
+Chapter 5.
+) [45
 
 
-] (./main.bbl [38
+
+] (./main.bbl [46
 
 
-]) [39]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 36.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 36.
+] [47]) [48]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 51.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 51.
  (./main.aux (./abstract.aux) (./acknowledge.aux) (./1-intro/main.aux) (./2-background/main.aux) (./3-method/main.aux) (./4-results.aux) (./5-conclusion.aux))
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 36.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 36.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 51.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 51.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 220EAFBB4BEF997EE28BF32CB603F8CD;2222.
-
-
-LaTeX Warning: There were multiply-defined labels.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 36.
+(rerunfilecheck)             Checksum: A4846365D3ED9692A6DAF11B8212F614;3114.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 51.
  ) 
 Here is how much of TeX's memory you used:
- 21605 strings out of 481731
- 380725 string characters out of 5935437
- 634120 words of memory out of 5000000
- 38097 multiletter control sequences out of 15000+600000
- 540715 words of font info for 73 fonts, out of 8000000 for 9000
+ 21913 strings out of 481731
+ 384844 string characters out of 5935437
+ 654472 words of memory out of 5000000
+ 38378 multiletter control sequences out of 15000+600000
+ 540731 words of font info for 75 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 65i,14n,64p,494b,492s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 65i,14n,64p,494b,496s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on main.pdf (41 pages).
+Output written on main.pdf (51 pages).

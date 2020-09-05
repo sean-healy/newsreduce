@@ -1,6 +1,57 @@
 \begin{thebibliography}{}
 
 \bibitem [\protect \citeauthoryear {%
+Breiman%
+}{%
+Breiman%
+}{%
+{\protect \APACyear {2001}}%
+}]{%
+breiman2001}
+\APACinsertmetastar {%
+breiman2001}%
+\begin{APACrefauthors}%
+Breiman, L.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2001}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Random forests} {Random forests}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Machine learning}{45}{1}{5--32}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Breiman%
+, Friedman%
+, Stone%
+\BCBL {}\ \BBA {} Olshen%
+}{%
+Breiman%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {1984}}%
+}]{%
+breiman1984}
+\APACinsertmetastar {%
+breiman1984}%
+\begin{APACrefauthors}%
+Breiman, L.%
+, Friedman, J.%
+, Stone, C\BPBI J.%
+\BCBL {}\ \BBA {} Olshen, R\BPBI A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{1984}.
+\newblock
+\APACrefbtitle {Classification and regression trees} {Classification and
+  regression trees}.
+\newblock
+\APACaddressPublisher{}{CRC press}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Brin%
 \ \BBA {} Page%
 }{%
@@ -102,6 +153,28 @@ Consortium, U.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Denicola%
+}{%
+Denicola%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+jsdom}
+\APACinsertmetastar {%
+jsdom}%
+\begin{APACrefauthors}%
+Denicola, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+\APACrefbtitle {JSDOM homepage.} {Jsdom homepage.}
+\newblock
+\begin{APACrefURL} \url{https://github.com/jsdom/jsdom#readme} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 \APACciteatitle {General Data Protection Regulation}}{%
 \APACciteatitle {General Data Protection Regulation}}{%
 {\protect \APACyear {2016}}%
@@ -149,6 +222,35 @@ Goebel, R.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Goel%
+, Watts%
+\BCBL {}\ \BBA {} Goldstein%
+}{%
+Goel%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2012}}%
+}]{%
+goel2012}
+\APACinsertmetastar {%
+goel2012}%
+\begin{APACrefauthors}%
+Goel, S.%
+, Watts, D\BPBI J.%
+\BCBL {}\ \BBA {} Goldstein, D\BPBI G.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2012}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The structure of online diffusion networks} {The
+  structure of online diffusion networks}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the 13th ACM conference on electronic
+  commerce} {Proceedings of the 13th acm conference on electronic commerce}\
+  (\BPGS\ 623--638).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Henze%
 \ \BBA {} Nejdl%
 }{%
@@ -173,6 +275,31 @@ Henze, N.%
 \newblock
 \APACjournalVolNumPages{International Journal of Artificial Intelligence in
   Education}{12}{4}{325--350}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ho%
+}{%
+Ho%
+}{%
+{\protect \APACyear {1995}}%
+}]{%
+ho1995}
+\APACinsertmetastar {%
+ho1995}%
+\begin{APACrefauthors}%
+Ho, T\BPBI K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1995}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Random decision forests} {Random decision
+  forests}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of 3rd international conference on document
+  analysis and recognition} {Proceedings of 3rd international conference on
+  document analysis and recognition}\ (\BVOL~1, \BPGS\ 278--282).
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -231,6 +358,94 @@ Krizhevsky, A.%
   25}\ (\BPGS\ 1097--1105).
 \newblock
 \APACaddressPublisher{}{Curran Associates, Inc.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Lehmann%
+\ \protect \BOthers {.}}{%
+Lehmann%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2015}}%
+}]{%
+lehmann2015}
+\APACinsertmetastar {%
+lehmann2015}%
+\begin{APACrefauthors}%
+Lehmann, J.%
+, Isele, R.%
+, Jakob, M.%
+, Jentzsch, A.%
+, Kontokostas, D.%
+, Mendes, P\BPBI N.%
+\BDBL {}others%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {DBpedia--a large-scale, multilingual knowledge base
+  extracted from Wikipedia} {Dbpedia--a large-scale, multilingual knowledge
+  base extracted from wikipedia}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Semantic web}{6}{2}{167--195}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Levenshtein%
+}{%
+Levenshtein%
+}{%
+{\protect \APACyear {1966}}%
+}]{%
+levenshtein1966}
+\APACinsertmetastar {%
+levenshtein1966}%
+\begin{APACrefauthors}%
+Levenshtein, V\BPBI I.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1966}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Binary codes capable of correcting deletions,
+  insertions, and reversals} {Binary codes capable of correcting deletions,
+  insertions, and reversals}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Soviet physics doklady} {Soviet physics doklady}\
+  (\BVOL~10, \BPGS\ 707--710).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ma%
+, Hui%
+, Tong%
+, Tse%
+\BCBL {}\ \BBA {} Wu%
+}{%
+Ma%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2014}}%
+}]{%
+ma2014}
+\APACinsertmetastar {%
+ma2014}%
+\begin{APACrefauthors}%
+Ma, W\BPBI W.%
+, Hui, M\BHBI L.%
+, Tong, Y\BHBI Y.%
+, Tse, O\BHBI K.%
+\BCBL {}\ \BBA {} Wu, P\BHBI Y.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2014}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Exploring news reading behavior in Hong Kong:
+  Identification of distinctive reader profiles} {Exploring news reading
+  behavior in hong kong: Identification of distinctive reader profiles}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Hong Kong Association of ducational Communications and
+  Technology}{}{}{}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -343,6 +558,65 @@ Mesbah, A.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Nakayama%
+, Hara%
+\BCBL {}\ \BBA {} Nishio%
+}{%
+Nakayama%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2007}}%
+}]{%
+nakayama2007}
+\APACinsertmetastar {%
+nakayama2007}%
+\begin{APACrefauthors}%
+Nakayama, K.%
+, Hara, T.%
+\BCBL {}\ \BBA {} Nishio, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2007}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Wikipedia mining for an association web thesaurus
+  construction} {Wikipedia mining for an association web thesaurus
+  construction}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {International Conference on Web Information Systems
+  Engineering} {International conference on web information systems
+  engineering}\ (\BPGS\ 322--334).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Nguyen%
+, Matsuo%
+\BCBL {}\ \BBA {} Ishizuka%
+}{%
+Nguyen%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2007}}%
+}]{%
+nguyen2007}
+\APACinsertmetastar {%
+nguyen2007}%
+\begin{APACrefauthors}%
+Nguyen, D\BPBI P.%
+, Matsuo, Y.%
+\BCBL {}\ \BBA {} Ishizuka, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2007}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Relation extraction from wikipedia using subtree mining}
+  {Relation extraction from wikipedia using subtree mining}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the National Conference on Artificial
+  Intelligence} {Proceedings of the national conference on artificial
+  intelligence}\ (\BVOL~22, \BPG~1414).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Page%
 , Brin%
 , Motwani%
@@ -396,6 +670,54 @@ euler84}%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Quinlan%
+}{%
+Quinlan%
+}{%
+{\protect \APACyear {1986}}%
+}]{%
+quinlan1986}
+\APACinsertmetastar {%
+quinlan1986}%
+\begin{APACrefauthors}%
+Quinlan, J\BPBI R.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1986}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Induction of decision trees} {Induction of decision
+  trees}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Machine learning}{1}{1}{81--106}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Rector%
+}{%
+Rector%
+}{%
+{\protect \APACyear {2008}}%
+}]{%
+rector2008}
+\APACinsertmetastar {%
+rector2008}%
+\begin{APACrefauthors}%
+Rector, L\BPBI H.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2008}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Comparison of Wikipedia and other encyclopedias for
+  accuracy, breadth, and depth in historical articles} {Comparison of wikipedia
+  and other encyclopedias for accuracy, breadth, and depth in historical
+  articles}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Reference services review}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 {RSS Advisory Board}%
 }{%
 {RSS Advisory Board}%
@@ -416,6 +738,33 @@ rss1999}%
   specification}{\BBCQ}\ [\bibcomputersoftwaremanual].
 \newblock
 \begin{APACrefURL} \url{https://www.rssboard.org/rss-0-9-0} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Schapire%
+\ \BBA {} Singer%
+}{%
+Schapire%
+\ \BBA {} Singer%
+}{%
+{\protect \APACyear {1999}}%
+}]{%
+schapire1999}
+\APACinsertmetastar {%
+schapire1999}%
+\begin{APACrefauthors}%
+Schapire, R\BPBI E.%
+\BCBT {}\ \BBA {} Singer, Y.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1999}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Improved boosting algorithms using confidence-rated
+  predictions} {Improved boosting algorithms using confidence-rated
+  predictions}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Machine learning}{37}{3}{297--336}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -448,6 +797,42 @@ Shu, K.%
   perspective}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{ACM SIGKDD explorations newsletter}{19}{1}{22--36}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Thompson%
+}{%
+Thompson%
+}{%
+{\protect \APACyear {2019}}%
+}]{%
+nytimes2019}
+\APACinsertmetastar {%
+nytimes2019}%
+\begin{APACrefauthors}%
+Thompson, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+\APACrefbtitle {The New York Times Company Annual Report.} {The new york times
+  company annual report.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+\APACcitebtitle {Tiny Tiny RSS}}{%
+\APACcitebtitle {Tiny Tiny RSS}}{%
+{\protect \APACyear {2020}}%
+}]{%
+ttrss}
+\APACinsertmetastar {%
+ttrss}%
+\APACrefbtitle {Tiny Tiny RSS.} {Tiny tiny rss.}
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+\begin{APACrefURL} \url{https://tt-rss.org/} \end{APACrefURL}
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%

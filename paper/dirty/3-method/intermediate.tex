@@ -32,19 +32,16 @@ list of intermediate formats:
         \end{itemize}
     \end{itemize}
 \end{itemize}
-This extensive number of formats was intended to allow different
-representations to be easily compared with machine learning algorithms.
-Different representations perform well on different tasks.
-
 \subsection{The sub-documents file\label{subd}} This file
-is designed specifically for extracting a particular class of
-information
+is designed specifically for extracting a particular piece of
+information (a relation)
 from a webpage.  The format extracts all the leaf nodes from a HTML
 document, and associates the attributes (text, {\tt href}, title,
 etc.) with
 the path of the leaf node.  The path is made up of the HTML class
-names, IDs, and tag names sorted by reverse order of tree height
-in the document DOM. In a fictitiously simplified webpage, the sub-document file might look
+names, IDs, and tag names, in reverse order of tree height
+in the document DOM. In a fictitiously simplified webpage, the
+sub-document file might look
 like this:
 \begin{verbatim}
 {"text":"Seán Healy"} span.author p div
@@ -52,8 +49,6 @@ like this:
 {"text":"Home", "href"="https://seanh.sh/} a header
 \end{verbatim}
 Each row in the sub-documents file can be considered a document
-in itself, and information extraction may then be accomplished with
+in itself.  Extracting relations may then be accomplished with
 standard document classification techniques, such as Naive Bayes,
 decision trees, etc.
-
-\subsection{Parsing HTML}

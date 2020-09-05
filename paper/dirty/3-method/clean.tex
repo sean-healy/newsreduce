@@ -15,10 +15,10 @@ number of candidate characters for normalisation, the names file from
 `LATIN B', and so on, were performed.
 
 Figure \ref{alpha} illustrates just a handful of
-the different forms the letter `a' can take.  In most representations
+the different forms latin letters can take.  In most representations
 of resources, each of these forms is replaced with the
-ASCII `a'.  The same process is applied for all other Latin characters,
-along with punctuation, since there are many ways to quote, hyphenate,
+ASCII letters.  The same process is applied for numbers and punctuation
+since there are many ways to quote, hyphenate,
 parenthesise, insert pauses into sentences, etc.  All language
 representation models have drawbacks, and as stated, the drawback in
 this procedure ({\it Unicode equivalence}) is a potential loss
@@ -27,7 +27,7 @@ is that commonly anglicised words have a lower chance of being
 identified as separate symbols within texts.  A simplified example: if
 a news article about {\it Tomáš Mikolov} instead uses the incorrect
 form, {\it \underline{Tomas} Mikolov}, after alphabet normalisation,
-the article would still identify {\it Tomáš Mikolov} as a topic.
+the article would still identify {\it {\bf Tomáš} Mikolov} as a topic.
 
 Alphabet normalisation is only applied on internal representations,
 and the output that news readers see must always be the original
@@ -35,10 +35,40 @@ unicode form.
 
 \begin{figure}
     \centering
-    \begin{tabular}{l|l}
-        a & A a À Á Â Ã Ä Å à á â ã ä å Ā ā Ă ă Ą ą Ǎ ǎ Ǟ ǟ Ǡ ǡ Ǻ ǻ Ȁ ȁ Ȃ ȃ \ldots
+    \begin{tabular}{|c|l|}
+        \hline
+        ASCII-form & non-ASCII forms\\
+        \hline
+        {\tt a} & {\tt A a À Á Â Ã Ä Å à á â ã ä å Ā ā Ă ă Ą ą Ǎ ǎ Ǟ ǟ Ǡ ǡ Ǻ ǻ Ȁ\ldots}\\
+        {\tt b} & {\tt B b Ḃ ḃ Ḅ ḅ Ḇ ḇ\ldots}\\
+        {\tt c} & {\tt C c Ç ç Ć ć Ĉ ĉ Ċ ċ Č č Ḉ ḉ\ldots}\\
+        {\tt d} & {\tt D d Ď ď Đ đ Δ Ḋ ḋ Ḍ ḍ Ḏ ḏ\ldots}\\
+        {\tt e} & {\tt E e È É Ê Ë è é ê ë Ē ē Ĕ ĕ Ė ė Ę ę Ě ě Ǝ ǝ Ȅ ȅ Ȇ ȇ Ε\ldots}\\
+        {\tt f} & {\tt F f ƒ Φ Ḟ ḟ\ldots}\\
+        {\tt g} & {\tt G g Ĝ ĝ Ğ ğ Ġ ġ Ģ ģ Ǧ ǧ Ǵ ǵ Ḡ ḡ\ldots}\\
+        {\tt h} & {\tt H h Ĥ ĥ Ħ ħ Ȟ ȟ Ḣ ḣ Ḥ ḥ Ḧ ḧ Ḫ ḫ ẖ\ldots}\\
+        {\tt i} & {\tt I i Ì Í Î Ï ì í î ï Ĩ ĩ Ī ī Ĭ ĭ Į į İ ı Ǐ ǐ Ȉ ȉ Ȋ ȋ Ι\ldots}\\
+        {\tt j} & {\tt J j Ĵ ĵ ǰ ȷ\ldots}\\
+        {\tt k} & {\tt K k Ķ ķ Ǩ ǩ Κ Ḱ ḱ Ḳ ḳ Ḵ ḵ\ldots}\\
+        {\tt l} & {\tt L l Ĺ ĺ Ļ ļ Ľ ľ Ŀ ŀ Ł ł Ḷ ḷ Ḹ ḹ Ḻ ḻ\ldots}\\
+        {\tt m} & {\tt M m Μ Ḿ ḿ Ṁ ṁ Ṃ ṃ\ldots}\\
+        {\tt n} & {\tt N n Ñ ñ Ń ń Ņ ņ Ň ň Ǹ ǹ Ν Ṅ ṅ Ṇ ṇ Ṉ ṉ\ldots}\\
+        {\tt o} & {\tt O o Ò Ó Ô Õ Ö Ø ò ó ô õ ö ø Ō ō Ŏ ŏ Ő ő Ơ ơ Ǒ ǒ Ǫ ǫ Ǭ ǭ Ǿ\ldots}\\
+        {\tt p} & {\tt P p Π Ṕ ṕ Ṗ ṗ\ldots}\\
+        {\tt r} & {\tt R r Ŕ ŕ Ŗ ŗ Ř ř Ȑ ȑ Ȓ ȓ\ldots}\\
+        {\tt s} & {\tt S s ß Ś ś Ŝ ŝ Ş ş Š š Σ Ṡ ṡ Ṣ ṣ Ṥ ṥ Ṧ ṧ Ṩ ṩ\ldots}\\
+        {\tt t} & {\tt T t Ţ ţ Ť ť Ț ț Τ Ṫ ṫ Ṭ ṭ Ṯ ṯ ẗ}\\
+        {\tt u} & {\tt U u Ù Ú Û Ü ù ú û ü Ũ ũ Ū ū Ŭ ŭ Ů ů Ű ű Ų ų Ư ư Ǔ ǔ Ǖ ǖ Ǘ\ldots}\\
+        {\tt v} & {\tt V v Ṽ ṽ Ṿ ṿ\ldots}\\
+        {\tt w} & {\tt W w Ŵ ŵ Ẁ ẁ Ẃ ẃ Ẅ ẅ Ẇ ẇ Ẉ ẉ ẘ\ldots}\\
+        {\tt x} & {\tt X x Ξ Ẋ ẋ Ẍ ẍ\ldots}\\
+        {\tt y} & {\tt Y y Ý ý ÿ Ŷ ŷ Ÿ Ȳ ȳ Ẏ ẏ ẙ Ỳ ỳ Ỵ ỵ Ỷ ỷ Ỹ ỹ\ldots}\\
+        {\tt z} & {\tt Z z Ź ź Ż ż Ž ž Ζ Ẑ ẑ Ẓ ẓ Ẕ ẕ\ldots}\\
+        \hline
     \end{tabular}
-    \caption{A few of the different (accented) forms the letter `a' can take.}
+    \caption{
+        A few of the different letters that can be normalised to ASCII.
+    }
     \label{alpha}
 \end{figure}
 

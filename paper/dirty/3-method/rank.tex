@@ -1,7 +1,7 @@
 \section{Ranking\label{rank}}
 \paragraph{A definition of \pr{}}
 \pr{} \cite{page1999} is explained in simple terms in Section
-\ref{goog}, but a more specific specification should also be outlined.
+\ref{ir}, but a more specific specification should also be outlined.
 The implementation of \pr{} used by \nr{} treats webpages as nodes $p$ in
 a graph, $p_i \in P$, $1 \le i \le |P|$, $i \in \mathbb{N}$.  Links from one page to another
 are represented as directed edges between nodes in that graph,
@@ -119,7 +119,7 @@ crawls of the various domains.
         \State $previousRanks[webpage] \gets \frac{1}{|webpages|}$
     \EndFor
     \State $error \gets \infty$\;
-    \While{$error > T$}\label{loop}
+    \While{$error > T$}
         \ForEach{$webpage \in webpages$}
             \State $nextRanks[webpage] \gets 0$
         \EndFor

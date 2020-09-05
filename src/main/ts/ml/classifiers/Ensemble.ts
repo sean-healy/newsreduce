@@ -57,6 +57,7 @@ extends Classifier<K, I, E> {
     toJSONEtc(): any {
         return {
             classifiers: this.classifiers.map(tree => tree.toJSON()),
+            weights: this.weights,
         }
     }
 
