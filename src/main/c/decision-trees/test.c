@@ -75,40 +75,56 @@ char readChar(FILE* file) {
     return v;
 }
 
-float giniImpurity(
-    unsigned int leftNegative, unsigned int left,
-    unsigned int rightNegative,
+long double giniPurity(
+    unsigned int leftNegative,
+    unsigned int rightNegative, unsigned int right,
     unsigned int total
 ) {
-    unsigned int right = total - left;
+    unsigned int left = total - right;
     unsigned int leftPositive = left - leftNegative;
     unsigned int rightPositive = right - rightNegative;
-    float leftPurity =
-        ((float) (leftNegative * leftNegative + leftPositive * leftPositive)) / ((float) (left * left));
-    float rightPurity =
-        ((float) (rightNegative * rightNegative + rightPositive * rightPositive)) / ((float) (right * right));
-    float leftImpurity = 1 - leftPurity;
-    float rightImpurity = 1 - rightPurity;
+    //printf("L = %u, Pos = %u, Neg = %u, TOTAL %u\n", left, leftNegative, leftPositive, total);
+    //printf("R = %u, Pos = %u, Neg = %u\n", right, rightNegative, rightPositive);
 
-    float leftP = ((float) left) / ((float) total);
-    float rightP = ((float) right) / ((float) total);
+    long double leftP = ((long double) left) / ((long double) total);
+    long double rightP = ((long double) right) / ((long double) total);
 
-    return leftImpurity * leftP + rightImpurity * rightP;
+    long double purity = 0;
+    if (leftP) {
+        long double leftPurity =
+            ((long double) (leftNegative * leftNegative + leftPositive * leftPositive)) / ((long double) (left * left));
+        purity += leftPurity * leftP;
+    }
+    if (rightP) {
+        long double rightPurity =
+            ((long double) (rightNegative * rightNegative + rightPositive * rightPositive)) / ((long double) (right * right));
+        purity += rightPurity * rightP;
+    }
+
+    return purity;
 }
 
-BinarySearchResult binarySearch(unsigned int* array, unsigned int lo, unsigned int hi, unsigned int term) {
+BinarySearchResult binarySearch(
+    void* array,
+    unsigned int lo,
+    unsigned int hi,
+    unsigned int itemSize,
+    void* term,
+    int (*cmp)(const void *, const void*)
+) {
     unsigned int left = lo;
     unsigned int right = hi - 1;
     unsigned int candidate;
     bool found = false;
     while (!found && left <= right) {
         candidate = left + (right - left >> 1);
-        printf("L: %u, R: %u, M: %u\n", left, right, candidate);
-        unsigned int value = array[candidate];
-        printf("V: %u\n", value);
-        if (value < term)
+        void* value = array + candidate * itemSize;
+        //printf("CAND: %u %u || ", candidate, *(unsigned int*)value);
+        int cmpResult = cmp(value, term);
+        //printf("R: %d\n", cmpResult);
+        if (cmpResult < 0)
             left = candidate + 1;
-        else if (value > term)
+        else if (cmpResult > 0)
             right = candidate - 1;
         else {
             found = true;
@@ -120,28 +136,231 @@ BinarySearchResult binarySearch(unsigned int* array, unsigned int lo, unsigned i
     return result;
 }
 
-Feature split(TrainingData trainingData, unsigned int lo, unsigned int hi) {
-    unsigned int items = hi - lo;
-    float minImpurity = 1;
+int cmpUnsignedInts(const void* a, const void* b) {
+    unsigned int uIntA = *(unsigned int*) a;
+    unsigned int uIntB = *(unsigned int*) b;
+    //printf("CMP: %u %u\n", uIntA, uIntB);
+
+    if (uIntA < uIntB) return -1;
+    if (uIntA > uIntB) return +1;
+    return 0;
+}
+
+int cmpFeaturesByID(const void * a, const void * b) {
+    Feature fA = *(Feature*) a;
+    Feature fB = *(Feature*) b;
+
+    if (fA.id < fB.id) return -1;
+    if (fA.id > fB.id) return +1;
+    return 0;
+}
+
+int cmpFeaturesByValue(const void * a, const void * b) {
+    Feature fA = *(Feature*) a;
+    Feature fB = *(Feature*) b;
+
+    if (fA.value < fB.value) return -1;
+    if (fA.value> fB.value) return +1;
+    return 0;
+}
+
+int cmpFeaturesWithID(const void * a, const void * b) {
+    Feature fA = *(Feature*) a;
+    unsigned int uIntB = *(unsigned int*) b;
+
+    if (fA.id < uIntB) return -1;
+    if (fA.id > uIntB) return +1;
+    return 0;
+}
+
+void printFeatures(Feature* features, unsigned int count) {
+    for (unsigned int i = 0; i < count; ++i) {
+        unsigned int id = features[i].id;
+        float value = features[i].value;
+        printf("(%u %f) ", id, value);
+    }
+    printf("\n");
+}
+
+typedef struct Split {
+    Feature feature;
+    unsigned int right;
+    int leftClass;
+    int rightClass;
+    long double debugPurity;
+} Split;
+
+void printSplit(Split split) {
+    printf("Split at %u with feature %u and pivot %f (LEFT C: %d) (RIGHT C: %d), Purity = %3.10Lf\n",
+        split.right, split.feature.id, split.feature.value, split.leftClass, split.rightClass, split.debugPurity);
+}
+
+unsigned int partitionByFeature(TrainingData trainingData, Feature feature, unsigned int lo, unsigned int hi, unsigned int debugDepth) {
+    unsigned int left = lo;
+    unsigned int right = hi - 1;
+    unsigned int* indices = trainingData.partitionedIndices;
+    for (int i = lo; i <= right;) {
+        unsigned int index = indices[i];
+        TrainingPoint point = trainingData.points[index];
+        BinarySearchResult result = binarySearch(point.features, 0, point.featureCount, sizeof(Feature), &feature.id, cmpFeaturesWithID);
+        //printFeatures(point.features, point.featureCount);
+        float value;
+        if (result.found) {
+            value = point.features[result.index].value;
+        } else
+            value = 0;
+        // Left
+        if (value < feature.value) {
+            if (i == left) {
+                ++i;
+            } else {
+                unsigned int swap = indices[left];
+                indices[i] = swap;
+                indices[left] = index;
+            }
+            ++left;
+        // Right
+        } else {
+            unsigned int swap = indices[right];
+            indices[i] = swap;
+            indices[right] = index;
+            //printf("Swap at i: %u, right: %u (index %u) (lo: %u) (hi: %u)\n", i, right, index, lo, hi);
+            --right;
+        }
+    }
+    ++right;
+    qsort(indices + lo, right - lo, sizeof(unsigned int), cmpUnsignedInts);
+    qsort(indices + right, hi - right, sizeof(unsigned int), cmpUnsignedInts);
+
+    return right;
+}
+
+Split bestSplit(TrainingData trainingData, unsigned int lo, unsigned int hi, unsigned int debugDepth) {
+    const unsigned int items = hi - lo;
+    long double maxPurity = -1;
+    unsigned int featureWithMaxPurity = -1;
+    float pivotWithMaxPurity = 0;
+    unsigned int leftNegativeWithMaxPurity = -1;
+    unsigned int rightNegativeWithMaxPurity = -1;
+    unsigned int negative = 0;
+    for (unsigned int i = lo; i < hi; ++i) {
+        if (trainingData.points[trainingData.partitionedIndices[i]].class == -1)
+            ++negative;
+    }
+    long double purity = giniPurity(negative, 0, 0, items);
+    //printf("Initial: %f\n", purity);
     // For each feature...
     for (unsigned int i = 0; i < trainingData.featureCount; ++i) {
         FeatureData featureData = trainingData.featureData[i];
-        unsigned int left = featureData.presentCount;
-        unsigned int leftNegative = featureData.absentNegative;
-        unsigned int rightNegative = featureData.presentNegative;
-        float impurity = giniImpurity(leftNegative, left, rightNegative, trainingData.pointCount);
-        unsigned int* itemIDPtr = featureData.presentIDs;
-        float last = 0;
+        if (i == 40) {
+            for (unsigned int j = 0; j < featureData.presentCount; ++j) {
+            //for (unsigned int j = featureData.presentCount - 1; ; --j) {
+                Feature docValue = featureData.presentIDs[j];
+                unsigned int feature = docValue.id; 
+                float value = docValue.value;
+                //printf(" (%u, %f)", feature, value);
+            }
+        }
+        //printf("Absent neg: %u\n", leftNegative);
+        float currentValueBlock = -1;
+        unsigned int right = 0;
+        unsigned int rightNegative = 0;
+        unsigned int leftNegative = negative;
         // For each occurrence of the feature...
-        for (unsigned int j = 0; j < featureData.presentCount; ++j) {
-            unsigned int presentID = featureData.presentIDs[j].id;
-            BinarySearchResult result = binarySearch(trainingData.partitionedIndices, lo, hi, presentID);
+        for (unsigned int j = featureData.presentCount - 1; j != -1; --j) {
+            Feature present = featureData.presentIDs[j];
+            unsigned int presentID = present.id;
+            BinarySearchResult result = binarySearch(trainingData.partitionedIndices, lo, hi, sizeof(unsigned int), &presentID, cmpUnsignedInts);
+            // For each occurrence of the feature in this actual slice...
             if (result.found) {
                 float value = featureData.presentIDs[j].value;
                 TrainingPoint point = trainingData.points[trainingData.partitionedIndices[result.index]];
+                //printf("(%d %f) ", presentID, value);
+                // Boundary between feature values.
+                if (value != currentValueBlock) {
+                    //if (i == 28) printf("BLOCK ");
+                    long double purity = giniPurity(leftNegative, rightNegative, right, items);
+                    if (purity > maxPurity) {
+                        maxPurity = purity;
+                        featureWithMaxPurity = i;
+                        pivotWithMaxPurity = currentValueBlock;
+                        leftNegativeWithMaxPurity = leftNegative;
+                        rightNegativeWithMaxPurity = rightNegative;
+                        if (0&&purity == 1)
+                        printf("New max purity: feature:%u pivot:%f purity:%3.9Lf, LN:%u, LP: %u, RN:%u, Right: %u, RP: %u\n",
+                            i, currentValueBlock, purity, leftNegative, (items- right) - leftNegative, rightNegative, right, (right - rightNegative));
+                    }
+                    currentValueBlock = value;
+                }
+                ++right;
+                if (point.class == -1) {
+                    ++rightNegative;
+                    --leftNegative;
+                }
+                //if (purity == 1)
+                //printf("rightNegative %u class: %d, (index %u)\n", rightNegative, point.class, result.index);
             }
         }
+        long double purity = giniPurity(leftNegative, rightNegative, right, items);
+        if (purity > maxPurity) {
+            maxPurity = purity;
+            featureWithMaxPurity = i;
+            pivotWithMaxPurity = currentValueBlock;
+            leftNegativeWithMaxPurity = leftNegative;
+            rightNegativeWithMaxPurity = rightNegative;
+            if (0&&purity == 1)
+            printf("New max purity: feature:%u pivot:%f purity:%3.9Lf, LN:%u, LP: %u, RN:%u, Right: %u, RP: %u\n",
+                i, currentValueBlock, purity, leftNegative, (items- right) - leftNegative, rightNegative, right, (right - rightNegative));
+        }
     }
+    if (0&&debugDepth == 9) {
+        printf("Max purity: feature: %u pivot: %f max p: %Lf\n", featureWithMaxPurity, pivotWithMaxPurity, maxPurity);
+    }
+    Feature pivotFeature;
+    pivotFeature.id = featureWithMaxPurity;
+    pivotFeature.value = pivotWithMaxPurity;
+    unsigned int right = partitionByFeature(trainingData, pivotFeature, lo, hi, debugDepth);
+    Split split;
+    split.feature.id = featureWithMaxPurity;
+    split.feature.value = pivotWithMaxPurity;
+    split.right = right;
+    split.debugPurity = maxPurity;
+    //printf("left neg %u / %u\n", leftNegativeWithMaxPurity, right - lo);
+    //printf("right neg %u / %u\n", rightNegativeWithMaxPurity, hi - right);
+    split.leftClass = leftNegativeWithMaxPurity == 0 ? +1 : (leftNegativeWithMaxPurity == right - lo ? -1 : 0);
+    split.rightClass = rightNegativeWithMaxPurity == 0 ? +1 : (rightNegativeWithMaxPurity == hi - right ? -1 : 0);
+    if (0&&maxPurity == 1 && (split.leftClass == 0 || split.rightClass == 0)) {
+        printf("LEFT CLASS: %d RIGHT CLASS: %d\n", split.leftClass, split.rightClass);
+        printf("lo hi right %u %u %u\n", lo, hi, right);
+        for (unsigned int i = lo; i < hi; ++i) {
+            unsigned int index = trainingData.partitionedIndices[i];
+            char class = trainingData.points[index].class;
+            printf("%d ", (class + 1) >> 1);
+            printFeatures(trainingData.points[index].features,
+                trainingData.points[index].featureCount);
+        }
+        printf("\nLEFT ");
+        for (unsigned int i = lo; i < right; ++i) {
+            unsigned int index = trainingData.partitionedIndices[i];
+            char class = trainingData.points[index].class;
+            if (class == 1) {
+                //printf("%d", (class + 1) >> 1);
+                printf("%u ", index);
+            }
+        }
+        printf("\nRIGHT ");
+        for (unsigned int i = right; i < hi; ++i) {
+            unsigned int index = trainingData.partitionedIndices[i];
+            char class = trainingData.points[index].class;
+            //printf("%d", (class + 1) >> 1);
+            printf("(i:%u c:%d) ", index, (class + 1) >> 1);
+        }
+        printf("\n");
+        printf("items: %u, LN: %u, RN: %u, LO: %u HI: %u Right: %u\n", items, leftNegativeWithMaxPurity, rightNegativeWithMaxPurity, lo, hi, hi - right);
+        exit(0);
+    }
+
+    return split;
 }
 
 FeatureData* trainingDataToFeatureData(TrainingData trainingData) {
@@ -152,35 +371,42 @@ FeatureData* trainingDataToFeatureData(TrainingData trainingData) {
         featureData[i].absentNegative = 0;
         featureData[i].i = 0;
     }
+    // For each training point...
     for (unsigned int i = 0; i < trainingData.pointCount; ++i) {
         TrainingPoint point = trainingData.points[i];
         unsigned int previousFeature = 0;
+        // For each present feature...
         for (unsigned int j = 0; j < point.featureCount; ++j) {
             Feature feature = point.features[j];
+            unsigned int featureID = feature.id;
             if (point.class == -1) {
-                ++featureData[feature.id].presentNegative;
-                for (unsigned int missingFeature = previousFeature; missingFeature < feature.id; ++missingFeature)
-                    ++featureData[missingFeature].absentNegative;
-                previousFeature = feature.id + 1;
+                featureData[featureID].presentNegative = featureData[featureID].presentNegative + 1;
+                for (unsigned int missingFeature = previousFeature; missingFeature < featureID; ++missingFeature)
+                    featureData[missingFeature].absentNegative = featureData[missingFeature].absentNegative + 1;
+                previousFeature = featureID + 1;
             }
-            ++featureData[feature.id].presentCount;
+            featureData[featureID].presentCount = featureData[featureID].presentCount + 1;
         }
+        if (point.class == -1)
+            for (unsigned int missingFeature = previousFeature; missingFeature < trainingData.featureCount; ++missingFeature)
+                featureData[missingFeature].absentNegative = featureData[missingFeature].absentNegative + 1;
     }
     for (unsigned int i = 0; i < trainingData.featureCount; ++i) {
-        featureData[i].presentIDs = malloc(featureData[i].presentCount * sizeof(unsigned int));
-        printf("Item count: %d\n", featureData[i].presentCount);
+        featureData[i].presentIDs = malloc(featureData[i].presentCount * sizeof(Feature));
     }
-    printf("End.\n");
     for (unsigned int i = 0; i < trainingData.pointCount; ++i) {
         TrainingPoint point = trainingData.points[i];
         for (unsigned int j = 0; j < point.featureCount; ++j) {
             Feature feature = point.features[j];
             unsigned int featureID = feature.id;
-            printf("Feature ID: %u\n", featureID);
-            featureData[featureID].presentIDs[featureData[featureID].i] = i;
-            ++featureData[featureID].i;
+            unsigned int k = featureData[featureID].i;
+            featureData[featureID].presentIDs[k].id = i;
+            featureData[featureID].presentIDs[k].value = feature.value;
+            featureData[featureID].i = k + 1;
         }
     }
+    for (unsigned int i = 0; i < trainingData.featureCount; ++i)
+        qsort(featureData[i].presentIDs, featureData[i].presentCount, sizeof(Feature), cmpFeaturesByValue);
 
     return featureData;
 }
@@ -196,20 +422,24 @@ TrainingData readTrainingData(FILE* file) {
     TrainingPoint* trainingPoints = malloc(trainingPointCount * sizeof(TrainingPoint));
     for (unsigned int i = 0; i < trainingPointCount; ++i) {
         char class = readChar(file);
-        printf("Class: %d\n", class);
+        //printf("Class: %d ", class);
         trainingPoints[i].class = class; 
         unsigned int trainingPointFeatureCount = readUInt(file);
-        printf("Training point feature count: %u\n", trainingPointFeatureCount);
         trainingPoints[i].featureCount = trainingPointFeatureCount;
         Feature* features = malloc(trainingPointFeatureCount * sizeof(Feature));
         for (unsigned int j = 0; j < trainingPointFeatureCount; ++j) {
             unsigned int feature = readUInt(file);
-            printf("Feature: %u\n", feature);
             features[j].id = feature; 
             float value = readFloat(file);
-            printf("Value: %f\n", value);
             features[j].value = value; 
         }
+        qsort(features, trainingPointFeatureCount, sizeof(Feature), cmpFeaturesByID);
+        for (unsigned int j = 0; j < trainingPointFeatureCount && j < 12; ++j) {
+            unsigned int feature = features[j].id; 
+            float value = features[j].value;
+            //printf("(%u, %f) ", feature, value);
+        }
+        //printf("\n");
         trainingPoints[i].features = features;
         trainingPoints[i].weight = 1;
     }
@@ -224,16 +454,57 @@ TrainingData readTrainingData(FILE* file) {
         0
     };
     trainingData.featureData = trainingDataToFeatureData(trainingData);
-    split(trainingData, 0, trainingData.pointCount);
     
     return trainingData;
 }
 
+void testBinarySearch() {
+    unsigned int* data = malloc(10 * sizeof(unsigned int));
+    for (unsigned int i = 0; i < 10; ++i) {
+        data[i] = i * 2;
+        printf("%u ", i * 2);
+    }
+    printf("\n");
+    for (unsigned int i = 0; i < 20; ++i) {
+        BinarySearchResult result = binarySearch(data, 0, 10, sizeof(unsigned int), &i, cmpUnsignedInts);
+        printf("Found %d (%d) at %d\n", i, result.found, result.index);
+    }
+}
+
+void buildTree(
+    TrainingData trainingData,
+    unsigned int lo,
+    unsigned int hi,
+    unsigned int currentDepth,
+    unsigned int maxDepth
+) {
+    //printf("LO: %u || HI: %u || D: %u\n", lo, hi, currentDepth);
+    if (currentDepth == maxDepth) return;
+    Split split = bestSplit(trainingData, lo, hi, currentDepth);
+    for (unsigned int i = 1; i < currentDepth; ++i) printf("│");
+    if (currentDepth > 0) printf("├");
+    printSplit(split);
+    unsigned int nextDepth = currentDepth + 1;
+    if (split.leftClass == 0) {
+        //printf("LEFT %d\n", split.leftClass);
+        buildTree(trainingData, lo, split.right, nextDepth, maxDepth);
+    } //else printf("SKIP LEFT\n");
+    if (split.rightClass == 0) {
+        //printf("RIGHT %d\n", split.rightClass);
+        buildTree(trainingData, split.right, hi, nextDepth, maxDepth);
+    } //else printf("SKIP RIGHT\n");
+}
+
 int main(int argc, char* argv[]) {
+    //testBinarySearch();
+    //return 0;
     char* inputFileName = argv[1];
     printf("input: %s\n", inputFileName);
     FILE *inputFile = fopen(inputFileName, "r");
     TrainingData trainingData = readTrainingData(inputFile);
+    buildTree(trainingData, 0, trainingData.pointCount, 0, 50);
+    printf("23119 class: %d\n", trainingData.points[23119].class);
+    return 0;
 
     return 0;
 }
