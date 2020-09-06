@@ -243,25 +243,13 @@ Split bestSplit(TrainingData trainingData, unsigned int lo, unsigned int hi, uns
     unsigned int leftNegativeWithMaxPurity = -1;
     unsigned int rightNegativeWithMaxPurity = -1;
     unsigned int negative = 0;
-    for (unsigned int i = lo; i < hi; ++i) {
+    for (unsigned int i = lo; i < hi; ++i)
         if (trainingData.points[trainingData.partitionedIndices[i]].class == -1)
             ++negative;
-    }
     long double purity = giniPurity(negative, 0, 0, items);
-    //printf("Initial: %f\n", purity);
     // For each feature...
     for (unsigned int i = 0; i < trainingData.featureCount; ++i) {
         FeatureData featureData = trainingData.featureData[i];
-        if (i == 40) {
-            for (unsigned int j = 0; j < featureData.presentCount; ++j) {
-            //for (unsigned int j = featureData.presentCount - 1; ; --j) {
-                Feature docValue = featureData.presentIDs[j];
-                unsigned int feature = docValue.id; 
-                float value = docValue.value;
-                //printf(" (%u, %f)", feature, value);
-            }
-        }
-        //printf("Absent neg: %u\n", leftNegative);
         float currentValueBlock = -1;
         unsigned int right = 0;
         unsigned int rightNegative = 0;
@@ -275,10 +263,8 @@ Split bestSplit(TrainingData trainingData, unsigned int lo, unsigned int hi, uns
             if (result.found) {
                 float value = featureData.presentIDs[j].value;
                 TrainingPoint point = trainingData.points[trainingData.partitionedIndices[result.index]];
-                //printf("(%d %f) ", presentID, value);
                 // Boundary between feature values.
                 if (value != currentValueBlock) {
-                    //if (i == 28) printf("BLOCK ");
                     long double purity = giniPurity(leftNegative, rightNegative, right, items);
                     if (purity > maxPurity) {
                         maxPurity = purity;
@@ -286,9 +272,6 @@ Split bestSplit(TrainingData trainingData, unsigned int lo, unsigned int hi, uns
                         pivotWithMaxPurity = currentValueBlock;
                         leftNegativeWithMaxPurity = leftNegative;
                         rightNegativeWithMaxPurity = rightNegative;
-                        if (0&&purity == 1)
-                        printf("New max purity: feature:%u pivot:%f purity:%3.9Lf, LN:%u, LP: %u, RN:%u, Right: %u, RP: %u\n",
-                            i, currentValueBlock, purity, leftNegative, (items- right) - leftNegative, rightNegative, right, (right - rightNegative));
                     }
                     currentValueBlock = value;
                 }
@@ -297,8 +280,6 @@ Split bestSplit(TrainingData trainingData, unsigned int lo, unsigned int hi, uns
                     ++rightNegative;
                     --leftNegative;
                 }
-                //if (purity == 1)
-                //printf("rightNegative %u class: %d, (index %u)\n", rightNegative, point.class, result.index);
             }
         }
         long double purity = giniPurity(leftNegative, rightNegative, right, items);
@@ -308,13 +289,7 @@ Split bestSplit(TrainingData trainingData, unsigned int lo, unsigned int hi, uns
             pivotWithMaxPurity = currentValueBlock;
             leftNegativeWithMaxPurity = leftNegative;
             rightNegativeWithMaxPurity = rightNegative;
-            if (0&&purity == 1)
-            printf("New max purity: feature:%u pivot:%f purity:%3.9Lf, LN:%u, LP: %u, RN:%u, Right: %u, RP: %u\n",
-                i, currentValueBlock, purity, leftNegative, (items- right) - leftNegative, rightNegative, right, (right - rightNegative));
         }
-    }
-    if (0&&debugDepth == 9) {
-        printf("Max purity: feature: %u pivot: %f max p: %Lf\n", featureWithMaxPurity, pivotWithMaxPurity, maxPurity);
     }
     Feature pivotFeature;
     pivotFeature.id = featureWithMaxPurity;
@@ -325,40 +300,8 @@ Split bestSplit(TrainingData trainingData, unsigned int lo, unsigned int hi, uns
     split.feature.value = pivotWithMaxPurity;
     split.right = right;
     split.debugPurity = maxPurity;
-    //printf("left neg %u / %u\n", leftNegativeWithMaxPurity, right - lo);
-    //printf("right neg %u / %u\n", rightNegativeWithMaxPurity, hi - right);
     split.leftClass = leftNegativeWithMaxPurity == 0 ? +1 : (leftNegativeWithMaxPurity == right - lo ? -1 : 0);
     split.rightClass = rightNegativeWithMaxPurity == 0 ? +1 : (rightNegativeWithMaxPurity == hi - right ? -1 : 0);
-    if (0&&maxPurity == 1 && (split.leftClass == 0 || split.rightClass == 0)) {
-        printf("LEFT CLASS: %d RIGHT CLASS: %d\n", split.leftClass, split.rightClass);
-        printf("lo hi right %u %u %u\n", lo, hi, right);
-        for (unsigned int i = lo; i < hi; ++i) {
-            unsigned int index = trainingData.partitionedIndices[i];
-            char class = trainingData.points[index].class;
-            printf("%d ", (class + 1) >> 1);
-            printFeatures(trainingData.points[index].features,
-                trainingData.points[index].featureCount);
-        }
-        printf("\nLEFT ");
-        for (unsigned int i = lo; i < right; ++i) {
-            unsigned int index = trainingData.partitionedIndices[i];
-            char class = trainingData.points[index].class;
-            if (class == 1) {
-                //printf("%d", (class + 1) >> 1);
-                printf("%u ", index);
-            }
-        }
-        printf("\nRIGHT ");
-        for (unsigned int i = right; i < hi; ++i) {
-            unsigned int index = trainingData.partitionedIndices[i];
-            char class = trainingData.points[index].class;
-            //printf("%d", (class + 1) >> 1);
-            printf("(i:%u c:%d) ", index, (class + 1) >> 1);
-        }
-        printf("\n");
-        printf("items: %u, LN: %u, RN: %u, LO: %u HI: %u Right: %u\n", items, leftNegativeWithMaxPurity, rightNegativeWithMaxPurity, lo, hi, hi - right);
-        exit(0);
-    }
 
     return split;
 }
@@ -478,21 +421,16 @@ void buildTree(
     unsigned int currentDepth,
     unsigned int maxDepth
 ) {
-    //printf("LO: %u || HI: %u || D: %u\n", lo, hi, currentDepth);
     if (currentDepth == maxDepth) return;
     Split split = bestSplit(trainingData, lo, hi, currentDepth);
     for (unsigned int i = 1; i < currentDepth; ++i) printf("│");
     if (currentDepth > 0) printf("├");
     printSplit(split);
     unsigned int nextDepth = currentDepth + 1;
-    if (split.leftClass == 0) {
-        //printf("LEFT %d\n", split.leftClass);
+    if (split.leftClass == 0)
         buildTree(trainingData, lo, split.right, nextDepth, maxDepth);
-    } //else printf("SKIP LEFT\n");
-    if (split.rightClass == 0) {
-        //printf("RIGHT %d\n", split.rightClass);
+    if (split.rightClass == 0)
         buildTree(trainingData, split.right, hi, nextDepth, maxDepth);
-    } //else printf("SKIP RIGHT\n");
 }
 
 int main(int argc, char* argv[]) {
