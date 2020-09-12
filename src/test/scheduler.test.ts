@@ -7,7 +7,7 @@ import { Host } from "types/db-objects/Host";
 test("scheduler should work", async () => {
     const url = "https://example.org"
     await Redis.renewRedis(REDIS_PARAMS.fetchLock).del(url);
-    await schedule([{ id: new ResourceURL(url).getID(), url }]);
+    await schedule([{ id: new ResourceURL(url).getID(), url, rank: 1.4 }]);
     const popped = await new Host("example.org").popURLForFetching();
     expect(popped).toBe(url)
 });

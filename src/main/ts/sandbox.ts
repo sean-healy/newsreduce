@@ -18,6 +18,7 @@ import { Predicate } from "types/db-objects/Predicate";
 import { EXTRACTORS } from "services/resource-processor/functions";
 import { EXCLUDE } from "services/resource-processor/HTMLProcessor";
 import { Bag } from "ml/bags/Bag";
+import { NewsSourceHomepage } from "types/db-objects/NewsSourceHomepage";
 
 // WIP
 export function main0() {
@@ -197,4 +198,25 @@ export async function main() {
     await Redis.quit();
 }
 
-main0();
+export async function insertHomepages() {
+    const content =
+        fs.readFileSync("/home/sean/newsreduce/news-sources.tsv")
+        .toString().split("\n");
+    for (const row of content) {
+        const cells = row.split("\t");
+        if (cells.length == 3) {
+            const homepage = new ResourceURL(cells[0]);
+            const wiki = new ResourceURL(cells[1]);
+            const p = parseFloat(cells[2]);
+            console.log(homepage, wiki, p);
+            new NewsSourceHomepage({
+                wiki, homepage, p
+            }).enqueueInsert({ recursive: true });
+            new ResourceThrottle(cells[0], 15 * 60 * 1000)
+            .enqueueInsert({ recursive: true });
+        }
+    }
+}
+
+//main0();
+insertHomepages();

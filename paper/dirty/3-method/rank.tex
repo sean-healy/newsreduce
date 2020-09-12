@@ -3,17 +3,17 @@
 \pr{} \cite{page1999} is explained in simple terms in Section
 \ref{ir}, but a more specific specification should also be outlined.
 The implementation of \pr{} used by \nr{} treats webpages as nodes $p$ in
-a graph, $p_i \in P$, $1 \le i \le |P|$, $i \in \mathbb{N}$.  Links from one page to another
+a graph $G$, such that $p_i \in P$, $1 \le i \le |P|$, $i \in \mathbb{N}$.  Links from one page to another
 are represented as directed edges between nodes in that graph,
 $l_{i,j} \in G$, $1 \le i, j \le |P|$, $i, j \in \mathbb{N}$, $G \subseteq P \times P$.  
-It is convenient to represent the link structure with two function $B$
+It is convenient to represent the link structure with two functions $B$
 and $F$, such that $B(j) = \{i~|~l_{i, j} \in G\}$, and
 $F(i) = \{j~|~l_{i, j} \in G\}$.
 In English, $B$ returns
-the other webpages that link to a webpage (otherwise known as its
+the webpages that link to a given webpage (otherwise known as
 {\it backlinks}: indexes to the pages that
 link to the webpage at index $i$).  $F$ returns the {\it forward links},
-the links on a webpage.  This corresponds more closely to the general
+simply the links on a webpage.  This corresponds more closely to the general
 idea of a `link' on the web.  A node cannot link to itself.  {\tt HTML}
 files are pre-processed to ensure the such self-referential links don't
 arise as input to the algorithm.
@@ -21,7 +21,7 @@ arise as input to the algorithm.
 The implementation of \pr{} converges at some stage, leaving the final rankings of the
 webpages stored in memory.  But before then,
 the {\it running estimates} of the webpage rankings can be defined with the
-binary function $R$.  The two arguments to R are: the webpage index $i$,
+binary function $R$.  The two arguments to R are the webpage index $i$,
 and the stage in the algorithm $t$, $t \ge 1$, $t \in \mathbb{N}$.  A {\it stage} represents one
 cycle through the algorithm's central loop (Algorithm \ref{pr-algo}, line
 \ref{loop}). Finally, \pr{} can be defined recursively:

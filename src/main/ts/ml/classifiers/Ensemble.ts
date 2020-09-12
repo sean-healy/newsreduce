@@ -9,11 +9,12 @@ export class Ensemble<K, I extends ClassifierTrainingArgs<K>, E extends Ensemble
 extends Classifier<K, I, E> {
     readonly classifiers: DecisionTree<K>[];
     readonly weights: number[];
-    threshold: number = 0.5;
+    readonly decisionThreshold: number;
 
     fsVersionType(): VersionType {
         throw new Error("Method not implemented.");
     }
+
     train(args: I, csvWriter: CSVWriter): E {
         throw new Error("unimplemented method: Ensemble<K, I, E>.train");
     }
@@ -23,13 +24,13 @@ extends Classifier<K, I, E> {
         let posP: number;
         let negP: number;
         for (const [label, p] of fuzzyLabels) {
-            if (label) posP = p;
-            else negP = p;
+            if (label === +1) posP = p;
+            if (label === -1) negP = p;
         }
 
         let fuzzyLabel: [number, number];
-        if (posP >= this.threshold) fuzzyLabel = [1, posP];
-        else fuzzyLabel = [0, negP];
+        if (posP <  this.decisionThreshold) fuzzyLabel = [-1, posP];
+        if (posP >= this.decisionThreshold) fuzzyLabel = [+1, posP];
 
         return fuzzyLabel;
     }
@@ -58,6 +59,7 @@ extends Classifier<K, I, E> {
         return {
             classifiers: this.classifiers.map(tree => tree.toJSON()),
             weights: this.weights,
+            decisionThreshold: this.decisionThreshold,
         }
     }
 
@@ -74,6 +76,7 @@ extends Classifier<K, I, E> {
                 }
             }),
             weights: json.weights as number[],
+            decisionThreshold: json.decisionThreshold,
         }) as E;
     }
 

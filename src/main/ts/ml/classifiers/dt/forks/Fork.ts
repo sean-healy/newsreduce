@@ -1,5 +1,7 @@
 import { GenericConstructor } from "types/GenericConstructor";
 import { ForkType } from "./ForkType";
+import { CompactCTree } from "../forests/AdaBoost";
+import { TrainingFile } from "ml/classifiers/TrainingFile";
 
 // No circular dependencies in JavaScript :-(
 let CategoricalFork: any = null;
@@ -27,6 +29,25 @@ export abstract class Fork<B extends Fork<B> = Fork<any>> extends GenericConstru
         }
 
         return parsedFork;
+    }
+    static fromCJSON(tree: CompactCTree, file: TrainingFile): Fork {
+        const [localID, pivot, cLeft, cRight] = tree;
+        const feature = file.lookup(localID);
+        let left: Fork;
+        if (typeof cLeft === "number") {
+            if (!Leaf) Leaf = require("./Leaf").Leaf;
+            left = new Leaf({ label: cLeft });
+        } else
+            left = Fork.fromCJSON(cLeft, file);
+        let right: Fork;
+        if (typeof cRight === "number") {
+            if (!Leaf) Leaf = require("./Leaf").Leaf;
+            right = new Leaf({ label: cRight });
+        } else
+            right = Fork.fromCJSON(cRight, file);
+        if (!ScalarFork) ScalarFork = require("./ScalarFork").ScalarFork;
+
+        return new ScalarFork({ left, right, pivot, feature });
     }
 
     abstract type(): ForkType;

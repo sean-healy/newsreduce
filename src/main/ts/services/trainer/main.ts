@@ -1,7 +1,7 @@
 import { setImmediateInterval } from "utils/alpha";
-import { ExtractOfficialHomepageModel } from "./ExtractOfficialHomepageModel";
 import { Trainer } from "./Trainer";
 import { ExtractNewsSourceWikiModel } from "./ExtractNewsSourceWikiModel";
+import { ExtractOfficialHomepageModel } from "./ExtractOfficialHomepageModel";
 
 const RECURRING_JOBS: Trainer[] = [
     new ExtractOfficialHomepageModel(),

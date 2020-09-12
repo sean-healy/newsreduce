@@ -17,7 +17,7 @@ export async function genericSQLPromise<From = { [key: string]: any }[], To = { 
     return response as To;
 }
 
-type Schedule = { id: bigint, url: string };
+type Schedule = { id: bigint, url: string, rank: string | number };
 export function selectPreSchedule() {
     return genericSQLPromise<any, Schedule[]>(sql.SELECT_RESOURCES_TO_FETCH);
 }
@@ -29,7 +29,7 @@ export async function schedule(items: Schedule[]) {
         const resourceURL = new ResourceURL(item.url);
         if (!await resourceURL.isFetchLocked()) {
             promises.push(Redis.renewRedis(REDIS_PARAMS.fetchSchedule)
-                .zincrby(resourceURL.host.name, 1, item.url));
+                .zadd(resourceURL.host.name, parseFloat(item.rank as string), item.url));
             ++scheduled;
         }
     }
@@ -251,6 +251,12 @@ export async function selectDocTrainingData() {
 
 export async function selectDefiniteNewsSourceWikis() {
     const rows = await genericSQLPromise(sql.SELECT_DEFINITE_NEWS_SOURCE_WIKIS);
+
+    return rows.map(r => r.url);
+}
+
+export async function selectProbableNewsSourceWikis() {
+    const rows = await genericSQLPromise(sql.SELECT_PROBABLY_NEWS_SOURCE_WIKIS);
 
     return rows.map(r => r.url);
 }

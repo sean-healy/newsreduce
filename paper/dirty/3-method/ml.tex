@@ -11,6 +11,21 @@ personalisation.  The algorithm was applied to several tasks:
     \item Determining if a webpage is a news item.
     \item Personalising the selection of articles a user sees.
 \end{enumerate}
+\paragraph{Decision thresholds} Depending on the task, different {\it decision thresholds}
+were used.  Moving this threshold closer to zero increases recall at the cost of precision.  Moving
+the threshold closer to one increases precision at the cost of recall.  F1 tends to peak
+around the point where precision and recall are most similar.
+
+In the task of identifying official homepages, a minimum precision score of 95\% was set.
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=0.8\textwidth]{media/dt.pdf}}
+    \caption{
+        \raggedright
+        Comparing the effects of decision threshold choices (the descending black line is recall,
+            the ascending black line is precision, and the curved red line is F1 score).\label{dt_cmp}
+    }
+\end{figure}
 \subsection{Bayesian classifiers}
 Although bayesian classifiers aren't as powerful as decision trees,
 they are simple and efficient, and they do play their part in certain

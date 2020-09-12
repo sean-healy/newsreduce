@@ -8,7 +8,7 @@ import { Redis } from "common/Redis";
 import { SQL } from "common/SQL";
 import { AdaBoost } from "ml/classifiers/dt/forests/AdaBoost";
 
-export async function main() {
+/*export async function main() {
     const buffer =
         await Predicate.SUB_DOC_IS_NEWS_SOURCE_HOMEPAGE.readLatest(VersionType.ADA_BOOST);
     fancyLog(`Decision tree read from disk (${buffer.length}).`);
@@ -20,7 +20,7 @@ export async function main() {
         const resource = new ResourceURL(url);
         const subDocs = SubDocs.parseSubDocs(await resource.readLatest(VersionType.SUB_DOCS));
         const candidates: [number, Dictionary<string>][] = [];
-        const testData = SubDocs.resourceSubDocsToTestData(subDocs, resource);
+        const testData = SubDocs.resourceSubDocsToPredictionFeatures(subDocs, resource);
         for (const [subDoc, features] of testData) {
             const response = forest.fuzzyClassify(features).find(([t, ]) => t);
             if (response) {
@@ -42,4 +42,4 @@ export async function main() {
     await SQL.destroy();
 }
 
-main();
+main();*/

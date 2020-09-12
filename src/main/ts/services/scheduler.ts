@@ -7,5 +7,6 @@ async function findAndSchedule() {
 }
 
 startProcessor(findAndSchedule, new Set([COLD_START_COMPLETE]), SCHEDULE_COMPLETE, {
+    // Once a minute.
     period: 60000,
 });

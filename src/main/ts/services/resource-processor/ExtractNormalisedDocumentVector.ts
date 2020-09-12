@@ -9,9 +9,8 @@ import { Vector } from "types/db-objects/Vector";
 import { InputCache } from "./functions";
 import { ExtractDocumentVector } from "./ExtractDocumentVector";
 import { Word } from "types/db-objects/Word";
-import { positional } from "yargs";
 
-// The ratio of semantic worth between the last and the first word in the
+// The ratio of semantic worth between the last word and the first word in the
 // document, from a reader's perspective. 0 would mean that words near the end
 // of a document play little to no role in the document's overall
 // classification, whereas 1 would cause all words in the document to play an
@@ -24,14 +23,14 @@ const SHARPNESS = 15;
 // At what position are words worth half to the reader what words at
 // the top are worth to the reader? (replace 'half' with some other
 // mid-proportion if LWN != 0).
-const MID = 0.5;
+const MID = 0.8;
 /**
  * 
  * @param position the position in the document (1 = nearer to the start, 0 =
  *                 nearer to the end).
  */
 export function getPositionFactor(position: number) {
-    return LWN + (1 - LWN) * (1 / (1 + Math.exp(SHARPNESS * (position - MID))))
+    return LWN + (1 - LWN) * (1 / (1 + Math.exp((10 / MID) * (position - MID))))
 }
 
 export class ExtractNormalisedDocumentVector extends ExtractDocumentVector {

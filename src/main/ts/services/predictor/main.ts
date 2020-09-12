@@ -1,8 +1,10 @@
 import { setImmediateInterval } from "utils/alpha";
 import { PredictNewsSourceWiki } from "./PredictNewsSourceWiki";
 import { Predictor } from "./Predictor";
+import { PredictOfficialHomepage } from "./PredictOfficialHomepage";
 
 const RECURRING_JOBS: Predictor[] = [
+    new PredictOfficialHomepage(),
     new PredictNewsSourceWiki(),
 ];
 const JOB_LAST_STARTED: number[] = RECURRING_JOBS.map(_ => 0);

@@ -113,6 +113,14 @@ export class Redis {
         return response;
     }
 
+    async zadd(key: string, score: number, member: string) {
+        const response: void = await this.tryLoop((res, rej) =>
+            this.client.zadd(key, score, member, err =>
+                err ? rej(err) : res()));
+
+        return response;
+    }
+
     async zpopmaxN(key: string, count: number) {
         const response: string[] = await this.tryLoop((res, rej) =>
             this.client.zpopmax([key, count], (err, response) =>

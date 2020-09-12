@@ -18,9 +18,9 @@ queries only retrieve URLs for the following criteria:
     \item URLs marked as news source homepages.
     \item Same-origin links on a news source homepage.
     \item Pages that are marked as news indexes.
-    \item Same-origin links a news index.
+    \item Same-origin links on a news index.
 \end{enumerate}
 
 The web pages to be crawled are inserted into a Redis
-{\it sorted set}
-queries only retrieve URLs for the following criteria:
+{\it sorted set}.  This set is polled in parallel by several
+crawler machines.

@@ -4,10 +4,11 @@ import { VersionType } from "types/db-objects/VersionType";
 import { WordVector } from "types/db-objects/WordVector";
 import { Word } from "types/db-objects/Word";
 import { fancyLog } from "utils/alpha";
+import { getPositionFactor } from "services/resource-processor/ExtractNormalisedDocumentVector";
 
 export class ResourceFeatureBuilder extends FeatureBuilder<ResourceURL, bigint | string> {
     async build(resource: ResourceURL) {
-        //const tokens = await resource.readLatest(VersionType.TOKENS);
+        const tokens = await resource.readLatest(VersionType.TOKENS);
         const linksBuffer = await resource.readLatest(VersionType.RAW_LINKS_TXT);
         const vecBuffer = await resource.readLatest(VersionType.NORMALISED_DOCUMENT_VECTOR);
         const features = new Map<bigint | string, number>();
@@ -17,17 +18,18 @@ export class ResourceFeatureBuilder extends FeatureBuilder<ResourceURL, bigint |
                 features.set(`vector-dimension:${i}`, vector[i]);
             }
         }
-        /*
+        //
         if (tokens) {
             const words = tokens.toString().split(/\s+/g);
             for (let i = 0; i < words.length; ++i) {
                 const position = 1 - i / words.length;
+                const wordFactor = getPositionFactor(position);
                 const wordID = new Word(words[i]).getID();
                 if (!features.has(wordID))
-                    features.set(wordID, position);
+                    features.set(wordID, wordFactor);
             }
         }
-        */
+        //
         if (linksBuffer) {
             const links = linksBuffer.toString().split("\n").map(l => l.split("#", 1)[0]);
             for (let i = 0; i < links.length; ++i) {

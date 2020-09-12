@@ -13,6 +13,8 @@ import { TrainingData } from "../../../TrainingData";
 import { ScoredPotentialFork } from "../ScoredPotentialFork";
 import { fancyLog } from "utils/alpha";
 import { ClassifierType } from "ml/classifiers/ClassifierType";
+import { CompactCTree } from "../forests/AdaBoost";
+import { TrainingFile } from "ml/classifiers/TrainingFile";
 
 export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
     static readonly DEFAULT_DEPTH = 20;
@@ -25,9 +27,6 @@ export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
         while (fork instanceof NonLeaf) {
             parent = fork;
             fork = fork.next(features);
-        }
-        if (!fork) {
-            console.log(JSON.stringify(parent.toJSON(), null, 2));
         }
 
         return (fork as Leaf).label;
@@ -212,5 +211,11 @@ export class DecisionTree<K> extends GenericConstructor<DecisionTree<K>> {
             fork: this.fork.toJSON(),
             type: ClassifierType.DECISION_TREE,
         }
+    }
+
+    static fromCJSON(cTree: CompactCTree, file: TrainingFile) {
+        const fork = Fork.fromCJSON(cTree, file);
+
+        return new DecisionTree({ fork });
     }
 }

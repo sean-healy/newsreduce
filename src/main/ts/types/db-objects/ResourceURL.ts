@@ -105,6 +105,9 @@ export class ResourceURL extends EntityObject<ResourceURL> {
 
         return url.toString(URL_ENCODING);
     }
+    asString(): string {
+        return this.toURL();
+    }
 
     hashSuffix(): string {
         return this.toURL();

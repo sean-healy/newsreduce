@@ -3,6 +3,12 @@ import { Predicate } from "types/db-objects/Predicate";
 import { Classifier } from "ml/classifiers/Classifier";
 import { ClassifierTrainingArgs } from "ml/classifiers/args/ClassifierTrainingArgs";
 import { CSVWriter } from "analytics/CSVWriter";
+import fs from "fs";
+import { randomBufferFile } from "file";
+import { spawn } from "child_process";
+import { AdaBoost } from "ml/classifiers/dt/forests/AdaBoost";
+
+const DECISION_TREES_CMD = "decision-trees";
 
 /**
  * This class encapsulates the processes
@@ -18,6 +24,14 @@ export abstract class Trainer<
      * trainer.
      */
     abstract frequency(): number;
+    /**
+     * How many trees to train.
+     */
+    abstract trees(): number;
+    /**
+     * Maximum depth per tree.
+     */
+    abstract depth(): number;
     /**
      * Return data for training and testing the model.
      * This is the bridge to SQL and the file system.
@@ -50,10 +64,31 @@ export abstract class Trainer<
 
     async train() {
         const data = await this.fetchTrainingAndTestData();
-        const { trainingData, testData } = data.split(this.trainingDataRatio());
-        const params = { data: trainingData, testData } as I;
-        this.decorateClassifierParams(params);
-        const model = this.emptyClassifier().train(params, this.csvWriter());
+        const file = data.toFile();
+        console.log(file.toBuffer().length)
+        const input = randomBufferFile();
+        console.log(input);
+        const output = randomBufferFile();
+        fs.writeFileSync(input, file.toBuffer());
+        const adaBoost = true;
+        const featureSampleRatio = 1;
+        const dtProcess = spawn(DECISION_TREES_CMD, [
+            "-i", input,
+            "-d", this.depth().toString(),
+            "-t", this.trees().toString(),
+            "-s", this.trainingDataRatio().toString(),
+            "-r", featureSampleRatio.toString(),
+            ...(adaBoost ? ["-a"] : []),
+        ]);
+        const outputStream = fs.createWriteStream(output);
+        dtProcess.stdout.pipe(outputStream);
+        dtProcess.stderr.on("data", data => {
+            process.stderr.write(data.toString())
+        });
+        await new Promise(res => dtProcess.on("close", res));
+        const tree = JSON.parse(fs.readFileSync(output).toString());
+        const model = AdaBoost.fromCJSON<K>(tree, file);
+
         await model.write(this.getPredicate());
     }
 }

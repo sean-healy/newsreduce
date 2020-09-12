@@ -191,9 +191,9 @@ export class SubDocs {
             if (pathLengths[i] !== undefined)
                 features.push([hash("path-length"), pathLengths[i]]);
             if (textAndBasepathDifference[i] !== undefined)
-                features.push([hash("text-basepath-diff"), textAndBasepathDifference[i]]);
+                features.push([hash("text-basepath-similarity"), textAndBasepathDifference[i]]);
             if (hostAndBasepathDifference[i] !== undefined)
-                features.push([hash("host-basepath-diff"), hostAndBasepathDifference[i]]);
+                features.push([hash("host-basepath-similarity"), hostAndBasepathDifference[i]]);
             for (const token of tagFeatures[i])
                 features.push([hash(token), 1]);
             data.features[i] = new Map(features);
@@ -204,7 +204,7 @@ export class SubDocs {
         return data;
     }
 
-    static resourceSubDocsToTestData(subDocs: UnlabelledSubDocs, resource: ResourceURL) {
+    static resourceSubDocsToPredictionFeatures(subDocs: UnlabelledSubDocs, resource: ResourceURL) {
         const length = subDocs.length;
         const wordTokens = new Array<string[]>(length);
         const hostTokens = new Array<string>(length);
@@ -257,7 +257,7 @@ export class SubDocs {
             }
             ++i;
         }
-        const data = new Array<[Dictionary<string>, Map<F, number>]>(length);
+        const allFeatures: Map<string, number>[] = [];
         for (let i = 0; i < length; ++i) {
             const [doc, tokens] = subDocs[i]
             const features: Array<[F, number]> = [];
@@ -279,14 +279,14 @@ export class SubDocs {
             if (pathLengths[i] !== undefined)
                 features.push([hash("path-length"), pathLengths[i]]);
             if (textAndBasepathDifference[i] !== undefined)
-                features.push([hash("text-basepath-diff"), textAndBasepathDifference[i]]);
+                features.push([hash("text-basepath-similarity"), textAndBasepathDifference[i]]);
             if (hostAndBasepathDifference[i] !== undefined)
-                features.push([hash("host-basepath-diff"), hostAndBasepathDifference[i]]);
+                features.push([hash("host-basepath-similarity"), hostAndBasepathDifference[i]]);
             for (const token of tagFeatures[i])
                 features.push([hash(token), 1]);
-            data[i] = [doc, new Map(features)];
+            allFeatures.push(new Map(features));
         }
         
-        return data;
+        return allFeatures;
     }
 }

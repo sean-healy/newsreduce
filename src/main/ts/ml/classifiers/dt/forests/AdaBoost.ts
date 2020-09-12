@@ -5,6 +5,17 @@ import { fancyLog } from "utils/alpha";
 import { TrainingData } from "../../../TrainingData";
 import { VersionType } from "types/db-objects/VersionType";
 import { CSVWriter } from "analytics/CSVWriter";
+import { TrainingFile } from "ml/classifiers/TrainingFile";
+
+type LocalID = number;
+type Pivot = number;
+export type CompactCTree = [LocalID, Pivot, number | CompactCTree, number | CompactCTree];
+
+interface CompactJSONEncoding {
+    decisionThreshold: number;
+    weights: number[];
+    trees: CompactCTree[];
+}
 
 export class AdaBoost<K> extends Ensemble<K, ForestTrainingArgs<K>, AdaBoost<K>> {
     fsVersionType() {
@@ -54,5 +65,15 @@ export class AdaBoost<K> extends Ensemble<K, ForestTrainingArgs<K>, AdaBoost<K>>
         }
 
         return adaBoost;
+    }
+
+    static fromCJSON<K>(json: CompactJSONEncoding, file: TrainingFile<K>) {
+        const { decisionThreshold, trees: cTrees, weights } = json;
+        const classifiers = [];
+        for (const cTree of cTrees) {
+            classifiers.push(DecisionTree.fromCJSON(cTree, file));
+        }
+
+        return new AdaBoost<K>({ decisionThreshold, weights, classifiers });
     }
 }

@@ -120,4 +120,7 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
 
         return new DBObjectT()
     }
+    asString() {
+        return JSON.stringify(this);
+    }
 }

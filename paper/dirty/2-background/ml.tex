@@ -12,8 +12,8 @@ is not a new field. The expert systems of the 80s were one
 clear example of XAI. The result of a program could be easily
 explained by examining the logic rules of the program.
 When we speak of XAI, reference is usually being made to the observed
-inability of the artificial neural networks (ANN)
-to {\it explain} their classification decisions. ANNs can display near-human
+inability of an artificial neural network (ANN)
+to {\it explain} its classification decisions. ANNs can display near-human
 performance on certain classification tasks \cite{krizhevsky2012}, but the
 absence of explanations can make debugging impossible, and bias difficult to
 spot. In a system of decision trees, on the other hand, the {\it paper trail}
@@ -64,7 +64,7 @@ Beginning at the root of the tree, a question is asked regarding
 the object.  The answer to this question determines which branch is
 followed next. (Generally, there are two child branches per node.)
 A new question is then asked, and the process continues until a
-{\it leaf} is reached.  Leafs are the nodes with no child branches,
+{\it leaf} is reached.  Leaves are the nodes with no child branches,
 at the bottom of the tree. Each leaf corresponds to a class.  The
 class is then assigned to the object.
 
@@ -114,7 +114,7 @@ class is then assigned to the object.
         ]
     ]
     \caption{
-        An example of an DT people may use to determine
+        An example of a DT people may implicitly use to determine
         if they should go to work each morning.
     }
     \label{dtree}
@@ -166,9 +166,9 @@ to calculate:
 \begin{equation}
     GI(p, C) = 1 - \sum_{c \in C}p(c)
 \end{equation}
-$C$ is a set of categories. $p$ returns a ratio: the items that
+$C$ is a set of categories. $p$ returns the ratio of the items that
 match the category $c$ over the total number of items.  In English,
-Gini impurity is a probability:  If a random item and
+Gini impurity is the probability of the following event.  If a random item and
 a random category are taken at a DT node, what is the probability
 that the category matches the item?  For a node where all items
 have the same category, the probability is 1.  The more categories
@@ -197,9 +197,7 @@ of items involves a vote among all the trees in the forest.  A
 threshold is set according to desired precision and recall scores,
 and above that threshold, the result is a positive match.
 Below the threshold, the result is a negative match (for
-a binary classifier).  A high threshold leads to high precision but
-low recall, and a low threshold leads to higher recall, but lower
-precision.
+a binary classifier).
 
 \subsection{AdaBoost (AB)}
 AdaBoost \cite{schapire1999} also generates decision tree forests,

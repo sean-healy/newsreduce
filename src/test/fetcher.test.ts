@@ -32,7 +32,7 @@ test("fetch and write should work", async () => {
 test("poll and fetch should work", async () => {
     const url = "https://en.wikipedia.org/wiki/COVID-19_pandemic";
     await Redis.renewRedis(REDIS_PARAMS.fetchLock).del(url)
-    await schedule([{ id: new ResourceURL(url).getID(), url }]);
+    await schedule([{ id: new ResourceURL(url).getID(), url, rank: 1 }]);
     const resourceURL = new ResourceURL(url);
     const id = resourceURL.host.getID();
     const lo = id;

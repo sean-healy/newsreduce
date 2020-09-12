@@ -11,6 +11,12 @@ import { CSVWriter } from "analytics/CSVWriter";
 
 type F = string;
 export class ExtractOfficialHomepageModel extends Trainer<F, ForestTrainingArgs<F>> {
+    trees(): number {
+        return 1000;
+    }
+    depth(): number {
+        return 1;
+    }
     csvWriter() {
         return new CSVWriter(
             "/var/newsreduce/graphs/official-homepage-task-depth-3.csv",

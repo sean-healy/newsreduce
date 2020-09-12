@@ -13,7 +13,7 @@ import { ResourceSubDocumentTrain } from "types/db-objects/ResourceSubDocumentTr
 export function getObjectsToInsert() {
     const origin = "https://en.wikipedia.org/wiki/Category:News_media";
     const url = new ResourceURL(origin);
-    const urlThrottle = new ResourceThrottle(origin, 7 * 24 * 60 * 60 * 1000);
+    const urlThrottle = new ResourceThrottle(origin, (2 ** 32) - 1);
     const wikiCategory = new WikiCategory({
         parent: url,
         child: url,

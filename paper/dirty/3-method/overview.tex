@@ -5,8 +5,8 @@ A broad overview of the \nr{} backend is provided in Figure
 usually denote some form of inter-process communication (IPC).  In the
 case of \nr{}, this communication is carried out most of the time via
 Redis queues and another feature within Redis named pubsub.  Pubsub
-is not fault-tolerant, so wherever it's used, the process on
-the receiving end also relies on timed polling of some queue holding
+is not fault-tolerant, so wherever it is used, the process on
+the receiving end also relies on frequent polling of some queue holding
 output from another module.  The modules are small services that
 generally read some information, and then pass derived information to
 other services.  Message queues are used extensively
@@ -44,7 +44,7 @@ actually writes data to CSV files, and uses MySQL
 tables.  This may not be wise when storing critical and inter-connected
 personal data, but for large amounts of corpus data, the
 few resulting inconsistencies are negligible.
-The following parameters were placed in a MySQL server configuration
+The following parameters were placed in a MySQL configuration
 file in order to speed up the DB server\footnote{Parameters obtained
 from various answers on \url{https://stackoverflow.com}}:
 \begin{verbatim}

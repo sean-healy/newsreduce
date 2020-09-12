@@ -1,5 +1,6 @@
 import { GenericConstructor } from "types/GenericConstructor";
 import { DecisionTree } from "./classifiers/dt/trees/DecisionTree";
+import { TrainingFile, Feature as TrainingFeature, TrainingPoint } from "./classifiers/TrainingFile";
 
 export class TrainingData<K> extends GenericConstructor<TrainingData<K>> {
     readonly features: Map<K, number>[];
@@ -81,6 +82,38 @@ export class TrainingData<K> extends GenericConstructor<TrainingData<K>> {
         }
 
         return { trainingData, testData };
+    }
+
+    toFile() {
+        const localFeaturesMap = new Map<K, number>();
+        const featureReverseIndex = new Map<number, K>();
+        let currentLocalFeature = 0;
+        const points: TrainingPoint[] = new Array<TrainingPoint>(this.length);
+        for (let i = 0; i < this.length; ++i) {
+            const features = this.features[i];
+            // Replace 0 with -1.
+            const c = this.labels[i] === 1 ? 1 : -1;
+            const length = features.size;
+            const point = new Array<TrainingFeature>(length);
+            let j = 0;
+            for (const [id, value] of features) {
+                let localID: number;
+                if (localFeaturesMap.has(id)) {
+                    localID = localFeaturesMap.get(id);
+                } else {
+                    localID = currentLocalFeature++;
+                    localFeaturesMap.set(id, localID);
+                }
+                featureReverseIndex.set(localID, id);
+                point[j++] = [localID, value];
+            }
+            points[i] = [c, point];
+        }
+        return new TrainingFile<K>({
+            featureCount: localFeaturesMap.size,
+            points,
+            featureReverseIndex,
+        });
     }
 
     static initWithLength<K>(length: number) {

@@ -9,9 +9,15 @@ import { ResourceFeatureBuilder } from "ml/classifiers/features/ResourceFeatureB
 import { CSVWriter } from "analytics/CSVWriter";
 import { VersionType } from "types/db-objects/VersionType";
 
-const EXPERIMENTAL_FEATURE_VERSION_TYPE = VersionType.DOCUMENT_FEATURES_02;
+const EXPERIMENTAL_FEATURE_VERSION_TYPE = VersionType.DOCUMENT_FEATURES_00;
 
 export class ExtractNewsSourceWikiModel extends Trainer<bigint | string, ForestTrainingArgs<bigint>> {
+    trees(): number {
+        return 500;
+    }
+    depth(): number {
+        return 3;
+    }
     csvWriter() {
         return new CSVWriter(
             "/var/newsreduce/graphs/news-source-wiki-task-vectors-links-only.csv",
@@ -83,7 +89,7 @@ export class ExtractNewsSourceWikiModel extends Trainer<bigint | string, ForestT
         return data;
     }
     trainingDataRatio() {
-        return 0.7;
+        return 0.6;
     }
     getPredicate() {
         return Predicate.RES_IS_NEWS_SOURCE_WIKI;

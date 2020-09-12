@@ -55,7 +55,9 @@ export function buildOnFetch(url: string) {
 
 export async function fetchAndWrite(url: string) {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            timeout: 5000,
+        });
         await buildOnFetch(url)(response);
     } catch (e) {
         fancyLog("Caught error during fetch.");
@@ -88,8 +90,9 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
                         await resource.setFetchLock();
                         const url = resource.toURL();
                         await host.applyThrottle();
+                        fancyLog(`Fetching: ${url}.`);
                         await fetchAndWrite(url);
-                        fancyLog(url);
+                        fancyLog(`Fetched: ${url}.`);
                         fetched.add(url);
                         if (GLOBAL_VARS.safelyExit) break;
                     }

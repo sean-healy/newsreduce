@@ -51,7 +51,7 @@ access seem less valuable now, given the widespread adoption of solid
 state drives, and huge increases in random access memory on today's
 business and commodity servers.  Sequential access still provides
 a performance boost, but in certain areas of the application it may
-be more worthwhile to rely on the filesystem for efficiency.  This was
+be more worthwhile to rely on the filesystem or RDBMS for efficiency.  This was
 the reasoning behind \nr{}'s storage methodology: one file per resource
 version format, and each group of resource versions stored within a
 compressed archive (Section \ref{compress}).
@@ -92,18 +92,21 @@ this dissertation, the problem is set to the side, and only static
 
 The web at the time of writing plays a default role in the dissemination of infromation.
 Information retrieval papers used to regularly cite the growth rate of the
-web \cite{mcbryan1994, page1998}. But today it's hardly worth the
+web \cite{mcbryan1994}. But today it's hardly worth the
 trouble, since the vast majority of news sources and businesses are now on the
-web.  In fact, finding news sources that are limited to an offline
-audience now appears to be the harder task.  This ubiquity
+web, and have been for quite some time.  In fact, finding news sources that are limited to an offline
+audience could now be a more difficult task.  This ubiquity
 is beneficial for corpus construction, as there is a lot more
 data available.  But it is now significantly harder to verify
 sources.  The term {\it fake news} has been in the public consciousness
 and parlance since approximately 2016\footnote{Google
-Trends data observed in August 2020}.  The documented rise of
-fake news has now been studied.  Researchers have even
-tried to solve the problem using various data mining
-techniques \cite{shu2017}.
+Trends data observed in August 2020}.  Its documented rise
+has led machine learning researchers to attempts
+at the problem \cite{shu2017}.  As with the issue of non-HTML
+content, this problem was not a priority while designing \nr{}.
+Although, the system does leverage ranking algorithms strongly,
+which could cause the incidence of fake news to be less
+probable.
 
 All of the problems discussed represent a tricky open-corpus,
 and this background literature was taken into consideration

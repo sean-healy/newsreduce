@@ -40,7 +40,8 @@ export function getEntities(dom: JSDOM) {
         .map(child => new WikiCategory({ parent, child }));
     const subPages = subWikiPageURLs
         .map(url => new WikiPage(url));
-    const throttles = children.map(url => new ResourceThrottle(url, 7 * 24 * 60 * 60 * 1000));
+    const throttles = children.map(url => new ResourceThrottle(
+        url, (2 ** 32) - 1));
 
     return {
         subCategories,

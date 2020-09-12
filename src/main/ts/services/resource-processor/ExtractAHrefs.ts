@@ -13,7 +13,13 @@ import { HTMLProcessor } from "./HTMLProcessor";
 const HASH = "#";
 
 export function getLinks(dom: JSDOM) {
-    const parent = new ResourceURL(dom.window.location.toString());
+    let parent: ResourceURL;
+    try {
+        parent = new ResourceURL(dom.window.location.toString());
+    } catch (e) {
+        fancyLog(e);
+        return;
+    }
     const links: DBObject<ResourceLink | ResourceLinkHash>[] = [];
     for (const anchor of getAnchorsWithHREF(dom)) {
         const parts = anchor.href.split(HASH, 2);

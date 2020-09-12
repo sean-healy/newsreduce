@@ -61,7 +61,10 @@ export abstract class EditDistance<P extends SequenceItem, S extends Sequence<P>
         return distance;
     }
     similarityCoefficient() {
-        return 1 / (this.distance() + 1);
+        const distance = this.distance();
+        const max = Math.max(this.N, this.M);
+
+        return 1 - distance / max;
     }
     toString() {
         const matrixSizeOffset = this.matrix.length - this.N;

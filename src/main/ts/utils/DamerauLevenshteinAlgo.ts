@@ -10,7 +10,7 @@ export class DamerauLevenshteinAlgo<P extends SequenceItem, S extends Sequence<P
         Y: S extends string[] ? (string | S) : S,
         insertionCost = 1,
         deletionCost = 1,
-        substitutionCost = 2,
+        substitutionCost = 1,
     ) {
         super(X, Y, 2, insertionCost, deletionCost, substitutionCost);
         const da = new Map<P, number>();

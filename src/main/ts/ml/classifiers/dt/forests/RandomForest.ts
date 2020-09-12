@@ -35,12 +35,6 @@ export class RandomForest<K> extends Ensemble<K, ForestTrainingArgs<K>, RandomFo
                 ...args,
                 data: sampleWithReplacement,
             });
-            randomForest.threshold = 0.5;
-            while (true) {
-                const { precision, recall } = this.precisionAndRecall(args, randomForest);
-                if (precision <= 0.9) break;
-                else randomForest.threshold -= 0.005;
-            }
             this.printProgress(args, randomForest, i + 1, csvWriter);
         }
 
