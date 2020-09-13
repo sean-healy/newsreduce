@@ -50,7 +50,12 @@ export function buildOnFetch(url: string) {
             log(JSON.stringify(headers));
         }
         await resource.writeVersion(time, VersionType.RAW_HEADERS, headerContent)
-        await Promise.all(objects.map(obj => obj.enqueueInsert({ recursive: true })));
+        try {
+            await Promise.all(objects.map(obj => obj.enqueueInsert({ recursive: true })));
+        } catch (e) {
+            fancyLog("Error while enqueing objects");
+            fancyLog(JSON.stringify(e));
+        }
     };
 }
 
