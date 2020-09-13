@@ -54,7 +54,7 @@ export abstract class DBObject<T extends DBObject<T> = any> extends GenericConst
         const cols = this.insertCols().map(col => `\`${col}\``).join(",");
         const table = `\`${this.table()}\``;
         const query =
-            `LOAD DATA LOCAL INFILE ? ` +
+            `LOAD DATA INFILE ? ` +
             `${this.noReplace() ? "IGNORE" : "REPLACE"} INTO TABLE ${table} ` +
             `${FIELD_TERM} ${ENCLOSE} ${ESCAPE} ${LINE_TERM} (${cols})`;
         await SQL.query(query, [csvFile])
