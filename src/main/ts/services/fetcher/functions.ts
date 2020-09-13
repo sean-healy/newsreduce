@@ -10,6 +10,7 @@ import { VersionType } from "types/db-objects/VersionType";
 import { DBObject } from "types/DBObject";
 import { ResourceBlocked } from "types/db-objects/ResourceBlocked";
 import { GLOBAL_VARS } from "common/processor";
+import { checkin } from "./worker";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
@@ -55,6 +56,7 @@ export function buildOnFetch(url: string) {
 
 export async function fetchAndWrite(url: string) {
     try {
+        checkin[0] = Date.now();
         const response = await fetch(url, {
             timeout: 5000,
         });
@@ -74,12 +76,14 @@ export async function pollAndFetch(lo: () => bigint, hi: () => bigint) {
     let hostnames: string[];
     let fetched = new Set<string>();
     do {
+        checkin[0] = Date.now();
         hostnames = await Redis.renewRedis(REDIS_PARAMS.fetchSchedule).keys();
         const hostIDs = hostnames.map(hostname => new Host({ name: hostname }).getID());
         const throttleList = (await new Host().bulkSelect(hostIDs, ["name", "throttle"]));
         const throttles: { [key: string]: number } = {};
         for (const row of throttleList) throttles[row.name] = Number(row.throttle);
         for (const hostname of hostnames) {
+            checkin[0] = Date.now();
             const host = new Host({ name: hostname, throttle: throttles[hostname] });
             const id = host.getID();
             if (id >= lo() && id < hi()) {
