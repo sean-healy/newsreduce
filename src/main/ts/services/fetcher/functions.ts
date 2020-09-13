@@ -10,7 +10,7 @@ import { VersionType } from "types/db-objects/VersionType";
 import { DBObject } from "types/DBObject";
 import { ResourceBlocked } from "types/db-objects/ResourceBlocked";
 import { GLOBAL_VARS } from "common/processor";
-import { checkin } from "./worker";
+import { checkin, lastProcessing } from "./worker";
 
 export function buildOnFetch(url: string) {
     return async (response: Response) => {
@@ -65,6 +65,7 @@ export async function fetchAndWrite(url: string) {
         const response = await fetch(url, {
             timeout: 5000,
         });
+        lastProcessing[0] = url;
         await buildOnFetch(url)(response);
     } catch (e) {
         fancyLog("Caught error during fetch.");
