@@ -119,3 +119,32 @@ chown $user:$user /var/newsreduce/blobs/word
 chown $user:$user /var/newsreduce/blobs/resource
 chown $user:$user /var/newsreduce/null
 chown $user:$user /var/newsreduce/safety
+
+if [ ! -f /etc/newsreduce.ini ]; then
+echo "[general]
+environment=production
+user=newsreduce
+role=main
+
+[mainNetAgent]
+host=newsreduce.org
+port=9999
+
+[mainRedis]
+host=newsreduce.org
+port=6379
+
+[localRedis]
+host=127.0.0.1
+port=6379
+
+[network]
+hosts[]=127.0.0.1
+
+[database]
+database=newsreduce
+host=newsreduce.org
+password=hnipaSVRYt2w,zKiZXgP
+port=3306
+user=newsreduce" > /etc/newsreduce.ini
+fi
