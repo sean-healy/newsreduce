@@ -24,7 +24,7 @@ interface State {
     version: string;
 }
 
-const api = "http://127.0.0.1:9999"
+const api = "http://newsreduce.org:9999"
 
 const resourcePath = (path: string) => !!path.match(/^[0-9A-F]{24}$/);
 const timePath = (path: string) => !!path.match(/^[0-9A-F]{24}\/[0-9]+$/);

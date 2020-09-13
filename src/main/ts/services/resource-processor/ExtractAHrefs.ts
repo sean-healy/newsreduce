@@ -25,18 +25,22 @@ export function getLinks(dom: JSDOM) {
         const parts = anchor.href.split(HASH, 2);
         const url: string = parts[0];
         const hash: string = parts.length > 1 ? parts[1] : "";
-        const value = new Anchor({ value: anchor.innerHTML });
-        let child: ResourceURL;
-        try {
-            child = new ResourceURL(url);
-        } catch (e) {
-            fancyLog("invalid url: " + url);
-            fancyLog(JSON.stringify(e));
-            continue;
+        let innerHTML = anchor.innerHTML;
+        if (innerHTML.length > 1000) innerHTML = anchor.textContent;
+        if (innerHTML.length < 1000) {
+            const value = new Anchor({ value: innerHTML });
+            let child: ResourceURL;
+            try {
+                child = new ResourceURL(url);
+            } catch (e) {
+                fancyLog("invalid url: " + url);
+                fancyLog(JSON.stringify(e));
+                continue;
+            }
+            const link = new ResourceLink({ parent, child, value });
+            if (hash) links.push(new ResourceLinkHash({ link, hash: new ResourceHash(hash) }));
+            else links.push(link);
         }
-        const link = new ResourceLink({ parent, child, value });
-        if (hash) links.push(new ResourceLinkHash({ link, hash: new ResourceHash(hash) }));
-        else links.push(link);
     }
 
     return links;

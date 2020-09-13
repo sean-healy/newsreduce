@@ -56,7 +56,7 @@ export class GeneralConfig {
 
 export class DatabaseConfig {
     database: string = "newsreduce";
-    host: string = "::ffff:127.0.0.1";
+    host: string = "newsreduce.org";
     password: string;
     port: number = 3306;
     user: string = "newsreduce";
@@ -73,7 +73,7 @@ export class DatabaseConfig {
 }
 
 export class MainRedisConfig {
-    host: string = "::ffff:127.0.0.1";
+    host: string = "newsreduce.org";
     port: number = 6379;
 
     constructor(arg?: any) {
@@ -85,7 +85,7 @@ export class MainRedisConfig {
 }
 
 export class MainNetAgentConfig {
-    host: string = "::ffff:127.0.0.1";
+    host: string = "newsreduce.org";
     port: number = 9999;
 
     constructor(arg?: any) {
@@ -109,7 +109,9 @@ export class LocalRedisConfig {
 }
 
 export class NetworkConfig {
-    hosts: string[] = ["::ffff:127.0.0.1"];
+    hosts: string[] = [
+        "::ffff:127.0.0.1"
+    ];
 
     constructor(arg?: any) {
         if (arg) {
