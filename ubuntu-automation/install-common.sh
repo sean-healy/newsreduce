@@ -46,6 +46,7 @@ mkdir -p /var/newsreduce/blobs/word
 mkdir -p /var/newsreduce/blobs/resource
 mkdir -p /var/newsreduce/null
 mkdir -p /var/newsreduce/.ssh
+chown $user:$user /var/newsreduce/.ssh
 echo 0 > /var/newsreduce/safety
 nodeSrc="https://deb.nodesource.com/setup_14.x"
 checksum=$(echo "$(date -Idate)$nodeSrc" | md5sum | cut -d' ' -f1)
