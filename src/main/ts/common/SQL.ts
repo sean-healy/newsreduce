@@ -27,6 +27,7 @@ export class SQL {
                     log(error.message);
                     log(error.name);
                     log(error.sqlMessage);
+                    fancyLog("SQL connection error");
                     fancyLog(JSON.stringify(error));
                 }
             });

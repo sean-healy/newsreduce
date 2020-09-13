@@ -26,6 +26,7 @@ export class DNS {
         try {
             ip = await fetch(`http://${host}:${port}/ip`).then(response => response.text());
         } catch (e) {
+            fancyLog("DNS error");
             fancyLog(JSON.stringify(e));
             ip = DNS.LOCALHOST;
         }

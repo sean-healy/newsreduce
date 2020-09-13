@@ -325,10 +325,12 @@ export class Redis {
         client.on("error", (error, msg) => {
             if (msg) {
                 log(msg);
+                fancyLog("Redis client error msg!");
                 fancyLog(msg);
             }
             if (error) {
                 log(error);
+                fancyLog("Redis client error!");
                 fancyLog(JSON.stringify(error));
             }
         });
