@@ -22,6 +22,9 @@ export async function exit() {
         clearInterval(interval);
     console.log("Have cleared intervals.");
     process.stdin.destroy();
+    setTimeout(() => {
+        process.exit(1);
+    }, 5000);
 }
 
 async function synchronised(name: string, f: () => Promise<any>, postcondition: string) {
