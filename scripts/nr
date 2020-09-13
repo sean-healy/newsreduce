@@ -1,14 +1,14 @@
 #!/usr/bin/bash
 case $1 in
     f8)
-        tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
-        tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
-        tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
-        tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
-        tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
-        tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
-        tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
-        tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
+        tmux split-window -v "node dist/nr-fetcher-worker.js; zsh -i"
+        tmux split-window -v "node dist/nr-fetcher-worker.js; zsh -i"
+        tmux split-window -v "node dist/nr-fetcher-worker.js; zsh -i"
+        tmux split-window -v "node dist/nr-fetcher-worker.js; zsh -i"
+        tmux split-window -v "node dist/nr-fetcher-worker.js; zsh -i"
+        tmux split-window -v "node dist/nr-fetcher-worker.js; zsh -i"
+        tmux split-window -v "node dist/nr-fetcher-worker.js; zsh -i"
+        tmux split-window -v "node dist/nr-fetcher-worker.js; zsh -i"
         ;;
     f)
         tmux split-window "node dist/nr-fetcher-worker.js; zsh -i"
