@@ -15,6 +15,7 @@ debs=(
     mysql-client-8.0
     tar
     zstd
+    zsh
 )
 cacheDir=/var/newsreduce/cache
 mkdir -p $cacheDir
