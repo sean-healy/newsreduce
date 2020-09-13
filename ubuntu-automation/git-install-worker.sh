@@ -28,6 +28,7 @@ debs=(
     checkinstall
     libssl-dev
     redis
+    zsh
 )
 apt-get update
 apt-get -y install ${debs[*]}
