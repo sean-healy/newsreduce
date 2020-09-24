@@ -6,3 +6,10 @@ coverage
 .Rhistory
 .RData
 .vscode
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
